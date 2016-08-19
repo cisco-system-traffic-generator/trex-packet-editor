@@ -17,9 +17,8 @@ import javafx.scene.layout.GridPane;
 import javax.inject.Inject;
 
 public class BinaryEditorController implements Initializable, Observer {
-    private final String STYLE = "-fx-text-box-border: transparent; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;";
-    private final String SEL_STYLE = "-fx-text-box-border: transparent; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;-fx-background-color:#33adff";
-
+    public static final String BINARY_FIELD_CLASS = "binary-field";
+    public static final String SELECTED_CLASS = "selected";
 
     @FXML private GridPane binaryEditorPane;
     @Inject private IBinaryData binaryData;
@@ -44,7 +43,7 @@ public class BinaryEditorController implements Initializable, Observer {
                 final TextField textField = new TextField();
                 fields[i][j] = textField;
 
-                textField.setStyle(STYLE);
+                textField.getStyleClass().add(BINARY_FIELD_CLASS);
                 final char[] symbols = new char[2];
                 String.format("%02X", (int) binaryData.getByte(idx)).getChars(0, 2, symbols, 0);
                 textField.setText(new String(symbols));
@@ -116,9 +115,10 @@ public class BinaryEditorController implements Initializable, Observer {
                 for (int j = 0; j < fields[i].length; j++) {
                     int idx = i * fields[i].length + j;
                     if ((idx >= binaryData.getSelOffset()) && (idx < binaryData.getSelOffset() + binaryData.getSelLength())) {
-                        fields[i][j].setStyle(SEL_STYLE);
+                        fields[i][j].getStyleClass().remove(SELECTED_CLASS);
+                        fields[i][j].getStyleClass().add(SELECTED_CLASS);
                     } else {
-                        fields[i][j].setStyle(STYLE);
+                        fields[i][j].getStyleClass().remove(SELECTED_CLASS);
                     }
                 }
             }
