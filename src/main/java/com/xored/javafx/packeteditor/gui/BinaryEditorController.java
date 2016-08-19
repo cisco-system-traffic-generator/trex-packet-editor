@@ -57,7 +57,7 @@ public class BinaryEditorController implements Initializable, Observer {
 
         int len = binaryData.getLength();
         final int w = 16;
-        final int h = len/w;
+        final int h = len/w + ((0 < len % w) ? 1 : 0);
 
         texts = new Text[h][];
         lineNums = new Text[h];
@@ -86,7 +86,7 @@ public class BinaryEditorController implements Initializable, Observer {
 
             beGroup.getChildren().addAll(lineNums[i], lineHex[i]);
 
-            for (int j = 0; j < w; j++) {
+            for (int j = 0; j < w &&  (i * w + j < len); j++) {
                 final int f_i = i;
                 final int f_j = j;
                 final int idx = i * w + j;
@@ -208,7 +208,7 @@ public class BinaryEditorController implements Initializable, Observer {
             updating = false;
         }
         if ((o == binaryData) && (BinaryData.OP.SELECTION.equals(arg))) {
-            int offset = binaryData.getSelOffset();
+            int offset = binaryData.getSelOffset() % texts[0].length;
             int length = binaryData.getSelLength();
             int l = binaryData.getSelOffset() / texts[0].length;
 

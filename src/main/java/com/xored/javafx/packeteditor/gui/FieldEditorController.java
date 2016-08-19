@@ -23,20 +23,41 @@ public class FieldEditorController implements Initializable, Observer {
     @Inject
     private IBinaryData binaryData;
 
-    List<Field> fields = Arrays.<Field> asList(
+    List<Field> ethFields = Arrays.<Field> asList(
         new Field("Dst", 0, 6), new Field("Src", 6, 6),
-        new Field("Type", 12, 2), new Field("Data", 14, 2)
+        new Field("Type", 12, 2)
     );
 
-    final TreeItem<Field> root = new TreeItem<>(new Field("Ethernet II", 0, 14));
+    final TreeItem<Field> ethernet = new TreeItem<>(new Field("Ethernet II", 0, 14));
     TreeTableView<Field> treeTableView;
+
+    List<Field> ipv4Fields = Arrays.<Field> asList(
+            new Field("Version/IHL", 14, 1), new Field("Services Fields", 15, 1),
+            new Field("Total Length", 16, 2), new Field("Identification", 18, 2),
+            new Field("Flags/Fragment Offset", 20, 2), new Field("TTL", 22, 1),
+            new Field("Protocol", 23, 1), new Field("Header Checksum", 24, 2),
+            new Field("Source Address", 26, 4), new Field("Destination Address", 30, 4)
+    );
+    final TreeItem<Field> ipv4 = new TreeItem<>(new Field("IPv4", 0, 14));
+
+    final TreeItem<Field> root = new TreeItem<>(new Field("Root", 0, 14));
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         root.setExpanded(true);
-        fields.stream().forEach((field) -> {
-            root.getChildren().add(new TreeItem<>(field));
+
+        ethFields.stream().forEach((field) -> {
+            ethernet.getChildren().add(new TreeItem<>(field));
         });
+        ethernet.setExpanded(true);
+
+        ipv4Fields.stream().forEach((field) -> {
+            ipv4.getChildren().add(new TreeItem<>(field));
+        });
+        ipv4.setExpanded(true);
+
+        root.getChildren().add(ethernet);
+        root.getChildren().add(ipv4);
 
         TreeTableColumn<Field, String> dataColumn = new TreeTableColumn<>(
                 "Field");
@@ -112,6 +133,7 @@ public class FieldEditorController implements Initializable, Observer {
         });
 
         treeTableView.setEditable(true);
+        treeTableView.setShowRoot(false);
 
         fieldEditorPane.getChildren().add(treeTableView);
 
