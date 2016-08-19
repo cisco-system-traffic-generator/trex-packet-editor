@@ -16,6 +16,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import javax.inject.Inject;
@@ -34,13 +35,16 @@ public class BinaryEditorController implements Initializable, Observer {
     private Text[][] texts;
     private Text[] lineNums;
     private Text[] lineHex;
+    private Rectangle backgroundRect = new Rectangle();
     private Rectangle selRect = new Rectangle();
     private Rectangle editingRect = new Rectangle();
 
     double xOffset = 10;
     double yOffset = 20;
-    double numLineLength = 40;
+    double numLineLength = 45;
     double byteLength = 15;
+    double bytePad = 5;
+    double byteWordPad = 15;
 
     int idxEditing = -1;
     int editingStep = 0;
@@ -59,6 +63,11 @@ public class BinaryEditorController implements Initializable, Observer {
         lineNums = new Text[h];
         lineHex = new Text[h];
 
+        backgroundRect.setWidth(600.0);
+        backgroundRect.setHeight(200.0);
+        backgroundRect.setFill(Color.WHITE);
+
+        beGroup.getChildren().add(backgroundRect);
         beGroup.getChildren().add(selRect);
         beGroup.getChildren().add(editingRect);
         for (int i = 0; i < h; i++) {
@@ -68,9 +77,12 @@ public class BinaryEditorController implements Initializable, Observer {
 
             lineNums[i].setTranslateX(xOffset);
             lineNums[i].setTranslateY(yOffset * (i+1));
+            lineNums[i].setFont(Font.font("monospace"));
 
-            lineHex[i].setTranslateX(numLineLength + xOffset + (xOffset + byteLength) * w);
+
+            lineHex[i].setTranslateX(numLineLength + xOffset + w * byteLength + w * bytePad + (w/4 - 1) * byteWordPad + xOffset);
             lineHex[i].setTranslateY(yOffset * (i+1));
+            lineHex[i].setFont(Font.font("monospace"));
 
             beGroup.getChildren().addAll(lineNums[i], lineHex[i]);
 
@@ -85,9 +97,11 @@ public class BinaryEditorController implements Initializable, Observer {
                 text.setText(new String(symbols));
 
 
-                text.setTranslateX(numLineLength + xOffset * (j + 1) + byteLength * j);
+                text.setTranslateX(numLineLength + xOffset + j * bytePad + (j/4) * byteWordPad + byteLength * j);
                 text.setTranslateY(yOffset * (i+1));
                 text.setTranslateZ(100);
+
+                text.setFont(Font.font("monospace"));
 
                 texts[i][j] = text;
 
@@ -120,9 +134,9 @@ public class BinaryEditorController implements Initializable, Observer {
 
                     int b = binaryData.getByte(idxEditing);
                     if (0 == editingStep) {
-                        b &= 0xFFFFF0F;
+                        b &= 0x0FFFF0F;
                     } else {
-                        b &= 0xFFFFFF0;
+                        b &= 0x0FFFFF0;
                     }
                     b |= val << (1 - editingStep) * 4;
                     binaryData.setByte(idxEditing, (byte)b);
@@ -130,12 +144,9 @@ public class BinaryEditorController implements Initializable, Observer {
                     int i = idxEditing / texts[0].length;
                     int j = idxEditing % texts[0].length;
 
-
-
-                    final char[] symbols = new char[2];
                     updating = true;
-                    String.format("%02X", b).getChars(0, 2, symbols, 0);
-                    texts[i][j].setText(new String(symbols));
+                    //String.format("%02X", b).getChars(0, 2, symbols, 0);
+                    texts[i][j].setText( String.format("%02X", (byte)b));
                     lineHex[i].setText(convertHexToString(binaryData.getBytes(i*texts[i].length,  texts[i].length)));
                     updating = false;
 
@@ -153,98 +164,8 @@ public class BinaryEditorController implements Initializable, Observer {
             }
         });
 
-        //convertToHex(binaryData.getBytes(0, binaryData.getLength()));
-
-        /*fields = new TextField[h][];
-        for (int i = 0; i < h; i++) {
-            texts[i] = new TextField[w];
-            for (int j = 0; j < w; j++) {
-                final int f_i = i;
-                final int f_j = j;
-                final int idx = i * len/16 + j;
-                final TextField textField = new TextField();
-                fields[i][j] = textField;
-
-                textField.getStyleClass().add(BINARY_FIELD_CLASS);
-                final char[] symbols = new char[2];
-                String.format("%02X", (int) binaryData.getByte(idx)).getChars(0, 2, symbols, 0);
-                textField.setText(new String(symbols));
-                textField.textProperty().addListener(new ChangeListener<String>() {
-                    @Override
-                    public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                        if (updating) {
-                            return;
-                        }
-                        int caretPosition = textField.getCaretPosition();
-                        if (caretPosition < 2) {
-                            symbols[caretPosition] = newValue.charAt(caretPosition);
-                            String newHexValue = new String(symbols);
-                            textField.setText(newHexValue);
-                            binaryData.setByte(idx, Integer.valueOf(newHexValue, 16).byteValue());
-                            caretPosition++;
-                        }
-                        if (caretPosition >= 2) {
-                            goNext(fields, h, f_i, w, f_j);
-                        } else {
-                            textField.positionCaret(caretPosition);
-                        }
-                    }
-                });
-                binaryEditorPane.add(textField, j, i);
-
-                binaryData.getObservable().addObserver(this);
-            }
-        }*/
-
         binaryData.getObservable().addObserver(this);
     }
-
-
-
-
-    /*private void convertToHex(byte[] rawData) {
-        int splitLine = 16;
-        int counter = 0;
-        StringBuilder myString = new StringBuilder("");
-        int index = 0;
-        binaryEditorPane.getChildren().clear();
-        StringBuilder hexData = new StringBuilder("");
-        StringBuilder indexBuffer = new StringBuilder("");
-        StringBuilder rowHex = new StringBuilder("");
-        StringBuilder convertedHexBuffer = new StringBuilder("");
-        int spacing = 0;
-        for (byte b : rawData) {
-            String formatedByte = String.format("%02X", b);
-            myString.append(formatedByte);
-            rowHex.append(formatedByte).append(" ");
-            spacing++;
-            if (spacing == 4) {
-                spacing = 0;
-                rowHex.append("  ");
-            }
-            counter++;
-
-            if (counter % splitLine == 0) {
-                indexBuffer.append(String.format("%04X", index)).append(':').append('\n');
-                hexData.append(rowHex.toString()).append('\n');
-                convertedHexBuffer.append(convertHexToString(myString.toString())).append('\n');
-                myString.setLength(0);
-                rowHex.setLength(0);
-                index = index + 16;
-            }
-        }
-        if (myString.length() > 0) {
-            indexBuffer.append(String.format("%04X", index)).append(':').append('\n');
-            hexData.append(rowHex.toString()).append('\n');
-            convertedHexBuffer.append(convertHexToString(myString.toString())).append('\n');
-        }
-        binaryEditorPane.add(new Label(indexBuffer.toString()), 0, 0);
-        binaryEditorPane.add(new Label(hexData.toString()), 1, 0);
-        binaryEditorPane.add(new Label(convertedHexBuffer.toString()), 2, 0);
-        rowHex.setLength(0);
-        myString.setLength(0);
-        hexData.setLength(0);
-    }*/
 
     private String convertHexToString(String hex) {
         StringBuilder sb = new StringBuilder();
@@ -280,9 +201,7 @@ public class BinaryEditorController implements Initializable, Observer {
             for (int i = 0; i < texts.length; i++) {
                 for (int j = 0; j < texts[i].length; j++) {
                     int idx = i * texts[i].length + j;
-                    final char[] symbols = new char[2];
-                    String.format("%02X", (int) binaryData.getByte(idx)).getChars(0, 2, symbols, 0);
-                    texts[i][j].setText(new String(symbols));
+                    texts[i][j].setText(String.format("%02X", (byte) binaryData.getByte(idx)));
                 }
                 lineHex[i].setText(convertHexToString(binaryData.getBytes(i*texts[i].length,  texts[i].length)));
             }
@@ -293,15 +212,18 @@ public class BinaryEditorController implements Initializable, Observer {
             int length = binaryData.getSelLength();
             int l = binaryData.getSelOffset() / texts[0].length;
 
-            double x = numLineLength + xOffset * (offset + 1) + byteLength * offset - xOffset/2;
+            double x = numLineLength + xOffset + offset * bytePad + (offset/4) * byteWordPad + byteLength * offset;
+
+            int ie = offset + length - 1;
+            double end = numLineLength + xOffset + ie * bytePad + (ie/4) * byteWordPad + byteLength * ie;
 
             selRect.setTranslateX(x);
-            selRect.setWidth(length * (byteLength + xOffset));
+            selRect.setWidth(end - x + byteLength);
             selRect.setHeight(yOffset);
             selRect.setTranslateY(l * yOffset + 5);
             selRect.setTranslateZ(0);
 
-            selRect.setFill(Color.BLUE);
+            selRect.setFill(Color.AQUAMARINE);
         }
     }
 
@@ -310,10 +232,10 @@ public class BinaryEditorController implements Initializable, Observer {
         int ty = idx / texts[0].length;
         int tx = idx % texts[0].length;
 
-        double x = numLineLength + xOffset * (tx + 1) + byteLength * tx - xOffset/2;
+        double x = numLineLength + xOffset + tx * bytePad + (tx/4) * byteWordPad + byteLength * tx - bytePad/2;
 
         editingRect.setTranslateX(x);
-        editingRect.setWidth(byteLength + xOffset);
+        editingRect.setWidth(byteLength + bytePad);
         editingRect.setHeight(yOffset);
         editingRect.setTranslateY(ty * yOffset + 5);
         editingRect.setTranslateZ(0);
@@ -321,65 +243,4 @@ public class BinaryEditorController implements Initializable, Observer {
         editingRect.setFill(Color.WHITE);
         editingRect.setStroke(Color.BLACK);
     }
-
-    /*
-    private void goNext(TextField[][] fields, int h, int i, int w, int j) {
-        int n_i = i;
-        int n_j = j + 1;
-        if (n_j > w - 1) {
-            n_j = w - 1;
-            if (i + 1 < h) {
-                n_i = i + 1;
-                n_j = 0;
-            }
-        }
-        fields[n_i][n_j].requestFocus();
-    }
-    */
-
-    /*public void setBinaryEditorPane(GridPane binaryEditorPane) {
-        this.binaryEditorPane = binaryEditorPane;
-    }
-
-    public void setBinaryData(IBinaryData binaryData) {
-        this.binaryData = binaryData;
-    }
-
-    @Override
-    public void update(Observable o, Object arg) {
-        if ((o == binaryData) && (BinaryData.OP.SET_BYTES.equals(arg))) {
-            convertToHex(binaryData.getBytes(0, binaryData.getLength()));
-        }
-    }*/
-
-    /*
-    @Override
-    public void update(Observable o, Object arg) {
-        if ((o == binaryData) && (BinaryData.OP.SET_BYTES.equals(arg))) {
-            updating = true;
-            for (int i = 0; i < fields.length; i++) {
-                for (int j = 0; j < fields[i].length; j++) {
-                    int idx = i * fields[i].length + j;
-                    final char[] symbols = new char[2];
-                    String.format("%02X", (int) binaryData.getByte(idx)).getChars(0, 2, symbols, 0);
-                    fields[i][j].setText(new String(symbols));
-                }
-            }
-            updating = false;
-        }
-        if ((o == binaryData) && (BinaryData.OP.SELECTION.equals(arg))) {
-            for (int i = 0; i < fields.length; i++) {
-                for (int j = 0; j < fields[i].length; j++) {
-                    int idx = i * fields[i].length + j;
-                    if ((idx >= binaryData.getSelOffset()) && (idx < binaryData.getSelOffset() + binaryData.getSelLength())) {
-                        fields[i][j].getStyleClass().remove(SELECTED_CLASS);
-                        fields[i][j].getStyleClass().add(SELECTED_CLASS);
-                    } else {
-                        fields[i][j].getStyleClass().remove(SELECTED_CLASS);
-                    }
-                }
-            }
-        }
-    }
-    */
 }

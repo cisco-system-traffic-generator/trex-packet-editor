@@ -13,7 +13,10 @@ public class BinaryData extends Observable implements IBinaryData {
     private int selLength;
 
     public BinaryData() {
-        bytes = new byte[32];
+        bytes = new byte[] {
+                (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF,
+                (byte)0x00, (byte)0x20, (byte)0x18, (byte)0xEB, (byte)0xCA, (byte)0x28,
+                (byte)0x08, (byte)0x00, (byte)0x00, (byte)0x64};
     }
 
     @Override

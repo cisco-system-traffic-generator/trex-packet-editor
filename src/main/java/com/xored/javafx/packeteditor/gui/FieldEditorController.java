@@ -24,11 +24,11 @@ public class FieldEditorController implements Initializable, Observer {
     private IBinaryData binaryData;
 
     List<Field> fields = Arrays.<Field> asList(
-        new Field(0, 2), new Field(2, 2), new Field(4, 4),
-        new Field(8, 2), new Field(10, 4), new Field(14, 2)
+        new Field("Dst", 0, 6), new Field("Src", 6, 6),
+        new Field("Type", 12, 2), new Field("Data", 14, 2)
     );
 
-    final TreeItem<Field> root = new TreeItem<>(new Field(0, 16));
+    final TreeItem<Field> root = new TreeItem<>(new Field("Ethernet II", 0, 14));
     TreeTableView<Field> treeTableView;
 
     @Override
@@ -44,11 +44,10 @@ public class FieldEditorController implements Initializable, Observer {
         dataColumn
                 .setCellValueFactory((
                         TreeTableColumn.CellDataFeatures<Field, String> param) -> new ReadOnlyStringWrapper(
-                        "[" + param.getValue().getValue().getOffset() + ", "
-                                + (param.getValue().getValue().getOffset() + param.getValue().getValue().getLength())+ "]"));
+                            param.getValue().getValue().getName()));
 
         TreeTableColumn<Field, String> valueColumn = new TreeTableColumn<>(
-                "value");
+                "Value");
         valueColumn.setPrefWidth(190);
 
         Callback<TreeTableColumn<Field, String>, TreeTableCell<Field, String>> cellFactory
@@ -58,9 +57,12 @@ public class FieldEditorController implements Initializable, Observer {
         valueColumn
                 .setCellValueFactory(
                     (TreeTableColumn.CellDataFeatures<Field, String> param) -> {
-                    Field field = param.getValue().getValue();
-                    byte[] bytes = binaryData.getBytes(field.getOffset(), field.getLength());
-                    return new SimpleStringProperty(bytesToString(bytes));
+                        Field field = param.getValue().getValue();
+                        if (field.getName().startsWith("Ethernet")) {
+                            return new ReadOnlyStringWrapper("");
+                        }
+                        byte[] bytes = binaryData.getBytes(field.getOffset(), field.getLength());
+                        return new SimpleStringProperty(bytesToString(bytes));
                 });
 
         valueColumn.setOnEditCommit(
@@ -68,7 +70,25 @@ public class FieldEditorController implements Initializable, Observer {
                     Field f = (Field) t.getTreeTableView().getTreeItem(t.getTreeTablePosition().getRow()).getValue();
                     String newValue = t.getNewValue();
                     byte[] bytes;
-                    if (f.getLength() == 4) {
+                    if (f.getLength() == 6) {
+                        try {
+                            ByteBuffer bf = ByteBuffer.allocate(6);
+                            String[] parts = newValue.split(":");
+
+                            bf.put((byte) (Integer.parseInt(parts[0], 16)));
+                            bf.put((byte) (Integer.parseInt(parts[1], 16)));
+                            bf.put((byte) (Integer.parseInt(parts[2], 16)));
+                            bf.put((byte) (Integer.parseInt(parts[3], 16)));
+                            bf.put((byte) (Integer.parseInt(parts[4], 16)));
+                            bf.put((byte) (Integer.parseInt(parts[5], 16)));
+
+                            bytes = bf.array();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return;
+                        }
+                    }
+                    else if (f.getLength() == 4) {
                         bytes = ByteBuffer.allocate(4).putInt(Integer.parseInt(newValue)).array();
                     } else {
                         bytes = ByteBuffer.allocate(2).putShort(Short.parseShort(newValue)).array();
@@ -100,11 +120,15 @@ public class FieldEditorController implements Initializable, Observer {
 
     private String bytesToString(byte[] bytes) {
         int value = 0;
-        for (int i = 0; i < bytes.length; i++) {
-            value |= (int)(bytes[bytes.length - 1 - i ] & 0xFF) << i*8;
-        }
+        if (bytes.length == 6) {
+            return String.format("%02X:%02X:%02X:%02X:%02X:%02X", bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]);
+        } else {
+            for (int i = 0; i < bytes.length; i++) {
+                value |= (int) (bytes[bytes.length - 1 - i] & 0xFF) << i * 8;
+            }
 
-        return String.format("%d", value);
+            return String.format("%d", value);
+        }
     }
 
     public void setFieldEditorPane(StackPane fieldEditorPane) {
