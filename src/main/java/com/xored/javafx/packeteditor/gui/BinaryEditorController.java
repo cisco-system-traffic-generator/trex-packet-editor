@@ -185,6 +185,9 @@ public class BinaryEditorController implements Initializable, Observer {
             for (int i = 0; i < texts.length; i++) {
                 for (int j = 0; j < texts[i].length; j++) {
                     int idx = i * texts[i].length + j;
+                    if (idx >= binaryData.getLength()) {
+                        break;
+                    }
                     texts[i][j].setText(String.format("%02X", (byte) binaryData.getByte(idx)));
                 }
                 lineHex[i].setText(convertHexToString(binaryData.getBytes(i*texts[i].length,  texts[i].length)));

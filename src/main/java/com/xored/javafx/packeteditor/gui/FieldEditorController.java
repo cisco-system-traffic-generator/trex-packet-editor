@@ -24,7 +24,7 @@ public class FieldEditorController implements Initializable, Observer {
     private IBinaryData binaryData;
 
     List<Field> ethFields = Arrays.<Field> asList(
-        new Field("Dst", 0, 6), new Field("Src", 6, 6),
+        new Field("Dst", 0, 6, Field.Type.MAC_ADDRESS), new Field("Src", 6, 6, Field.Type.MAC_ADDRESS),
         new Field("Type", 12, 2)
     );
 
@@ -36,7 +36,8 @@ public class FieldEditorController implements Initializable, Observer {
             new Field("Total Length", 16, 2), new Field("Identification", 18, 2),
             new Field("Flags/Fragment Offset", 20, 2), new Field("TTL", 22, 1),
             new Field("Protocol", 23, 1), new Field("Header Checksum", 24, 2),
-            new Field("Source Address", 26, 4), new Field("Destination Address", 30, 4)
+            new Field("Source Address", 26, 4, Field.Type.IP_ADDRESS),
+            new Field("Destination Address", 30, 4, Field.Type.IP_ADDRESS)
     );
     final TreeItem<Field> ipv4 = new TreeItem<>(new Field("IPv4", 14, 20));
 
@@ -79,42 +80,20 @@ public class FieldEditorController implements Initializable, Observer {
                 .setCellValueFactory(
                     (TreeTableColumn.CellDataFeatures<Field, String> param) -> {
                         Field field = param.getValue().getValue();
-                        if (field.getName().startsWith("Ethernet")) {
+                        if (field.getName().startsWith("Ethernet") || field.getName().startsWith("IPv4")) {
                             return new ReadOnlyStringWrapper("");
                         }
-                        byte[] bytes = binaryData.getBytes(field.getOffset(), field.getLength());
-                        return new SimpleStringProperty(bytesToString(bytes));
+                        return new SimpleStringProperty(getFieldStringValue(field));
                 });
 
         valueColumn.setOnEditCommit(
                 (TreeTableColumn.CellEditEvent<Field, String> t) -> {
                     Field f = (Field) t.getTreeTableView().getTreeItem(t.getTreeTablePosition().getRow()).getValue();
                     String newValue = t.getNewValue();
-                    byte[] bytes;
-                    if (f.getLength() == 6) {
-                        try {
-                            ByteBuffer bf = ByteBuffer.allocate(6);
-                            String[] parts = newValue.split(":");
-
-                            bf.put((byte) (Integer.parseInt(parts[0], 16)));
-                            bf.put((byte) (Integer.parseInt(parts[1], 16)));
-                            bf.put((byte) (Integer.parseInt(parts[2], 16)));
-                            bf.put((byte) (Integer.parseInt(parts[3], 16)));
-                            bf.put((byte) (Integer.parseInt(parts[4], 16)));
-                            bf.put((byte) (Integer.parseInt(parts[5], 16)));
-
-                            bytes = bf.array();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            return;
-                        }
+                    byte[] bytes = parseFieldBytes(f, newValue);
+                    if (bytes.length > 0) {
+                        binaryData.setBytes(f.getOffset(), f.getLength(), bytes);
                     }
-                    else if (f.getLength() == 4) {
-                        bytes = ByteBuffer.allocate(4).putInt(Integer.parseInt(newValue)).array();
-                    } else {
-                        bytes = ByteBuffer.allocate(2).putShort(Short.parseShort(newValue)).array();
-                    }
-                    binaryData.setBytes(f.getOffset(), f.getLength(), bytes);
                 });
 
         treeTableView = new TreeTableView<>(root);
@@ -140,17 +119,65 @@ public class FieldEditorController implements Initializable, Observer {
         binaryData.getObservable().addObserver(this);
     }
 
-    private String bytesToString(byte[] bytes) {
-        int value = 0;
-        if (bytes.length == 6) {
-            return String.format("%02X:%02X:%02X:%02X:%02X:%02X", bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]);
-        } else {
+    private String getFieldStringValue(Field field) {
+        byte[] bytes = binaryData.getBytes(field.getOffset(), field.getLength());
+        String result = "";
+        if (field.getType() == Field.Type.BINARY) {
+            int value = 0;
             for (int i = 0; i < bytes.length; i++) {
                 value |= (int) (bytes[bytes.length - 1 - i] & 0xFF) << i * 8;
             }
 
             return String.format("%d", value);
+        } else if (field.getType() == Field.Type.MAC_ADDRESS) {
+            return String.format("%02X:%02X:%02X:%02X:%02X:%02X", bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]);
+        } else if (field.getType() == Field.Type.IP_ADDRESS) {
+            return String.format("%d.%d.%d.%d", (0x000000FF & (int)bytes[0]), (0x000000FF & (int)bytes[1]), (0x000000FF & (int)bytes[2]), (0x000000FF & (int)bytes[3]));
         }
+        return result;
+    }
+
+    private byte[] parseFieldBytes(Field field, String value) {
+        byte[] bytes = new byte[0];
+        if (field.getType() == Field.Type.BINARY) {
+            if (field.getLength() == 4) {
+                bytes = ByteBuffer.allocate(4).putInt(Integer.parseInt(value)).array();
+            } else {
+                bytes = ByteBuffer.allocate(2).putShort(Short.parseShort(value)).array();
+            }
+        } else if (field.getType() == Field.Type.MAC_ADDRESS) {
+            try {
+                ByteBuffer bf = ByteBuffer.allocate(6);
+                String[] parts = value.split(":");
+
+                bf.put((byte) (Integer.parseInt(parts[0], 16)));
+                bf.put((byte) (Integer.parseInt(parts[1], 16)));
+                bf.put((byte) (Integer.parseInt(parts[2], 16)));
+                bf.put((byte) (Integer.parseInt(parts[3], 16)));
+                bf.put((byte) (Integer.parseInt(parts[4], 16)));
+                bf.put((byte) (Integer.parseInt(parts[5], 16)));
+
+                bytes = bf.array();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (field.getType() == Field.Type.IP_ADDRESS) {
+            try {
+                ByteBuffer bf = ByteBuffer.allocate(4);
+                String[] parts = value.split("\\.");
+
+                bf.put((byte) (Integer.parseInt(parts[0])));
+                bf.put((byte) (Integer.parseInt(parts[1])));
+                bf.put((byte) (Integer.parseInt(parts[2])));
+                bf.put((byte) (Integer.parseInt(parts[3])));
+
+                bytes = bf.array();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return bytes;
     }
 
     public void setFieldEditorPane(StackPane fieldEditorPane) {
