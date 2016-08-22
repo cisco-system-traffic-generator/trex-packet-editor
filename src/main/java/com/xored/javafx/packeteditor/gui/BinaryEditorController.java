@@ -22,11 +22,6 @@ import javafx.scene.text.Text;
 import javax.inject.Inject;
 
 public class BinaryEditorController implements Initializable, Observer {
-    public static final String BINARY_FIELD_CLASS = "binary-field";
-    public static final String SELECTED_CLASS = "selected";
-
-    //@FXML private GridPane binaryEditorPane;
-
     @FXML private Group beGroup;
     @Inject private IBinaryData binaryData;
 
@@ -36,7 +31,7 @@ public class BinaryEditorController implements Initializable, Observer {
     private Text[] lineNums;
     private Text[] lineHex;
     private Rectangle backgroundRect = new Rectangle();
-    private Rectangle selRect = new Rectangle();
+    private Rectangle[] selRect = new Rectangle[3];
     private Rectangle editingRect = new Rectangle();
 
     double xOffset = 10;
@@ -51,10 +46,6 @@ public class BinaryEditorController implements Initializable, Observer {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-        //binaryEditorPane.setStyle("-fx-background-color: #FFFFFF");
-        beGroup.setStyle("-fx-background-color: #FFFFFF");
-
         int len = binaryData.getLength();
         final int w = 16;
         final int h = len/w + ((0 < len % w) ? 1 : 0);
@@ -68,7 +59,14 @@ public class BinaryEditorController implements Initializable, Observer {
         backgroundRect.setFill(Color.WHITE);
 
         beGroup.getChildren().add(backgroundRect);
-        beGroup.getChildren().add(selRect);
+        for (int i = 0; i < selRect.length; i++) {
+            selRect[i] = new Rectangle();
+            selRect[i].setFill(Color.AQUAMARINE);
+            selRect[i].setTranslateZ(0);
+
+            beGroup.getChildren().add(selRect[i]);
+        }
+
         beGroup.getChildren().add(editingRect);
         for (int i = 0; i < h; i++) {
             texts[i] = new Text[w];
@@ -167,20 +165,6 @@ public class BinaryEditorController implements Initializable, Observer {
         binaryData.getObservable().addObserver(this);
     }
 
-    private String convertHexToString(String hex) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < hex.length() - 1; i += 2) {
-            String output = hex.substring(i, i + 2);
-            int decimal = Integer.parseInt(output, 16);
-            if (!Character.isISOControl(decimal)) {
-                sb.append((char) decimal);
-            } else {
-                sb.append('.');
-            }
-        }
-        return sb.toString();
-    }
-
     private String convertHexToString(byte[] hex) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < hex.length; i ++) {
@@ -208,31 +192,73 @@ public class BinaryEditorController implements Initializable, Observer {
             updating = false;
         }
         if ((o == binaryData) && (BinaryData.OP.SELECTION.equals(arg))) {
-            int offset = binaryData.getSelOffset() % texts[0].length;
-            int length = binaryData.getSelLength();
-            int l = binaryData.getSelOffset() / texts[0].length;
+            updateSelection();
+        }
+    }
 
-            double x = numLineLength + xOffset + offset * bytePad + (offset/4) * byteWordPad + byteLength * offset;
+    private void updateSelection() {
+        int startIdx = binaryData.getSelOffset();
+        int endIdx = startIdx + binaryData.getSelLength() - 1;
 
-            int ie = offset + length - 1;
-            double end = numLineLength + xOffset + ie * bytePad + (ie/4) * byteWordPad + byteLength * ie;
+        int startRow = getByteCellRow(startIdx);
+        int endRow = getByteCellRow(endIdx);
 
-            selRect.setTranslateX(x);
-            selRect.setWidth(end - x + byteLength);
-            selRect.setHeight(yOffset);
-            selRect.setTranslateY(l * yOffset + 5);
-            selRect.setTranslateZ(0);
+        int startColumn = getByteCellColumn(startIdx);
+        int endColumn = getByteCellColumn(endIdx);
+        double startX = getByteCellX(startColumn);
+        double endX = getByteCellX(endColumn);
 
-            selRect.setFill(Color.AQUAMARINE);
+        double lineStartX = getByteCellX(0);
+        double lineEndX = getByteCellX(texts[0].length - 1);
+
+        if (startRow == endRow) {
+            selRect[0].setTranslateX(startX);
+            selRect[0].setWidth(endX - startX + byteLength);
+            selRect[0].setHeight(yOffset);
+            selRect[0].setTranslateY(startRow * yOffset + 5);
+
+            for (int i = 1; i < 3; i++) {
+                selRect[i].setWidth(0);
+                selRect[i].setHeight(0);
+            }
+
+        } else if (endRow == startRow + 1) {
+            selRect[0].setTranslateX(startX);
+            selRect[0].setWidth(lineEndX - startX + byteLength);
+            selRect[0].setHeight(yOffset);
+            selRect[0].setTranslateY(startRow * yOffset + 5);
+
+            selRect[1].setTranslateX(lineStartX);
+            selRect[1].setWidth(endX - lineStartX + byteLength);
+            selRect[1].setHeight(yOffset);
+            selRect[1].setTranslateY(endRow * yOffset + 5);
+
+            selRect[2].setWidth(0);
+            selRect[2].setHeight(0);
+        } else {
+            selRect[0].setTranslateX(startX);
+            selRect[0].setWidth(lineEndX - startX + byteLength);
+            selRect[0].setHeight(yOffset);
+            selRect[0].setTranslateY(startRow * yOffset + 5);
+
+            selRect[1].setTranslateX(lineStartX);
+            selRect[1].setWidth(endX - lineStartX + byteLength);
+            selRect[1].setHeight(yOffset);
+            selRect[1].setTranslateY(endRow * yOffset + 5);
+
+            selRect[2].setTranslateX(lineStartX);
+            selRect[2].setWidth(lineEndX - lineStartX + byteLength);
+            selRect[2].setHeight(yOffset * (endRow - startRow - 1));
+            selRect[2].setTranslateY((startRow + 1) * yOffset + 5);
         }
     }
 
     private void startEditing(int idx) {
         idxEditing = idx;
-        int ty = idx / texts[0].length;
-        int tx = idx % texts[0].length;
+        int ty = getByteCellRow(idx);
+        int tx = getByteCellColumn(idx);
 
-        double x = numLineLength + xOffset + tx * bytePad + (tx/4) * byteWordPad + byteLength * tx - bytePad/2;
+        double x = getByteCellX(tx) - bytePad/2;
 
         editingRect.setTranslateX(x);
         editingRect.setWidth(byteLength + bytePad);
@@ -242,5 +268,18 @@ public class BinaryEditorController implements Initializable, Observer {
 
         editingRect.setFill(Color.WHITE);
         editingRect.setStroke(Color.BLACK);
+    }
+
+    private int getByteCellRow(int idx) {
+        return idx / texts[0].length;
+    }
+
+    private int getByteCellColumn(int idx) {
+        return idx % texts[0].length;
+    }
+
+    private double getByteCellX(int idx) {
+        int xi = getByteCellColumn(idx);
+        return numLineLength + xOffset + xi * bytePad + (xi/4) * byteWordPad + byteLength * xi;
     }
 }

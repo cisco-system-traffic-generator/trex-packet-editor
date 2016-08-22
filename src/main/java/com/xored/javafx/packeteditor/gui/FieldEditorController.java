@@ -38,9 +38,9 @@ public class FieldEditorController implements Initializable, Observer {
             new Field("Protocol", 23, 1), new Field("Header Checksum", 24, 2),
             new Field("Source Address", 26, 4), new Field("Destination Address", 30, 4)
     );
-    final TreeItem<Field> ipv4 = new TreeItem<>(new Field("IPv4", 0, 14));
+    final TreeItem<Field> ipv4 = new TreeItem<>(new Field("IPv4", 14, 20));
 
-    final TreeItem<Field> root = new TreeItem<>(new Field("Root", 0, 14));
+    final TreeItem<Field> root = new TreeItem<>(new Field("Root", 0, 34));
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
