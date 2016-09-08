@@ -6,7 +6,7 @@ sourceCompatibility = '1.8'
 if (!hasProperty('mainClass')) {
     ext.mainClass = 'JavaFXBinaryPacketEditor'
 }
-mainClassName='JavaFXBinaryPacketEditor'
+mainClassName='com.xored.javafx.packeteditor.JavaFXBinaryPacketEditor'
 
 
 repositories {
@@ -20,6 +20,6 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'JavaFXBinaryPacketEditor'
+        attributes 'Main-Class': 'com.xored.javafx.packeteditor.JavaFXBinaryPacketEditor'
     }
 }
