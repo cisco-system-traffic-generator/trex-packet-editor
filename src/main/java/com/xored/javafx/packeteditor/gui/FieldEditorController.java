@@ -24,7 +24,8 @@ public class FieldEditorController implements Initializable, Observer {
     private IBinaryData binaryData;
 
     List<Field> ethFields = Arrays.<Field> asList(
-        new Field("Dst", 0, 6, Field.Type.MAC_ADDRESS), new Field("Src", 6, 6, Field.Type.MAC_ADDRESS),
+        new Field("Dst", 0, 6, Field.Type.MAC_ADDRESS),
+        new Field("Src", 6, 6, Field.Type.MAC_ADDRESS),
         new Field("Type", 12, 2)
     );
 
@@ -32,10 +33,14 @@ public class FieldEditorController implements Initializable, Observer {
     TreeTableView<Field> treeTableView;
 
     List<Field> ipv4Fields = Arrays.<Field> asList(
-            new Field("Version/IHL", 14, 1), new Field("Services Fields", 15, 1),
-            new Field("Total Length", 16, 2), new Field("Identification", 18, 2),
-            new Field("Flags/Fragment Offset", 20, 2), new Field("TTL", 22, 1),
-            new Field("Protocol", 23, 1), new Field("Header Checksum", 24, 2),
+            new Field("Version/IHL", 14, 1),
+            new Field("Services Fields", 15, 1),
+            new Field("Total Length", 16, 2),
+            new Field("Identification", 18, 2),
+            new Field("Flags/Fragment Offset", 20, 2),
+            new Field("TTL", 22, 1),
+            new Field("Protocol", 23, 1),
+            new Field("Header Checksum", 24, 2),
             new Field("Source Address", 26, 4, Field.Type.IP_ADDRESS),
             new Field("Destination Address", 30, 4, Field.Type.IP_ADDRESS)
     );
@@ -60,8 +65,7 @@ public class FieldEditorController implements Initializable, Observer {
         root.getChildren().add(ethernet);
         root.getChildren().add(ipv4);
 
-        TreeTableColumn<Field, String> dataColumn = new TreeTableColumn<>(
-                "Field");
+        TreeTableColumn<Field, String> dataColumn = new TreeTableColumn<>("Field");
         dataColumn.setPrefWidth(150);
         dataColumn
                 .setCellValueFactory((
