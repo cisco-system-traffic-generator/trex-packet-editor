@@ -4,7 +4,7 @@ sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 if (!hasProperty('mainClass')) {
-    ext.mainClass = 'JavaFXBinaryPacketEditor'
+    ext.mainClass = 'com.xored.javafx.packeteditor.JavaFXBinaryPacketEditor'
 }
 mainClassName='com.xored.javafx.packeteditor.JavaFXBinaryPacketEditor'
 
@@ -15,7 +15,12 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.10'
-    compile 'com.google.inject:guice:4.0'
+    compile group: 'com.google.inject', name: 'guice', version: '4.0'
+    compile group: 'org.zeromq', name: 'jeromq', version: '0.3.2'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
+    compile group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.21'
+
 }
 
 jar {
