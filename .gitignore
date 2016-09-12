@@ -7,3 +7,5 @@ gradle
 gradlew
 gradlew.bat
 
+logging.properties
+
