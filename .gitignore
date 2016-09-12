@@ -2,3 +2,8 @@
 build/
 JavaFXBinaryPacketEditor.iml
 
+.gradle
+gradle
+gradlew
+gradlew.bat
+
