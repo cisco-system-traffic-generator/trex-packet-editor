@@ -123,5 +123,12 @@ public class ScapyServerClient {
         return resp.result;
     }
 
+    public JsonElement build_pkt(JsonElement params) {
+        JsonArray payload = new JsonArray();
+        payload.add(version_handler);
+        payload.add(params);
+        return request("build_pkt", payload);
+    }
+
 }
 
