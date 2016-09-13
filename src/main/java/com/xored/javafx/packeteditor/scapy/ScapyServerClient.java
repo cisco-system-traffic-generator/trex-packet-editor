@@ -131,7 +131,9 @@ public class ScapyServerClient {
     }
 
     public JsonElement get_tree() {
-        return request("get_tree", null);
+        JsonArray payload = new JsonArray();
+        payload.add(version_handler);
+        return request("get_tree", payload);
     }
 
 }
