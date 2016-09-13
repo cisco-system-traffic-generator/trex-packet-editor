@@ -1,4 +1,4 @@
-package com.xored.javafx.packeteditor.remote;
+package com.xored.javafx.packeteditor.scapy;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -128,6 +128,10 @@ public class ScapyServerClient {
         payload.add(version_handler);
         payload.add(params);
         return request("build_pkt", payload);
+    }
+
+    public JsonElement get_tree() {
+        return request("get_tree", null);
     }
 
 }

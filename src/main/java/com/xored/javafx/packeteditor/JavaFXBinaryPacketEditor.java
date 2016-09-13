@@ -4,10 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.xored.javafx.packeteditor.guice.GuiceModule;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import com.xored.javafx.packeteditor.remote.ScapyServerClient;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
