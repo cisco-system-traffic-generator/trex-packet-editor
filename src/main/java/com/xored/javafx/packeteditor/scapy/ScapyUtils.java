@@ -11,11 +11,12 @@ public class ScapyUtils {
         return res;
     }
 
+    // Ether()/IP()/TCP()
     public static JsonArray tcpIpTemplate() {
         JsonArray payload = new JsonArray();
         payload.add(layer("Ether"));
-        payload.add(layer("TCP"));
         payload.add(layer("IP"));
+        payload.add(layer("TCP"));
         return payload;
     }
 }

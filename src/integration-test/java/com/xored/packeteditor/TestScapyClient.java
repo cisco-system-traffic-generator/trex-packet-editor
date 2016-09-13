@@ -32,7 +32,7 @@ public class TestScapyClient {
     }
 
     @Test
-    public void getVersion() {
+    public void buildPkt() {
         JsonElement res = scapy.build_pkt(tcpIpTemplate());
         assertNotNull(res);
     }
