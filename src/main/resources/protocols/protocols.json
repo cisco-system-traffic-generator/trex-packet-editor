@@ -1,0 +1,174 @@
+[
+  {
+    "id": "Ether",
+    "name": "Ethernet II",
+    "fields": [
+      {
+        "id": "dst",
+        "name": "Destination",
+        "type": "MACField"
+      },
+      {
+        "id": "src",
+        "name": "Source",
+        "type": "MACField"
+      },
+      {
+        "id": "type",
+        "type": "enum",
+        "dict": {
+          "2048": "IPv4",
+          "34525": "IPv6"
+        }
+      }
+    ],
+    "payload": ["Dot1Q", "IP", "IPv6"]
+  },
+  {
+    "id": "IP",
+    "name": "Internet Protocol Version 4",
+    "fields": [
+      {
+        "id": "version",
+        "name": "Version",
+        "type": "enum",
+        "readonly": true,
+        "dict": {
+          "4": "4"
+        }
+      },
+      {
+        "id": "ihl",
+        "name": "Internet Header Length",
+        "type": "number"
+      },
+      {
+        "id": "tos",
+        "name": "Type of service(TODO: expand)",
+        "type": "number"
+      },
+      {
+        "id": "len",
+        "name": "Total Length",
+        "type": "number"
+      },
+      {
+        "id": "id",
+        "name": "Identification",
+        "type": "number"
+      },
+      {
+        "id": "flags",
+        "name": "Flags",
+        "type": "bitmask",
+        "bits": [
+          {"name": "Reserved", "mask": 1},
+          {"name": "Don't Fragment(DF)", "mask": 2},
+          {"name": "More Fragments(MF)", "mask": 4}
+        ]
+      },
+      {
+        "id": "frag",
+        "name": "Fragment offset",
+        "type": "number"
+      },
+      {
+        "id": "ttl",
+        "name": "TTL",
+        "type": "number"
+      },
+      {
+        "id": "proto",
+        "name": "Protocol",
+        "type": "enum",
+        "dict": {
+          "6": "TCP",
+          "17": "UDP"
+        }
+      },
+      {
+        "id": "src",
+        "name": "Source address",
+        "type": "IPv4Address"
+      },
+      {
+        "id": "dst",
+        "name": "Source address",
+        "type": "IPv4Address"
+      },
+      {
+        "id": "options",
+        "name": "Options",
+        "type": "IPOptions"
+      }
+    ],
+    "payload": ["TCP", "UDP"]
+  },
+  {
+    "id": "TCP",
+    "name": "TCP",
+    "fields": [
+      {
+        "id": "sport",
+        "name": "Source port",
+        "type": "number"
+      },
+      {
+        "id": "dport",
+        "name": "Destination port",
+        "type": "number"
+      },
+      {
+        "id": "seq",
+        "name": "Sequence number",
+        "type": "number"
+      },
+      {
+        "id": "ack",
+        "name": "Acknowledgment number",
+        "type": "number"
+      },
+      {
+        "id": "dataofs",
+        "name": "Data offset",
+        "type": "number"
+      },
+      {
+        "id": "reserved",
+        "name": "Reserved",
+        "type": "number"
+      },
+      {
+        "id": "flags",
+        "name": "Flags",
+        "auto": false,
+        "type": "bitmask",
+        "bits": [
+        ]
+      },
+      {
+        "id": "window",
+        "name": "Window size",
+        "type": "number"
+      },
+      {
+        "id": "chksum",
+        "name": "Checksum",
+        "auto": true,
+        "type": "number"
+      },
+      {
+        "id": "urgptr",
+        "name": "Urgent pointer",
+        "type": "number"
+      },
+      {
+        "id": "options",
+        "name": "Options",
+        "type": "IPv4Options"
+      }
+    ],
+    "payload": ["TCP", "UDP"]
+  }
+]
+
