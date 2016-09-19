@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.Field;
 import com.xored.javafx.packeteditor.data.IBinaryData;
+import com.xored.javafx.packeteditor.data.PacketDataController;
 import com.xored.javafx.packeteditor.scapy.ScapyPkt;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -25,46 +26,51 @@ import java.util.*;
 
 public class FieldEditorController implements Initializable, Observer {
     @FXML private StackPane fieldEditorPane;
+
     @Inject
     private IBinaryData binaryData;
 
+    @Inject
+    private PacketDataController packetController;
+
+    @Inject
+    ScapyServerClient scapy;
+
     TreeTableView<Field> treeTableView;
-    ScapyServerClient scapy = new ScapyServerClient();
 
     public TreeItem<Field> buildTree() {
-        scapy.open("tcp://localhost:4507");
+        packetController.init();
+
         ScapyPkt ethernetPkt = scapy.getHttpPkt();
-        JsonElement protocolsMetadata = scapy.get_tree();
 
         List<TreeItem<Field>> treeItems = new ArrayList<>();
         Iterator it = ethernetPkt.getProtocols().iterator();
-        int globalLength = 0;
         while(it.hasNext()) {
             int protocolLength = 0;
             JsonObject protocol = (JsonObject) it.next();
-            String protocolId = protocol.getAsJsonPrimitive("id").getAsString();
+            String protocolId = protocol.get("id").getAsString();
             JsonArray fields = protocol.getAsJsonArray("fields");
             Iterator fieldsIt = fields.iterator();
             List<TreeItem<Field>> fieldItems = new ArrayList<>();
-            Integer protocolOffset = Integer.parseInt(protocol.getAsJsonPrimitive("offset").getAsString());
+            Integer protocolOffset = protocol.get("offset").getAsInt();
             while (fieldsIt.hasNext()) {
                 JsonObject field =(JsonObject) fieldsIt.next();
-                String fieldName = field.getAsJsonPrimitive("name").getAsString();
-                Integer offset = Integer.parseInt(field.getAsJsonPrimitive("offset").getAsString());
-                Integer length = Integer.parseInt(field.getAsJsonPrimitive("length").getAsString());
+                String fieldName = field.get("name").getAsString();
+                Integer offset = field.get("offset").getAsInt();
+                Integer length = field.get("length").getAsInt();
+                String value = field.get("value").getAsString();
                 protocolLength += length;
-                globalLength += length;
-                fieldItems.add(new TreeItem<>(new Field(fieldName, offset, length, protocolOffset)));
+                fieldItems.add(new TreeItem<>(new Field(fieldName, offset, length, protocolOffset, value, Field.Type.STRING)));
             }
             
-            Field protocolField = new Field(protocolId, protocolOffset, protocolLength, 0);
+            Field protocolField = new Field(protocolId, protocolOffset, protocolLength, 0, null, Field.Type.PROTOCOL);
             TreeItem<Field> protocolTreeItem = new TreeItem<>(protocolField);
             protocolTreeItem.setExpanded(true);
             protocolTreeItem.getChildren().addAll(fieldItems);
             treeItems.add(protocolTreeItem);
         }
 
-        final TreeItem<Field> root = new TreeItem<>(new Field("Root", 0, globalLength, 0));
+        final TreeItem<Field> root = new TreeItem<>(new Field("Root", 0, 0, 0, null, Field.Type.NONE));
         root.setExpanded(true);
         root.getChildren().addAll(treeItems);
 
@@ -135,6 +141,7 @@ public class FieldEditorController implements Initializable, Observer {
 
     private String getFieldStringValue(Field field) {
         byte[] bytes = binaryData.getBytes(field.getAbsOffset(), field.getLength());
+        /*
         String result = "";
         if (field.getType() == Field.Type.BINARY) {
             int value = 0;
@@ -149,6 +156,8 @@ public class FieldEditorController implements Initializable, Observer {
             return String.format("%d.%d.%d.%d", (0x000000FF & (int)bytes[0]), (0x000000FF & (int)bytes[1]), (0x000000FF & (int)bytes[2]), (0x000000FF & (int)bytes[3]));
         }
         return result;
+        */
+        return field.getDisplayValue();
     }
 
     private byte[] parseFieldBytes(Field field, String value) {

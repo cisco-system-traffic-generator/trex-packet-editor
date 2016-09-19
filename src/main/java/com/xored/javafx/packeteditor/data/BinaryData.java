@@ -1,5 +1,6 @@
 package com.xored.javafx.packeteditor.data;
 
+import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.scapy.ScapyPkt;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 
@@ -7,19 +8,20 @@ import java.util.Arrays;
 import java.util.Observable;
 
 public class BinaryData extends Observable implements IBinaryData {
+    @Inject ScapyServerClient scapy;
     public enum OP {
         SET_BYTE, SET_BYTES, SELECTION
     }
 
-    private final byte[] bytes;
+    private byte[] bytes;
     private int selOffset;
     private int selLength;
 
-    public BinaryData() {
-        ScapyServerClient scapy = new ScapyServerClient();
-        scapy.open("tcp://localhost:4507");
-        ScapyPkt ethernetPkt = scapy.getHttpPkt();
-        bytes = ethernetPkt.getBinaryData();
+    @Override
+    public void setBytes(byte[] payload) {
+        selOffset = 0;
+        selLength = 0;
+        bytes = payload;
     }
 
     @Override

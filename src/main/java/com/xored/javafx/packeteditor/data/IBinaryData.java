@@ -7,7 +7,10 @@ public interface IBinaryData {
     int getLength();
     void setByte(int idx, byte value);
     byte[] getBytes(int offset, int length);
+
+    void setBytes(byte[] payload);
     void setBytes(int offset, int length, byte[] bytes);
+
     Observable getObservable();
     void setSelected(int offset, int length);
     int getSelOffset();
