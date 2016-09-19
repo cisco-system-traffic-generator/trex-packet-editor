@@ -1,8 +1,12 @@
 package com.xored.javafx.packeteditor.gui;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.Field;
 import com.xored.javafx.packeteditor.data.IBinaryData;
+import com.xored.javafx.packeteditor.scapy.ScapyPkt;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
@@ -19,8 +23,6 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-import static com.xored.javafx.packeteditor.scapy.ScapyUtils.tcpIpTemplate;
-
 public class FieldEditorController implements Initializable, Observer {
     @FXML private StackPane fieldEditorPane;
     @Inject
@@ -30,48 +32,41 @@ public class FieldEditorController implements Initializable, Observer {
     ScapyServerClient scapy = new ScapyServerClient();
 
     public TreeItem<Field> buildTree() {
-        // TODO: build tree
-        //scapy.open("localhost:4507");
-        //scapy.build_pkt(tcpIpTemplate());
-        //scapy.get_tree();
+        scapy.open("tcp://localhost:4507");
+        ScapyPkt ethernetPkt = scapy.getHttpPkt();
+        JsonElement protocolsMetadata = scapy.get_tree();
 
-        List<Field> ethFields = Arrays.<Field> asList(
-                new Field("Dst", 0, 6, Field.Type.MAC_ADDRESS),
-                new Field("Src", 6, 6, Field.Type.MAC_ADDRESS),
-                new Field("Type", 12, 2)
-        );
+        List<TreeItem<Field>> treeItems = new ArrayList<>();
+        Iterator it = ethernetPkt.getProtocols().iterator();
+        int globalLength = 0;
+        while(it.hasNext()) {
+            int protocolLength = 0;
+            JsonObject protocol = (JsonObject) it.next();
+            String protocolId = protocol.getAsJsonPrimitive("id").getAsString();
+            JsonArray fields = protocol.getAsJsonArray("fields");
+            Iterator fieldsIt = fields.iterator();
+            List<TreeItem<Field>> fieldItems = new ArrayList<>();
+            Integer protocolOffset = Integer.parseInt(protocol.getAsJsonPrimitive("offset").getAsString());
+            while (fieldsIt.hasNext()) {
+                JsonObject field =(JsonObject) fieldsIt.next();
+                String fieldName = field.getAsJsonPrimitive("name").getAsString();
+                Integer offset = Integer.parseInt(field.getAsJsonPrimitive("offset").getAsString());
+                Integer length = Integer.parseInt(field.getAsJsonPrimitive("length").getAsString());
+                protocolLength += length;
+                globalLength += length;
+                fieldItems.add(new TreeItem<>(new Field(fieldName, offset, length, protocolOffset)));
+            }
+            
+            Field protocolField = new Field(protocolId, protocolOffset, protocolLength, 0);
+            TreeItem<Field> protocolTreeItem = new TreeItem<>(protocolField);
+            protocolTreeItem.setExpanded(true);
+            protocolTreeItem.getChildren().addAll(fieldItems);
+            treeItems.add(protocolTreeItem);
+        }
 
-        final TreeItem<Field> ethernet = new TreeItem<>(new Field("Ethernet II", 0, 14));
-
-        List<Field> ipv4Fields = Arrays.<Field> asList(
-                new Field("Version/IHL", 14, 1),
-                new Field("Services Fields", 15, 1),
-                new Field("Total Length", 16, 2),
-                new Field("Identification", 18, 2),
-                new Field("Flags/Fragment Offset", 20, 2),
-                new Field("TTL", 22, 1),
-                new Field("Protocol", 23, 1),
-                new Field("Header Checksum", 24, 2),
-                new Field("Source Address", 26, 4, Field.Type.IP_ADDRESS),
-                new Field("Destination Address", 30, 4, Field.Type.IP_ADDRESS)
-        );
-        final TreeItem<Field> ipv4 = new TreeItem<>(new Field("IPv4", 14, 20));
-
-        final TreeItem<Field> root = new TreeItem<>(new Field("Root", 0, 34));
+        final TreeItem<Field> root = new TreeItem<>(new Field("Root", 0, globalLength, 0));
         root.setExpanded(true);
-
-        ethFields.stream().forEach((field) -> {
-            ethernet.getChildren().add(new TreeItem<>(field));
-        });
-        ethernet.setExpanded(true);
-
-        ipv4Fields.stream().forEach((field) -> {
-            ipv4.getChildren().add(new TreeItem<>(field));
-        });
-        ipv4.setExpanded(true);
-
-        root.getChildren().add(ethernet);
-        root.getChildren().add(ipv4);
+        root.getChildren().addAll(treeItems);
 
         return root;
     }
@@ -97,13 +92,13 @@ public class FieldEditorController implements Initializable, Observer {
         valueColumn.setCellFactory(cellFactory);
         valueColumn
                 .setCellValueFactory(
-                    (TreeTableColumn.CellDataFeatures<Field, String> param) -> {
-                        Field field = param.getValue().getValue();
-                        if (field.getName().startsWith("Ethernet") || field.getName().startsWith("IPv4")) {
-                            return new ReadOnlyStringWrapper("");
-                        }
-                        return new SimpleStringProperty(getFieldStringValue(field));
-                });
+                        (TreeTableColumn.CellDataFeatures<Field, String> param) -> {
+                            Field field = param.getValue().getValue();
+                            if (field.getName().startsWith("Ethernet") || field.getName().startsWith("IPv4")) {
+                                return new ReadOnlyStringWrapper("");
+                            }
+                            return new SimpleStringProperty(getFieldStringValue(field));
+                        });
 
         valueColumn.setOnEditCommit(
                 (TreeTableColumn.CellEditEvent<Field, String> t) -> {
@@ -125,7 +120,7 @@ public class FieldEditorController implements Initializable, Observer {
                                 Object newValue) {
 
                 TreeItem<Field> selectedItem = (TreeItem<Field>) newValue;
-                binaryData.setSelected(selectedItem.getValue().getOffset(), selectedItem.getValue().getLength());
+                binaryData.setSelected(selectedItem.getValue().getAbsOffset(), selectedItem.getValue().getLength());
             }
 
         });
@@ -139,7 +134,7 @@ public class FieldEditorController implements Initializable, Observer {
     }
 
     private String getFieldStringValue(Field field) {
-        byte[] bytes = binaryData.getBytes(field.getOffset(), field.getLength());
+        byte[] bytes = binaryData.getBytes(field.getAbsOffset(), field.getLength());
         String result = "";
         if (field.getType() == Field.Type.BINARY) {
             int value = 0;

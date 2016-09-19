@@ -7,12 +7,14 @@ public class Field {
 
     private final String name;
     private final int offset;
+    private final int globalOffset;
     private final int length;
     private final Type type;
 
-    public Field(String name, int offset, int length) {
+    public Field(String name, int offset, int length, int globalOffset) {
         this.name = name;
         this.offset = offset;
+        this.globalOffset = globalOffset;
         this.length = length;
         type = Type.BINARY;
     }
@@ -20,12 +22,17 @@ public class Field {
     public Field(String name, int offset, int length, Type type) {
         this.name = name;
         this.offset = offset;
+        this.globalOffset = 0;
         this.length = length;
         this.type = type;
     }
 
     public int getOffset() {
         return offset;
+    }
+    
+    public int getAbsOffset() {
+        return globalOffset + offset;
     }
 
     public int getLength() {

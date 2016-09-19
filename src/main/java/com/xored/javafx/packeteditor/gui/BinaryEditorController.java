@@ -1,10 +1,5 @@
 package com.xored.javafx.packeteditor.gui;
 
-import java.net.URL;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.ResourceBundle;
-
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.IBinaryData;
 import javafx.event.EventHandler;
@@ -20,6 +15,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import javax.inject.Inject;
+import java.net.URL;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.ResourceBundle;
 
 public class BinaryEditorController implements Initializable, Observer {
     @FXML private Group beGroup;
@@ -201,7 +200,7 @@ public class BinaryEditorController implements Initializable, Observer {
 
     private void updateSelection() {
         int startIdx = binaryData.getSelOffset();
-        int endIdx = startIdx + binaryData.getSelLength() - 1;
+        int endIdx = startIdx + Math.min(0, binaryData.getSelLength() - 1);
 
         int startRow = getByteCellRow(startIdx);
         int endRow = getByteCellRow(endIdx);
