@@ -123,11 +123,25 @@ public class ScapyServerClient {
         return resp.result;
     }
 
-    public JsonElement build_pkt(JsonElement params) {
+    public ScapyPkt build_pkt(JsonElement params) {
         JsonArray payload = new JsonArray();
         payload.add(version_handler);
         payload.add(params);
-        return request("build_pkt", payload);
+        ScapyPkt pkt = new ScapyPkt(request("build_pkt", payload));
+        return pkt;
+    }
+
+    /**
+     * Temporary stub function to get one http packet from scapy server.
+     * required .pcap file on scapy server by following path: /home/trex/http_get_request.pcap
+     * 
+     * @return
+     */
+    public ScapyPkt getHttpPkt() {
+        JsonArray payload = new JsonArray();
+        payload.add(version_handler);
+        ScapyPkt pkt = new ScapyPkt(request("getHttpPkt", payload));
+        return pkt;
     }
 
     public JsonElement get_tree() {
