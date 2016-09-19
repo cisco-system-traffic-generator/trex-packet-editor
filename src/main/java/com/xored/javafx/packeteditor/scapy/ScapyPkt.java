@@ -16,19 +16,11 @@ public class ScapyPkt {
     }
     
     public byte[] getBinaryData() {
-        String binary = getEntry("binary").getAsString();
+        String binary = pkt.get("binary").getAsString();
         return base64Decoder.decode(binary);
     }
     
     public JsonArray getProtocols() {
-        return (JsonArray) getEntry("data");
-    }
-    
-    private JsonElement getEntry(String entryName) {
-        return pkt.entrySet().stream()
-                .filter(entry -> entryName.equals(entry.getKey()))
-                .collect(Collectors.toList())
-                .get(0)
-                .getValue();
+        return (JsonArray)pkt.get("data");
     }
 }

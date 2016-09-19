@@ -1,9 +1,12 @@
 package com.xored.packeteditor;
 
 import com.google.gson.*;
+import com.xored.javafx.packeteditor.scapy.ScapyPkt;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import org.junit.*;
 import org.junit.rules.Timeout;
+import java.util.stream.Collectors;
+
 
 import static com.xored.javafx.packeteditor.scapy.ScapyUtils.tcpIpTemplate;
 import static org.junit.Assert.*;
@@ -33,8 +36,11 @@ public class TestScapyClient {
 
     @Test
     public void buildPkt() {
-        JsonElement res = scapy.build_pkt(tcpIpTemplate());
-        assertNotNull(res);
+        ScapyPkt pkt = scapy.build_pkt(tcpIpTemplate());
+        JsonArray protos = pkt.getProtocols();
+        assertEquals(((JsonObject)protos.get(0)).get("id").getAsString(), "Ether");
+        assertEquals(((JsonObject)protos.get(1)).get("id").getAsString(), "IP");
+        assertEquals(((JsonObject)protos.get(2)).get("id").getAsString(), "TCP");
     }
 
     @Test
