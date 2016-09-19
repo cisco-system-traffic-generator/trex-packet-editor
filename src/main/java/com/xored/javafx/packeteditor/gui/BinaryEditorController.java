@@ -45,6 +45,11 @@ public class BinaryEditorController implements Initializable, Observer {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        reloadAll();
+        binaryData.getObservable().addObserver(this);
+    }
+
+    private void reloadAll() {
         int len = binaryData.getLength();
         final int w = 16;
         final int h = len/w + ((0 < len % w) ? 1 : 0);
@@ -57,6 +62,7 @@ public class BinaryEditorController implements Initializable, Observer {
         backgroundRect.setHeight(200.0);
         backgroundRect.setFill(Color.WHITE);
 
+        beGroup.getChildren().clear();
         beGroup.getChildren().add(backgroundRect);
         for (int i = 0; i < selRect.length; i++) {
             selRect[i] = new Rectangle();
@@ -160,8 +166,6 @@ public class BinaryEditorController implements Initializable, Observer {
                 }
             }
         });
-
-        binaryData.getObservable().addObserver(this);
     }
 
     private String convertHexToString(byte[] hex) {
@@ -195,6 +199,9 @@ public class BinaryEditorController implements Initializable, Observer {
         }
         if ((o == binaryData) && (BinaryData.OP.SELECTION.equals(arg))) {
             updateSelection();
+        }
+        if ((o == binaryData) && (BinaryData.OP.RELOAD.equals(arg))) {
+            reloadAll();
         }
     }
 

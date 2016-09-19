@@ -29,8 +29,8 @@ public class PacketDataController extends Observable {
         pkt = payload;
         byte [] bytes = pkt.getBinaryData();
         setChanged();
-        notifyObservers(null);
         binary.setBytes(bytes);
+        notifyObservers(null);
     }
 
     public JsonArray getProtocols() {

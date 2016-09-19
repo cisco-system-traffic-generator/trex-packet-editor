@@ -14,6 +14,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.util.Callback;
 
 import javax.inject.Inject;
@@ -31,6 +33,7 @@ public class FieldEditorController implements Initializable, Observer {
     private PacketDataController packetController;
 
     TreeTableView<Field> treeTableView;
+    Button loadpcapBtn;
 
     public TreeItem<Field> buildTree() {
         List<TreeItem<Field>> treeItems = new ArrayList<>();
@@ -132,7 +135,24 @@ public class FieldEditorController implements Initializable, Observer {
         treeTableView.setShowRoot(false);
 
         fieldEditorPane.getChildren().clear();
-        fieldEditorPane.getChildren().add(treeTableView);
+        VBox vb = new VBox();
+        loadpcapBtn = new Button("Load pcap");
+        loadpcapBtn.setOnAction(e -> this.loadPcapDlg());
+        vb.getChildren().add(loadpcapBtn);
+        vb.getChildren().add(treeTableView);
+        fieldEditorPane.getChildren().add(vb);
+    }
+
+    private void loadPcapDlg() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Pcap File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Pcap Files", "*.pcap", "*.cap"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"));
+        java.io.File pcapfile = fileChooser.showOpenDialog(fieldEditorPane.getScene().getWindow());
+        if (pcapfile != null) {
+            packetController.loadPcapFile(pcapfile);
+        }
     }
 
     private String getFieldStringValue(Field field) {

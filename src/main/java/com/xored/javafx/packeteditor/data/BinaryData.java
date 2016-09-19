@@ -5,7 +5,7 @@ import java.util.Observable;
 
 public class BinaryData extends Observable implements IBinaryData {
     public enum OP {
-        SET_BYTE, SET_BYTES, SELECTION
+        SET_BYTE, SET_BYTES, SELECTION, RELOAD
     }
 
     private byte[] bytes;
@@ -17,6 +17,8 @@ public class BinaryData extends Observable implements IBinaryData {
         selOffset = 0;
         selLength = 0;
         bytes = payload;
+        setChanged();
+        notifyObservers(OP.RELOAD);
     }
 
     @Override
