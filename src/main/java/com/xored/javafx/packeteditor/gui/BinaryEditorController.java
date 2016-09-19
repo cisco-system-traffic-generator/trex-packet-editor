@@ -200,7 +200,7 @@ public class BinaryEditorController implements Initializable, Observer {
 
     private void updateSelection() {
         int startIdx = binaryData.getSelOffset();
-        int endIdx = startIdx + Math.min(0, binaryData.getSelLength() - 1);
+        int endIdx = startIdx + Math.max(0, binaryData.getSelLength() - 1);
 
         int startRow = getByteCellRow(startIdx);
         int endRow = getByteCellRow(endIdx);
