@@ -1,13 +1,18 @@
 package com.xored.javafx.packeteditor.data;
 
+import com.google.common.io.Files;
 import com.google.gson.JsonArray;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.scapy.ScapyPkt;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.Observable;
 
 public class PacketDataController extends Observable {
+    static Logger log = LoggerFactory.getLogger(PacketDataController.class);
     @Inject ScapyServerClient scapy;
     @Inject IBinaryData binary;
 
@@ -15,7 +20,9 @@ public class PacketDataController extends Observable {
 
     public void init() {
         scapy.open("tcp://localhost:4507");
-        read_pkt(scapy.getHttpPkt());
+        ClassLoader classLoader = getClass().getClassLoader();
+        File example_file = new File(classLoader.getResource("http_get_request.pcap").getFile());
+        loadPcapFile(example_file);
     }
 
     public void read_pkt(ScapyPkt payload) {
@@ -30,4 +37,18 @@ public class PacketDataController extends Observable {
         return pkt.getProtocols();
     }
 
+    public boolean loadPcapFile(String filename) {
+        return loadPcapFile(new File(filename));
+    }
+
+    public boolean loadPcapFile(File file) {
+        try {
+            byte[] bytes = Files.toByteArray(file);
+            read_pkt(scapy.read_pcap_packet(bytes));
+            return true;
+        } catch (Exception e) {
+            log.error("Failed to load pcap - {}", e);
+        }
+        return false;
+    }
 }
