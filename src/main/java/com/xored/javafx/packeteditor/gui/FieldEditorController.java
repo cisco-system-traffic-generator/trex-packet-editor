@@ -1,14 +1,11 @@
 package com.xored.javafx.packeteditor.gui;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.Field;
 import com.xored.javafx.packeteditor.data.IBinaryData;
 import com.xored.javafx.packeteditor.data.PacketDataController;
-import com.xored.javafx.packeteditor.scapy.ScapyPkt;
-import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -33,18 +30,11 @@ public class FieldEditorController implements Initializable, Observer {
     @Inject
     private PacketDataController packetController;
 
-    @Inject
-    ScapyServerClient scapy;
-
     TreeTableView<Field> treeTableView;
 
     public TreeItem<Field> buildTree() {
-        packetController.init();
-
-        ScapyPkt ethernetPkt = scapy.getHttpPkt();
-
         List<TreeItem<Field>> treeItems = new ArrayList<>();
-        Iterator it = ethernetPkt.getProtocols().iterator();
+        Iterator it = packetController.getProtocols().iterator();
         while(it.hasNext()) {
             int protocolLength = 0;
             JsonObject protocol = (JsonObject) it.next();
@@ -79,6 +69,13 @@ public class FieldEditorController implements Initializable, Observer {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        packetController.addObserver(this);
+        packetController.init();
+
+        binaryData.getObservable().addObserver(this);
+    }
+
+    private void rebuildTreeView() {
         final TreeItem<Field> root = buildTree();
 
         TreeTableColumn<Field, String> dataColumn = new TreeTableColumn<>("Field");
@@ -134,9 +131,8 @@ public class FieldEditorController implements Initializable, Observer {
         treeTableView.setEditable(true);
         treeTableView.setShowRoot(false);
 
+        fieldEditorPane.getChildren().clear();
         fieldEditorPane.getChildren().add(treeTableView);
-
-        binaryData.getObservable().addObserver(this);
     }
 
     private String getFieldStringValue(Field field) {
@@ -211,6 +207,8 @@ public class FieldEditorController implements Initializable, Observer {
     public void update(Observable o, Object arg) {
         if ((o == binaryData) && (BinaryData.OP.SET_BYTE.equals(arg))) {
             treeTableView.refresh();
+        } else if (o == packetController) {
+            rebuildTreeView();
         }
     }
 

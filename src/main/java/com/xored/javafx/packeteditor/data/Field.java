@@ -1,10 +1,6 @@
 package com.xored.javafx.packeteditor.data;
 
-public class Field {
-    public enum Type {
-        BINARY, MAC_ADDRESS, IP_ADDRESS, STRING, PROTOCOL, NONE
-    }
-
+public class Field implements IField {
     private String name;
     private int offset;
     private int globalOffset;

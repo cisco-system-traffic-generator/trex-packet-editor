@@ -1,14 +1,9 @@
 package com.xored.javafx.packeteditor.data;
 
-import com.google.inject.Inject;
-import com.xored.javafx.packeteditor.scapy.ScapyPkt;
-import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
-
 import java.util.Arrays;
 import java.util.Observable;
 
 public class BinaryData extends Observable implements IBinaryData {
-    @Inject ScapyServerClient scapy;
     public enum OP {
         SET_BYTE, SET_BYTES, SELECTION
     }
