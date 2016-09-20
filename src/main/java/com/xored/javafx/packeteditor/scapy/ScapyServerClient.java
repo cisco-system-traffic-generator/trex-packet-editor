@@ -1,16 +1,13 @@
 package com.xored.javafx.packeteditor.scapy;
 
+import com.google.gson.*;
 import com.xored.javafx.packeteditor.data.JPacket;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
@@ -19,13 +16,14 @@ import org.zeromq.ZMQ;
 public class ScapyServerClient {
     static Logger log = LoggerFactory.getLogger(ScapyServerClient.class);
 
-    Gson gson;
+    final Base64.Encoder base64Encoder = Base64.getEncoder();
+    final Base64.Decoder base64Decoder = Base64.getDecoder();
+    final Gson gson = new Gson();
+
     ZMQ.Context context;
     ZMQ.Socket session;
     String version_handler;
     int last_id = 0;
-    Base64.Encoder base64Encoder = Base64.getEncoder();
-    Base64.Decoder base64Decoder = Base64.getDecoder();
 
     static class Request {
         final String jsonrpc = "2.0";
@@ -41,37 +39,29 @@ public class ScapyServerClient {
         JsonObject error;
     }
 
-    public boolean open(String url) {
+    public void open(String url) {
         close();
         context = ZMQ.context(1);
         session = context.socket(ZMQ.REQ);
-        try {
-            session.connect(url);
-        } catch (Exception e) {
-            log.error("Failed connect to {} - {}", url, e);
-            close();
-            return false;
-        }
+        session.connect(url);
 
-        gson = new Gson();
-
-        JsonElement r = request("get_version", null);
-        if (r == null || !r.isJsonObject()) {
-            log.error("Failed to get Scapy version");
-            return false;
+        JsonElement result = request("get_version", null);
+        if (result == null) {
+            log.error("get_version returned null");
+            throw new ScapyException("Failed to get Scapy version");
         }
-        log.debug("Scapy version is {}", r.getAsJsonObject().getAsJsonPrimitive("version").getAsString());
+        // version: "1.01"
+        log.info("Scapy version is {}", result.getAsJsonObject().get("version").getAsString());
 
         JsonArray vers = new JsonArray();
         vers.add("1");
         vers.add("01");
-        r = request("get_version_handler", vers);
-        if (r == null || !r.isJsonPrimitive()) {
-            log.error("Failed to get Scapy version handler");
-            return false;
+        result = request("get_version_handler", vers);
+        if (result == null) {
+            log.error("get_version returned null");
+            throw new ScapyException("Failed to get version handler");
         }
-        version_handler = r.getAsString();
-        return true;
+        version_handler = result.getAsString();
     }
 
     public void close() {
@@ -86,47 +76,38 @@ public class ScapyServerClient {
         }
     }
 
+    /** makes request to Scapy server, returns Scapy server result */
     public JsonElement request(String method, JsonElement params) {
         Request reqs = new Request();
         reqs.id = Integer.toString(++last_id);
         reqs.method = method;
         reqs.params = params;
 
-        String s = gson.toJson(reqs);
-        log.debug(" sending: {}", s);
+        String request_json = gson.toJson(reqs);
+        log.debug(" sending: {}", request_json);
 
-        session.send(s.getBytes(), 0);
+        session.send(request_json.getBytes(), 0);
 
-        byte[] b = session.recv(0);
-        if (b == null) {
-            log.debug("? recv null");
-            return null;
+        byte[] response_bytes = session.recv(0);
+        if (response_bytes == null) {
+            log.info("Received null response");
+            throw new NullPointerException();
         }
 
-        String r = new String(b, java.nio.charset.StandardCharsets.UTF_8);
-        log.debug("received: {}", r);
+        String response_json = new String(response_bytes, java.nio.charset.StandardCharsets.UTF_8);
+        log.debug("received: {}", response_json);
 
-        Response resp;
-        try {
-            resp = gson.fromJson(r, Response.class);
-        } catch (Exception e) {
-            log.error("JSON parse failed", e);
-            return null;
-        }
-
-        if (resp == null) {
-            log.error("fromJson returned null");
-            return null;
-        }
+        Response resp = gson.fromJson(response_json, Response.class);
 
         if (!resp.id.equals(reqs.id)) {
             log.error("received id:{}, expected:{}", resp.id, reqs.id);
-            return null;
+            throw new ScapyException("unexpected result id");
         }
 
         if (resp.error != null) {
-            log.error("received error: {}", resp.error.get("message"));
-            return null;
+            String error_msg = resp.error.get("message").getAsString();
+            log.error("received error: {}", error_msg);
+            throw new ScapyException(error_msg);
         }
 
         return resp.result;
@@ -170,17 +151,18 @@ public class ScapyServerClient {
         return request("get_tree", payload);
     }
 
-    public JsonObject reconstruct_pkt (byte[] bytes, JPacket modf) {
+    /** builds packet from bytes, modifies fields */
+    public JsonObject reconstruct_pkt (byte[] bytes, JPacket modify) {
         JsonArray param = new JsonArray();
         param.add(version_handler);
         param.add(Base64.getEncoder().encodeToString(bytes));
-        param.add(packetToJson(modf));
-        JsonElement resp = request("reconstruct_pkt", param);
-        if (resp == null)
-            return null;
-
-        JsonObject o = resp.getAsJsonObject();
-        return o;
+        if (modify != null) {
+            param.add(packetToJson(modify));
+        } else {
+            param.add(JsonNull.INSTANCE);
+        }
+        JsonElement result = request("reconstruct_pkt", param);
+        return result.getAsJsonObject();
     }
 
 

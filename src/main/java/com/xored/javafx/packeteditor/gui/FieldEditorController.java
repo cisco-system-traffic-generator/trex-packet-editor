@@ -18,6 +18,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.net.URL;
@@ -25,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 public class FieldEditorController implements Initializable, Observer {
+    static Logger log = LoggerFactory.getLogger(FieldEditorController.class);
     @FXML private StackPane fieldEditorPane;
 
     @Inject
@@ -152,6 +155,15 @@ public class FieldEditorController implements Initializable, Observer {
         fieldEditorPane.getChildren().add(vb);
     }
 
+    void showError(String title, Exception e) {
+        log.error("{}: {}", title, e);
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setHeaderText(title);
+        alert.initOwner(fieldEditorPane.getScene().getWindow());
+        alert.getDialogPane().setExpandableContent(new ScrollPane(new TextArea(title + ": " + e.getMessage())));
+        alert.showAndWait();
+    }
+
     void loadPcapDlg() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Pcap File");
@@ -160,7 +172,11 @@ public class FieldEditorController implements Initializable, Observer {
                 new FileChooser.ExtensionFilter("All Files", "*.*"));
         java.io.File pcapfile = fileChooser.showOpenDialog(fieldEditorPane.getScene().getWindow());
         if (pcapfile != null) {
-            packetController.loadPcapFile(pcapfile);
+            try {
+                packetController.loadPcapFile(pcapfile);
+            } catch (Exception e) {
+                showError("Failed to load pcap file", e);
+            }
         }
     }
 
@@ -172,7 +188,11 @@ public class FieldEditorController implements Initializable, Observer {
                 new FileChooser.ExtensionFilter("All Files", "*.*"));
         java.io.File pcapfile = fileChooser.showSaveDialog(fieldEditorPane.getScene().getWindow());
         if (pcapfile != null) {
-            packetController.writeToPcapFile(pcapfile);
+            try {
+                packetController.writeToPcapFile(pcapfile);
+            } catch (Exception e) {
+                showError("Failed to save pcap file", e);
+            }
         }
     }
 

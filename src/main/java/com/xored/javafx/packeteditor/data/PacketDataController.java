@@ -22,7 +22,11 @@ public class PacketDataController extends Observable {
         scapy.open("tcp://localhost:4507");
         ClassLoader classLoader = getClass().getClassLoader();
         File example_file = new File(classLoader.getResource("http_get_request.pcap").getFile());
-        loadPcapFile(example_file);
+        try {
+            loadPcapFile(example_file);
+        } catch (Exception e) {
+            log.error("{}", e);
+        }
     }
 
     public void read_pkt(ScapyPkt payload) {
@@ -37,29 +41,17 @@ public class PacketDataController extends Observable {
         return pkt.getProtocols();
     }
 
-    public boolean loadPcapFile(String filename) {
-        return loadPcapFile(new File(filename));
+    public void loadPcapFile(String filename) throws Exception {
+        loadPcapFile(new File(filename));
     }
 
-    public boolean loadPcapFile(File file) {
-        try {
-            byte[] bytes = Files.toByteArray(file);
-            read_pkt(scapy.read_pcap_packet(bytes));
-            return true;
-        } catch (Exception e) {
-            log.error("Failed to load pcap - {}", e);
-        }
-        return false;
+    public void loadPcapFile(File file) throws Exception {
+        byte[] bytes = Files.toByteArray(file);
+        read_pkt(scapy.read_pcap_packet(bytes));
     }
 
-    public boolean writeToPcapFile(File file) {
-        try {
-            byte[] pcap_bin = scapy.write_pcap_packet(pkt.getBinaryData());
-            Files.write(pcap_bin, file);
-            return true;
-        } catch (Exception e) {
-            log.error("Failed to load pcap - {}", e);
-        }
-        return false;
+    public void writeToPcapFile(File file) throws Exception {
+        byte[] pcap_bin = scapy.write_pcap_packet(pkt.getBinaryData());
+        Files.write(pcap_bin, file);
     }
 }

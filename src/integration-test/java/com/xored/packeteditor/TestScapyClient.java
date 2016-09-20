@@ -26,8 +26,7 @@ public class TestScapyClient {
     @Before
     public void init() {
         scapy = new ScapyServerClient();
-        boolean connected = scapy.open(server_url);
-        assertTrue(connected);
+        scapy.open(server_url);
     }
 
     @After
