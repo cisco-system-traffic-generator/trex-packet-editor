@@ -3,9 +3,10 @@ package com.xored.packeteditor;
 import com.google.gson.*;
 import com.xored.javafx.packeteditor.scapy.ScapyPkt;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
+import com.xored.javafx.packeteditor.data.JPacket;
+import java.util.Arrays;
 import org.junit.*;
 import org.junit.rules.Timeout;
-import java.util.stream.Collectors;
 
 
 import static com.xored.javafx.packeteditor.scapy.ScapyUtils.tcpIpTemplate;
@@ -47,5 +48,41 @@ public class TestScapyClient {
     public void getTree() {
         JsonElement res = scapy.get_tree();
         assertNotNull(res);
+    }
+
+    @Test
+    public void rebuildPkt() {
+        JsonArray pros = new JsonArray();
+        JsonObject p = new JsonObject();
+        p.addProperty("id", "Ether");
+        pros.add(p);
+        ScapyPkt spkt0 = scapy.build_pkt(pros);
+        byte[] buffer0 = spkt0.getBinaryData();
+
+        JPacket.Proto proto = new JPacket.Proto("Ether");
+        String src0 = "00:11:22:33:44:55";
+        proto.fields.add(new JPacket.Field("src", src0));
+        JPacket pack = new JPacket(Arrays.asList(proto));
+        
+        JsonElement res1 = scapy.reconstruct_pkt(buffer0, pack);
+        ScapyPkt spkt1 = new ScapyPkt(res1);
+        
+        JsonArray layers1 = spkt1.getProtocols();
+        assertTrue(layers1.size() == 1);
+        JsonObject layer1 = layers1.get(0).getAsJsonObject();
+        assertTrue(layer1.has("fields"));
+        JsonArray fields1 = layer1.getAsJsonArray("fields");
+        for (JsonElement field1 : fields1)
+        {
+            JsonObject obj1 = field1.getAsJsonObject();
+            if (obj1.getAsJsonPrimitive("id").getAsString().equals("src"))
+            {
+                String src1 = obj1.getAsJsonPrimitive("value").getAsString();
+                assertEquals(src1, src0);
+                return;
+            }
+        }
+        
+        assertTrue(false);
     }
 }

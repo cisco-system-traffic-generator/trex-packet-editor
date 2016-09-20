@@ -1,4 +1,4 @@
-package com.xored.javafx.packeteditor;
+package com.xored.packeteditor;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

@@ -1,15 +1,20 @@
 package com.xored.javafx.packeteditor.scapy;
 
+import com.xored.javafx.packeteditor.data.JPacket;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.zeromq.ZMQ;
 
-import java.util.Base64;
 
 public class ScapyServerClient {
     static Logger log = LoggerFactory.getLogger(ScapyServerClient.class);
@@ -165,5 +170,69 @@ public class ScapyServerClient {
         return request("get_tree", payload);
     }
 
+    public byte[] readBytes (File file) {
+        int l = (int)file.length();
+        if (l == 0) {
+            log.error("no file? {}", file);
+            return null;
+        }
+
+        byte[] bytes;
+
+        try (FileInputStream is = new FileInputStream(file)) {
+            bytes = new byte[l];
+            if (is.read(bytes) != l) {
+                log.error("read failed from {}", file);
+                return null;
+            }
+        }
+        catch (Exception e) {
+            log.error("read filed from {}", file, e);
+            return null;
+        }
+
+        return bytes;
+    }
+
+    public JsonObject reconstruct_pkt (byte[] bytes, JPacket modf) {
+        JsonArray param = new JsonArray();
+        param.add(version_handler);
+        param.add(Base64.getEncoder().encodeToString(bytes));
+        param.add(packetToJson(modf));
+        JsonElement resp = request("reconstruct_pkt", param);
+        if (resp == null)
+            return null;
+
+        JsonObject o = resp.getAsJsonObject();
+        return o;
+    }
+
+
+    public JsonElement packetToJson (JPacket pack) {
+        return gson.toJsonTree(pack);
+    }
+
+
+    public JPacket packetFromJson (JsonElement je) {
+        JsonArray ja = je.getAsJsonArray();
+        List<JPacket.Proto> protos = new ArrayList<>(ja.size());
+        for (JsonElement jp : ja) {
+            JsonObject jproto = jp.getAsJsonObject();
+            JPacket.Proto proto = new JPacket.Proto(jproto.getAsJsonPrimitive("id").getAsString());
+
+            for (JsonElement jf : jproto.getAsJsonArray("fields")) {
+                JsonObject jfield = jf.getAsJsonObject();
+                JsonPrimitive jval = jfield.getAsJsonPrimitive("value");
+                Object val = jval.isString() ? jval.getAsString() : jval.getAsInt();
+
+                JPacket.Field field = new JPacket.Field(jfield.getAsJsonPrimitive("id").getAsString(),
+                                                        val);
+                proto.fields.add(field);
+            }
+
+            protos.add(proto);
+        }
+        return new JPacket(protos);
+    }
 }
 
