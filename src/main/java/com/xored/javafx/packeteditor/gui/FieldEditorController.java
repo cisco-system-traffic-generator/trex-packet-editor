@@ -48,12 +48,12 @@ public class FieldEditorController implements Initializable, Observer {
             Integer protocolOffset = protocol.get("offset").getAsInt();
             while (fieldsIt.hasNext()) {
                 JsonObject field =(JsonObject) fieldsIt.next();
-                String fieldName = field.get("name").getAsString();
+                String fieldId = field.get("id").getAsString();
                 Integer offset = field.get("offset").getAsInt();
                 Integer length = field.get("length").getAsInt();
                 String value = field.get("value").getAsString();
                 protocolLength += length;
-                fieldItems.add(new TreeItem<>(new Field(fieldName, offset, length, protocolOffset, value, Field.Type.STRING)));
+                fieldItems.add(new TreeItem<>(new Field(fieldId, offset, length, protocolOffset, value, Field.Type.STRING)));
             }
             
             Field protocolField = new Field(protocolId, protocolOffset, protocolLength, 0, null, Field.Type.PROTOCOL);
