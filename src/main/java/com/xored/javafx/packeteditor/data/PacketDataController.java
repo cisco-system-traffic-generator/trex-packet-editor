@@ -51,4 +51,15 @@ public class PacketDataController extends Observable {
         }
         return false;
     }
+
+    public boolean writeToPcapFile(File file) {
+        try {
+            byte[] pcap_bin = scapy.write_pcap_packet(pkt.getBinaryData());
+            Files.write(pcap_bin, file);
+            return true;
+        } catch (Exception e) {
+            log.error("Failed to load pcap - {}", e);
+        }
+        return false;
+    }
 }

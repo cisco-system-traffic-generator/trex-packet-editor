@@ -13,6 +13,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -33,7 +34,6 @@ public class FieldEditorController implements Initializable, Observer {
     private PacketDataController packetController;
 
     TreeTableView<Field> treeTableView;
-    Button loadpcapBtn;
 
     public TreeItem<Field> buildTree() {
         List<TreeItem<Field>> treeItems = new ArrayList<>();
@@ -135,15 +135,24 @@ public class FieldEditorController implements Initializable, Observer {
         treeTableView.setShowRoot(false);
 
         fieldEditorPane.getChildren().clear();
+
+        // TODO: move to FXML
         VBox vb = new VBox();
-        loadpcapBtn = new Button("Load pcap");
+        HBox buttons = new HBox();
+        Button loadpcapBtn = new Button("Load pcap");
         loadpcapBtn.setOnAction(e -> this.loadPcapDlg());
-        vb.getChildren().add(loadpcapBtn);
+        buttons.getChildren().add(loadpcapBtn);
+
+        Button savePcapBtn = new Button("Save pcap");
+        savePcapBtn.setOnAction(e -> this.savePcapDlg());
+        buttons.getChildren().add(savePcapBtn);
+
+        vb.getChildren().add(buttons);
         vb.getChildren().add(treeTableView);
         fieldEditorPane.getChildren().add(vb);
     }
 
-    private void loadPcapDlg() {
+    void loadPcapDlg() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Pcap File");
         fileChooser.getExtensionFilters().addAll(
@@ -152,6 +161,18 @@ public class FieldEditorController implements Initializable, Observer {
         java.io.File pcapfile = fileChooser.showOpenDialog(fieldEditorPane.getScene().getWindow());
         if (pcapfile != null) {
             packetController.loadPcapFile(pcapfile);
+        }
+    }
+
+    void savePcapDlg() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save to Pcap File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Pcap Files", "*.pcap", "*.cap"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"));
+        java.io.File pcapfile = fileChooser.showSaveDialog(fieldEditorPane.getScene().getWindow());
+        if (pcapfile != null) {
+            packetController.writeToPcapFile(pcapfile);
         }
     }
 

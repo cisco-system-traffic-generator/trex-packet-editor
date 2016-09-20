@@ -20,6 +20,7 @@ public class ScapyServerClient {
     String version_handler;
     int last_id = 0;
     Base64.Encoder base64Encoder = Base64.getEncoder();
+    Base64.Decoder base64Decoder = Base64.getDecoder();
 
     static class Request {
         final String jsonrpc = "2.0";
@@ -126,6 +127,7 @@ public class ScapyServerClient {
         return resp.result;
     }
 
+    /** builds packet from JSON definition using scapy */
     public ScapyPkt build_pkt(JsonElement params) {
         JsonArray payload = new JsonArray();
         payload.add(version_handler);
@@ -134,15 +136,27 @@ public class ScapyServerClient {
         return pkt;
     }
 
-    /* reads first packet from binary pcap file */
-    public ScapyPkt read_pcap_packet(byte[] binary) {
+    /** reads first packet from binary pcap file */
+    public ScapyPkt read_pcap_packet(byte[] pcap_binary) {
         JsonArray payload = new JsonArray();
-        String payload_b64 = base64Encoder.encodeToString(binary);
+        String payload_b64 = base64Encoder.encodeToString(pcap_binary);
         payload.add(version_handler);
         payload.add(payload_b64);
         JsonArray pcap_packets = (JsonArray)request("read_pcap", payload);
-        ScapyPkt pkt = new ScapyPkt(pcap_packets.get(0));
+        ScapyPkt pkt = new ScapyPkt(pcap_packets.get(0)); // get only 1st packet, ignore others
         return pkt;
+    }
+
+    /** write single pcap packet to a file, returns result binary pcap file content */
+    public byte[] write_pcap_packet(byte[] packet_binary) {
+        JsonArray packets = new JsonArray();
+        packets.add(base64Encoder.encodeToString(packet_binary));
+
+        JsonArray payload = new JsonArray();
+        payload.add(version_handler);
+        payload.add(packets);
+        String pcap_base64 = request("write_pcap", payload).getAsString();
+        return base64Decoder.decode(pcap_base64);
     }
 
     public JsonElement get_tree() {
