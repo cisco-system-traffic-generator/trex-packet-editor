@@ -170,30 +170,6 @@ public class ScapyServerClient {
         return request("get_tree", payload);
     }
 
-    public byte[] readBytes (File file) {
-        int l = (int)file.length();
-        if (l == 0) {
-            log.error("no file? {}", file);
-            return null;
-        }
-
-        byte[] bytes;
-
-        try (FileInputStream is = new FileInputStream(file)) {
-            bytes = new byte[l];
-            if (is.read(bytes) != l) {
-                log.error("read failed from {}", file);
-                return null;
-            }
-        }
-        catch (Exception e) {
-            log.error("read filed from {}", file, e);
-            return null;
-        }
-
-        return bytes;
-    }
-
     public JsonObject reconstruct_pkt (byte[] bytes, JPacket modf) {
         JsonArray param = new JsonArray();
         param.add(version_handler);
