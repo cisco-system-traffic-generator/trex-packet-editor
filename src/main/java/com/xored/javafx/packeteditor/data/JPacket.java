@@ -6,32 +6,32 @@ import java.util.List;
 
 public class JPacket extends ArrayList<JPacket.Proto> {
 
-    public JPacket (List<JPacket.Proto> list)       {super(list);}
-
-    static String listToString (List list) {
-        StringBuilder sb = new StringBuilder();
-        sb.append('[');
-        for (Object e : list) {
-            if (sb.length() > 1)
-                sb.append(',');
-            sb.append(e.toString());
-        }
-        sb.append(']');
-        return sb.toString();
+    public JPacket (List<JPacket.Proto> list) {
+        super(list);
     }
 
-
+    
     public static class Proto {
-        final String id;
+        public final String id;
+        public int offset;
         public List<Field> fields;
 
         public Proto (String i)                     {id = i; fields = new ArrayList<>();}
         public Proto (String i, List<Field> list)   {id = i; fields = list;}
+        
+        public Field getField (String id) {
+            for (Field f : fields)
+                if (f.id.equals(id))
+                    return f;
+            return null;
+        }
     }
 
 
     public static class Field {
-        final String id;
+        public final String id;
+        public int offset,
+                   length;
         public Object value;
 
         public Field (String i, Object  v)          {id = i; value = v;}

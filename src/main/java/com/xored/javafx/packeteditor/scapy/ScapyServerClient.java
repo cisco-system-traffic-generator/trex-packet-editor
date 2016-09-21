@@ -171,20 +171,23 @@ public class ScapyServerClient {
     }
 
 
-    public JPacket packetFromJson (JsonElement je) {
-        JsonArray ja = je.getAsJsonArray();
-        List<JPacket.Proto> protos = new ArrayList<>(ja.size());
-        for (JsonElement jp : ja) {
-            JsonObject jproto = jp.getAsJsonObject();
-            JPacket.Proto proto = new JPacket.Proto(jproto.getAsJsonPrimitive("id").getAsString());
+    public JPacket packetFromJson (JsonElement npack) {
+        JsonArray na = npack.getAsJsonArray();
+        List<JPacket.Proto> protos = new ArrayList<>(na.size());
+        for (JsonElement np : na) {
+            JsonObject nproto = np.getAsJsonObject();
+            JPacket.Proto proto = new JPacket.Proto(nproto.getAsJsonPrimitive("id").getAsString());
+            proto.offset = nproto.getAsJsonPrimitive("offset").getAsInt();
 
-            for (JsonElement jf : jproto.getAsJsonArray("fields")) {
-                JsonObject jfield = jf.getAsJsonObject();
-                JsonPrimitive jval = jfield.getAsJsonPrimitive("value");
-                Object val = jval.isString() ? jval.getAsString() : jval.getAsInt();
+            for (JsonElement nf : nproto.getAsJsonArray("fields")) {
+                JsonObject nfield = nf.getAsJsonObject();
+                JsonPrimitive nvalue = nfield.getAsJsonPrimitive("value");
+                Object value = nvalue.isString() ? nvalue.getAsString() : nvalue.getAsInt();
 
-                JPacket.Field field = new JPacket.Field(jfield.getAsJsonPrimitive("id").getAsString(),
-                                                        val);
+                JPacket.Field field = new JPacket.Field(nfield.getAsJsonPrimitive("id").getAsString(),
+                                                        value);
+                field.offset = nfield.getAsJsonPrimitive("offset").getAsInt();
+                field.length = nfield.getAsJsonPrimitive("length").getAsInt();
                 proto.fields.add(field);
             }
 
