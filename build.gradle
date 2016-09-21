@@ -19,9 +19,18 @@ sourceSets {
         runtimeClasspath = output + sourceSets.main.output + configurations.testRuntime
 
         java {
-            srcDir 'src/integration-test/java'
+            srcDirs = ['src/integration-test/java']
         }
     }
+    uiTest {
+        compileClasspath = sourceSets.main.output + configurations.testRuntime
+        runtimeClasspath = output + sourceSets.main.output + configurations.testRuntime
+
+        java {
+            srcDirs = ['src/ui-test/java']
+        }
+    }
+
 }
 
 test {
@@ -39,9 +48,21 @@ task intTest(type: Test) {
     }
 }
 
+task uiTest(type: Test) {
+    testClassesDir = sourceSets.uiTest.output.classesDir
+    classpath = sourceSets.uiTest.runtimeClasspath
+
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile "org.testfx:testfx-core:4.0.+"
+    testCompile "org.testfx:testfx-junit:4.0.+"
+
     compile group: 'com.google.inject', name: 'guice', version: '4.0'
     compile group: 'org.zeromq', name: 'jeromq', version: '0.3.2'
     compile group: 'com.google.code.gson', name: 'gson', version: '2.7'

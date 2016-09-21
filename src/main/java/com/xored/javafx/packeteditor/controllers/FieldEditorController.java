@@ -143,10 +143,12 @@ public class FieldEditorController implements Initializable, Observer {
         VBox vb = new VBox();
         HBox buttons = new HBox();
         Button loadpcapBtn = new Button("Load pcap");
+        loadpcapBtn.setId("loadpcapBtn");
         loadpcapBtn.setOnAction(e -> this.loadPcapDlg());
         buttons.getChildren().add(loadpcapBtn);
 
         Button savePcapBtn = new Button("Save pcap");
+        savePcapBtn.setId("savepcapBtn");
         savePcapBtn.setOnAction(e -> this.savePcapDlg());
         buttons.getChildren().add(savePcapBtn);
 
