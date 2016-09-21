@@ -9,3 +9,32 @@
 .binary-field.selected {
     -fx-background-color: #33adff;
 }
+
+.protocol-row {
+    -fx-background-color: darkgrey;
+    -fx-pref-height: 30px;
+    -fx-padding: 8 0 7 0px;
+}
+.field-row {
+    -fx-background-color: lightgray;
+    -fx-pref-height: 30px;
+    -fx-padding: 8 0 7 40px;
+}
+
+.protocol-name {
+    -fx-fill: #000000;
+    -fx-font-style: oblique;
+    -fx-font-size: 14px;
+}
+
+.title-pane {
+    -fx-fit-to-height: true;
+}
+
+.field-row.value-pane {
+    -fx-fit-to-height: true;
+}
+
+.editable-label:editable {
+    -fx-background-color: #33adff;
+}
