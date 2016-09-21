@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <VBox id="stackPane" prefHeight="1384.0" prefWidth="950.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <fx:include source="FieldEditor.fxml" />
-        <fx:include source="BinaryEditor.fxml" />
+      <SplitPane dividerPositions="0.5" orientation="VERTICAL">
+        <items>
+              <fx:include source="FieldEditor.fxml" />
+              <fx:include source="BinaryEditor.fxml" />
+        </items>
+      </SplitPane>
     </children>
 </VBox>

@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
+<?import java.lang.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.Group?>
-<Group fx:id="beGroup" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.xored.javafx.packeteditor.controllers.BinaryEditorController">
-</Group>
+
+<ScrollPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.xored.javafx.packeteditor.controllers.BinaryEditorController">
+   <content>
+      <Group fx:id="beGroup"/>
+   </content>
+</ScrollPane>
