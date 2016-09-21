@@ -2,6 +2,8 @@ package com.xored.javafx.packeteditor.data;
 
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 
+import java.util.List;
+
 public class Field implements IField {
     private FieldMetadata meta;
     private int offset;
@@ -36,6 +38,8 @@ public class Field implements IField {
         return length;
     }
 
+    public String getId() { return meta.getId(); }
+
     public String getName() {
         return meta.getName();
     }
@@ -45,4 +49,10 @@ public class Field implements IField {
     public Type getType() {
         return meta.getType();
     }
+
+    public void setStringValue(String value) { }
+
+    public void setPath(List<String> currentPath) { }
+
+    public List<String> getPath() { return null; }
 }

@@ -14,7 +14,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
@@ -28,7 +28,7 @@ import java.util.*;
 
 public class FieldEditorController implements Initializable, Observer {
     static Logger log = LoggerFactory.getLogger(FieldEditorController.class);
-    @FXML private StackPane fieldEditorPane;
+    @FXML private VBox fieldEditorBox;
 
     @Inject
     private IBinaryData binaryData;
@@ -40,11 +40,17 @@ public class FieldEditorController implements Initializable, Observer {
 
     public TreeItem<OldField> buildTree() {
         List<TreeItem<OldField>> treeItems = new ArrayList<>();
+        List<String> currentPath = new ArrayList<>();
+
         Iterator it = packetController.getProtocols().iterator();
         while(it.hasNext()) {
             int protocolLength = 0;
             JsonObject protocol = (JsonObject) it.next();
             String protocolId = protocol.get("id").getAsString();
+
+            currentPath = new ArrayList<>(currentPath);
+            currentPath.add(protocolId);
+
             JsonArray fields = protocol.getAsJsonArray("fields");
             Iterator fieldsIt = fields.iterator();
             List<TreeItem<OldField>> fieldItems = new ArrayList<>();
@@ -56,7 +62,12 @@ public class FieldEditorController implements Initializable, Observer {
                 Integer length = field.get("length").getAsInt();
                 String value = field.get("value").getAsString();
                 protocolLength += length;
-                fieldItems.add(new TreeItem<>(new OldField(fieldId, offset, length, protocolOffset, value, OldField.Type.STRING)));
+
+                OldField fieldObj = new OldField(fieldId, offset, length, protocolOffset, value, OldField.Type.STRING);
+                fieldObj.setPath(currentPath);
+                fieldObj.setOnSetValue( newValue -> packetController.modifyPacketField(fieldObj, newValue) );
+
+                fieldItems.add(new TreeItem<>(fieldObj));
             }
             
             OldField protocolOldField = new OldField(protocolId, protocolOffset, protocolLength, 0, null, OldField.Type.PROTOCOL);
@@ -106,17 +117,14 @@ public class FieldEditorController implements Initializable, Observer {
                             if (oldField.getName().startsWith("Ethernet") || oldField.getName().startsWith("IPv4")) {
                                 return new ReadOnlyStringWrapper("");
                             }
-                            return new SimpleStringProperty(getFieldStringValue(oldField));
+                            return new SimpleStringProperty(oldField.getDisplayValue());
                         });
 
         valueColumn.setOnEditCommit(
                 (TreeTableColumn.CellEditEvent<OldField, String> t) -> {
                     OldField f = (OldField) t.getTreeTableView().getTreeItem(t.getTreeTablePosition().getRow()).getValue();
                     String newValue = t.getNewValue();
-                    byte[] bytes = parseFieldBytes(f, newValue);
-                    if (bytes.length > 0) {
-                        binaryData.setBytes(f.getOffset(), f.getLength(), bytes);
-                    }
+                    f.setStringValue(newValue);
                 });
 
         treeTableView = new TreeTableView<>(root);
@@ -137,10 +145,9 @@ public class FieldEditorController implements Initializable, Observer {
         treeTableView.setEditable(true);
         treeTableView.setShowRoot(false);
 
-        fieldEditorPane.getChildren().clear();
+        fieldEditorBox.getChildren().clear();
 
         // TODO: move to FXML
-        VBox vb = new VBox();
         HBox buttons = new HBox();
         Button loadpcapBtn = new Button("Load pcap");
         loadpcapBtn.setId("loadpcapBtn");
@@ -152,16 +159,16 @@ public class FieldEditorController implements Initializable, Observer {
         savePcapBtn.setOnAction(e -> this.savePcapDlg());
         buttons.getChildren().add(savePcapBtn);
 
-        vb.getChildren().add(buttons);
-        vb.getChildren().add(treeTableView);
-        fieldEditorPane.getChildren().add(vb);
+        fieldEditorBox.getChildren().add(buttons);
+        fieldEditorBox.getChildren().add(treeTableView);
+        fieldEditorBox.setVgrow(treeTableView, Priority.ALWAYS);
     }
 
     void showError(String title, Exception e) {
         log.error("{}: {}", title, e);
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText(title);
-        alert.initOwner(fieldEditorPane.getScene().getWindow());
+        alert.initOwner(fieldEditorBox.getScene().getWindow());
         alert.getDialogPane().setExpandableContent(new ScrollPane(new TextArea(title + ": " + e.getMessage())));
         alert.showAndWait();
     }
@@ -172,7 +179,7 @@ public class FieldEditorController implements Initializable, Observer {
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Pcap Files", "*.pcap", "*.cap"),
                 new FileChooser.ExtensionFilter("All Files", "*.*"));
-        java.io.File pcapfile = fileChooser.showOpenDialog(fieldEditorPane.getScene().getWindow());
+        java.io.File pcapfile = fileChooser.showOpenDialog(fieldEditorBox.getScene().getWindow());
         if (pcapfile != null) {
             try {
                 packetController.loadPcapFile(pcapfile);
@@ -188,7 +195,7 @@ public class FieldEditorController implements Initializable, Observer {
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Pcap Files", "*.pcap", "*.cap"),
                 new FileChooser.ExtensionFilter("All Files", "*.*"));
-        java.io.File pcapfile = fileChooser.showSaveDialog(fieldEditorPane.getScene().getWindow());
+        java.io.File pcapfile = fileChooser.showSaveDialog(fieldEditorBox.getScene().getWindow());
         if (pcapfile != null) {
             try {
                 packetController.writeToPcapFile(pcapfile);
@@ -198,9 +205,9 @@ public class FieldEditorController implements Initializable, Observer {
         }
     }
 
+    /*
     private String getFieldStringValue(OldField oldField) {
         byte[] bytes = binaryData.getBytes(oldField.getAbsOffset(), oldField.getLength());
-        /*
         String result = "";
         if (oldField.getType() == OldField.Type.BINARY) {
             int value = 0;
@@ -215,7 +222,6 @@ public class FieldEditorController implements Initializable, Observer {
             return String.format("%d.%d.%d.%d", (0x000000FF & (int)bytes[0]), (0x000000FF & (int)bytes[1]), (0x000000FF & (int)bytes[2]), (0x000000FF & (int)bytes[3]));
         }
         return result;
-        */
         return oldField.getDisplayValue();
     }
 
@@ -261,10 +267,7 @@ public class FieldEditorController implements Initializable, Observer {
 
         return bytes;
     }
-
-    public void setFieldEditorPane(StackPane fieldEditorPane) {
-        this.fieldEditorPane = fieldEditorPane;
-    }
+    */
 
     @Override
     public void update(Observable o, Object arg) {

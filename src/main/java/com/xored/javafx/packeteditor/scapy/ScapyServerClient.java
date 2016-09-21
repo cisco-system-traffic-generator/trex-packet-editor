@@ -152,23 +152,21 @@ public class ScapyServerClient {
     }
 
     /** builds packet from bytes, modifies fields */
-    public JsonObject reconstruct_pkt (byte[] bytes, JPacket modify) {
+    public JsonObject reconstruct_pkt (byte[] packet_binary, JPacket modify) {
+        return reconstruct_pkt(packet_binary, packetToJson(modify));
+    }
+
+    /** builds packet from bytes, modifies fields */
+    public JsonObject reconstruct_pkt (byte[] packet_binary, JsonArray modify) {
         JsonArray param = new JsonArray();
         param.add(version_handler);
-        param.add(Base64.getEncoder().encodeToString(bytes));
-        if (modify != null) {
-            param.add(packetToJson(modify));
-        } else {
-            param.add(JsonNull.INSTANCE);
-        }
+        param.add(Base64.getEncoder().encodeToString(packet_binary));
+        param.add(modify);
         JsonElement result = request("reconstruct_pkt", param);
         return result.getAsJsonObject();
     }
 
-
-    public JsonElement packetToJson (JPacket pack) {
-        return gson.toJsonTree(pack);
-    }
+    public JsonArray packetToJson (JPacket pack) { return gson.toJsonTree(pack).getAsJsonArray(); }
 
 
     public JPacket packetFromJson (JsonElement npack) {

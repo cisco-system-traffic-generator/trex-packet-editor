@@ -34,6 +34,6 @@ public class JPacket extends ArrayList<JPacket.Proto> {
                    length;
         public Object value;
 
-        public Field (String i, Object  v)          {id = i; value = v;}
+        public Field (String fieldId, Object value) {id = fieldId; this.value = value;}
     }
 }

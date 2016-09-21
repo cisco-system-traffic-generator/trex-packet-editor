@@ -23,8 +23,7 @@ public class TestPacketEditorUI extends ApplicationTest {
     @Test
     public void should_have_load_pcap_button() {
         clickOn("Old");
-        verifyThat("#fieldEditorPane", hasChild("#loadpcapBtn"));
-        verifyThat("#fieldEditorPane", hasChild("#savepcapBtn"));
+        verifyThat("#fieldEditorBox", hasChild("#savepcapBtn"));
         clickOn("#loadpcapBtn");
         press(ESCAPE);
     }
@@ -32,7 +31,7 @@ public class TestPacketEditorUI extends ApplicationTest {
     @Test
     public void should_have_save_pcap_button() {
         clickOn("Old");
-        verifyThat("#fieldEditorPane", hasChild("Save pcap"));
+        verifyThat("#fieldEditorBox", hasChild("Save pcap"));
         clickOn("Save pcap");
         press(ESCAPE);
     }

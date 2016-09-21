@@ -96,7 +96,7 @@ public class BinaryEditorController implements Initializable, Observer {
 
                 final Text text = new Text();
                 byte currentByte = binaryData.getByte(idx);
-                String hexByte = String.format("%02X", (byte)currentByte); // (byte) is required
+                String hexByte = String.format("%02X", currentByte);
                 //final char[] symbols = new char[2];
                 //hexByte.getChars(0, 2, symbols, 0);
                 //text.setText(new String(symbols));
