@@ -1,6 +1,7 @@
 package com.xored.packeteditor;
 
 import com.xored.javafx.packeteditor.JavaFXBinaryPacketEditor;
+import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
@@ -34,6 +35,30 @@ public class TestPacketEditorUI extends ApplicationTest {
         verifyThat("#fieldEditorPane", hasChild("Save pcap"));
         clickOn("Save pcap");
         press(ESCAPE);
+    }
+
+    public void addLayer(String layerType) {
+        clickOn("Action");
+        clickOn("Add Protocol");
+        clickOn((ComboBox e)->true);
+        clickOn(layerType);
+        clickOn("OK");
+    }
+
+    @Test
+    public void should_build_tcpip_stack() {
+        addLayer("Ethernet II");
+        addLayer("Internet Protocol Version 4");
+        addLayer("TCP");
+        clickOn("Action");
+        clickOn("Build Packet");
+    }
+
+    @Test
+    public void should_create_proto_on_enter() {
+        clickOn("Action");
+        clickOn("Add Protocol");
+        press(ENTER);
     }
 
 }
