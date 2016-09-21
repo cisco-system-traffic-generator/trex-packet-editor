@@ -1,19 +1,26 @@
 package com.xored.javafx.packeteditor.data;
 
+import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
+
 public class Field implements IField {
-    private String name;
+    private FieldMetadata meta;
     private int offset;
     private int globalOffset;
     private int length;
-    private Type type;
     private String value;
 
-    public Field(String name, int offset, int length, int globalOffset, String value, Type type) {
-        this.name = name;
+    public Field(FieldMetadata meta, int offset, int length, int globalOffset) {
+        this.meta = meta;
         this.offset = offset;
         this.globalOffset = globalOffset;
         this.length = length;
-        this.type = type;
+    }
+
+    public Field(FieldMetadata meta, int offset, int length, int globalOffset, String value) {
+        this.meta = meta;
+        this.offset = offset;
+        this.globalOffset = globalOffset;
+        this.length = length;
         this.value = value;
     }
 
@@ -30,11 +37,12 @@ public class Field implements IField {
     }
 
     public String getName() {
-        return name;
+        return meta.getName();
     }
-    public String getDisplayValue() { return value; }
+    
+    public String getDisplayValue() { return value == null ? "Not set" : value; }
 
     public Type getType() {
-        return type;
+        return meta.getType();
     }
 }

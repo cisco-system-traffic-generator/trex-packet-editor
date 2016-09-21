@@ -1,4 +1,4 @@
-package com.xored.javafx.packeteditor.gui;
+package com.xored.javafx.packeteditor.controllers;
 
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.IBinaryData;

@@ -24,7 +24,7 @@ public class JavaFXBinaryPacketEditor extends Application {
         log.debug("Running app");
         Injector injector = Guice.createInjector(new GuiceModule());
         FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
-        fxmlLoader.setLocation(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/gui/JavaFXBinaryPacketEditor.fxml"));
+        fxmlLoader.setLocation(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/app.fxml"));
         Parent parent = fxmlLoader.load();
         Scene scene = new Scene(parent);
         scene.getStylesheets().add(ClassLoader.getSystemResource("styles/main.css").toExternalForm());

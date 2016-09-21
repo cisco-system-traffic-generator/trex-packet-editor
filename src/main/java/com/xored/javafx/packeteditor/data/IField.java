@@ -1,8 +1,20 @@
 package com.xored.javafx.packeteditor.data;
 
-interface IField {
+public interface IField {
+    // TODO: move to metadata
     enum Type {
-        BINARY, MAC_ADDRESS, IP_ADDRESS, STRING, PROTOCOL, NONE
+        BINARY,
+        MAC_ADDRESS,
+        IP_ADDRESS,
+        STRING,
+        PROTOCOL,
+        NONE,
+        NUMBER,
+        ENUM,
+        BITMASK,
+        IPV4OPTIONS,
+        IPV4ADDRESS,
+        IPOPTIONS
     }
 
     int getOffset();

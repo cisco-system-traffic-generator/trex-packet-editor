@@ -1,9 +1,9 @@
-package com.xored.javafx.packeteditor.gui;
+package com.xored.javafx.packeteditor.controllers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.xored.javafx.packeteditor.data.BinaryData;
-import com.xored.javafx.packeteditor.data.Field;
+import com.xored.javafx.packeteditor.data.OldField;
 import com.xored.javafx.packeteditor.data.IBinaryData;
 import com.xored.javafx.packeteditor.data.PacketDataController;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -36,10 +36,10 @@ public class FieldEditorController implements Initializable, Observer {
     @Inject
     private PacketDataController packetController;
 
-    TreeTableView<Field> treeTableView;
+    TreeTableView<OldField> treeTableView;
 
-    public TreeItem<Field> buildTree() {
-        List<TreeItem<Field>> treeItems = new ArrayList<>();
+    public TreeItem<OldField> buildTree() {
+        List<TreeItem<OldField>> treeItems = new ArrayList<>();
         Iterator it = packetController.getProtocols().iterator();
         while(it.hasNext()) {
             int protocolLength = 0;
@@ -47,26 +47,26 @@ public class FieldEditorController implements Initializable, Observer {
             String protocolId = protocol.get("id").getAsString();
             JsonArray fields = protocol.getAsJsonArray("fields");
             Iterator fieldsIt = fields.iterator();
-            List<TreeItem<Field>> fieldItems = new ArrayList<>();
+            List<TreeItem<OldField>> fieldItems = new ArrayList<>();
             Integer protocolOffset = protocol.get("offset").getAsInt();
             while (fieldsIt.hasNext()) {
                 JsonObject field =(JsonObject) fieldsIt.next();
-                String fieldId = field.get("id").getAsString();
+                String fieldId = field.get("name").getAsString();
                 Integer offset = field.get("offset").getAsInt();
                 Integer length = field.get("length").getAsInt();
                 String value = field.get("value").getAsString();
                 protocolLength += length;
-                fieldItems.add(new TreeItem<>(new Field(fieldId, offset, length, protocolOffset, value, Field.Type.STRING)));
+                fieldItems.add(new TreeItem<>(new OldField(fieldId, offset, length, protocolOffset, value, OldField.Type.STRING)));
             }
             
-            Field protocolField = new Field(protocolId, protocolOffset, protocolLength, 0, null, Field.Type.PROTOCOL);
-            TreeItem<Field> protocolTreeItem = new TreeItem<>(protocolField);
+            OldField protocolOldField = new OldField(protocolId, protocolOffset, protocolLength, 0, null, OldField.Type.PROTOCOL);
+            TreeItem<OldField> protocolTreeItem = new TreeItem<>(protocolOldField);
             protocolTreeItem.setExpanded(true);
             protocolTreeItem.getChildren().addAll(fieldItems);
             treeItems.add(protocolTreeItem);
         }
 
-        final TreeItem<Field> root = new TreeItem<>(new Field("Root", 0, 0, 0, null, Field.Type.NONE));
+        final TreeItem<OldField> root = new TreeItem<>(new OldField("Root", 0, 0, 0, null, OldField.Type.NONE));
         root.setExpanded(true);
         root.getChildren().addAll(treeItems);
 
@@ -82,36 +82,36 @@ public class FieldEditorController implements Initializable, Observer {
     }
 
     private void rebuildTreeView() {
-        final TreeItem<Field> root = buildTree();
+        final TreeItem<OldField> root = buildTree();
 
-        TreeTableColumn<Field, String> dataColumn = new TreeTableColumn<>("Field");
+        TreeTableColumn<OldField, String> dataColumn = new TreeTableColumn<>("OldField");
         dataColumn.setPrefWidth(150);
         dataColumn
                 .setCellValueFactory((
-                        TreeTableColumn.CellDataFeatures<Field, String> param) -> new ReadOnlyStringWrapper(
+                        TreeTableColumn.CellDataFeatures<OldField, String> param) -> new ReadOnlyStringWrapper(
                             param.getValue().getValue().getName()));
 
-        TreeTableColumn<Field, String> valueColumn = new TreeTableColumn<>(
+        TreeTableColumn<OldField, String> valueColumn = new TreeTableColumn<>(
                 "Value");
         valueColumn.setPrefWidth(190);
 
-        Callback<TreeTableColumn<Field, String>, TreeTableCell<Field, String>> cellFactory
-                = (TreeTableColumn<Field, String> param) -> new EditingCell();
+        Callback<TreeTableColumn<OldField, String>, TreeTableCell<OldField, String>> cellFactory
+                = (TreeTableColumn<OldField, String> param) -> new EditingCell();
 
         valueColumn.setCellFactory(cellFactory);
         valueColumn
                 .setCellValueFactory(
-                        (TreeTableColumn.CellDataFeatures<Field, String> param) -> {
-                            Field field = param.getValue().getValue();
-                            if (field.getName().startsWith("Ethernet") || field.getName().startsWith("IPv4")) {
+                        (TreeTableColumn.CellDataFeatures<OldField, String> param) -> {
+                            OldField oldField = param.getValue().getValue();
+                            if (oldField.getName().startsWith("Ethernet") || oldField.getName().startsWith("IPv4")) {
                                 return new ReadOnlyStringWrapper("");
                             }
-                            return new SimpleStringProperty(getFieldStringValue(field));
+                            return new SimpleStringProperty(getFieldStringValue(oldField));
                         });
 
         valueColumn.setOnEditCommit(
-                (TreeTableColumn.CellEditEvent<Field, String> t) -> {
-                    Field f = (Field) t.getTreeTableView().getTreeItem(t.getTreeTablePosition().getRow()).getValue();
+                (TreeTableColumn.CellEditEvent<OldField, String> t) -> {
+                    OldField f = (OldField) t.getTreeTableView().getTreeItem(t.getTreeTablePosition().getRow()).getValue();
                     String newValue = t.getNewValue();
                     byte[] bytes = parseFieldBytes(f, newValue);
                     if (bytes.length > 0) {
@@ -122,13 +122,13 @@ public class FieldEditorController implements Initializable, Observer {
         treeTableView = new TreeTableView<>(root);
         treeTableView.getColumns().setAll(dataColumn, valueColumn);
 
-        treeTableView.getSelectionModel().selectedItemProperty().addListener( new ChangeListener() {
+        treeTableView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
 
             @Override
             public void changed(ObservableValue observable, Object oldValue,
                                 Object newValue) {
 
-                TreeItem<Field> selectedItem = (TreeItem<Field>) newValue;
+                TreeItem<OldField> selectedItem = (TreeItem<OldField>) newValue;
                 binaryData.setSelected(selectedItem.getValue().getAbsOffset(), selectedItem.getValue().getLength());
             }
 
@@ -196,36 +196,36 @@ public class FieldEditorController implements Initializable, Observer {
         }
     }
 
-    private String getFieldStringValue(Field field) {
-        byte[] bytes = binaryData.getBytes(field.getAbsOffset(), field.getLength());
+    private String getFieldStringValue(OldField oldField) {
+        byte[] bytes = binaryData.getBytes(oldField.getAbsOffset(), oldField.getLength());
         /*
         String result = "";
-        if (field.getType() == Field.Type.BINARY) {
+        if (oldField.getType() == OldField.Type.BINARY) {
             int value = 0;
             for (int i = 0; i < bytes.length; i++) {
                 value |= (int) (bytes[bytes.length - 1 - i] & 0xFF) << i * 8;
             }
 
             return String.format("%d", value);
-        } else if (field.getType() == Field.Type.MAC_ADDRESS) {
+        } else if (oldField.getType() == OldField.Type.MAC_ADDRESS) {
             return String.format("%02X:%02X:%02X:%02X:%02X:%02X", bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]);
-        } else if (field.getType() == Field.Type.IP_ADDRESS) {
+        } else if (oldField.getType() == OldField.Type.IP_ADDRESS) {
             return String.format("%d.%d.%d.%d", (0x000000FF & (int)bytes[0]), (0x000000FF & (int)bytes[1]), (0x000000FF & (int)bytes[2]), (0x000000FF & (int)bytes[3]));
         }
         return result;
         */
-        return field.getDisplayValue();
+        return oldField.getDisplayValue();
     }
 
-    private byte[] parseFieldBytes(Field field, String value) {
+    private byte[] parseFieldBytes(OldField oldField, String value) {
         byte[] bytes = new byte[0];
-        if (field.getType() == Field.Type.BINARY) {
-            if (field.getLength() == 4) {
+        if (oldField.getType() == OldField.Type.BINARY) {
+            if (oldField.getLength() == 4) {
                 bytes = ByteBuffer.allocate(4).putInt(Integer.parseInt(value)).array();
             } else {
                 bytes = ByteBuffer.allocate(2).putShort(Short.parseShort(value)).array();
             }
-        } else if (field.getType() == Field.Type.MAC_ADDRESS) {
+        } else if (oldField.getType() == OldField.Type.MAC_ADDRESS) {
             try {
                 ByteBuffer bf = ByteBuffer.allocate(6);
                 String[] parts = value.split(":");
@@ -241,7 +241,7 @@ public class FieldEditorController implements Initializable, Observer {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if (field.getType() == Field.Type.IP_ADDRESS) {
+        } else if (oldField.getType() == OldField.Type.IP_ADDRESS) {
             try {
                 ByteBuffer bf = ByteBuffer.allocate(4);
                 String[] parts = value.split("\\.");
@@ -274,7 +274,7 @@ public class FieldEditorController implements Initializable, Observer {
     }
 
 
-    class EditingCell extends TreeTableCell<Field, String> {
+    class EditingCell extends TreeTableCell<OldField, String> {
 
         private TextField textField;
 

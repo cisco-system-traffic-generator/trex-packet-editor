@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="649.0" prefWidth="803.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="com.xored.javafx.packeteditor.controllers.AppController">
+    <top>
+        <fx:include source="menu.fxml"/>
+    </top>
+    <center>
+
+        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+            <tabs>
+                <Tab text="New" >
+                    <content>
+                        <ScrollPane>
+                            <fx:include source="PacketEditor.fxml"/>                            
+                        </ScrollPane>
+                    </content>
+                </Tab>
+                <Tab text="Old">
+                    <content>
+                        <fx:include source="JavaFXBinaryPacketEditor.fxml"/>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </center>
+    <left>
+    </left>
+</BorderPane>
