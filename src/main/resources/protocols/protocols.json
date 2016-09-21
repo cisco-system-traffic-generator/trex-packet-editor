@@ -63,9 +63,9 @@
         "name": "Flags",
         "type": "bitmask",
         "bits": [
-          {"name": "Reserved", "mask": 1},
-          {"name": "Don't Fragment(DF)", "mask": 2},
-          {"name": "More Fragments(MF)", "mask": 4}
+          {"name": "Reserved", "mask": 1, "values":[{"name":"Reserved", "value": 0}]},
+          {"name": "Fragment", "mask": 2, "values":[{"name":"May fragment", "value": 0}, {"name":"Don't fragment", "value": 2}]},
+          {"name": "More Fragments(MF)", "mask": 4, "values":[{"name":"Unset", "value": 0}, {"name":"Set", "value": 4}]}
         ]
       },
       {
