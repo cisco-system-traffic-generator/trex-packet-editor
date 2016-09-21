@@ -6,15 +6,16 @@
       {
         "id": "dst",
         "name": "Destination",
-        "type": "MACField"
+        "type": "MACADDRESS"
       },
       {
         "id": "src",
         "name": "Source",
-        "type": "MACField"
+        "type": "MACADDRESS"
       },
       {
         "id": "type",
+        "name": "Type",
         "type": "enum",
         "dict": {
           "2048": "IPv4",
