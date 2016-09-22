@@ -95,9 +95,12 @@ public class BinaryEditorController implements Initializable, Observer {
                 final int idx = i * w + j;
 
                 final Text text = new Text();
-                final char[] symbols = new char[2];
-                String.format("%02X", (int) binaryData.getByte(idx)).getChars(0, 2, symbols, 0);
-                text.setText(new String(symbols));
+                byte currentByte = binaryData.getByte(idx);
+                String hexByte = String.format("%02X", (byte)currentByte); // (byte) is required
+                //final char[] symbols = new char[2];
+                //hexByte.getChars(0, 2, symbols, 0);
+                //text.setText(new String(symbols));
+                text.setText(hexByte);
 
 
                 text.setTranslateX(numLineLength + xOffset + j * bytePad + (j/4) * byteWordPad + byteLength * j);
