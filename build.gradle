@@ -68,7 +68,8 @@ dependencies {
     compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.7'
-    compile group: 'com.google.guava', name: 'guava', version: '19.0'
+    compile group: 'com.jidesoft', name: 'jidefx-fields', version: '0.9.1-b128'
+    
 }
 
 jar {

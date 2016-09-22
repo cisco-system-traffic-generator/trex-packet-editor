@@ -1,5 +1,6 @@
 package com.xored.javafx.packeteditor.controls;
 
+import com.google.common.base.Strings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -69,6 +70,6 @@ public class ProtocolField extends TextField {
     }
 
     public void setValue(String baseText) {
-        this.value.set(baseText);
+        this.value.set(Strings.isNullOrEmpty(baseText)? "Not set" : baseText);
     }
 }

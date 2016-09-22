@@ -29,6 +29,7 @@
 
 .title-pane {
     -fx-fit-to-height: true;
+    -fx-min-width: 300px;
 }
 
 .field-row.value-pane {

@@ -6,11 +6,11 @@ import java.util.List;
 
 public class Field implements IField {
     private FieldMetadata meta;
+
     private int offset;
     private int globalOffset;
     private int length;
     private String value;
-
     public Field(FieldMetadata meta, int offset, int length, int globalOffset) {
         this.meta = meta;
         this.offset = offset;
@@ -24,6 +24,10 @@ public class Field implements IField {
         this.globalOffset = globalOffset;
         this.length = length;
         this.value = value;
+    }
+
+    public FieldMetadata getMeta() {
+        return meta;
     }
 
     public int getOffset() {
