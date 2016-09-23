@@ -60,7 +60,8 @@ public class FieldEditorController implements Initializable, Observer {
                 String fieldId = field.get("id").getAsString();
                 Integer offset = field.get("offset").getAsInt();
                 Integer length = field.get("length").getAsInt();
-                String value = field.get("value").getAsString();
+                // field.get("value") this value can be string, numeric or potentially json object. it is a value from Scapy as is
+                String value = field.get("hvalue").getAsString(); // human-representation of a Scapy value. similar to what we get with show2
                 protocolLength += length;
 
                 OldField fieldObj = new OldField(fieldId, offset, length, protocolOffset, value, OldField.Type.STRING);
