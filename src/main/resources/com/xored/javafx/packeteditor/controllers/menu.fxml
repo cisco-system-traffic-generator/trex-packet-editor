@@ -8,12 +8,14 @@
       <menus>
          <Menu mnemonicParsing="false" text="File">
             <items>
+               <MenuItem mnemonicParsing="false" text="New Document" onAction="#handleNewDocument"/>
                <MenuItem mnemonicParsing="false" text="Close" onAction="#handleCloseAction"/>
             </items>
          </Menu>
          <Menu mnemonicParsing="false" text="Action">
             <items>
                <MenuItem mnemonicParsing="false" text="Add Protocol" onAction="#handleAddProtocolAction"/>
+               <MenuItem mnemonicParsing="false" text="Remove Protocol" onAction="#handleRemoveProtocolAction"/>
                <MenuItem mnemonicParsing="false" text="Build Packet" onAction="#handleBuildPacketAction"/>
             </items>
          </Menu>

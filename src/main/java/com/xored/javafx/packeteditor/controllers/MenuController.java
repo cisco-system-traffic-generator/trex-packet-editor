@@ -2,6 +2,7 @@ package com.xored.javafx.packeteditor.controllers;
 
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
+import com.xored.javafx.packeteditor.data.PacketDataController;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 import javafx.event.ActionEvent;
@@ -25,7 +26,10 @@ public class MenuController {
     
     @Inject
     FieldEditorModel fieldEditorModel;
-    
+
+    @Inject
+    PacketDataController packetController;
+
     @FXML
     MenuBar applicationMenu;
     
@@ -53,6 +57,7 @@ public class MenuController {
         Optional<ProtocolMetadata> result = dialog.showAndWait();
         
         fieldEditorModel.addProtocol(result.get());
+        packetController.appendProtocol(result.get().getId());
         
         // Get model. Add new protocol to model
     }
@@ -60,4 +65,15 @@ public class MenuController {
     public void handleBuildPacketAction(ActionEvent actionEvent) {
         logger.info("Packet built :)");
     }
+
+    @FXML
+    public void handleNewDocument(ActionEvent actionEvent) {
+        packetController.newPacket();
+    }
+
+    @FXML
+    public void handleRemoveProtocolAction(ActionEvent actionEvent) {
+        packetController.removeLastProtocol();
+    }
+
 }

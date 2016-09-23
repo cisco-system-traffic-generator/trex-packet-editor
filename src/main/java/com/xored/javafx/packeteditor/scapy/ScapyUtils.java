@@ -1,6 +1,7 @@
 package com.xored.javafx.packeteditor.scapy;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -44,5 +45,6 @@ public class ScapyUtils {
         modifyFieldRecord.add("value", new JsonPrimitive(newValue));
         return protocols;
     }
+
 }
 

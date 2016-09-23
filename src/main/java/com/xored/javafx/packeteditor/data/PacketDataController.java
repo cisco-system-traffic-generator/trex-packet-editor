@@ -2,9 +2,11 @@ package com.xored.javafx.packeteditor.data;
 
 import com.google.common.io.Files;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.inject.Inject;
+import com.xored.javafx.packeteditor.scapy.ReconstructPacketBuilder;
 import com.xored.javafx.packeteditor.scapy.ScapyPkt;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import org.slf4j.Logger;
@@ -47,6 +49,10 @@ public class PacketDataController extends Observable {
         return pkt.getProtocols();
     }
 
+    public void newPacket() {
+        replacePacket(new ScapyPkt());
+    }
+
     public void loadPcapFile(String filename) throws Exception {
         loadPcapFile(new File(filename));
     }
@@ -69,13 +75,32 @@ public class PacketDataController extends Observable {
         modifyPacketField(field.getPath(), field.getId(), newValue);
     }
 
-    public void modifyPacketField(List<String> fieldPath, String fieldName, String newValue) {
+    public void reconstructPacket(JsonArray modifyProcotols) {
         try {
-            ScapyPkt newPkt = new ScapyPkt(scapy.reconstruct_pkt(pkt.getBinaryData(), createReconstructPktPayload(fieldPath, fieldName, newValue)));
+            ScapyPkt newPkt = new ScapyPkt(scapy.reconstruct_pkt(pkt.getBinaryData(), modifyProcotols));
             replacePacket(newPkt);
         } catch (Exception e) {
             log.error("Can't modify: {}", e);
-
         }
+    }
+
+    public void modifyPacketField(List<String> fieldPath, String fieldName, String newValue) {
+        reconstructPacket(createReconstructPktPayload(fieldPath, fieldName, newValue));
+    }
+
+    /** appends protocol to the stack */
+    public void appendProtocol(String protocolId) {
+        ReconstructPacketBuilder modifyBuilder = new ReconstructPacketBuilder();
+        modifyBuilder.appendStructureFromPacket(pkt.getProtocols());
+        modifyBuilder.appendProtocol(protocolId);
+        reconstructPacket(modifyBuilder.getProtocols());
+    }
+
+    /** removes inner protocol */
+    public void removeLastProtocol() {
+        ReconstructPacketBuilder modifyBuilder = new ReconstructPacketBuilder();
+        modifyBuilder.appendStructureFromPacket(pkt.getProtocols());
+        modifyBuilder.markProtocolForDeletion();
+        reconstructPacket(modifyBuilder.getProtocols());
     }
 }
