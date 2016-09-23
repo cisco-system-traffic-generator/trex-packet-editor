@@ -8,6 +8,8 @@ import com.google.gson.JsonPrimitive;
 import java.util.Base64;
 
 
+// @deprecated. this class will be removed and
+// PacketData will be used instead
 public class ScapyPkt {
     private final JsonObject pkt;
     private final Base64.Decoder base64Decoder = Base64.getDecoder();

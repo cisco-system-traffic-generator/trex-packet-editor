@@ -105,7 +105,7 @@ public class PacketDataController extends Observable {
         if (pkt == null) {
             JsonArray params = new JsonArray();
             params.add(ScapyUtils.layer(protocolId));
-            replacePacket(scapy.build_pkt(params));
+            replacePacket(new ScapyPkt(scapy.build_pkt(params)));
             return;
         }
         ReconstructPacketBuilder modifyBuilder = new ReconstructPacketBuilder();
