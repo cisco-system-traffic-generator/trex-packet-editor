@@ -84,6 +84,15 @@ public class PacketDataController extends Observable {
         }
     }
 
+    public void reconstructPacketFromBinary(byte[] bytes) {
+        try {
+            ScapyPkt newPkt = new ScapyPkt(scapy.reconstruct_pkt(bytes, new JsonArray()));
+            replacePacket(newPkt);
+        } catch (Exception e) {
+            log.error("Can't modify: {}", e);
+        }
+    }
+
     public void modifyPacketField(List<String> fieldPath, String fieldName, String newValue) {
         reconstructPacket(createReconstructPktPayload(fieldPath, fieldName, newValue));
     }

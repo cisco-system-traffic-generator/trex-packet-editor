@@ -2,6 +2,7 @@ package com.xored.javafx.packeteditor.controllers;
 
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.IBinaryData;
+import com.xored.javafx.packeteditor.data.PacketDataController;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -23,6 +24,7 @@ import java.util.ResourceBundle;
 public class BinaryEditorController implements Initializable, Observer {
     @FXML private Group beGroup;
     @Inject private IBinaryData binaryData;
+    @Inject PacketDataController packetController;
 
     boolean updating = false;
 
@@ -146,6 +148,8 @@ public class BinaryEditorController implements Initializable, Observer {
                     }
                     b |= val << (1 - editingStep) * 4;
                     binaryData.setByte(idxEditing, (byte)b);
+                    byte[] newBytes = binaryData.getBytes(0, binaryData.getLength());
+                    packetController.reconstructPacketFromBinary(newBytes);
 
                     int i = idxEditing / texts[0].length;
                     int j = idxEditing % texts[0].length;
