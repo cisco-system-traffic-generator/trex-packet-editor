@@ -2,11 +2,13 @@ package com.xored.javafx.packeteditor.service;
 
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.xored.javafx.packeteditor.controllers.MenuController;
 import com.xored.javafx.packeteditor.data.IField;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
+import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.xored.javafx.packeteditor.data.IField.Type.ENUM;
+import static com.xored.javafx.packeteditor.data.IField.Type.*;
 
 public class LocalFileMetadataService implements IMetadataService {
 
@@ -34,6 +36,10 @@ public class LocalFileMetadataService implements IMetadataService {
     @Override
     public Map<String, ProtocolMetadata> getProtocols() {
         return protocols;
+    }
+    
+    public ProtocolMetadata getProtocolMetadataById(String protocolId) {
+        return protocols.get(protocolId);
     }
 
     @Override
@@ -60,13 +66,37 @@ public class LocalFileMetadataService implements IMetadataService {
                 String name = field.get("name").getAsString();
                 String typeName = field.get("type").getAsString();
                 IField.Type type = getTypeByName(typeName);
-                Map<String, String> dict = Collections.EMPTY_MAP;
+                Map<String, JsonElement> dict = Collections.EMPTY_MAP;
+                List<BitFlagMetadata> bitFlags = new ArrayList<>();
 
-                if (type.equals(ENUM)) {
-                    dict = field.getAsJsonObject("dict").entrySet().stream().collect(Collectors.toMap(e -> e.getValue().getAsString(), Map.Entry::getKey));
+                if (ENUM.equals(type)) {
+                    dict = field.getAsJsonObject("dict").entrySet().stream()
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                 }
 
-                fieldsMeta.add(new FieldMetadata(fieldId, name, type, dict));
+                if(BITMASK.equals(type)) {
+                    Iterator bitsIT = field.getAsJsonArray("bits").iterator();
+                    
+                    while(bitsIT.hasNext()) {
+                        JsonObject bitFlag = (JsonObject) bitsIT.next();
+                        
+                        JsonArray bitFlagValues = bitFlag.getAsJsonArray("values");
+                        Iterator bitFlagValuesIT = bitFlagValues.iterator();
+                        
+                        Map<String, JsonElement> vals = new HashMap<>();
+                        
+                        while (bitFlagValuesIT.hasNext()) {
+                            JsonObject bitFlagValue = (JsonObject) bitFlagValuesIT.next();
+                            vals.put(bitFlagValue.get("name").getAsString(), bitFlagValue.get("value"));
+                        }
+                        String bitFlagName = bitFlag.get("name").getAsString();
+                        Integer mask = bitFlag.get("mask").getAsInt();
+                        BitFlagMetadata bitFlagMeta = new BitFlagMetadata(bitFlagName, mask, vals);
+                        bitFlags.add(bitFlagMeta);
+                    }
+                }
+
+                fieldsMeta.add(new FieldMetadata(fieldId, name, type, dict, bitFlags));
             }
 
             List<String> payload = new ArrayList<>();
@@ -83,13 +113,16 @@ public class LocalFileMetadataService implements IMetadataService {
     
     private IField.Type getTypeByName(String id) {
         switch (id) {
+            case "NUMBER":
+                return NUMBER;
             case "IPv4Address":
-                return IField.Type.IPV4ADDRESS;
+                return IPV4ADDRESS;
             case "MACADDRESS":
-                return IField.Type.MAC_ADDRESS;
+                return MAC_ADDRESS;
             case "enum":
                 return ENUM;
-            
+            case "bitmask":
+                return BITMASK;
             default:
                 return IField.Type.STRING;
         }

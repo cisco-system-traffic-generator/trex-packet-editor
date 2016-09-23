@@ -2,6 +2,7 @@ package com.xored.javafx.packeteditor.controllers;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
+import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 import javafx.fxml.Initializable;
 
@@ -19,9 +20,13 @@ public class AppController implements Initializable {
     @Inject
     EventBus eventBus;
 
+    @Inject
+    FieldEditorModel model;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         metadataService.initialize();
         eventBus.register(editorController);
+        eventBus.register(model);
     }
 }

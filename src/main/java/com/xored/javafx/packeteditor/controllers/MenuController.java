@@ -13,16 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class MenuController {
 
     private Logger logger= LoggerFactory.getLogger(MenuController.class);
-    
-    @Inject
-    IMetadataService metadataService;
     
     @Inject
     FieldEditorModel fieldEditorModel;
@@ -30,8 +25,13 @@ public class MenuController {
     @Inject
     PacketDataController packetController;
 
+    @Inject
+    FieldEditorController2 controller;
+
     @FXML
     MenuBar applicationMenu;
+
+    private ChoiceDialog<ProtocolMetadata> dialog = new ChoiceDialog<>();
     
     @FXML
     private void handleCloseAction() {
@@ -41,29 +41,42 @@ public class MenuController {
     
     @FXML
     private void handleAddProtocolAction(ActionEvent actionEvent) {
-        Map<String, ProtocolMetadata> protocolMetadataMap = metadataService.getProtocols();
+        IMetadataService metadataService = controller.getMetadataService();
         
-        // TODO: Display available payloads of current protocol
-        List<ProtocolMetadata> protocolMetadataList = metadataService.getProtocols().entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+        List<ProtocolMetadata> items = controller.getAvailbleProtocolsToAdd();
         
-        ChoiceDialog<ProtocolMetadata> dialog = new ChoiceDialog<>(protocolMetadataMap.get("Ether"), protocolMetadataList);
-        dialog.setTitle("Available Protocols");
+        dialog.getItems().clear();
+        dialog.getItems().addAll(items);
+        if(items.size() == 1) {
+            dialog.setSelectedItem(items.get(0));
+        }
+        
+        dialog.setTitle("Add layer");
         dialog.setContentText("Select protocol:");
         
         // TODO: Add proper protocol icon to dialog
         // dialog.setGraphic(new ImageView(this.getClass().getResource("protocol-image.png").toString()));
         
-
         Optional<ProtocolMetadata> result = dialog.showAndWait();
+        if(result.isPresent()) {
+            controller.addProtocol(result.get());
+        }
         
         fieldEditorModel.addProtocol(result.get());
-        packetController.appendProtocol(result.get().getId());
         
         // Get model. Add new protocol to model
     }
     @FXML
-    public void handleBuildPacketAction(ActionEvent actionEvent) {
-        logger.info("Packet built :)");
+    public void handleClearAction(ActionEvent actionEvent) {
+        controller.clearLayers();
+    }
+    @FXML
+    public void handleDeleteProtocolAction(ActionEvent actionEvent) {
+        controller.removeLast();
+    }
+
+    public void handleLoadAction(ActionEvent actionEvent) {
+        controller.showLoadDialog();
     }
 
     @FXML

@@ -1,11 +1,10 @@
 package com.xored.javafx.packeteditor.data;
 
+import com.google.common.eventbus.EventBus;
 import com.google.common.io.Files;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.inject.Inject;
+import com.xored.javafx.packeteditor.events.ReloadModelEvent;
 import com.xored.javafx.packeteditor.scapy.ReconstructPacketBuilder;
 import com.xored.javafx.packeteditor.scapy.ScapyPkt;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
@@ -13,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
 
@@ -21,9 +19,15 @@ import static com.xored.javafx.packeteditor.scapy.ScapyUtils.createReconstructPk
 
 public class PacketDataController extends Observable {
     static Logger log = LoggerFactory.getLogger(PacketDataController.class);
-    @Inject ScapyServerClient scapy;
-    @Inject IBinaryData binary;
-
+    @Inject
+    ScapyServerClient scapy;
+    
+    @Inject
+    IBinaryData binary;
+    
+    @Inject
+    EventBus eventBus;
+    
     ScapyPkt pkt;
 
     public void init() {
@@ -36,13 +40,16 @@ public class PacketDataController extends Observable {
             log.error("{}", e);
         }
     }
-
+    
+    
+    // TODO: reimplement it as service and make it stateless,
     public void replacePacket(ScapyPkt payload) {
         pkt = payload;
         byte [] bytes = pkt.getBinaryData();
         setChanged();
         binary.setBytes(bytes);
-        notifyObservers(null);
+        notifyObservers(null); // deprecated
+        eventBus.post(new ReloadModelEvent(pkt));
     }
 
     public JsonArray getProtocols() {

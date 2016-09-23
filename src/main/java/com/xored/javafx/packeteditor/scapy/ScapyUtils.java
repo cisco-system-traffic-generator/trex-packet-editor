@@ -42,7 +42,7 @@ public class ScapyUtils {
         JsonObject modifyFieldRecord = new JsonObject();
         fieldsToModify.add(modifyFieldRecord);
         modifyFieldRecord.add("id", new JsonPrimitive(fieldName));
-        modifyFieldRecord.add("value", new JsonPrimitive(newValue));
+        modifyFieldRecord.add("hvalue", new JsonPrimitive(newValue));
         return protocols;
     }
 

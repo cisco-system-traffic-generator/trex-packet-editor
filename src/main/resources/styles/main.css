@@ -20,11 +20,20 @@
     -fx-pref-height: 30px;
     -fx-padding: 8 0 7 40px;
 }
+.flag-field-row {
+    -fx-background-color: lightgray;
+    -fx-pref-height: 30px;
+    -fx-padding: 8 0 7 80px;
+}
 
 .protocol-name {
     -fx-fill: #000000;
     -fx-font-style: oblique;
     -fx-font-size: 14px;
+}
+
+.control {
+    -fx-pref-width: 150px;
 }
 
 .title-pane {
