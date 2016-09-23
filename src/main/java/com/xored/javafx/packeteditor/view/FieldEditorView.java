@@ -192,7 +192,7 @@ public class FieldEditorView {
         
         Optional<ComboBoxItem> defaultValue = items.stream().filter(item -> item.equalsTo(field.getValue())).findFirst();
         combo.getItems().addAll(items);
-        
+        injectOnChangeHandler(combo, field);
         if (defaultValue.isPresent()) {
             combo.setValue(defaultValue.get());
         }

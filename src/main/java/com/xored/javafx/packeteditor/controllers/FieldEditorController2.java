@@ -59,6 +59,7 @@ public class FieldEditorController2 implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        packetController.init();
         view.setParentPane(fieldEditorPane);
         model.setMetadataService(metadataService);
     }
@@ -98,5 +99,21 @@ public class FieldEditorController2 implements Initializable {
         alert.initOwner(fieldEditorPane.getScene().getWindow());
         alert.getDialogPane().setExpandableContent(new ScrollPane(new TextArea(title + ": " + e.getMessage())));
         alert.showAndWait();
+    }
+
+    public void showSaveDialog() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save to Pcap File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Pcap Files", "*.pcap", "*.cap"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"));
+        java.io.File pcapfile = fileChooser.showSaveDialog(fieldEditorPane.getScene().getWindow());
+        if (pcapfile != null) {
+            try {
+                packetController.writeToPcapFile(pcapfile);
+            } catch (Exception e) {
+                showError("Failed to save pcap file", e);
+            }
+        }
     }
 }

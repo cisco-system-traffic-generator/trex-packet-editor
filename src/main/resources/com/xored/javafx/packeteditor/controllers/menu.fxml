@@ -10,6 +10,7 @@
             <items>
                <MenuItem mnemonicParsing="false" text="New Document" onAction="#handleNewDocument"/>
                <MenuItem mnemonicParsing="false" text="Load .pcap" onAction="#handleLoadAction"/>
+               <MenuItem mnemonicParsing="false" text="Save" onAction="#handleSaveAction"/>
                <MenuItem mnemonicParsing="false" text="Close" onAction="#handleCloseAction"/>
             </items>
          </Menu>

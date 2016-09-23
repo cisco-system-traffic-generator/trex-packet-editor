@@ -9,23 +9,9 @@
         <fx:include source="menu.fxml"/>
     </top>
     <center>
-
-        <TabPane tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
-            <tabs>
-                <Tab text="New" >
-                    <content>
-                        <ScrollPane>
-                            <fx:include source="PacketEditor.fxml"/>                            
-                        </ScrollPane>
-                    </content>
-                </Tab>
-                <Tab text="Old">
-                    <content>
-                        <fx:include source="JavaFXBinaryPacketEditor.fxml"/>
-                    </content>
-                </Tab>
-            </tabs>
-        </TabPane>
+        <ScrollPane>
+            <fx:include source="PacketEditor.fxml"/>
+        </ScrollPane>
     </center>
     <left>
     </left>

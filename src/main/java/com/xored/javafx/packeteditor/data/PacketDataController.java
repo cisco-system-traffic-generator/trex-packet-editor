@@ -8,6 +8,7 @@ import com.xored.javafx.packeteditor.events.ReloadModelEvent;
 import com.xored.javafx.packeteditor.scapy.ReconstructPacketBuilder;
 import com.xored.javafx.packeteditor.scapy.ScapyPkt;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
+import com.xored.javafx.packeteditor.scapy.ScapyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,31 +24,26 @@ public class PacketDataController extends Observable {
     ScapyServerClient scapy;
     
     @Inject
-    IBinaryData binary;
-    
-    @Inject
     EventBus eventBus;
     
     ScapyPkt pkt;
 
     public void init() {
         scapy.open("tcp://localhost:4507");
-        ClassLoader classLoader = getClass().getClassLoader();
-        File example_file = new File(classLoader.getResource("http_get_request.pcap").getFile());
-        try {
-            loadPcapFile(example_file);
-        } catch (Exception e) {
-            log.error("{}", e);
-        }
+//        ClassLoader classLoader = getClass().getClassLoader();
+//        File example_file = new File(classLoader.getResource("http_get_request.pcap").getFile());
+//        try {
+//            loadPcapFile(example_file);
+//        } catch (Exception e) {
+//            log.error("{}", e);
+//        }
     }
     
     
     // TODO: reimplement it as service and make it stateless,
     public void replacePacket(ScapyPkt payload) {
         pkt = payload;
-        byte [] bytes = pkt.getBinaryData();
         setChanged();
-        binary.setBytes(bytes);
         notifyObservers(null); // deprecated
         eventBus.post(new ReloadModelEvent(pkt));
     }
@@ -82,9 +78,9 @@ public class PacketDataController extends Observable {
         modifyPacketField(field.getPath(), field.getId(), newValue);
     }
 
-    public void reconstructPacket(JsonArray modifyProcotols) {
+    public void reconstructPacket(JsonArray modifyProtocols) {
         try {
-            ScapyPkt newPkt = new ScapyPkt(scapy.reconstruct_pkt(pkt.getBinaryData(), modifyProcotols));
+            ScapyPkt newPkt = new ScapyPkt(scapy.reconstruct_pkt(pkt.getBinaryData(), modifyProtocols));
             replacePacket(newPkt);
         } catch (Exception e) {
             log.error("Can't modify: {}", e);
@@ -106,6 +102,12 @@ public class PacketDataController extends Observable {
 
     /** appends protocol to the stack */
     public void appendProtocol(String protocolId) {
+        if (pkt == null) {
+            JsonArray params = new JsonArray();
+            params.add(ScapyUtils.layer(protocolId));
+            replacePacket(scapy.build_pkt(params));
+            return;
+        }
         ReconstructPacketBuilder modifyBuilder = new ReconstructPacketBuilder();
         modifyBuilder.appendStructureFromPacket(pkt.getProtocols());
         modifyBuilder.appendProtocol(protocolId);

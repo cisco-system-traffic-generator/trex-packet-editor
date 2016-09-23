@@ -22,9 +22,17 @@ public class FieldEditorModel {
     private Logger logger= LoggerFactory.getLogger(FieldEditorModel.class);
     
     private Stack<Protocol> protocols = new Stack<>();
+
+    /**
+     * Current packet representation in ScapyService format
+     */
+    ScapyPkt pkt = new ScapyPkt();
     
     @Inject
     EventBus eventBus;
+
+    @Inject
+    IBinaryData binary;
     
     @Inject
     PacketDataController packetDataController;
@@ -41,7 +49,7 @@ public class FieldEditorModel {
     
     public void deleteAllProtocols() {
         protocols.clear();
-        fireUpdateEvent();
+        fireUpdateViewEvent();
     }
     
     public void addProtocol(ProtocolMetadata meta) {
@@ -53,7 +61,7 @@ public class FieldEditorModel {
     public List<ProtocolMetadata> getAvailableProtocolsToAdd() {
         Map<String, ProtocolMetadata>  protocolsMetaMap = metadataService.getProtocols();
         if (protocols.size() == 0) {
-            return protocolsMetaMap.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+            return Arrays.asList(metadataService.getProtocolMetadataById("Ether"));
         }
         return protocols.peek().getMeta().getPayload()
                 .stream().map(protocolsMetaMap::get)
@@ -76,20 +84,20 @@ public class FieldEditorModel {
 
     public void removeLast() {
         if(!protocols.empty()) {
-            protocols.pop();
-            fireUpdateEvent();
+            packetDataController.removeLastProtocol();
         }
     }
 
-    private void fireUpdateEvent() {
+    private void fireUpdateViewEvent() {
         eventBus.post(new RebuildViewEvent(protocols));
     }
 
     @Subscribe
     public void handleReloadModelEvent(ReloadModelEvent e) {
         protocols.clear();
-        ScapyPkt pkt = e.getPkt();
-
+        pkt = e.getPkt();
+        
+        binary.setBytes(pkt.getBinaryData());
         Iterator it = pkt.getProtocols().iterator();
         while(it.hasNext()) {
             JsonObject protocol = (JsonObject) it.next();
@@ -114,13 +122,13 @@ public class FieldEditorModel {
                 Field fieldObj = new Field(protocolMetadata.getMetaForField(fieldId), getCurrentPath(), offset, length, protocolOffset, hvalue, value);
                 fieldObj.setOnSetCallback(newValue -> {
                     packetDataController.modifyPacketField(fieldObj, newValue);
-                    fireUpdateEvent();
+                    fireUpdateViewEvent();
                 });
                 fieldObj.setPath(getCurrentPath());
                 protocolObj.getFields().add(fieldObj);
             }
             
         }
-        fireUpdateEvent();
+        fireUpdateViewEvent();
     }
 }
