@@ -31,7 +31,6 @@ public class BinaryEditorController implements Initializable, Observer {
     private Text[][] texts;
     private Text[] lineNums;
     private Text[] lineHex;
-    private Rectangle backgroundRect = new Rectangle();
     private Rectangle[] selRect = new Rectangle[3];
     private Rectangle editingRect = new Rectangle();
 
@@ -60,12 +59,7 @@ public class BinaryEditorController implements Initializable, Observer {
         lineNums = new Text[h];
         lineHex = new Text[h];
 
-        backgroundRect.setWidth(600.0);
-        backgroundRect.setHeight(200.0);
-        backgroundRect.setFill(Color.WHITE);
-
         beGroup.getChildren().clear();
-        beGroup.getChildren().add(backgroundRect);
         for (int i = 0; i < selRect.length; i++) {
             selRect[i] = new Rectangle();
             selRect[i].setFill(Color.AQUAMARINE);
