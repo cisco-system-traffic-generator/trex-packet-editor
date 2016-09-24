@@ -71,7 +71,14 @@ public class PacketDataController extends Observable {
     }
 
     public void modifyPacketField(IField field, String newValue) {
-        modifyPacketField(field.getPath(), field.getId(), newValue);
+        /* TODO: these special cases can be removed - used for testing */
+        if (newValue.equals("clear()")) {
+            setFieldDefaultValue(field);
+        } else if (newValue.equals("rnd()")) {
+            setFieldRandomValue(field);
+        } else {
+            modifyPacketField(field.getPath(), field.getId(), newValue);
+        }
     }
 
     public void reconstructPacket(JsonArray modifyProtocols) {
@@ -92,7 +99,7 @@ public class PacketDataController extends Observable {
         }
     }
 
-    public void modifyPacketField(List<String> fieldPath, String fieldName, String newValue) {
+    private void modifyPacketField(List<String> fieldPath, String fieldName, String newValue) {
         reconstructPacket(createReconstructPktPayload(fieldPath, fieldName, newValue, false, false));
     }
 
