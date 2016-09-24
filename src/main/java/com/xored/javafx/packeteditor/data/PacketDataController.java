@@ -2,24 +2,25 @@ package com.xored.javafx.packeteditor.data;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.io.Files;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.events.ReloadModelEvent;
-import com.xored.javafx.packeteditor.scapy.ReconstructPacketBuilder;
-import com.xored.javafx.packeteditor.scapy.ScapyPkt;
-import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
-import com.xored.javafx.packeteditor.scapy.ScapyUtils;
+import com.xored.javafx.packeteditor.scapy.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.List;
 import java.util.Observable;
+import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.scapy.ScapyUtils.createReconstructPktPayload;
 
 public class PacketDataController extends Observable {
     static Logger log = LoggerFactory.getLogger(PacketDataController.class);
+    final Gson gson = new Gson();
     @Inject
     ScapyServerClient scapy;
     
@@ -81,7 +82,11 @@ public class PacketDataController extends Observable {
         }
     }
 
-    public void reconstructPacket(JsonArray modifyProtocols) {
+    public void reconstructPacket(List<ReconstructProtocol> modify) {
+        reconstructPacket(gson.toJsonTree(modify));
+    }
+
+    public void reconstructPacket(JsonElement modifyProtocols) {
         try {
             ScapyPkt newPkt = new ScapyPkt(scapy.reconstruct_pkt(pkt.getBinaryData(), modifyProtocols));
             replacePacket(newPkt);
@@ -131,5 +136,20 @@ public class PacketDataController extends Observable {
         modifyBuilder.appendStructureFromPacket(pkt.getProtocols());
         modifyBuilder.markProtocolForDeletion();
         reconstructPacket(modifyBuilder.getProtocols());
+    }
+
+    /* Reset length and chksum fields
+     * type fields can be calculated for layers with payload
+     *  */
+    public void recalculateAutoValues() {
+        List<ProtocolData> protocols = pkt.packet().getProtocols();
+        List<ReconstructProtocol> modify = protocols.stream().map(protocol -> (
+            ReconstructProtocol.modify(protocol.id, protocol.fields.stream().filter(f->
+                    f.id.equals("length") ||
+                    f.id.equals("chksum") ||
+                    (f.id.equals("type") && protocol == protocols.get(protocols.size() - 1))
+            ).map( f-> ReconstructField.resetValue(f.id) ).collect(Collectors.toList())
+        ))).collect(Collectors.toList());
+        reconstructPacket(modify);
     }
 }

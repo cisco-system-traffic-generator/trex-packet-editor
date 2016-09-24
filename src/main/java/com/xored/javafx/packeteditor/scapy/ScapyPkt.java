@@ -1,9 +1,6 @@
 package com.xored.javafx.packeteditor.scapy;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 
 import java.util.Base64;
 
@@ -13,6 +10,7 @@ import java.util.Base64;
 public class ScapyPkt {
     private final JsonObject pkt;
     private final Base64.Decoder base64Decoder = Base64.getDecoder();
+    private final Gson gson = new Gson();
 
     public ScapyPkt() {
         pkt = new JsonObject();
@@ -31,5 +29,10 @@ public class ScapyPkt {
     
     public JsonArray getProtocols() {
         return (JsonArray)pkt.get("data");
+    }
+
+    /** returns data as POJO */
+    public PacketData packet() {
+        return gson.fromJson(pkt, PacketData.class);
     }
 }

@@ -1,5 +1,7 @@
 package com.xored.javafx.packeteditor.scapy;
 
+import com.google.gson.Gson;
+
 import java.util.Base64;
 import java.util.List;
 
@@ -11,4 +13,5 @@ public class PacketData {
     public String binary; // binary packet data in base64 encoding
 
     public byte[] getPacketBytes() { return Base64.getDecoder().decode(binary); }
+    public List<ProtocolData> getProtocols() { return data; }
 }

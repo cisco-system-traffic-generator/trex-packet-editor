@@ -79,4 +79,8 @@ public class MenuController {
     public void handleSaveAction(ActionEvent event) {
         controller.showSaveDialog();
     }
+
+    public void handleRecalculateValues(ActionEvent actionEvent) {
+        packetController.recalculateAutoValues();
+    }
 }

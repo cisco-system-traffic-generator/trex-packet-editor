@@ -19,6 +19,7 @@
                <MenuItem mnemonicParsing="false" text="Add Protocol" onAction="#handleAddProtocolAction"/>
                <MenuItem mnemonicParsing="false" text="Delete" onAction="#handleDeleteProtocolAction"/>
                <MenuItem mnemonicParsing="false" text="Clear" onAction="#handleClearAction"/>
+               <MenuItem mnemonicParsing="false" text="Recalculate auto-values" onAction="#handleRecalculateValues"/>
             </items>
          </Menu>
       </menus>
