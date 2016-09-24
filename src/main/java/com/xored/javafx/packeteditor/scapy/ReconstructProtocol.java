@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReconstructProtocol {
-    String id;
-    Boolean delete;
-    List<ReconstructField> fields;
+    public String id;
+    public Boolean delete;
+    public List<ReconstructField> fields;
 
     public ReconstructProtocol(String id) { this.id = id; }
 

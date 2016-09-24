@@ -7,11 +7,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.events.ReloadModelEvent;
+import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.scapy.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
 import java.util.stream.Collectors;
@@ -131,18 +134,27 @@ public class PacketDataController extends Observable {
             replacePacket(new ScapyPkt(scapy.build_pkt(params)));
             return;
         }
-        ReconstructPacketBuilder modifyBuilder = new ReconstructPacketBuilder();
-        modifyBuilder.appendStructureFromPacket(pkt.getProtocols());
-        modifyBuilder.appendProtocol(protocolId);
-        reconstructPacket(modifyBuilder.getProtocols());
+        List<ReconstructProtocol> modify = pkt.packet().getProtocols().stream().map(protocol ->
+                ReconstructProtocol.pass(protocol.id)
+        ).collect(Collectors.toList());
+        if (protocolId.equals("Raw")) {
+            // We need to have some dummy payload, or Scapy will remove it
+            modify.add(ReconstructProtocol.modify("Raw", Arrays.asList(ReconstructField.setValue("load", "dummy"))));
+        } else {
+            modify.add(ReconstructProtocol.pass(protocolId));
+        }
+        reconstructPacket(modify);
     }
 
     /** removes inner protocol */
     public void removeLastProtocol() {
-        ReconstructPacketBuilder modifyBuilder = new ReconstructPacketBuilder();
-        modifyBuilder.appendStructureFromPacket(pkt.getProtocols());
-        modifyBuilder.markProtocolForDeletion();
-        reconstructPacket(modifyBuilder.getProtocols());
+        List<ReconstructProtocol> modify = pkt.packet().getProtocols().stream().map(protocol ->
+                ReconstructProtocol.pass(protocol.id)
+        ).collect(Collectors.toList());
+        if (modify.size() > 0)  {
+            modify.get(modify.size() - 1).delete = true;
+        }
+        reconstructPacket(modify);
     }
 
     /* Reset length and chksum fields
