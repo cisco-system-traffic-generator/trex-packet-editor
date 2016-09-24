@@ -7,13 +7,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.events.ReloadModelEvent;
-import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.scapy.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
@@ -30,7 +28,7 @@ public class PacketDataController extends Observable {
     @Inject
     EventBus eventBus;
     
-    ScapyPkt pkt;
+    ScapyPkt pkt = new ScapyPkt();
 
     public void init() {
         scapy.open("tcp://localhost:4507");
@@ -148,13 +146,16 @@ public class PacketDataController extends Observable {
 
     /** removes inner protocol */
     public void removeLastProtocol() {
-        List<ReconstructProtocol> modify = pkt.packet().getProtocols().stream().map(protocol ->
+        List<ReconstructProtocol> protocols = pkt.packet().getProtocols().stream().map(protocol ->
                 ReconstructProtocol.pass(protocol.id)
         ).collect(Collectors.toList());
-        if (modify.size() > 0)  {
-            modify.get(modify.size() - 1).delete = true;
+
+        if (protocols.size() > 1)  {
+            protocols.get(protocols.size() - 1).delete = true;
+            reconstructPacket(protocols);
+        } else {
+           newPacket();
         }
-        reconstructPacket(modify);
     }
 
     /* Reset length and chksum fields

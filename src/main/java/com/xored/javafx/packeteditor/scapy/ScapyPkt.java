@@ -23,7 +23,10 @@ public class ScapyPkt {
     }
     
     public byte[] getBinaryData() {
-        String binary = pkt.get("binary").getAsString();
+        String binary = "";
+        if (pkt.get("binary").isJsonPrimitive()) {
+            binary = pkt.get("binary").getAsString();
+        }
         return base64Decoder.decode(binary);
     }
     

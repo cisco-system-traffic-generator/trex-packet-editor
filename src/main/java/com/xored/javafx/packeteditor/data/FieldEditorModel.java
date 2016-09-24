@@ -84,9 +84,7 @@ public class FieldEditorModel {
     }
 
     public void removeLast() {
-        if(!protocols.empty()) {
-            packetDataController.removeLastProtocol();
-        }
+        packetDataController.removeLastProtocol();
     }
 
     private void fireUpdateViewEvent() {
