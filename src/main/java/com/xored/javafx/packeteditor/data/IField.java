@@ -28,7 +28,6 @@ public interface IField {
     String getDisplayValue();
     Type getType();
     void setStringValue(String value);
-    void setPath(List<String> currentPath);
     List<String> getPath();
 }
 

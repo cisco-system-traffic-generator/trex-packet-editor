@@ -9,6 +9,9 @@ import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.events.ReloadModelEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
+import com.xored.javafx.packeteditor.scapy.FieldData;
+import com.xored.javafx.packeteditor.scapy.PacketData;
+import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.ScapyPkt;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 import org.slf4j.Logger;
@@ -96,30 +99,18 @@ public class FieldEditorModel {
     public void handleReloadModelEvent(ReloadModelEvent e) {
         protocols.clear();
         pkt = e.getPkt();
+        PacketData packet = pkt.packet();
         
-        binary.setBytes(pkt.getBinaryData());
-        Iterator it = pkt.getProtocols().iterator();
-        while(it.hasNext()) {
-            JsonObject protocol = (JsonObject) it.next();
-            String protocolId = protocol.get("id").getAsString();
-            ProtocolMetadata protocolMetadata = metadataService.getProtocolMetadataById(protocolId);
-            
+        binary.setBytes(packet.getPacketBytes());
+
+        for (ProtocolData protocol: packet.getProtocols()) {
+            ProtocolMetadata protocolMetadata = metadataService.getProtocolMetadataById(protocol.id);
             Protocol protocolObj = buildProtocolFromMeta(protocolMetadata);
             protocols.push(protocolObj);
-            
-            JsonArray fields = protocol.getAsJsonArray("fields");
-            Iterator fieldsIt = fields.iterator();
-            Integer protocolOffset = protocol.get("offset").getAsInt();
-            while (fieldsIt.hasNext()) {
-                JsonObject field =(JsonObject) fieldsIt.next();
-                String fieldId = field.get("id").getAsString();
-                Integer offset = field.get("offset").getAsInt();
-                Integer length = field.get("length").getAsInt();
-                // field.get("value") this value can be string, numeric or potentially json object. it is a value from Scapy as is
-                String hvalue = field.get("hvalue").getAsString(); // human-representation of a Scapy value. similar to what we get with show2
-                JsonElement value = field.get("value"); // human-representation of a Scapy value. similar to what we get with show2
-                
-                Field fieldObj = new Field(protocolMetadata.getMetaForField(fieldId), getCurrentPath(), offset, length, protocolOffset, hvalue, value);
+
+            Integer protocolOffset = protocol.offset.intValue();
+            for (FieldData field: protocol.fields) {
+                Field fieldObj = new Field(protocolMetadata.getMetaForField(field.id), getCurrentPath(), protocolOffset, field);
                 fieldObj.setOnSetCallback(newValue -> {
                     packetDataController.modifyPacketField(fieldObj, newValue);
                     fireUpdateViewEvent();
@@ -127,7 +118,6 @@ public class FieldEditorModel {
                 fieldObj.setPath(getCurrentPath());
                 protocolObj.getFields().add(fieldObj);
             }
-            
         }
         fireUpdateViewEvent();
     }

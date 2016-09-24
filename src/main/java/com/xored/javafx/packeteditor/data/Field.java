@@ -2,29 +2,25 @@ package com.xored.javafx.packeteditor.data;
 
 import com.google.gson.JsonElement;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
+import com.xored.javafx.packeteditor.scapy.FieldData;
 
 import java.util.List;
 
 public class Field implements IField {
     private FieldMetadata meta;
+    private FieldData field_data;
     private List<String> path;
-    private int offset;
     private int globalOffset;
-    private int length;
-    private String hvalue;
-    private JsonElement value;
+
     FieldEditHandler onSetValue;
     public interface FieldEditHandler {
         void operation(String value);
     }
-    public Field(FieldMetadata meta, List<String> path, int offset, int length, int globalOffset, String hvalue, JsonElement value) {
+    public Field(FieldMetadata meta, List<String> path, int globalOffset, FieldData field_data) {
         this.meta = meta;
         this.path = path;
-        this.offset = offset;
         this.globalOffset = globalOffset;
-        this.length = length;
-        this.value = value;
-        this.hvalue = hvalue;
+        this.field_data = field_data;
     }
 
     public FieldMetadata getMeta() {
@@ -32,15 +28,15 @@ public class Field implements IField {
     }
 
     public int getOffset() {
-        return offset;
+        return field_data.getOffset();
     }
     
     public int getAbsOffset() {
-        return globalOffset + offset;
+        return globalOffset + getOffset();
     }
 
     public int getLength() {
-        return length;
+        return field_data.getLength();
     }
 
     public String getId() { return meta.getId(); }
@@ -51,11 +47,9 @@ public class Field implements IField {
 
     public void setOnSetCallback(FieldEditHandler onSetValue) { this.onSetValue = onSetValue; }
     
-    public String getDisplayValue() { return hvalue; }
+    public String getDisplayValue() { return field_data.hvalue; }
     
-    public String getHValue() { return hvalue; }
-
-    public JsonElement getValue() { return value; }
+    public JsonElement getValue() { return field_data.value; }
 
     public Type getType() {
         return meta.getType();

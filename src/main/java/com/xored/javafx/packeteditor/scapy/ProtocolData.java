@@ -8,5 +8,6 @@ import java.util.List;
  */
 public class ProtocolData {
     public String id;
+    public Number offset;
     public List<FieldData> fields;
 }
