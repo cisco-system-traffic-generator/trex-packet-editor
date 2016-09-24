@@ -29,7 +29,10 @@ public class ScapyUtils {
      * @param newValue: 127.0.0.1
      * @return 'modify' payload for reconstruct_pkt
      * */
-    public static JsonArray createReconstructPktPayload(List<String> fieldPath, String fieldName, String newValue) {
+    public static JsonArray createReconstructPktPayload(List<String> fieldPath, String fieldName, String newValue, boolean randomize, boolean setdefault) {
+        if (fieldPath == null) {
+            return new JsonArray();
+        }
         JsonObject innerProtocol = null;
         JsonArray protocols = new JsonArray();
         for (String protoId: fieldPath) {
@@ -42,7 +45,13 @@ public class ScapyUtils {
         JsonObject modifyFieldRecord = new JsonObject();
         fieldsToModify.add(modifyFieldRecord);
         modifyFieldRecord.add("id", new JsonPrimitive(fieldName));
-        modifyFieldRecord.add("hvalue", new JsonPrimitive(newValue));
+        if (newValue != null) {
+            modifyFieldRecord.add("hvalue", new JsonPrimitive(newValue));
+        } else if (randomize) {
+            modifyFieldRecord.add("randomize", new JsonPrimitive(true));
+        } else if (setdefault) {
+            modifyFieldRecord.add("delete", new JsonPrimitive(true));
+        }
         return protocols;
     }
 

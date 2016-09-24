@@ -71,10 +71,6 @@ public class PacketDataController extends Observable {
     }
 
     public void modifyPacketField(IField field, String newValue) {
-        if (field.getPath() == null) {
-            log.warn("Can't modify field {} to {}", field, newValue);
-            return;
-        }
         modifyPacketField(field.getPath(), field.getId(), newValue);
     }
 
@@ -97,7 +93,15 @@ public class PacketDataController extends Observable {
     }
 
     public void modifyPacketField(List<String> fieldPath, String fieldName, String newValue) {
-        reconstructPacket(createReconstructPktPayload(fieldPath, fieldName, newValue));
+        reconstructPacket(createReconstructPktPayload(fieldPath, fieldName, newValue, false, false));
+    }
+
+    public void setFieldRandomValue(IField field) {
+        reconstructPacket(createReconstructPktPayload(field.getPath(), field.getId(), null, true, false));
+    }
+
+    public void setFieldDefaultValue(IField field) {
+        reconstructPacket(createReconstructPktPayload(field.getPath(), field.getId(), null, false, true));
     }
 
     /** appends protocol to the stack */
