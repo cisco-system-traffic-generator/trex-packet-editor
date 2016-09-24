@@ -5,8 +5,6 @@ import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 
 import java.util.List;
 
-import static com.xored.javafx.packeteditor.data.IField.Type.BITMASK;
-
 public class Field implements IField {
     private FieldMetadata meta;
     private List<String> path;
@@ -64,12 +62,6 @@ public class Field implements IField {
     }
 
     public void setStringValue(String value) {
-        if (BITMASK.equals(getType())) {
-            int newValue = Integer.valueOf(value);
-            int currentValue = this.value.getAsInt();
-            newValue = newValue | currentValue;
-            value = String.valueOf(newValue);
-        }
         if (onSetValue != null) {
             onSetValue.operation(value);
         }

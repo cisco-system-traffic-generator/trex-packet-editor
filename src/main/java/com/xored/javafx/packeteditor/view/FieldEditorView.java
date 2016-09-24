@@ -132,7 +132,7 @@ public class FieldEditorView {
         row.getStyleClass().addAll("field-row");
 
 
-        ComboBox combo = new ComboBox();
+        ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.getStyleClass().addAll("control");
         
         List<ComboBoxItem> items = bitFlagMetadata.getValues().entrySet().stream()
@@ -152,8 +152,14 @@ public class FieldEditorView {
             defaultValue = unsetValue.isPresent()? unsetValue.get() : null;
         }
         combo.setValue(defaultValue);
-
-        injectOnChangeHandler(combo, field);
+        
+        combo.setOnAction((event) -> {
+            ComboBoxItem val = combo.getSelectionModel().getSelectedItem();
+            int bitFlagMask = bitFlagMetadata.getMask();
+            int selected  = val.getValue().getAsInt();
+            int current = field.getValue().getAsInt();
+            field.setStringValue(String.valueOf(current & ~(bitFlagMask) | selected));
+        });
 
         BorderPane valuePane = new BorderPane();
         valuePane.setLeft(combo);
