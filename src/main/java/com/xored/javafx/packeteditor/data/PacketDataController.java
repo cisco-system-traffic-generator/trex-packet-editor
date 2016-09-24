@@ -71,17 +71,6 @@ public class PacketDataController extends Observable {
         Files.write(pcap_bin, file);
     }
 
-    public void modifyPacketField(IField field, String newValue) {
-        /* TODO: these special cases can be removed - used for testing */
-        if (newValue.equals("clear()")) {
-            setFieldDefaultValue(field);
-        } else if (newValue.equals("rnd()")) {
-            setFieldRandomValue(field);
-        } else {
-            modifyPacketField(field.getPath(), field.getId(), newValue);
-        }
-    }
-
     public void reconstructPacket(List<ReconstructProtocol> modify) {
         reconstructPacket(gson.toJsonTree(modify));
     }
@@ -104,7 +93,25 @@ public class PacketDataController extends Observable {
         }
     }
 
-    private void modifyPacketField(List<String> fieldPath, String fieldName, String newValue) {
+    /** can accept string representation for strings, integers, hex, ... */
+    public void setFieldValue(IField field, String newValue) {
+        /* TODO: these special cases can be removed - used for testing */
+        if (newValue.equals("clear()")) {
+            setFieldDefaultValue(field);
+        } else if (newValue.equals("rnd()")) {
+            setFieldRandomValue(field);
+        } else {
+            setFieldValue(field.getPath(), field.getId(), newValue);
+        }
+    }
+
+    /** @NotImplementedYet set binary payload to a field */
+    public void setFieldValueBytes(IField field, byte[] bytes) {
+        // TODO: implement properly
+        setFieldValue(field, "<binary payload" + bytes.length + ">");
+    }
+
+    private void setFieldValue(List<String> fieldPath, String fieldName, String newValue) {
         reconstructPacket(createReconstructPktPayload(fieldPath, fieldName, newValue, false, false));
     }
 

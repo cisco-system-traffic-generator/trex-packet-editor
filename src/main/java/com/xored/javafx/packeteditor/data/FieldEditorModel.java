@@ -2,9 +2,6 @@ package com.xored.javafx.packeteditor.data;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.events.ReloadModelEvent;
@@ -112,7 +109,7 @@ public class FieldEditorModel {
             for (FieldData field: protocol.fields) {
                 Field fieldObj = new Field(protocolMetadata.getMetaForField(field.id), getCurrentPath(), protocolOffset, field);
                 fieldObj.setOnSetCallback(newValue -> {
-                    packetDataController.modifyPacketField(fieldObj, newValue);
+                    packetDataController.setFieldValue(fieldObj, newValue);
                     fireUpdateViewEvent();
                 });
                 fieldObj.setPath(getCurrentPath());

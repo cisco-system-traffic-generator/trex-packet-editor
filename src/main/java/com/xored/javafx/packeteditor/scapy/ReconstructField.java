@@ -52,4 +52,10 @@ public class ReconstructField {
     public static ReconstructField setValue(String fieldId, Number value) {
         return setValue(fieldId, new JsonPrimitive(value));
     }
+
+    /** @NotImplemented not implemented yet on server side. mockup */
+    public static ReconstructField setValue(String fieldId, byte[] bytes) {
+        // TODO: implement with value_base64
+        return setValue(fieldId, new JsonPrimitive("<binary payload" + bytes.length + ">"));
+    }
 }

@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.*;
 
 public class FieldEditorController implements Initializable, Observer {
@@ -66,7 +65,7 @@ public class FieldEditorController implements Initializable, Observer {
 
                 OldField fieldObj = new OldField(fieldId, offset, length, protocolOffset, value, OldField.Type.STRING);
                 fieldObj.setPath(currentPath);
-                fieldObj.setOnSetValue( newValue -> packetController.modifyPacketField(fieldObj, newValue) );
+                fieldObj.setOnSetValue( newValue -> packetController.setFieldValue(fieldObj, newValue) );
 
                 fieldItems.add(new TreeItem<>(fieldObj));
             }
