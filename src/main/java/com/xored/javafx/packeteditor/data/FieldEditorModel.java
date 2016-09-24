@@ -5,6 +5,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.events.ReloadModelEvent;
+import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.PacketData;
@@ -92,6 +93,14 @@ public class FieldEditorModel {
         eventBus.post(new RebuildViewEvent(protocols));
     }
 
+    public ProtocolMetadata buildMetadataFromScapyModel(ProtocolData protocol) {
+        List<FieldMetadata> fields_metadata = protocol.fields.stream().map(f ->
+                new FieldMetadata(f.id, f.id, IField.Type.STRING, null, null)
+        ).collect(Collectors.toList());
+        List<String> payload = new ArrayList<>();
+        return new ProtocolMetadata(protocol.id, protocol.name, fields_metadata, payload);
+    }
+
     @Subscribe
     public void handleReloadModelEvent(ReloadModelEvent e) {
         protocols.clear();
@@ -102,6 +111,9 @@ public class FieldEditorModel {
 
         for (ProtocolData protocol: packet.getProtocols()) {
             ProtocolMetadata protocolMetadata = metadataService.getProtocolMetadataById(protocol.id);
+            if (protocolMetadata == null) {
+                 protocolMetadata = buildMetadataFromScapyModel(protocol);
+            }
             Protocol protocolObj = buildProtocolFromMeta(protocolMetadata);
             protocols.push(protocolObj);
 
