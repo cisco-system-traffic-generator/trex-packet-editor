@@ -27,6 +27,8 @@ import java.util.Stack;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
+import static com.xored.javafx.packeteditor.data.IField.DEFAULT;
+import static com.xored.javafx.packeteditor.data.IField.RANDOM;
 import static com.xored.javafx.packeteditor.data.IField.Type.BITMASK;
 
 public class FieldEditorView {
@@ -105,6 +107,7 @@ public class FieldEditorView {
                     TextField tf = new TextField(field.getDisplayValue());
                     injectOnChangeHandler(tf, field);
                     fieldControl = tf;
+                    fieldControl.setContextMenu(getContextMenu(field));
                     break;
                 case NONE:
                 default:
@@ -124,10 +127,11 @@ public class FieldEditorView {
     }
 
     private MaskTextField createMacAddressField(Field field) {
-        MaskTextField maskTextField = MaskTextField.createMacAddressField();
-        maskTextField.setText(field.getValue().getAsString());
-        injectOnChangeHandler(maskTextField, field);
-        return maskTextField;
+        MaskTextField macField = MaskTextField.createMacAddressField();
+        macField.setText(field.getValue().getAsString());
+        injectOnChangeHandler(macField, field);
+        macField.setContextMenu(getContextMenu(field));
+        return macField;
     }
     private TextField createIPAddressField(Field field) {
         TextField textField = new TextField();
@@ -146,6 +150,7 @@ public class FieldEditorView {
         textField.setTextFormatter(new TextFormatter<>(ipAddressFilter));
         textField.setText(field.getValue().getAsString());
         injectOnChangeHandler(textField, field);
+        textField.setContextMenu(getContextMenu(field));
         return textField;
     }
 
@@ -193,15 +198,6 @@ public class FieldEditorView {
         return row;
     }
 
-
-    private Control createTextMaskField(Field field, String mask) {
-        MaskTextField maskTextField = new MaskTextField();
-        maskTextField.setInputMask(mask);
-        maskTextField.setText(field.getDisplayValue());
-        injectOnChangeHandler(maskTextField, field);
-        return maskTextField;
-    }
-
     private void setFocusIfNeeded(Control control, Field field) {
         if (field.getUniqueId().equals(lastFocused)) {
             Platform.runLater(control::requestFocus);
@@ -245,5 +241,19 @@ public class FieldEditorView {
             combo.setValue(defaultValue.get());
         }
         return combo;
+    }
+    
+    private ContextMenu getContextMenu(Field field) {
+        ContextMenu context = new ContextMenu();
+
+        MenuItem generateItem = new MenuItem("Generate");
+        generateItem.setOnAction((event) -> field.setStringValue(RANDOM));
+        
+        MenuItem defaultItem = new MenuItem("Set to Default");
+        defaultItem.setOnAction((event) -> field.setStringValue(DEFAULT));
+        
+        context.getItems().addAll(generateItem, defaultItem);
+        
+        return context;
     }
 }

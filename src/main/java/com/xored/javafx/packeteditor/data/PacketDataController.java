@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.scapy.ScapyUtils.createReconstructPktPayload;
 
+import static com.xored.javafx.packeteditor.data.IField.*;
+
 public class PacketDataController extends Observable {
     static Logger log = LoggerFactory.getLogger(PacketDataController.class);
     final Gson gson = new Gson();
@@ -32,13 +34,6 @@ public class PacketDataController extends Observable {
 
     public void init() {
         scapy.open("tcp://localhost:4507");
-//        ClassLoader classLoader = getClass().getClassLoader();
-//        File example_file = new File(classLoader.getResource("http_get_request.pcap").getFile());
-//        try {
-//            loadPcapFile(example_file);
-//        } catch (Exception e) {
-//            log.error("{}", e);
-//        }
     }
     
     
@@ -97,9 +92,9 @@ public class PacketDataController extends Observable {
     /** can accept string representation for strings, integers, hex, ... */
     public void setFieldValue(IField field, String newValue) {
         /* TODO: these special cases can be removed - used for testing */
-        if (newValue.equals("clear()")) {
+        if (DEFAULT.equals(newValue)) {
             setFieldDefaultValue(field);
-        } else if (newValue.equals("rnd()")) {
+        } else if (RANDOM.equals(newValue)) {
             setFieldRandomValue(field);
         } else {
             setFieldValue(field.getPath(), field.getId(), newValue);

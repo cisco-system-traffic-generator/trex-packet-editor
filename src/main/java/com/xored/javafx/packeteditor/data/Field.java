@@ -63,8 +63,6 @@ public class Field implements IField {
         }
     }
 
-    public void setPath(List<String> currentPath) { }
-
     public List<String> getPath() { return path; }
     
     public String getUniqueId() {

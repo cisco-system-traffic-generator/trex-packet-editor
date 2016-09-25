@@ -122,7 +122,6 @@ public class FieldEditorModel {
                     packetDataController.setFieldValue(fieldObj, newValue);
                     fireUpdateViewEvent();
                 });
-                fieldObj.setPath(getCurrentPath());
                 protocolObj.getFields().add(fieldObj);
             }
         }

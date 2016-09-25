@@ -6,6 +6,9 @@ import java.util.List;
 
 public interface IField {
 
+    String DEFAULT = "default";
+    String RANDOM = "random";
+
     // TODO: move to metadata
     enum Type {
         BINARY,
@@ -22,7 +25,7 @@ public interface IField {
         IPOPTIONS
     }
 
-    public FieldMetadata getMeta();
+    FieldMetadata getMeta();
     int getOffset();
     int getAbsOffset();
     int getLength();
