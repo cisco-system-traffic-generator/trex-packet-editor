@@ -17,6 +17,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import jidefx.scene.control.field.MaskTextField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +31,7 @@ import static com.xored.javafx.packeteditor.data.IField.Type.BITMASK;
 public class FieldEditorView {
     private Pane parentPane;
     private VBox protocolsPane = new VBox();
-    
+    private Logger logger = LoggerFactory.getLogger(FieldEditorView.class);
     public void setParentPane(Pane parentPane) {
         this.parentPane = parentPane;
     }
@@ -65,7 +67,7 @@ public class FieldEditorView {
     }
 
     private List<Node> buildFieldRow(Field field) {
-        List<Node> rows = new ArrayList();
+        List<Node> rows = new ArrayList<>();
         String title = field.getName();
         FieldMetadata meta = field.getMeta();
         Type type = meta.getType();
@@ -156,7 +158,7 @@ public class FieldEditorView {
         combo.setOnAction((event) -> {
             ComboBoxItem val = combo.getSelectionModel().getSelectedItem();
             int bitFlagMask = bitFlagMetadata.getMask();
-            int selected  = val.getValue().getAsInt();
+            int selected = val.getValue().getAsInt();
             int current = field.getValue().getAsInt();
             field.setStringValue(String.valueOf(current & ~(bitFlagMask) | selected));
         });
