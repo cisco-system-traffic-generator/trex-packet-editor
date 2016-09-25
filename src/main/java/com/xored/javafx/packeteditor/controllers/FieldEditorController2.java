@@ -17,6 +17,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +64,16 @@ public class FieldEditorController2 implements Initializable {
         packetController.init();
         view.setParentPane(fieldEditorPane);
         model.setMetadataService(metadataService);
+
+        packetController.addObserver((source,params)->{
+            String title = "Packet Editor";
+            if (packetController.getCurrentFile() != null) {
+                title = title + " - " + packetController.getCurrentFile().getAbsolutePath();
+            }
+
+            ((Stage)fieldEditorPane.getScene().getWindow()).setTitle(title);
+        });
+
     }
 
     @Subscribe

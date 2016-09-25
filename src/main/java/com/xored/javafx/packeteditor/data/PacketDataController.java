@@ -26,6 +26,8 @@ public class PacketDataController extends Observable {
     final Gson gson = new Gson();
     @Inject
     ScapyServerClient scapy;
+
+    File currentFile;
     
     @Inject
     EventBus eventBus;
@@ -35,8 +37,10 @@ public class PacketDataController extends Observable {
     public void init() {
         scapy.open("tcp://localhost:4507");
     }
-    
-    
+
+
+    public File getCurrentFile() { return currentFile; }
+
     // TODO: reimplement it as service and make it stateless,
     public void replacePacket(ScapyPkt payload) {
         pkt = payload;
@@ -50,6 +54,7 @@ public class PacketDataController extends Observable {
     }
 
     public void newPacket() {
+        currentFile = null;
         replacePacket(new ScapyPkt());
     }
 
@@ -59,12 +64,14 @@ public class PacketDataController extends Observable {
 
     public void loadPcapFile(File file) throws Exception {
         byte[] bytes = Files.toByteArray(file);
+        currentFile = file;
         replacePacket(scapy.read_pcap_packet(bytes));
     }
 
     public void writeToPcapFile(File file) throws Exception {
         byte[] pcap_bin = scapy.write_pcap_packet(pkt.getBinaryData());
         Files.write(pcap_bin, file);
+        currentFile = file;
     }
 
     public void reconstructPacket(List<ReconstructProtocol> modify) {

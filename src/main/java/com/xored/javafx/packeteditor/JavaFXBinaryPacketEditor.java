@@ -29,7 +29,7 @@ public class JavaFXBinaryPacketEditor extends Application {
         Scene scene = new Scene(parent);
         scene.getStylesheets().add(ClassLoader.getSystemResource("styles/main.css").toExternalForm());
         primaryStage.setScene(scene);
-        primaryStage.setTitle("JavaFX 8 Binary Packet Editor");
+        primaryStage.setTitle("Packet Editor");
         primaryStage.show();
         primaryStage.setOnCloseRequest(e -> {
             System.exit(0);
