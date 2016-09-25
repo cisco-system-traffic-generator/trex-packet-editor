@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -42,6 +43,8 @@ public class FieldEditorController2 implements Initializable {
     
     @Inject
     FieldEditorView view;
+
+    FileChooser fileChooser = new FileChooser();
 
     public IMetadataService getMetadataService() {
         return metadataService;
@@ -89,11 +92,11 @@ public class FieldEditorController2 implements Initializable {
     }
 
     public void showLoadDialog() {
-        FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Pcap File");
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Pcap Files", "*.pcap", "*.cap"),
                 new FileChooser.ExtensionFilter("All Files", "*.*"));
+        initFileChooser();
         java.io.File pcapfile = fileChooser.showOpenDialog(fieldEditorPane.getScene().getWindow());
         if (pcapfile != null) {
             try {
@@ -113,12 +116,20 @@ public class FieldEditorController2 implements Initializable {
         alert.showAndWait();
     }
 
+    public void initFileChooser() {
+        File file = packetController.getCurrentFile();
+        if (file != null) {
+            fileChooser.setInitialDirectory(file.getParentFile());
+            fileChooser.setInitialFileName(file.getName());
+        }
+    }
+
     public void showSaveDialog() {
-        FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save to Pcap File");
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Pcap Files", "*.pcap", "*.cap"),
                 new FileChooser.ExtensionFilter("All Files", "*.*"));
+        initFileChooser();
         java.io.File pcapfile = fileChooser.showSaveDialog(fieldEditorPane.getScene().getWindow());
         if (pcapfile != null) {
             try {
