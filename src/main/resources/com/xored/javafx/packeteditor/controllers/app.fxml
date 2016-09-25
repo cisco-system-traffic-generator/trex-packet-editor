@@ -9,9 +9,7 @@
         <fx:include source="menu.fxml"/>
     </top>
     <center>
-        <ScrollPane>
-            <fx:include source="PacketEditor.fxml"/>
-        </ScrollPane>
+        <fx:include source="PacketEditor.fxml"/>
     </center>
     <left>
     </left>

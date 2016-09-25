@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
-
-<VBox fx:id="fieldEditorBox" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.xored.javafx.packeteditor.controllers.FieldEditorController">
-</VBox>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.StackPane?>
+<ScrollPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.xored.javafx.packeteditor.controllers.FieldEditorController2">
+    <content>
+        <StackPane xmlns:fx="http://javafx.com/fxml/1"
+                   fx:id="fieldEditorPane"
+                   prefHeight="1384.0"
+                   prefWidth="950.0"
+                />
+    </content>
+</ScrollPane>

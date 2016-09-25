@@ -28,7 +28,7 @@ public class BinaryData extends Observable implements IBinaryData {
 
     @Override
     public int getLength() {
-        return bytes.length;
+        return bytes != null ? bytes.length: 0 ;
     }
 
     @Override
