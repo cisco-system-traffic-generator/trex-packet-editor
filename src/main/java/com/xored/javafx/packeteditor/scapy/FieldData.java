@@ -1,17 +1,21 @@
 package com.xored.javafx.packeteditor.scapy;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import java.util.Base64;
 
 public class FieldData {
     public String id;
+    public String field_type; // name of the Scapy class, optional metadata
     public JsonElement value;
     public String hvalue;
-    public String value_base64;
+    public String value_base64; // optional
     public Number offset;
     public Number length;
-    public Boolean ignored;
+    public Boolean ignored; // optional
+
+    public JsonObject values_dict; // String -> value enum, optional
 
     public String getStringValue() { return value.getAsString(); }
     public int getIntValue() { return value.getAsInt(); }

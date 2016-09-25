@@ -2,6 +2,8 @@ package com.xored.javafx.packeteditor.data;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.events.ReloadModelEvent;
@@ -91,9 +93,22 @@ public class FieldEditorModel {
         eventBus.post(new RebuildViewEvent(protocols));
     }
 
+    public FieldMetadata buildFieldMetaFromScapy(FieldData field) {
+        JsonObject dict = field.values_dict;
+        final int max_enum_values_to_display = 100; // max sane number of choice enumeration.
+        if (dict != null && dict.size() > 0 && dict.size() < max_enum_values_to_display) {
+            Map<String, JsonElement> dict_map = dict.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            return new FieldMetadata(field.id, field.id, IField.Type.ENUM, dict_map, null);
+
+        } else {
+            return new FieldMetadata(field.id, field.id, IField.Type.STRING, null, null);
+        }
+    }
+
     public ProtocolMetadata buildMetadataFromScapyModel(ProtocolData protocol) {
         List<FieldMetadata> fields_metadata = protocol.fields.stream().map(f ->
-                new FieldMetadata(f.id, f.id, IField.Type.STRING, null, null)
+                buildFieldMetaFromScapy(f)
         ).collect(Collectors.toList());
         List<String> payload = new ArrayList<>();
         return new ProtocolMetadata(protocol.id, protocol.name, fields_metadata, payload);
