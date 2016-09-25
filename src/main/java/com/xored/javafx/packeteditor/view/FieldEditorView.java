@@ -75,6 +75,9 @@ public class FieldEditorView {
     private List<Node> buildFieldRow(Field field) {
         List<Node> rows = new ArrayList<>();
         String title = field.getName();
+        if (field.getData().isIgnored()) {
+            title = title + "(ignored)";
+        }
         FieldMetadata meta = field.getMeta();
         Type type = meta.getType();
 

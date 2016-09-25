@@ -28,6 +28,7 @@ public class Field implements IField {
     public FieldMetadata getMeta() {
         return meta;
     }
+    public FieldData getData() { return field_data; }
 
     public int getOffset() {
         return field_data.getOffset();
