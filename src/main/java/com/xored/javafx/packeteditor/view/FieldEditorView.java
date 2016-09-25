@@ -238,6 +238,10 @@ public class FieldEditorView {
         List<ComboBoxItem> items = field.getMeta().getDictionary().entrySet().stream().map(entry -> new ComboBoxItem(entry.getKey(), entry.getValue())).collect(Collectors.toList());
         
         Optional<ComboBoxItem> defaultValue = items.stream().filter(item -> item.equalsTo(field.getValue())).findFirst();
+        if (!defaultValue.isPresent()){
+            defaultValue = Optional.of(new ComboBoxItem(field.getData().hvalue, field.getData().value));
+            items.add(defaultValue.get());
+        }
         combo.getItems().addAll(items);
         injectOnChangeHandler(combo, field);
         if (defaultValue.isPresent()) {
