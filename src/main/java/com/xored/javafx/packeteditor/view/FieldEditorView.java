@@ -9,10 +9,7 @@ import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import javafx.application.Platform;
 import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Control;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -27,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Stack;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.data.IField.Type.BITMASK;
@@ -97,10 +95,10 @@ public class FieldEditorView {
                     fieldControl = createEnumField(field);
                     break;
                 case MAC_ADDRESS:
-                    fieldControl = getMacAddressField(field);
+                    fieldControl = createMacAddressField(field);
                     break;
                 case IPV4ADDRESS:
-                    fieldControl = createTextMaskField(field, "255.255.255.255");
+                    fieldControl = createIPAddressField(field);
                     break;
                 case NUMBER:
                 case STRING:
@@ -125,11 +123,30 @@ public class FieldEditorView {
         return rows;
     }
 
-    private MaskTextField getMacAddressField(Field field) {
+    private MaskTextField createMacAddressField(Field field) {
         MaskTextField maskTextField = MaskTextField.createMacAddressField();
         maskTextField.setText(field.getValue().getAsString());
         injectOnChangeHandler(maskTextField, field);
         return maskTextField;
+    }
+    private TextField createIPAddressField(Field field) {
+        TextField textField = new TextField();
+        String partialBlock = "(([01]?[0-9]{0,2})|(2[0-4][0-9])|(25[0-5]))";
+        String subsequentPartialBlock = "(\\."+partialBlock+")" ;
+        String ipAddress = partialBlock+"?"+subsequentPartialBlock+"{0,3}";
+        String regex = "^"+ipAddress;
+        final UnaryOperator<TextFormatter.Change> ipAddressFilter = c -> {
+            String text = c.getControlNewText();
+            if  (text.matches(regex)) {
+                return c ;
+            } else {
+                return null ;
+            }
+        };
+        textField.setTextFormatter(new TextFormatter<>(ipAddressFilter));
+        textField.setText(field.getValue().getAsString());
+        injectOnChangeHandler(textField, field);
+        return textField;
     }
 
     private Node createBitFlagRow(Field field, BitFlagMetadata bitFlagMetadata) {
