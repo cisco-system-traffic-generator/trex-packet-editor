@@ -1,5 +1,7 @@
 package com.xored.javafx.packeteditor.data;
 
+import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
+
 import java.util.List;
 
 public class OldField implements IField {
@@ -25,6 +27,11 @@ public class OldField implements IField {
         this.length = length;
         this.type = type;
         this.value = value;
+    }
+
+    @Override
+    public FieldMetadata getMeta() {
+        return null;
     }
 
     public int getOffset() {

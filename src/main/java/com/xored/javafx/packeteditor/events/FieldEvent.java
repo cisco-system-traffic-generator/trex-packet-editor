@@ -1,5 +1,6 @@
 package com.xored.javafx.packeteditor.events;
 
+import com.xored.javafx.packeteditor.data.IField;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 
 public class FieldEvent extends Event{
@@ -10,10 +11,9 @@ public class FieldEvent extends Event{
 
     private Object value;
 
-    public FieldEvent(Action action, FieldMetadata meta, Object value) {
+    public FieldEvent(Action action, IField field) {
         this.action = action;
-        this.fieldMetadata = meta;
-        this.value = value;
+        this.fieldMetadata = field.getMeta();
     }
 
     public Action getAction() {

@@ -128,4 +128,8 @@ public class FieldEditorModel {
         }
         fireUpdateViewEvent();
     }
+    
+    public void setSelected(Field field) {
+        binary.setSelected(field.getAbsOffset(), field.getLength());
+    }
 }

@@ -1,10 +1,13 @@
 package com.xored.javafx.packeteditor.view;
 
+import com.google.inject.Inject;
+import com.xored.javafx.packeteditor.controllers.FieldEditorController2;
 import com.xored.javafx.packeteditor.data.Field;
 import com.xored.javafx.packeteditor.data.IField.Type;
 import com.xored.javafx.packeteditor.data.Protocol;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
@@ -29,6 +32,9 @@ import java.util.stream.Collectors;
 import static com.xored.javafx.packeteditor.data.IField.Type.BITMASK;
 
 public class FieldEditorView {
+    String lastFocused;
+    @Inject
+    FieldEditorController2 controller;
     private Pane parentPane;
     private VBox protocolsPane = new VBox();
     private Logger logger = LoggerFactory.getLogger(FieldEditorView.class);
@@ -101,7 +107,6 @@ public class FieldEditorView {
                     TextField tf = new TextField(field.getDisplayValue());
                     injectOnChangeHandler(tf, field);
                     fieldControl = tf;
-                    
                     break;
                 case NONE:
                 default:
@@ -112,6 +117,8 @@ public class FieldEditorView {
             BorderPane valuePane = new BorderPane();
             valuePane.setCenter(fieldControl);
             row.getChildren().addAll(titlePane, valuePane);
+            addFocusListener(fieldControl, field);
+            setFocusIfNeeded(fieldControl, field);
             rows.add(row);
         }
 
@@ -162,7 +169,7 @@ public class FieldEditorView {
             int current = field.getValue().getAsInt();
             field.setStringValue(String.valueOf(current & ~(bitFlagMask) | selected));
         });
-
+        setFocusIfNeeded(combo, field);
         BorderPane valuePane = new BorderPane();
         valuePane.setLeft(combo);
         row.getChildren().addAll(titlePane, valuePane);
@@ -178,6 +185,22 @@ public class FieldEditorView {
         return maskTextField;
     }
 
+    private void setFocusIfNeeded(Control control, Field field) {
+        if (field.getUniqueId().equals(lastFocused)) {
+            Platform.runLater(control::requestFocus);
+        }
+    } 
+    
+    private void addFocusListener(Node node, Field field) {
+        node.setFocusTraversable(false);
+        node.focusedProperty().addListener((arg0, oldPropertyValue, focused) -> {
+            if (focused) {
+                controller.selectField(field);
+                this.lastFocused = field.getUniqueId();
+            }
+        });
+    }
+    
     private void injectOnChangeHandler(TextField textField, Field field) {
         textField.setOnKeyReleased(e -> {
             if (e.getCode().equals(KeyCode.ENTER)) {

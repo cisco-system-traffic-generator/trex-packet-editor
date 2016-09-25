@@ -4,7 +4,9 @@ import com.google.gson.JsonElement;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Field implements IField {
     private FieldMetadata meta;
@@ -64,4 +66,10 @@ public class Field implements IField {
     public void setPath(List<String> currentPath) { }
 
     public List<String> getPath() { return path; }
+    
+    public String getUniqueId() {
+        List<String> path = new ArrayList<>(this.path);
+        path.add(getName());
+        return path.stream().collect(Collectors.joining("-"));
+    }
 }

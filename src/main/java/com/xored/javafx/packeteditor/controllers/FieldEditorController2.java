@@ -2,6 +2,7 @@ package com.xored.javafx.packeteditor.controllers;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+import com.xored.javafx.packeteditor.data.Field;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.PacketDataController;
 import com.xored.javafx.packeteditor.data.Protocol;
@@ -115,5 +116,9 @@ public class FieldEditorController2 implements Initializable {
                 showError("Failed to save pcap file", e);
             }
         }
+    }
+
+    public void selectField(Field field) {
+        model.setSelected(field);
     }
 }
