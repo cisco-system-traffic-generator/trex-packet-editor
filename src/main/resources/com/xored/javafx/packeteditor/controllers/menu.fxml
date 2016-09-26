@@ -1,27 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.scene.input.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.xored.javafx.packeteditor.controllers.MenuController">
-   <MenuBar fx:id="applicationMenu">
-      <menus>
-         <Menu mnemonicParsing="false" text="File">
-            <items>
-               <MenuItem mnemonicParsing="false" text="New Document" onAction="#handleNewDocument"/>
-               <MenuItem mnemonicParsing="false" text="Load .pcap" onAction="#handleLoadAction"/>
-               <MenuItem mnemonicParsing="false" text="Save" onAction="#handleSaveAction"/>
-               <MenuItem mnemonicParsing="false" text="Close" onAction="#handleCloseAction"/>
-            </items>
-         </Menu>
-         <Menu mnemonicParsing="false" text="Action">
-            <items>
-               <MenuItem mnemonicParsing="false" text="Add Protocol" onAction="#handleAddProtocolAction"/>
-               <MenuItem mnemonicParsing="false" text="Delete" onAction="#handleDeleteProtocolAction"/>
-               <MenuItem mnemonicParsing="false" text="Clear" onAction="#handleClearAction"/>
-               <MenuItem mnemonicParsing="false" text="Recalculate auto-values" onAction="#handleRecalculateValues"/>
-            </items>
-         </Menu>
-      </menus>
-   </MenuBar>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="com.xored.javafx.packeteditor.controllers.MenuController">
+   <children>
+      <MenuBar fx:id="applicationMenu">
+         <menus>
+            <Menu mnemonicParsing="false" text="File">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#handleNewDocument" text="New Document" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleLoadAction" text="Load pcap file" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleSaveAction" text="Save to pcap file" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleCloseAction" text="Exit" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Edit">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#handleUndo" text="Undo" accelerator="Shortcut+Z"/>
+                  <MenuItem mnemonicParsing="false" onAction="#handleRedo" text="Redo" accelerator="Shortcut+R"/>
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Action">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#handleAddProtocolAction" text="Add Protocol" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleDeleteProtocolAction" text="Delete" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleClearAction" text="Clear" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleRecalculateValues" text="Recalculate auto-values" />
+               </items>
+            </Menu>
+         </menus>
+      </MenuBar>
+   </children>
 </VBox>

@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.inject.Inject;
+import com.xored.javafx.packeteditor.controllers.PacketUndoController;
 import com.xored.javafx.packeteditor.events.ReloadModelEvent;
 import com.xored.javafx.packeteditor.scapy.*;
 import org.slf4j.Logger;
@@ -31,7 +32,10 @@ public class PacketDataController extends Observable {
     
     @Inject
     EventBus eventBus;
-    
+
+    @Inject
+    PacketUndoController undoController;
+
     ScapyPkt pkt = new ScapyPkt();
 
     public void init() {
@@ -43,6 +47,7 @@ public class PacketDataController extends Observable {
 
     // TODO: reimplement it as service and make it stateless,
     public void replacePacket(ScapyPkt payload) {
+        undoController.beforeContentReplace(pkt);
         pkt = payload;
         setChanged();
         notifyObservers(null); // deprecated
