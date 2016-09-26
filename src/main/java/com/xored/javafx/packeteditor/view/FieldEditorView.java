@@ -117,13 +117,20 @@ public class FieldEditorView {
                     fieldControl.setContextMenu(getContextMenu(field));
                     break;
                 case RAW:
-                    row.getStyleClass().addAll("field-row-raw");
-                    TextArea ta = new TextArea(field.getData().hvalue);
-                    ta.setPrefSize(200, 40);
-                    MenuItem saveRawMenuItem = new MenuItem("Save");
-                    saveRawMenuItem.setOnAction((event) -> field.setStringValue(ta.getText()));
-                    ta.setContextMenu(new ContextMenu(saveRawMenuItem));
-                    fieldControl = ta;
+                    if (field.getData().hasBinaryData()) {
+                        TextField rawTextField = new TextField(field.getData().hvalue);
+                        rawTextField.setDisable(true);
+                        fieldControl = rawTextField;
+                        
+                    } else {
+                        row.getStyleClass().addAll("field-row-raw");
+                        TextArea ta = new TextArea(field.getData().hvalue);
+                        ta.setPrefSize(200, 40);
+                        MenuItem saveRawMenuItem = new MenuItem("Save");
+                        saveRawMenuItem.setOnAction((event) -> field.setStringValue(ta.getText()));
+                        ta.setContextMenu(new ContextMenu(saveRawMenuItem));
+                        fieldControl = ta;
+                    }
                     break;
                 case NONE:
                 default:
