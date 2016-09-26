@@ -123,6 +123,8 @@ public class LocalFileMetadataService implements IMetadataService {
                 return ENUM;
             case "bitmask":
                 return BITMASK;
+            case "raw":
+                return RAW;
             default:
                 return IField.Type.STRING;
         }

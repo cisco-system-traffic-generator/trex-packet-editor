@@ -17,6 +17,7 @@ public interface IField {
         STRING,
         PROTOCOL,
         NONE,
+        RAW,
         NUMBER,
         ENUM,
         BITMASK,

@@ -20,10 +20,10 @@
     -fx-pref-height: 30px;
     -fx-padding: 8 0 7 40px;
 }
-.flag-field-row {
+.field-row-raw {
     -fx-background-color: lightgray;
-    -fx-pref-height: 30px;
-    -fx-padding: 8 0 7 80px;
+    -fx-pref-height: 220px;
+    -fx-padding: 8 0 7 40px;
 }
 
 .protocol-name {
@@ -34,6 +34,10 @@
 
 .control {
     -fx-pref-width: 180px;
+}
+.text-area {
+    -fx-pref-width: 360px;
+    -fx-pref-height: 200px;
 }
 
 .title-pane {

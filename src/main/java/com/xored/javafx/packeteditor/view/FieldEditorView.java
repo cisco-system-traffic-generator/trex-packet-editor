@@ -116,6 +116,15 @@ public class FieldEditorView {
                     fieldControl = tf;
                     fieldControl.setContextMenu(getContextMenu(field));
                     break;
+                case RAW:
+                    row.getStyleClass().addAll("field-row-raw");
+                    TextArea ta = new TextArea(field.getData().hvalue);
+                    ta.setPrefSize(200, 40);
+                    MenuItem saveRawMenuItem = new MenuItem("Save");
+                    saveRawMenuItem.setOnAction((event) -> field.setStringValue(ta.getText()));
+                    ta.setContextMenu(new ContextMenu(saveRawMenuItem));
+                    fieldControl = ta;
+                    break;
                 case NONE:
                 default:
                     fieldControl = new Label("");

@@ -189,7 +189,7 @@
       {
         "id": "load",
         "name": "Payload",
-        "type": "STRING"
+        "type": "raw"
       }
     ],
     "payload": []
