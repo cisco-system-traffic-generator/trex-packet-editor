@@ -170,13 +170,19 @@ public class PacketDataController extends Observable {
      *  */
     public void recalculateAutoValues() {
         List<ProtocolData> protocols = pkt.packet().getProtocols();
-        List<ReconstructProtocol> modify = protocols.stream().map(protocol -> (
-            ReconstructProtocol.modify(protocol.id, protocol.fields.stream().filter(f->
-                    f.id.equals("length") ||
-                    f.id.equals("chksum") ||
-                    (f.id.equals("type") && protocol == protocols.get(protocols.size() - 1))
-            ).map( f-> ReconstructField.resetValue(f.id) ).collect(Collectors.toList())
-        ))).collect(Collectors.toList());
+        List<ReconstructProtocol> modify = protocols.stream().map(
+                protocol -> {
+                    boolean is_last_layer = protocol == protocols.get(protocols.size() - 1);
+                    return ReconstructProtocol.modify(protocol.id, protocol.fields.stream().filter(
+                            field -> {
+                                boolean field_reset_required =
+                                        field.id.equals("length") ||
+                                        field.id.equals("chksum") ||
+                                        (field.id.equals("type") && is_last_layer);
+                                return field_reset_required;
+                            }
+                    ).map(f -> ReconstructField.resetValue(f.id)).collect(Collectors.toList()));
+                }).collect(Collectors.toList());
         reconstructPacket(modify);
     }
 }
