@@ -120,7 +120,7 @@ public class FieldEditorView {
                     fieldControl.setContextMenu(getContextMenu(field));
                     break;
                 case RAW:
-                    if (field.getData().hasBinaryData()) {
+                    if (field.getData().hasBinaryData() && !field.getData().hasValue()) {
                         TextField rawTextField = new TextField(field.getData().hvalue);
                         rawTextField.setDisable(true);
                         fieldControl = rawTextField;
