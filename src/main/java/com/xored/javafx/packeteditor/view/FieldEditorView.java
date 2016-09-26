@@ -56,11 +56,14 @@ public class FieldEditorView {
     }
 
     public void rebuild(Stack<Protocol> protocols) {
-        fieldEditorPane.getChildren().clear();
-        protocolsPane.getChildren().clear();
-        protocols.stream().forEach(this::addProtocol);
-        fieldEditorPane.getChildren().add(protocolsPane);
-        
+        try {
+            fieldEditorPane.getChildren().clear();
+            protocolsPane.getChildren().clear();
+            protocols.stream().forEach(this::addProtocol);
+            fieldEditorPane.getChildren().add(protocolsPane);
+        } catch(Exception e) {
+            logger.error("Error occurred during rebuilding view. Error {}", e);
+        }
     }
     
     private HBox buildProtocolRow(Protocol protocol) {
