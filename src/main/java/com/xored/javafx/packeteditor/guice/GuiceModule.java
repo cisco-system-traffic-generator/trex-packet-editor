@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController2;
+import com.xored.javafx.packeteditor.controllers.PacketUndoController;
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.IBinaryData;
@@ -28,6 +29,7 @@ public class GuiceModule extends AbstractModule {
         bind(FieldEditorController2.class).in(Singleton.class);
         bind(FieldEditorView.class).in(Singleton.class);
         bind(IMetadataService.class).to(LocalFileMetadataService.class).in(Singleton.class);
+        bind(PacketUndoController.class).in(Singleton.class);
     }
 
 }

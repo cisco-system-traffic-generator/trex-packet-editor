@@ -24,6 +24,9 @@ public class MenuController {
     @Inject
     FieldEditorController2 controller;
 
+    @Inject
+    PacketUndoController undoController;
+
     @FXML
     MenuBar applicationMenu;
 
@@ -76,11 +79,23 @@ public class MenuController {
         packetController.newPacket();
     }
 
+    @FXML
     public void handleSaveAction(ActionEvent event) {
         controller.showSaveDialog();
     }
 
+    @FXML
     public void handleRecalculateValues(ActionEvent actionEvent) {
         packetController.recalculateAutoValues();
+    }
+
+    @FXML
+    public void handleUndo(ActionEvent actionEvent) {
+        undoController.undo();
+    }
+
+    @FXML
+    public void handleRedo(ActionEvent actionEvent) {
+        undoController.redo();
     }
 }
