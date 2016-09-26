@@ -2,7 +2,11 @@
 
 
 <?import javafx.scene.control.SplitPane?>
-<SplitPane id="stackPane" dividerPositions="0.75" orientation="VERTICAL" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<SplitPane xmlns="http://javafx.com/javafx/8"
+           xmlns:fx="http://javafx.com/fxml/1"
+           dividerPositions="0.75"
+           orientation="VERTICAL"
+           prefWidth="850">
     <items>
         <fx:include source="FieldEditor.fxml" />
         <fx:include source="BinaryEditor.fxml" />

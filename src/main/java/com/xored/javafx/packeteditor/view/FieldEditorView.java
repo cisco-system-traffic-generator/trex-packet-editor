@@ -8,12 +8,13 @@ import com.xored.javafx.packeteditor.data.Protocol;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import jidefx.scene.control.field.MaskTextField;
@@ -35,11 +36,16 @@ public class FieldEditorView {
     String lastFocused;
     @Inject
     FieldEditorController2 controller;
-    private Pane parentPane;
+    
+    private StackPane fieldEditorPane;
+    
     private VBox protocolsPane = new VBox();
+    
     private Logger logger = LoggerFactory.getLogger(FieldEditorView.class);
-    public void setParentPane(Pane parentPane) {
-        this.parentPane = parentPane;
+    
+    public void setParentPane(StackPane parentPane) {
+        this.fieldEditorPane = parentPane;
+        fieldEditorPane.setPadding(new Insets(25, 25, 25, 50));
     }
 
     public void addProtocol(Protocol protocol) {
@@ -49,19 +55,18 @@ public class FieldEditorView {
     }
 
     public void rebuild(Stack<Protocol> protocols) {
-        parentPane.getChildren().clear();
+        fieldEditorPane.getChildren().clear();
         protocolsPane.getChildren().clear();
-        
         protocols.stream().forEach(this::addProtocol);
+        fieldEditorPane.getChildren().add(protocolsPane);
         
-        parentPane.getChildren().add(protocolsPane);
     }
     
     private HBox buildProtocolRow(Protocol protocol) {
         HBox row = new HBox(13);
         row.getStyleClass().addAll("protocol-row");
 
-        Text textName = new Text(protocol.getName());
+        Text textName = new Text("    " + protocol.getName());
         textName.getStyleClass().add("protocol-name");
 
         // TODO: replace * with proper symbol

@@ -10,9 +10,11 @@ import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 import com.xored.javafx.packeteditor.view.FieldEditorView;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.StackPane;
@@ -31,6 +33,7 @@ public class FieldEditorController2 implements Initializable {
     static Logger logger = LoggerFactory.getLogger(FieldEditorController2.class);
     
     @FXML private StackPane fieldEditorPane;
+    @FXML private ScrollPane scrollPane;
     
     @Inject
     FieldEditorModel model;
@@ -81,7 +84,10 @@ public class FieldEditorController2 implements Initializable {
 
     @Subscribe
     public void handleRebuildViewEvent(RebuildViewEvent event) {
+        ScrollBar scrollBar = (ScrollBar) scrollPane.lookup(".scroll-bar:vertical");
+        double scrollBarValue = scrollBar.getValue();
         view.rebuild(event.getProtocols());
+        Platform.runLater(()-> scrollBar.setValue(scrollBarValue));
     }
 
     public void clearLayers() {
