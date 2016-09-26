@@ -7,7 +7,6 @@ import com.xored.javafx.packeteditor.data.IField.Type;
 import com.xored.javafx.packeteditor.data.Protocol;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -207,9 +206,9 @@ public class FieldEditorView {
     }
 
     private void setFocusIfNeeded(Control control, Field field) {
-        if (field.getUniqueId().equals(lastFocused)) {
-            Platform.runLater(control::requestFocus);
-        }
+//        if (field.getUniqueId().equals(lastFocused)) {
+//            Platform.runLater(control::requestFocus);
+//        }
     } 
     
     private void addFocusListener(Node node, Field field) {
