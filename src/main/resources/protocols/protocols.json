@@ -177,7 +177,7 @@
       {
         "id": "options",
         "name": "Options",
-        "type": "IPv4Options"
+        "type": "TCPOptions"
       }
     ],
     "payload": ["Raw"]

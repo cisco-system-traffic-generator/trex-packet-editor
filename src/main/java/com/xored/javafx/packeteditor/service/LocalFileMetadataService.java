@@ -121,6 +121,8 @@ public class LocalFileMetadataService implements IMetadataService {
                 return MAC_ADDRESS;
             case "enum":
                 return ENUM;
+            case "TCPOptions":
+                return TCP_OPTIONS;
             case "bitmask":
                 return BITMASK;
             case "raw":

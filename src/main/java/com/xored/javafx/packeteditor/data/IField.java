@@ -23,7 +23,8 @@ public interface IField {
         BITMASK,
         IPV4OPTIONS,
         IPV4ADDRESS,
-        IPOPTIONS
+        IPOPTIONS,
+        TCP_OPTIONS,
     }
 
     FieldMetadata getMeta();

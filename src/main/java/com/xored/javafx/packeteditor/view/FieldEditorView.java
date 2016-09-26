@@ -7,6 +7,7 @@ import com.xored.javafx.packeteditor.data.IField.Type;
 import com.xored.javafx.packeteditor.data.Protocol;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
+import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 import static com.xored.javafx.packeteditor.data.IField.DEFAULT;
 import static com.xored.javafx.packeteditor.data.IField.RANDOM;
 import static com.xored.javafx.packeteditor.data.IField.Type.BITMASK;
+import static com.xored.javafx.packeteditor.data.IField.Type.TCP_OPTIONS;
 
 public class FieldEditorView {
     String lastFocused;
@@ -109,6 +111,7 @@ public class FieldEditorView {
                 case IPV4ADDRESS:
                     fieldControl = createIPAddressField(field);
                     break;
+                case TCP_OPTIONS:
                 case NUMBER:
                 case STRING:
                     TextField tf = new TextField(field.getDisplayValue());
@@ -144,9 +147,39 @@ public class FieldEditorView {
             addFocusListener(fieldControl, field);
             setFocusIfNeeded(fieldControl, field);
             rows.add(row);
+            // TODO: remove this crutch :)
+            if(TCP_OPTIONS.equals(type)) {
+                TCPOptionsData.fromValue(field.getValue()).stream().forEach(fd -> rows.add(createTCPOptionRow(fd)));
+            }
         }
 
         return rows;
+    }
+
+    private Node createTCPOptionRow(TCPOptionsData tcpOption) {
+        // TODO: reuse code
+        BorderPane titlePane = new BorderPane();
+        Text titleLabel = new Text("        "+tcpOption.getName());
+        titlePane.setLeft(titleLabel);
+        titlePane.getStyleClass().add("title-pane");
+        HBox row = new HBox();
+        row.getStyleClass().addAll("field-row");
+
+
+        BorderPane valuePane = new BorderPane();
+        if (tcpOption.hasValue()) {
+            TextField valueCtrl = new TextField();
+            valueCtrl.setText(tcpOption.getDisplayValue());
+            valueCtrl.setEditable(false);
+            // TODO: implement field editing
+            valuePane.setLeft(valueCtrl);
+        } else {
+            Text valueCtrl = new Text();
+            valueCtrl.setText("-");
+            valuePane.setLeft(valueCtrl);
+        }
+        row.getChildren().addAll(titlePane, valuePane);
+        return row;
     }
 
     private MaskTextField createMacAddressField(Field field) {
