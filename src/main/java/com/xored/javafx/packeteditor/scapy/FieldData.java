@@ -27,7 +27,7 @@ public class FieldData {
     public boolean isIgnored() { return ignored != null && ignored.booleanValue(); }
 
     /** if value can not be passed as JsonElement, it is passed as a value_base64 */
-    public boolean hasValue() { return value != null; }
+    public boolean hasValue() { return value != null && !value.isJsonNull(); }
     public boolean hasBinaryData() { return value_base64 != null; }
     public byte[] getBinaryData() { return hasBinaryData() ? Base64.getDecoder().decode(value_base64) : null; }
 }

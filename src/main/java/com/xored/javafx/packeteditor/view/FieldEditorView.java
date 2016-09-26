@@ -121,10 +121,7 @@ public class FieldEditorView {
                     break;
                 case RAW:
                     if (field.getData().hasBinaryData() && !field.getData().hasValue()) {
-                        TextField rawTextField = new TextField(field.getData().hvalue);
-                        rawTextField.setDisable(true);
-                        fieldControl = rawTextField;
-                        
+                        fieldControl = new Label(field.getDisplayValue());
                     } else {
                         row.getStyleClass().addAll("field-row-raw");
                         TextArea ta = new TextArea(field.getData().hvalue);
@@ -144,7 +141,7 @@ public class FieldEditorView {
             BorderPane valuePane = new BorderPane();
             valuePane.setCenter(fieldControl);
             row.getChildren().addAll(titlePane, valuePane);
-            addFocusListener(fieldControl, field);
+            addOnclickListener(fieldControl, field);
             setFocusIfNeeded(fieldControl, field);
             rows.add(row);
             // TODO: remove this crutch :)
@@ -260,13 +257,9 @@ public class FieldEditorView {
 //        }
     } 
     
-    private void addFocusListener(Node node, Field field) {
-        node.setFocusTraversable(false);
-        node.focusedProperty().addListener((arg0, oldPropertyValue, focused) -> {
-            if (focused) {
-                controller.selectField(field);
-                this.lastFocused = field.getUniqueId();
-            }
+    private void addOnclickListener(Node node, Field field) {
+        node.setOnMouseClicked((event) -> {
+            controller.selectField(field);
         });
     }
     
