@@ -3,7 +3,6 @@ package com.xored.javafx.packeteditor.controllers;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.PacketDataController;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
-import com.xored.javafx.packeteditor.service.IMetadataService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceDialog;
@@ -40,8 +39,6 @@ public class MenuController {
     
     @FXML
     private void handleAddProtocolAction(ActionEvent actionEvent) {
-        IMetadataService metadataService = controller.getMetadataService();
-        
         List<ProtocolMetadata> items = controller.getAvailbleProtocolsToAdd();
         
         dialog.getItems().clear();
@@ -60,10 +57,6 @@ public class MenuController {
         if(result.isPresent()) {
             controller.addProtocol(result.get());
         }
-    }
-    @FXML
-    public void handleClearAction(ActionEvent actionEvent) {
-        controller.clearLayers();
     }
     @FXML
     public void handleDeleteProtocolAction(ActionEvent actionEvent) {
