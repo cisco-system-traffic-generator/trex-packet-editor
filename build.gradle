@@ -4,9 +4,9 @@ sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 if (!hasProperty('mainClass')) {
-    ext.mainClass = 'com.xored.javafx.packeteditor.JavaFXBinaryPacketEditor'
+    ext.mainClass = 'com.xored.javafx.packeteditor.TRexPacketCraftingTool'
 }
-mainClassName='com.xored.javafx.packeteditor.JavaFXBinaryPacketEditor'
+mainClassName='com.xored.javafx.packeteditor.TRexPacketCraftingTool'
 
 
 repositories {
@@ -74,6 +74,6 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'com.xored.javafx.packeteditor.JavaFXBinaryPacketEditor'
+        attributes 'Main-Class': 'com.xored.javafx.packeteditor.TRexPacketCraftingTool'
     }
 }

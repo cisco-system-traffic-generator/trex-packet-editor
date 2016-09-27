@@ -5,7 +5,6 @@ import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.Field;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.PacketDataController;
-import com.xored.javafx.packeteditor.data.Protocol;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.service.IMetadataService;
@@ -57,10 +56,6 @@ public class FieldEditorController implements Initializable {
         model.addProtocol(protocolMetadata);
     }
     
-    public Protocol getCurrentProtocol() {
-        return model.getCurrentProtocol();
-    }
-    
     public List<ProtocolMetadata> getAvailbleProtocolsToAdd() {
         return model.getAvailableProtocolsToAdd();
     }
@@ -93,6 +88,7 @@ public class FieldEditorController implements Initializable {
     public void clearLayers() {
         model.deleteAllProtocols();
     }
+
     public void removeLast() {
         model.removeLast();
     }
