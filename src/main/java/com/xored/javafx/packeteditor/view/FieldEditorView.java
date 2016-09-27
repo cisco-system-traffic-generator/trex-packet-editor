@@ -1,7 +1,7 @@
 package com.xored.javafx.packeteditor.view;
 
 import com.google.inject.Inject;
-import com.xored.javafx.packeteditor.controllers.FieldEditorController2;
+import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.data.Field;
 import com.xored.javafx.packeteditor.data.IField.Type;
 import com.xored.javafx.packeteditor.data.Protocol;
@@ -36,7 +36,7 @@ import static com.xored.javafx.packeteditor.data.IField.Type.TCP_OPTIONS;
 public class FieldEditorView {
     String lastFocused;
     @Inject
-    FieldEditorController2 controller;
+    FieldEditorController controller;
     
     private StackPane fieldEditorPane;
     

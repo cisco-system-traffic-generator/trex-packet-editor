@@ -22,7 +22,7 @@ public class MenuController {
     PacketDataController packetController;
 
     @Inject
-    FieldEditorController2 controller;
+    FieldEditorController controller;
 
     @Inject
     PacketUndoController undoController;

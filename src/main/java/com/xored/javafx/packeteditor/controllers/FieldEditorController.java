@@ -28,9 +28,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class FieldEditorController2 implements Initializable {
+public class FieldEditorController implements Initializable {
 
-    static Logger logger = LoggerFactory.getLogger(FieldEditorController2.class);
+    static Logger logger = LoggerFactory.getLogger(FieldEditorController.class);
     
     @FXML private StackPane fieldEditorPane;
     @FXML private ScrollPane scrollPane;
