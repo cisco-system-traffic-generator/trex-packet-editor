@@ -58,9 +58,8 @@ public class LocalFileMetadataService implements IMetadataService {
         List<JsonObject> metadata = Arrays.asList(gson.fromJson(br, JsonObject[].class));
         metadata.stream().forEach((entry) -> {
             List<FieldMetadata> fieldsMeta = new ArrayList<>();
-            Iterator<JsonElement> fieldsIt = entry.get("fields").getAsJsonArray().iterator();
-            while (fieldsIt.hasNext()) {
-                JsonObject field = (JsonObject) fieldsIt.next();
+            for (JsonElement jsonElement : entry.get("fields").getAsJsonArray()) {
+                JsonObject field = (JsonObject) jsonElement;
 
                 String fieldId = field.get("id").getAsString();
                 String name = field.get("name").getAsString();
@@ -74,17 +73,15 @@ public class LocalFileMetadataService implements IMetadataService {
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                 }
 
-                if(BITMASK.equals(type)) {
-                    Iterator bitsIT = field.getAsJsonArray("bits").iterator();
-                    
-                    while(bitsIT.hasNext()) {
-                        JsonObject bitFlag = (JsonObject) bitsIT.next();
-                        
+                if (BITMASK.equals(type)) {
+                    for (Object o : field.getAsJsonArray("bits")) {
+                        JsonObject bitFlag = (JsonObject) o;
+
                         JsonArray bitFlagValues = bitFlag.getAsJsonArray("values");
                         Iterator bitFlagValuesIT = bitFlagValues.iterator();
-                        
+
                         Map<String, JsonElement> vals = new HashMap<>();
-                        
+
                         while (bitFlagValuesIT.hasNext()) {
                             JsonObject bitFlagValue = (JsonObject) bitFlagValuesIT.next();
                             vals.put(bitFlagValue.get("name").getAsString(), bitFlagValue.get("value"));
@@ -101,9 +98,8 @@ public class LocalFileMetadataService implements IMetadataService {
 
             List<String> payload = new ArrayList<>();
 
-            Iterator<JsonElement> payloadIt = entry.get("payload").getAsJsonArray().iterator();
-            while (payloadIt.hasNext()) {
-                payload.add(payloadIt.next().getAsString());
+            for (JsonElement jsonElement : entry.get("payload").getAsJsonArray()) {
+                payload.add(jsonElement.getAsString());
             }
 
             ProtocolMetadata protocol = new ProtocolMetadata(entry.get("id").getAsString(), entry.get("name").getAsString(), fieldsMeta, payload);

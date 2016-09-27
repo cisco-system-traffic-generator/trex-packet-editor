@@ -36,10 +36,6 @@ public class ProtocolMetadata {
         return payload;
     }
 
-    public void addField(FieldMetadata field) {
-        fields.put(field.getId(), field);
-    }
-
     public FieldMetadata getMetaForField(String fieldId) {
         return fields.get(fieldId);
     }

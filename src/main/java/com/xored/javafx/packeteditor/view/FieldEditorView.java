@@ -34,7 +34,6 @@ import static com.xored.javafx.packeteditor.data.IField.Type.BITMASK;
 import static com.xored.javafx.packeteditor.data.IField.Type.TCP_OPTIONS;
 
 public class FieldEditorView {
-    String lastFocused;
     @Inject
     FieldEditorController controller;
     
@@ -145,7 +144,6 @@ public class FieldEditorView {
             valuePane.setCenter(fieldControl);
             row.getChildren().addAll(titlePane, valuePane);
             addOnclickListener(fieldControl, field);
-            setFocusIfNeeded(fieldControl, field);
             rows.add(row);
             // TODO: remove this crutch :)
             if(TCP_OPTIONS.equals(type)) {
@@ -247,18 +245,11 @@ public class FieldEditorView {
             int current = field.getValue().getAsInt();
             field.setStringValue(String.valueOf(current & ~(bitFlagMask) | selected));
         });
-        setFocusIfNeeded(combo, field);
         BorderPane valuePane = new BorderPane();
         valuePane.setLeft(combo);
         row.getChildren().addAll(titlePane, valuePane);
         return row;
     }
-
-    private void setFocusIfNeeded(Control control, Field field) {
-//        if (field.getUniqueId().equals(lastFocused)) {
-//            Platform.runLater(control::requestFocus);
-//        }
-    } 
     
     private void addOnclickListener(Node node, Field field) {
         node.setOnMouseClicked((event) -> {

@@ -103,7 +103,6 @@ public class PacketDataController extends Observable {
 
     /** can accept string representation for strings, integers, hex, ... */
     public void setFieldValue(IField field, String newValue) {
-        /* TODO: these special cases can be removed - used for testing */
         if (DEFAULT.equals(newValue)) {
             setFieldDefaultValue(field);
         } else if (RANDOM.equals(newValue)) {

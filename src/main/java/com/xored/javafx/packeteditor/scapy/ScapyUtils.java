@@ -1,7 +1,6 @@
 package com.xored.javafx.packeteditor.scapy;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -30,7 +29,7 @@ public class ScapyUtils {
      * @return 'modify' payload for reconstruct_pkt
      * */
     public static JsonArray createReconstructPktPayload(List<String> fieldPath, String fieldName, String newValue, boolean randomize, boolean setdefault) {
-        if (fieldPath == null) {
+        if (fieldPath.isEmpty()) {
             return new JsonArray();
         }
         JsonObject innerProtocol = null;
