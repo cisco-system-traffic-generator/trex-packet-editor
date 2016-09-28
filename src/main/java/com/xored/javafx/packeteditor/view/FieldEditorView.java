@@ -130,7 +130,7 @@ public class FieldEditorView {
                         row.getStyleClass().addAll("field-row-raw");
                         TextArea ta = new TextArea(field.getData().hvalue);
                         ta.setPrefSize(200, 40);
-                        MenuItem saveRawMenuItem = new MenuItem("Save");
+                        MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
                         saveRawMenuItem.setOnAction((event) -> field.setStringValue(ta.getText()));
                         ta.setContextMenu(new ContextMenu(saveRawMenuItem));
                         fieldControl = ta;
