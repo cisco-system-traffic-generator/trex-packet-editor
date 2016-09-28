@@ -22,21 +22,19 @@ public class TestPacketEditorUI extends ApplicationTest {
 
     @Test
     public void should_have_load_pcap_button() {
-        clickOn("Old");
-        verifyThat("#fieldEditorBox", hasChild("#savepcapBtn"));
-        clickOn("#loadpcapBtn");
-        press(ESCAPE);
+        clickOn("File");
+        clickOn("Load pcap file");
+        push(ESCAPE);
     }
 
     @Test
     public void should_have_save_pcap_button() {
-        clickOn("Old");
-        verifyThat("#fieldEditorBox", hasChild("Save pcap"));
-        clickOn("Save pcap");
-        press(ESCAPE);
+        clickOn("File");
+        clickOn("Save to pcap file");
+        push(ESCAPE);
     }
 
-    public void addLayer(String layerType) {
+    private void addLayer(String layerType) {
         clickOn("Action");
         clickOn("Add Protocol");
         clickOn((ComboBox e)->true);
@@ -48,16 +46,22 @@ public class TestPacketEditorUI extends ApplicationTest {
     public void should_build_tcpip_stack() {
         addLayer("Ethernet II");
         addLayer("Internet Protocol Version 4");
+
+        // TODO: do we need to fix the following problem at app level?
+        // The 'LOOP' is selected in combobox, so we need to select IPv4
+        clickOn((ComboBox e)->true);
+        clickOn("IPv4");
+
         addLayer("TCP");
         clickOn("Action");
-        clickOn("Build Packet");
+        clickOn("Recalculate auto-values");
     }
 
     @Test
     public void should_create_proto_on_enter() {
         clickOn("Action");
         clickOn("Add Protocol");
-        press(ENTER);
+        push(ENTER);
     }
 
 }
