@@ -2,6 +2,7 @@ package com.xored.javafx.packeteditor.controllers;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.Field;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.PacketDataController;
@@ -47,7 +48,9 @@ public class FieldEditorController implements Initializable {
     FieldEditorView view;
 
     FileChooser fileChooser = new FileChooser();
-    
+
+    @Inject
+    @Named("resources")
     private ResourceBundle resourceBundle;
 
     public IMetadataService getMetadataService() {
@@ -69,9 +72,9 @@ public class FieldEditorController implements Initializable {
         model.setMetadataService(metadataService);
 
         packetController.addObserver((source,params)->{
-            String title = "Packet Editor";
+            String title = resourceBundle.getString("EDITOR_TITLE");
             if (packetController.getCurrentFile() != null) {
-                title = title + " - " + packetController.getCurrentFile().getAbsolutePath();
+                title += " - " + packetController.getCurrentFile().getAbsolutePath();
             }
 
             ((Stage)fieldEditorPane.getScene().getWindow()).setTitle(title);
@@ -96,7 +99,7 @@ public class FieldEditorController implements Initializable {
     }
 
     public void showLoadDialog() {
-        fileChooser.setTitle(resourceBundle.getString("openDialogTitle"));
+        fileChooser.setTitle(resourceBundle.getString("OPEN_DIALOG_TITLE"));
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Pcap Files", "*.pcap", "*.cap"),
                 new FileChooser.ExtensionFilter("All Files", "*.*"));
@@ -106,7 +109,7 @@ public class FieldEditorController implements Initializable {
             try {
                 packetController.loadPcapFile(pcapfile);
             } catch (Exception e) {
-                showError("Failed to load pcap file", e);
+                showError(resourceBundle.getString("LOAD_PCAP_ERROR"), e);
             }
         }
     }
@@ -129,7 +132,7 @@ public class FieldEditorController implements Initializable {
     }
 
     public void showSaveDialog() {
-        fileChooser.setTitle("Save to Pcap File");
+        fileChooser.setTitle(resourceBundle.getString("SAVE_DIALOG_TITLE"));
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Pcap Files", "*.pcap", "*.cap"),
                 new FileChooser.ExtensionFilter("All Files", "*.*"));
