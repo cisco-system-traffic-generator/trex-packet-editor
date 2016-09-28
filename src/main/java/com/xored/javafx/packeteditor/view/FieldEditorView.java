@@ -140,6 +140,7 @@ public class FieldEditorView {
                 default:
                     fieldControl = new Label("");
             }
+            fieldControl.setId(field.getUniqueId());
             fieldControl.getStyleClass().addAll("control");
             
             BorderPane valuePane = new BorderPane();
@@ -212,7 +213,8 @@ public class FieldEditorView {
 
     private Node createBitFlagRow(Field field, BitFlagMetadata bitFlagMetadata) {
         BorderPane titlePane = new BorderPane();
-        Text titleLabel = new Text("        "+bitFlagMetadata.getName());
+        String flagName = bitFlagMetadata.getName();
+        Text titleLabel = new Text("        " + flagName);
         titlePane.setLeft(titleLabel);
         titlePane.getStyleClass().add("title-pane");
         HBox row = new HBox();
@@ -227,6 +229,8 @@ public class FieldEditorView {
                 .collect(Collectors.toList());
         combo.getItems().addAll(items);
 
+        combo.setId(field.getUniqueId() + "-" + flagName);
+        
         Integer bitFlagValue = field.getValue().getAsInt();
         
         ComboBoxItem defaultValue;
