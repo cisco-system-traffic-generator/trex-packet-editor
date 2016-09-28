@@ -1,6 +1,7 @@
 package com.xored.javafx.packeteditor.view;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.data.Field;
 import com.xored.javafx.packeteditor.data.IField.Type;
@@ -21,10 +22,7 @@ import jidefx.scene.control.field.MaskTextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Stack;
+import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -42,6 +40,10 @@ public class FieldEditorView {
     private VBox protocolsPane = new VBox();
     
     private Logger logger = LoggerFactory.getLogger(FieldEditorView.class);
+
+    @Inject
+    @Named("resources")
+    ResourceBundle resourceBundle;
     
     public void setParentPane(StackPane parentPane) {
         this.fieldEditorPane = parentPane;
@@ -293,10 +295,10 @@ public class FieldEditorView {
     private ContextMenu getContextMenu(Field field) {
         ContextMenu context = new ContextMenu();
 
-        MenuItem generateItem = new MenuItem("Generate");
+        MenuItem generateItem = new MenuItem(resourceBundle.getString("GENERATE"));
         generateItem.setOnAction((event) -> field.setStringValue(RANDOM));
         
-        MenuItem defaultItem = new MenuItem("Set to Default");
+        MenuItem defaultItem = new MenuItem(resourceBundle.getString("SET_DEFAULT"));
         defaultItem.setOnAction((event) -> field.setStringValue(DEFAULT));
         
         context.getItems().addAll(generateItem, defaultItem);

@@ -1,6 +1,7 @@
 package com.xored.javafx.packeteditor.controllers;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.PacketDataController;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import javafx.event.ActionEvent;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class MenuController {
 
@@ -28,6 +30,10 @@ public class MenuController {
 
     @FXML
     MenuBar applicationMenu;
+
+    @Inject
+    @Named("resources")
+    ResourceBundle resourceBundle;
 
     private ChoiceDialog<ProtocolMetadata> dialog = new ChoiceDialog<>();
     
@@ -47,8 +53,8 @@ public class MenuController {
             dialog.setSelectedItem(items.get(0));
         }
         
-        dialog.setTitle("Add layer");
-        dialog.setContentText("Select protocol:");
+        dialog.setTitle(resourceBundle.getString("ADD_LAYER"));
+        dialog.setContentText(resourceBundle.getString("SELECT_PROTOCOL"));
         
         // TODO: Add proper protocol icon to dialog
         // dialog.setGraphic(new ImageView(this.getClass().getResource("protocol-image.png").toString()));

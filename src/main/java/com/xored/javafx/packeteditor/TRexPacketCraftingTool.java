@@ -31,8 +31,6 @@ public class TRexPacketCraftingTool extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Packet Crafting Tool");
         primaryStage.show();
-        primaryStage.setOnCloseRequest(e -> {
-            System.exit(0);
-        });
+        primaryStage.setOnCloseRequest(e -> System.exit(0));
     }
 }

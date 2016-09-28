@@ -47,6 +47,8 @@ public class FieldEditorController implements Initializable {
     FieldEditorView view;
 
     FileChooser fileChooser = new FileChooser();
+    
+    private ResourceBundle resourceBundle;
 
     public IMetadataService getMetadataService() {
         return metadataService;
@@ -94,7 +96,7 @@ public class FieldEditorController implements Initializable {
     }
 
     public void showLoadDialog() {
-        fileChooser.setTitle("Open Pcap File");
+        fileChooser.setTitle(resourceBundle.getString("openDialogTitle"));
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Pcap Files", "*.pcap", "*.cap"),
                 new FileChooser.ExtensionFilter("All Files", "*.*"));
@@ -144,5 +146,9 @@ public class FieldEditorController implements Initializable {
 
     public void selectField(Field field) {
         model.setSelected(field);
+    }
+
+    public void setResourceBundle(ResourceBundle resourceBundle) {
+        this.resourceBundle = resourceBundle;
     }
 }

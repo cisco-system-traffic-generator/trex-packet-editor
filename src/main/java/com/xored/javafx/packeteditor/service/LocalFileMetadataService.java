@@ -30,9 +30,6 @@ public class LocalFileMetadataService implements IMetadataService {
     
     private Map<String, ProtocolMetadata> protocols = new HashMap<>();
     
-    
-    
-    
     @Override
     public Map<String, ProtocolMetadata> getProtocols() {
         return protocols;
@@ -124,7 +121,7 @@ public class LocalFileMetadataService implements IMetadataService {
             case "raw":
                 return RAW;
             default:
-                return IField.Type.STRING;
+                return STRING;
         }
     }
 }
