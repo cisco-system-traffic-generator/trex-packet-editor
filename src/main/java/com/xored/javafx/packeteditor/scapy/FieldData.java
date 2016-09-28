@@ -24,7 +24,7 @@ public class FieldData {
     public int getOffset() { return offset.intValue(); }
 
     /** this field is ignored for current protocol configuration */
-    public boolean isIgnored() { return ignored != null && ignored.booleanValue(); }
+    public boolean isIgnored() { return ignored != null && ignored; }
 
     /** if value can not be passed as JsonElement, it is passed as a value_base64 */
     public boolean hasValue() { return value != null && !value.isJsonNull(); }

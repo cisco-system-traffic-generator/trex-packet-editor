@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class Field implements IField {
     private FieldMetadata meta;
     private FieldData field_data;
-    private List<String> path;
+    private List<String> path = new ArrayList<>();
     private int globalOffset;
 
     FieldEditHandler onSetValue;
@@ -20,7 +20,7 @@ public class Field implements IField {
     }
     public Field(FieldMetadata meta, List<String> path, int globalOffset, FieldData field_data) {
         this.meta = meta;
-        this.path = path;
+        this.path.addAll(path);
         this.globalOffset = globalOffset;
         this.field_data = field_data;
     }
@@ -65,10 +65,10 @@ public class Field implements IField {
     }
 
     public List<String> getPath() { return path; }
-    
+
     public String getUniqueId() {
         List<String> path = new ArrayList<>(this.path);
-        path.add(getName());
+        path.add(getId());
         return path.stream().collect(Collectors.joining("-"));
     }
 }

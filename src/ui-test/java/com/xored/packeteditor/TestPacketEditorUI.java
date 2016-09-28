@@ -1,6 +1,6 @@
 package com.xored.packeteditor;
 
-import com.xored.javafx.packeteditor.JavaFXBinaryPacketEditor;
+import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
 import org.junit.Test;
@@ -14,7 +14,7 @@ public class TestPacketEditorUI extends ApplicationTest {
     @Override
     public void start(Stage stage) {
         try {
-            new JavaFXBinaryPacketEditor().start(stage);
+            new TRexPacketCraftingTool().start(stage);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

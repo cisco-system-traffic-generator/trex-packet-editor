@@ -1,7 +1,8 @@
 package com.xored.javafx.packeteditor.view;
 
 import com.google.inject.Inject;
-import com.xored.javafx.packeteditor.controllers.FieldEditorController2;
+import com.google.inject.name.Named;
+import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.data.Field;
 import com.xored.javafx.packeteditor.data.IField.Type;
 import com.xored.javafx.packeteditor.data.Protocol;
@@ -21,10 +22,7 @@ import jidefx.scene.control.field.MaskTextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Stack;
+import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -34,15 +32,18 @@ import static com.xored.javafx.packeteditor.data.IField.Type.BITMASK;
 import static com.xored.javafx.packeteditor.data.IField.Type.TCP_OPTIONS;
 
 public class FieldEditorView {
-    String lastFocused;
     @Inject
-    FieldEditorController2 controller;
+    FieldEditorController controller;
     
     private StackPane fieldEditorPane;
     
     private VBox protocolsPane = new VBox();
     
     private Logger logger = LoggerFactory.getLogger(FieldEditorView.class);
+
+    @Inject
+    @Named("resources")
+    ResourceBundle resourceBundle;
     
     public void setParentPane(StackPane parentPane) {
         this.fieldEditorPane = parentPane;
@@ -129,7 +130,7 @@ public class FieldEditorView {
                         row.getStyleClass().addAll("field-row-raw");
                         TextArea ta = new TextArea(field.getData().hvalue);
                         ta.setPrefSize(200, 40);
-                        MenuItem saveRawMenuItem = new MenuItem("Save");
+                        MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
                         saveRawMenuItem.setOnAction((event) -> field.setStringValue(ta.getText()));
                         ta.setContextMenu(new ContextMenu(saveRawMenuItem));
                         fieldControl = ta;
@@ -139,13 +140,13 @@ public class FieldEditorView {
                 default:
                     fieldControl = new Label("");
             }
+            fieldControl.setId(field.getUniqueId());
             fieldControl.getStyleClass().addAll("control");
             
             BorderPane valuePane = new BorderPane();
             valuePane.setCenter(fieldControl);
             row.getChildren().addAll(titlePane, valuePane);
             addOnclickListener(fieldControl, field);
-            setFocusIfNeeded(fieldControl, field);
             rows.add(row);
             // TODO: remove this crutch :)
             if(TCP_OPTIONS.equals(type)) {
@@ -212,7 +213,8 @@ public class FieldEditorView {
 
     private Node createBitFlagRow(Field field, BitFlagMetadata bitFlagMetadata) {
         BorderPane titlePane = new BorderPane();
-        Text titleLabel = new Text("        "+bitFlagMetadata.getName());
+        String flagName = bitFlagMetadata.getName();
+        Text titleLabel = new Text("        " + flagName);
         titlePane.setLeft(titleLabel);
         titlePane.getStyleClass().add("title-pane");
         HBox row = new HBox();
@@ -227,6 +229,8 @@ public class FieldEditorView {
                 .collect(Collectors.toList());
         combo.getItems().addAll(items);
 
+        combo.setId(field.getUniqueId() + "-" + flagName);
+        
         Integer bitFlagValue = field.getValue().getAsInt();
         
         ComboBoxItem defaultValue;
@@ -247,18 +251,11 @@ public class FieldEditorView {
             int current = field.getValue().getAsInt();
             field.setStringValue(String.valueOf(current & ~(bitFlagMask) | selected));
         });
-        setFocusIfNeeded(combo, field);
         BorderPane valuePane = new BorderPane();
         valuePane.setLeft(combo);
         row.getChildren().addAll(titlePane, valuePane);
         return row;
     }
-
-    private void setFocusIfNeeded(Control control, Field field) {
-//        if (field.getUniqueId().equals(lastFocused)) {
-//            Platform.runLater(control::requestFocus);
-//        }
-    } 
     
     private void addOnclickListener(Node node, Field field) {
         node.setOnMouseClicked((event) -> {
@@ -302,10 +299,10 @@ public class FieldEditorView {
     private ContextMenu getContextMenu(Field field) {
         ContextMenu context = new ContextMenu();
 
-        MenuItem generateItem = new MenuItem("Generate");
+        MenuItem generateItem = new MenuItem(resourceBundle.getString("GENERATE"));
         generateItem.setOnAction((event) -> field.setStringValue(RANDOM));
         
-        MenuItem defaultItem = new MenuItem("Set to Default");
+        MenuItem defaultItem = new MenuItem(resourceBundle.getString("SET_DEFAULT"));
         defaultItem.setOnAction((event) -> field.setStringValue(DEFAULT));
         
         context.getItems().addAll(generateItem, defaultItem);

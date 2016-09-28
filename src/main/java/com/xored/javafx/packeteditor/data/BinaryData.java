@@ -1,9 +1,15 @@
 package com.xored.javafx.packeteditor.data;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Arrays;
 import java.util.Observable;
 
 public class BinaryData extends Observable implements IBinaryData {
+
+    private Logger logger= LoggerFactory.getLogger(BinaryData.class);
+    
     public enum OP {
         SET_BYTE, SET_BYTES, SELECTION, RELOAD
     }
@@ -34,7 +40,7 @@ public class BinaryData extends Observable implements IBinaryData {
     @Override
     public void setByte(int idx, byte value) {
         bytes[idx] = value;
-        System.out.println("[" + idx + "]=" + (int)value);
+        logger.info("Set bytes[{}] = {}", idx, (int) value);
         setChanged();
         notifyObservers(OP.SET_BYTE);
     }
@@ -45,9 +51,7 @@ public class BinaryData extends Observable implements IBinaryData {
 
     @Override
     public void setBytes(int offset, int length, byte[] bytes) {
-        for (int i = 0; i < length; i++) {
-            this.bytes[offset + i] = bytes[i];
-        }
+        System.arraycopy(bytes, 0, this.bytes, offset, length);
         setChanged();
         notifyObservers(OP.SET_BYTES);
     }

@@ -12,11 +12,11 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JavaFXBinaryPacketEditor extends Application {
-    static Logger log = LoggerFactory.getLogger(JavaFXBinaryPacketEditor.class);
+public class TRexPacketCraftingTool extends Application {
+    static Logger log = LoggerFactory.getLogger(TRexPacketCraftingTool.class);
 
     public static void main(String[] args) {
-        JavaFXBinaryPacketEditor.launch(args);
+        TRexPacketCraftingTool.launch(args);
     }
 
     @Override
@@ -29,10 +29,8 @@ public class JavaFXBinaryPacketEditor extends Application {
         Scene scene = new Scene(parent);
         scene.getStylesheets().add(ClassLoader.getSystemResource("styles/main.css").toExternalForm());
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Packet Editor");
+        primaryStage.setTitle("Packet Crafting Tool");
         primaryStage.show();
-        primaryStage.setOnCloseRequest(e -> {
-            System.exit(0);
-        });
+        primaryStage.setOnCloseRequest(e -> System.exit(0));
     }
 }

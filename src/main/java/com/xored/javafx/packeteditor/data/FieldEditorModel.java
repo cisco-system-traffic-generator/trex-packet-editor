@@ -73,8 +73,7 @@ public class FieldEditorModel {
     }
     
     private Protocol buildProtocolFromMeta(ProtocolMetadata meta) {
-        Protocol proto = new Protocol(meta, getCurrentPath());
-        return proto;
+        return new Protocol(meta, getCurrentPath());
     }
     
     private List<String> getCurrentPath() {
@@ -107,9 +106,7 @@ public class FieldEditorModel {
     }
 
     public ProtocolMetadata buildMetadataFromScapyModel(ProtocolData protocol) {
-        List<FieldMetadata> fields_metadata = protocol.fields.stream().map(f ->
-                buildFieldMetaFromScapy(f)
-        ).collect(Collectors.toList());
+        List<FieldMetadata> fields_metadata = protocol.fields.stream().map(this::buildFieldMetaFromScapy).collect(Collectors.toList());
         List<String> payload = new ArrayList<>();
         return new ProtocolMetadata(protocol.id, protocol.name, fields_metadata, payload);
     }

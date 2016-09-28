@@ -1,9 +1,9 @@
 package com.xored.javafx.packeteditor.controllers;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.PacketDataController;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
-import com.xored.javafx.packeteditor.service.IMetadataService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceDialog;
@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class MenuController {
 
@@ -22,13 +23,17 @@ public class MenuController {
     PacketDataController packetController;
 
     @Inject
-    FieldEditorController2 controller;
+    FieldEditorController controller;
 
     @Inject
     PacketUndoController undoController;
 
     @FXML
     MenuBar applicationMenu;
+
+    @Inject
+    @Named("resources")
+    ResourceBundle resourceBundle;
 
     private ChoiceDialog<ProtocolMetadata> dialog = new ChoiceDialog<>();
     
@@ -40,8 +45,6 @@ public class MenuController {
     
     @FXML
     private void handleAddProtocolAction(ActionEvent actionEvent) {
-        IMetadataService metadataService = controller.getMetadataService();
-        
         List<ProtocolMetadata> items = controller.getAvailbleProtocolsToAdd();
         
         dialog.getItems().clear();
@@ -50,8 +53,8 @@ public class MenuController {
             dialog.setSelectedItem(items.get(0));
         }
         
-        dialog.setTitle("Add layer");
-        dialog.setContentText("Select protocol:");
+        dialog.setTitle(resourceBundle.getString("ADD_LAYER"));
+        dialog.setContentText(resourceBundle.getString("SELECT_PROTOCOL"));
         
         // TODO: Add proper protocol icon to dialog
         // dialog.setGraphic(new ImageView(this.getClass().getResource("protocol-image.png").toString()));
@@ -60,10 +63,6 @@ public class MenuController {
         if(result.isPresent()) {
             controller.addProtocol(result.get());
         }
-    }
-    @FXML
-    public void handleClearAction(ActionEvent actionEvent) {
-        controller.clearLayers();
     }
     @FXML
     public void handleDeleteProtocolAction(ActionEvent actionEvent) {

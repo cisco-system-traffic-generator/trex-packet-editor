@@ -15,7 +15,7 @@ public class AppController implements Initializable {
     IMetadataService metadataService;
 
     @Inject
-    FieldEditorController2 editorController;
+    FieldEditorController editorController;
 
     @Inject
     EventBus eventBus;

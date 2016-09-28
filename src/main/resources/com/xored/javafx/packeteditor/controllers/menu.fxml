@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="com.xored.javafx.packeteditor.controllers.MenuController">
    <children>
@@ -28,7 +25,6 @@
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#handleAddProtocolAction" text="Add Protocol" />
                   <MenuItem mnemonicParsing="false" onAction="#handleDeleteProtocolAction" text="Delete" />
-                  <MenuItem mnemonicParsing="false" onAction="#handleClearAction" text="Clear" />
                   <MenuItem mnemonicParsing="false" onAction="#handleRecalculateValues" text="Recalculate auto-values" />
                </items>
             </Menu>
