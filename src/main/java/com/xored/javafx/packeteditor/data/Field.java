@@ -6,6 +6,7 @@ import com.xored.javafx.packeteditor.scapy.FieldData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Field implements IField {
     private FieldMetadata meta;
@@ -64,4 +65,10 @@ public class Field implements IField {
     }
 
     public List<String> getPath() { return path; }
+
+    public String getUniqueId() {
+        List<String> path = new ArrayList<>(this.path);
+        path.add(getId());
+        return path.stream().collect(Collectors.joining("-"));
+    }
 }
