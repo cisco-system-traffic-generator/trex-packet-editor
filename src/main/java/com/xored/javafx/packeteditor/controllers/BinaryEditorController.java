@@ -2,7 +2,7 @@ package com.xored.javafx.packeteditor.controllers;
 
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.IBinaryData;
-import com.xored.javafx.packeteditor.data.PacketDataController;
+import com.xored.javafx.packeteditor.service.PacketDataService;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,7 +24,8 @@ import java.util.ResourceBundle;
 public class BinaryEditorController implements Initializable, Observer {
     @FXML private Group beGroup;
     @Inject private IBinaryData binaryData;
-    @Inject PacketDataController packetController;
+    @Inject
+    PacketDataService packetController;
 
     boolean updating = false;
 

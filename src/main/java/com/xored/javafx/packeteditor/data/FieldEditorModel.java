@@ -9,6 +9,7 @@ import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.*;
 import com.xored.javafx.packeteditor.service.IMetadataService;
+import com.xored.javafx.packeteditor.service.PacketDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public class FieldEditorModel {
     IBinaryData binary;
     
     @Inject
-    PacketDataController packetDataController;
+    PacketDataService packetDataService;
 
     Stack<ScapyPkt> undoRecords = new Stack<>();
     
@@ -59,7 +60,7 @@ public class FieldEditorModel {
     }
     
     public void addProtocol(ProtocolMetadata meta) {
-        ScapyPkt newPkt = packetDataController.appendProtocol(pkt, meta.getId());
+        ScapyPkt newPkt = packetDataService.appendProtocol(pkt, meta.getId());
         setPktAndReload(newPkt);
         logger.info("Protocol {} added.", meta.getName());
     }
@@ -90,7 +91,7 @@ public class FieldEditorModel {
 
     public void removeLast() {
         undoRecords.push(pkt);
-        ScapyPkt newPkt = packetDataController.removeLastProtocol(pkt);
+        ScapyPkt newPkt = packetDataService.removeLastProtocol(pkt);
         setPktAndReload(newPkt);
     }
 
@@ -140,7 +141,7 @@ public class FieldEditorModel {
             for (FieldData field: protocol.fields) {
                 Field fieldObj = new Field(protocolMetadata.getMetaForField(field.id), getCurrentPath(), protocolOffset, field);
                 fieldObj.setOnSetCallback(newValue -> {
-                    ScapyPkt newPkt = packetDataController.setFieldValue(pkt, fieldObj, newValue);
+                    ScapyPkt newPkt = packetDataService.setFieldValue(pkt, fieldObj, newValue);
                     setPktAndReload(newPkt);
                 });
                 protocolObj.getFields().add(fieldObj);
@@ -205,7 +206,7 @@ public class FieldEditorModel {
                                             (field.id.equals("type") && is_last_layer)
                     ).map(f -> ReconstructField.resetValue(f.id)).collect(Collectors.toList()));
                 }).collect(Collectors.toList());
-        return packetDataController.reconstructPacket(pkt, modify);
+        return packetDataService.reconstructPacket(pkt, modify);
     }
     
     public void clearHistory() {

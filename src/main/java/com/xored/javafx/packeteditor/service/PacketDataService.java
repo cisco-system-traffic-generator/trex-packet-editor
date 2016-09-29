@@ -1,9 +1,10 @@
-package com.xored.javafx.packeteditor.data;
+package com.xored.javafx.packeteditor.service;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.inject.Inject;
+import com.xored.javafx.packeteditor.data.IField;
 import com.xored.javafx.packeteditor.scapy.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +19,8 @@ import static com.xored.javafx.packeteditor.data.IField.DEFAULT;
 import static com.xored.javafx.packeteditor.data.IField.RANDOM;
 import static com.xored.javafx.packeteditor.scapy.ScapyUtils.createReconstructPktPayload;
 
-public class PacketDataController extends Observable {
-    static Logger log = LoggerFactory.getLogger(PacketDataController.class);
+public class PacketDataService extends Observable {
+    static Logger log = LoggerFactory.getLogger(PacketDataService.class);
 
     final Gson gson = new Gson();
 

@@ -6,7 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.Field;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
-import com.xored.javafx.packeteditor.data.PacketDataController;
+import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.ScapyPkt;
@@ -44,7 +44,7 @@ public class FieldEditorController implements Initializable {
     IMetadataService metadataService;
 
     @Inject
-    private PacketDataController packetController;
+    private PacketDataService packetController;
     
     @Inject
     FieldEditorView view;
