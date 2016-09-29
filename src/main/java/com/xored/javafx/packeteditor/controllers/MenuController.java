@@ -2,7 +2,6 @@ package com.xored.javafx.packeteditor.controllers;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.xored.javafx.packeteditor.data.PacketDataController;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -20,13 +19,7 @@ public class MenuController {
     private Logger logger= LoggerFactory.getLogger(MenuController.class);
     
     @Inject
-    PacketDataController packetController;
-
-    @Inject
     FieldEditorController controller;
-
-    @Inject
-    PacketUndoController undoController;
 
     @FXML
     MenuBar applicationMenu;
@@ -75,7 +68,7 @@ public class MenuController {
 
     @FXML
     public void handleNewDocument(ActionEvent actionEvent) {
-        packetController.newPacket();
+        controller.newPacket();
     }
 
     @FXML
@@ -85,16 +78,16 @@ public class MenuController {
 
     @FXML
     public void handleRecalculateValues(ActionEvent actionEvent) {
-        packetController.recalculateAutoValues();
+        controller.recalculateAutoValues();
     }
 
     @FXML
     public void handleUndo(ActionEvent actionEvent) {
-        undoController.undo();
+        controller.undo();
     }
 
     @FXML
     public void handleRedo(ActionEvent actionEvent) {
-        undoController.redo();
+        controller.redo();
     }
 }

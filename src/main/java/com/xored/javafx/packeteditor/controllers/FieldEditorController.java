@@ -1,6 +1,7 @@
 package com.xored.javafx.packeteditor.controllers;
 
 import com.google.common.eventbus.Subscribe;
+import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.Field;
@@ -8,6 +9,7 @@ import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.PacketDataController;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
+import com.xored.javafx.packeteditor.scapy.ScapyPkt;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 import com.xored.javafx.packeteditor.view.FieldEditorView;
 import javafx.application.Platform;
@@ -104,16 +106,32 @@ public class FieldEditorController implements Initializable {
                 new FileChooser.ExtensionFilter("Pcap Files", "*.pcap", "*.cap"),
                 new FileChooser.ExtensionFilter("All Files", "*.*"));
         initFileChooser();
-        java.io.File pcapfile = fileChooser.showOpenDialog(fieldEditorPane.getScene().getWindow());
+        File pcapfile = fileChooser.showOpenDialog(fieldEditorPane.getScene().getWindow());
         if (pcapfile != null) {
             try {
-                packetController.loadPcapFile(pcapfile);
+                ScapyPkt pkt = loadPcapFile(pcapfile);
+                model.setPktAndReload(pkt);
             } catch (Exception e) {
                 showError(resourceBundle.getString("LOAD_PCAP_ERROR"), e);
             }
         }
     }
 
+    public ScapyPkt loadPcapFile(String filename) throws Exception {
+        return loadPcapFile(new File(filename));
+    }
+
+
+    public ScapyPkt loadPcapFile(File file) throws Exception {
+        byte[] bytes = Files.toByteArray(file);
+        return packetController.read_pcap_packet(bytes);
+    }
+
+    public void writeToPcapFile(File file, ScapyPkt pkt) throws Exception {
+        byte[] pcap_bin = packetController.write_pcap_packet(pkt.getBinaryData());
+        Files.write(pcap_bin, file);
+    }
+    
     void showError(String title, Exception e) {
         logger.error("{}: {}", title, e);
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -140,7 +158,7 @@ public class FieldEditorController implements Initializable {
         java.io.File pcapfile = fileChooser.showSaveDialog(fieldEditorPane.getScene().getWindow());
         if (pcapfile != null) {
             try {
-                packetController.writeToPcapFile(pcapfile);
+                writeToPcapFile(pcapfile, model.getPkt());
             } catch (Exception e) {
                 showError("Failed to save pcap file", e);
             }
@@ -153,5 +171,21 @@ public class FieldEditorController implements Initializable {
 
     public void setResourceBundle(ResourceBundle resourceBundle) {
         this.resourceBundle = resourceBundle;
+    }
+
+    public void newPacket() {
+        model.newPacket();
+    }
+
+    public void recalculateAutoValues() {
+        
+    }
+
+    public void undo() {
+        model.undo();
+    }
+
+    public void redo() {
+        model.redo();
     }
 }

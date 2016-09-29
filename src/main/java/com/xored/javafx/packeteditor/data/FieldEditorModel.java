@@ -1,18 +1,13 @@
 package com.xored.javafx.packeteditor.data;
 
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
-import com.xored.javafx.packeteditor.events.ReloadModelEvent;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
-import com.xored.javafx.packeteditor.scapy.FieldData;
-import com.xored.javafx.packeteditor.scapy.PacketData;
-import com.xored.javafx.packeteditor.scapy.ProtocolData;
-import com.xored.javafx.packeteditor.scapy.ScapyPkt;
+import com.xored.javafx.packeteditor.scapy.*;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +34,14 @@ public class FieldEditorModel {
     
     @Inject
     PacketDataController packetDataController;
+
+    Stack<ScapyPkt> undoRecords = new Stack<>();
+    
+    Stack<ScapyPkt> redoRecords = new Stack<>();
+    
+    Stack<ScapyPkt> undoingFrom;
+    
+    Stack<ScapyPkt> undoingTo;
     
     private IMetadataService metadataService;
 
@@ -56,7 +59,8 @@ public class FieldEditorModel {
     }
     
     public void addProtocol(ProtocolMetadata meta) {
-        packetDataController.appendProtocol(meta.getId());
+        ScapyPkt newPkt = packetDataController.appendProtocol(pkt, meta.getId());
+        setPktAndReload(newPkt);
         logger.info("Protocol {} added.", meta.getName());
     }
     
@@ -85,7 +89,9 @@ public class FieldEditorModel {
     }
 
     public void removeLast() {
-        packetDataController.removeLastProtocol();
+        undoRecords.push(pkt);
+        ScapyPkt newPkt = packetDataController.removeLastProtocol(pkt);
+        setPktAndReload(newPkt);
     }
 
     private void fireUpdateViewEvent() {
@@ -111,10 +117,13 @@ public class FieldEditorModel {
         return new ProtocolMetadata(protocol.id, protocol.name, fields_metadata, payload);
     }
 
-    @Subscribe
-    public void handleReloadModelEvent(ReloadModelEvent e) {
+    public void setPktAndReload(ScapyPkt pkt){
+        beforeContentReplace(this.pkt);
+        this.pkt = pkt;
+        reload();
+    }
+    public void reload () {
         protocols.clear();
-        pkt = e.getPkt();
         PacketData packet = pkt.packet();
         
         binary.setBytes(packet.getPacketBytes());
@@ -131,8 +140,8 @@ public class FieldEditorModel {
             for (FieldData field: protocol.fields) {
                 Field fieldObj = new Field(protocolMetadata.getMetaForField(field.id), getCurrentPath(), protocolOffset, field);
                 fieldObj.setOnSetCallback(newValue -> {
-                    packetDataController.setFieldValue(fieldObj, newValue);
-                    fireUpdateViewEvent();
+                    ScapyPkt newPkt = packetDataController.setFieldValue(pkt, fieldObj, newValue);
+                    setPktAndReload(newPkt);
                 });
                 protocolObj.getFields().add(fieldObj);
             }
@@ -142,5 +151,75 @@ public class FieldEditorModel {
     
     public void setSelected(Field field) {
         binary.setSelected(field.getAbsOffset(), field.getLength());
+    }
+
+    /** should be called when modification is done */
+    public void beforeContentReplace(ScapyPkt oldPkt) {
+        if (undoingFrom == null) {
+            // new user change
+            undoRecords.push(oldPkt);
+            redoRecords.clear();
+        } else if (undoingFrom != null) {
+            // undoing or redoing
+            undoingTo.push(oldPkt);
+        }
+    }
+
+    void doUndo(Stack<ScapyPkt> from, Stack<ScapyPkt> to) {
+        if (from.empty()) {
+            logger.debug("Nothing to undo/redo");
+            return;
+        }
+        try {
+            undoingFrom = from;
+            undoingTo = to;
+            setPktAndReload(from.pop());
+        } catch (Exception e) {
+            logger.error("undo/redo failed", e);
+        } finally {
+            undoingFrom = null;
+            undoingTo = null;
+        }
+        
+    }
+
+    public void undo() {
+        doUndo(undoRecords, redoRecords);
+    }
+
+    public void redo() {
+        doUndo(redoRecords, undoRecords);
+    }
+
+    /* Reset length and chksum fields
+     * type fields can be calculated for layers with payload
+     *  */
+    public ScapyPkt recalculateAutoValues(ScapyPkt pkt) {
+        List<ProtocolData> protocols = pkt.packet().getProtocols();
+        List<ReconstructProtocol> modify = protocols.stream().map(
+                protocol -> {
+                    boolean is_last_layer = protocol == protocols.get(protocols.size() - 1);
+                    return ReconstructProtocol.modify(protocol.id, protocol.fields.stream().filter(field ->
+                                    field.id.equals("length") ||
+                                            field.id.equals("chksum") ||
+                                            (field.id.equals("type") && is_last_layer)
+                    ).map(f -> ReconstructField.resetValue(f.id)).collect(Collectors.toList()));
+                }).collect(Collectors.toList());
+        return packetDataController.reconstructPacket(pkt, modify);
+    }
+    
+    public void clearHistory() {
+        undoRecords.clear();
+        redoRecords.clear();
+    }
+
+    public ScapyPkt getPkt() {
+        return pkt;
+    }
+
+    public void newPacket() {
+        clearHistory();
+        pkt = new ScapyPkt();
+        reload();
     }
 }

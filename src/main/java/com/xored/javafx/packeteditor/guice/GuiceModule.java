@@ -6,7 +6,6 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
-import com.xored.javafx.packeteditor.controllers.PacketUndoController;
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.IBinaryData;
@@ -36,7 +35,6 @@ public class GuiceModule extends AbstractModule {
         bind(FieldEditorController.class).in(Singleton.class);
         bind(FieldEditorView.class).in(Singleton.class);
         bind(IMetadataService.class).to(LocalFileMetadataService.class).in(Singleton.class);
-        bind(PacketUndoController.class).in(Singleton.class);
 
         bind(ResourceBundle.class)
                 .annotatedWith(Names.named("resources"))
