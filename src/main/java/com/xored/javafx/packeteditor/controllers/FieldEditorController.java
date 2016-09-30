@@ -108,23 +108,18 @@ public class FieldEditorController implements Initializable {
         initFileChooser();
         File pcapfile = fileChooser.showOpenDialog(fieldEditorPane.getScene().getWindow());
         if (pcapfile != null) {
-            try {
-                ScapyPkt pkt = loadPcapFile(pcapfile);
-                model.setPktAndReload(pkt);
-            } catch (Exception e) {
-                showError(resourceBundle.getString("LOAD_PCAP_ERROR"), e);
-            }
+            loadPcapFile(pcapfile);
         }
     }
 
-    public ScapyPkt loadPcapFile(String filename) throws Exception {
-        return loadPcapFile(new File(filename));
-    }
-
-
-    public ScapyPkt loadPcapFile(File file) throws Exception {
-        byte[] bytes = Files.toByteArray(file);
-        return packetController.read_pcap_packet(bytes);
+    public void loadPcapFile(File pcapfile) {
+        try {
+            byte[] bytes = Files.toByteArray(pcapfile);
+            ScapyPkt pkt = packetController.read_pcap_packet(bytes);
+            model.setPktAndReload(pkt);
+        } catch (Exception e) {
+            showError(resourceBundle.getString("LOAD_PCAP_ERROR"), e);
+        }
     }
 
     public void writeToPcapFile(File file, ScapyPkt pkt) throws Exception {
