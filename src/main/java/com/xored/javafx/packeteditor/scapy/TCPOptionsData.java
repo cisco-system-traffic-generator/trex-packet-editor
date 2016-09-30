@@ -2,6 +2,7 @@ package com.xored.javafx.packeteditor.scapy;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,16 +26,24 @@ public class TCPOptionsData {
         this.value = value;
     }
 
-    public static List<TCPOptionsData> fromValue(JsonElement value) {
+    public static List<TCPOptionsData> fromFieldData(FieldData value) {
         List<TCPOptionsData> options = new LinkedList<>();
         try {
-            if (value instanceof JsonArray) {
-                for (JsonElement operation_tuple: value.getAsJsonArray()) {
-                    options.add(new TCPOptionsData(
-                            operation_tuple.getAsJsonArray().get(0).getAsString(),
-                            operation_tuple.getAsJsonArray().get(1)
-                    ));
-                }
+            String expr = value.getValueExpr();
+            if (expr == null) {
+                return options;
+            }
+
+            // convert python string expression to JSON-like object for quick parsing
+            // TODO: use stringbuilder
+            String jsonLikeExpr = expr.replace("b'", "'").replace("'", "\"").replace('(', '[').replace(')', ']');
+
+            JsonArray optionsArray = new JsonParser().parse(jsonLikeExpr).getAsJsonArray();
+            for (JsonElement option: optionsArray) {
+                JsonArray opt_tuple = option.getAsJsonArray();
+                options.add(new TCPOptionsData(
+                        opt_tuple.get(0).getAsString(),
+                        opt_tuple.get(1)));
             }
         } catch (Exception e) {
             logger.error("Unable to parse value: {} due to: {}", value, e);
@@ -44,6 +53,8 @@ public class TCPOptionsData {
 
     // python representation
     //[('MSS', 1460), ('NOP', None), ('NOP', None), ('SAckOK', '')]
+    // python3 representation
+    //[('MSS', 1460), ('NOP', None), ('NOP', None), ('SAckOK', b'')]
     // JSON representation:
     //'[["MSS", 1460], ["NOP", null], ["NOP", null], ["SAckOK", ""]]'
 }

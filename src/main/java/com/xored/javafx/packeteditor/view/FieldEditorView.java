@@ -151,7 +151,7 @@ public class FieldEditorView {
             rows.add(row);
             // TODO: remove this crutch :)
             if(TCP_OPTIONS.equals(type)) {
-                TCPOptionsData.fromValue(field.getValue()).stream().forEach(fd -> rows.add(createTCPOptionRow(fd)));
+                TCPOptionsData.fromFieldData(field.getData()).stream().forEach(fd -> rows.add(createTCPOptionRow(fd)));
             }
         }
 
@@ -169,17 +169,13 @@ public class FieldEditorView {
 
 
         BorderPane valuePane = new BorderPane();
+        Text valueCtrl = new Text();
         if (tcpOption.hasValue()) {
-            TextField valueCtrl = new TextField();
             valueCtrl.setText(tcpOption.getDisplayValue());
-            valueCtrl.setEditable(false);
-            // TODO: implement field editing
-            valuePane.setLeft(valueCtrl);
         } else {
-            Text valueCtrl = new Text();
             valueCtrl.setText("-");
-            valuePane.setLeft(valueCtrl);
         }
+        valuePane.setLeft(valueCtrl);
         row.getChildren().addAll(titlePane, valuePane);
         return row;
     }
