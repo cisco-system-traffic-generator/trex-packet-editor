@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Field implements IField {
+    private boolean isDefault = true;
     private FieldMetadata meta;
     private FieldData field_data;
     private List<String> path = new ArrayList<>();
@@ -24,6 +25,13 @@ public class Field implements IField {
         this.globalOffset = globalOffset;
         this.field_data = field_data;
     }
+    public void setValue(JsonElement value) {
+        this.field_data.value = value;
+    }
+
+    public void setIsDefault(boolean isDefault) { this.isDefault = isDefault; }
+
+    public boolean isDefault() { return isDefault; }
 
     public FieldMetadata getMeta() {
         return meta;

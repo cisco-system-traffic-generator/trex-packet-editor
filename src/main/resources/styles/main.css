@@ -35,6 +35,10 @@
 .control {
     -fx-pref-width: 180px;
 }
+.hyperlink .text{
+    -fx-underline: false;
+}
+
 .text-area {
     -fx-pref-width: 360px;
     -fx-pref-height: 200px;

@@ -129,6 +129,11 @@ public class FieldEditorModel {
         }
         fireUpdateViewEvent();
     }
+    
+    public void setValue(Field field, JsonElement value) {
+        field.setIsDefault(false);
+        field.setValue(value);
+    }
 
     public void editField(Field field, ReconstructField newValue) {
         assert(field.getId() == newValue.id);

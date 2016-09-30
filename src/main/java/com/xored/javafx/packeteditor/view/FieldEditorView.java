@@ -12,10 +12,14 @@ import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
 import com.xored.javafx.packeteditor.service.PacketDataService;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -105,49 +109,19 @@ public class FieldEditorView {
             rows.add(row);
             field.getMeta().getBits().stream().forEach(bitFlagMetadata -> rows.add(this.createBitFlagRow(field, bitFlagMetadata)));
         } else {
-            Control fieldControl;
-            switch(type) {
-                case ENUM:
-                    fieldControl = createEnumField(field);
-                    break;
-                case MAC_ADDRESS:
-                    fieldControl = createMacAddressField(field);
-                    break;
-                case IPV4ADDRESS:
-                    fieldControl = createIPAddressField(field);
-                    break;
-                case TCP_OPTIONS:
-                case NUMBER:
-                case STRING:
-                    TextField tf = new TextField(field.getDisplayValue());
-                    injectOnChangeHandler(tf, field);
-                    fieldControl = tf;
-                    fieldControl.setContextMenu(getContextMenu(field));
-                    break;
-                case RAW:
-                    if (field.getData().hasBinaryData() && !field.getData().hasValue()) {
-                        fieldControl = new Label(field.getDisplayValue());
-                    } else {
-                        row.getStyleClass().addAll("field-row-raw");
-                        TextArea ta = new TextArea(field.getData().hvalue);
-                        ta.setPrefSize(200, 40);
-                        MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
-                        saveRawMenuItem.setOnAction((event) -> field.setStringValue(ta.getText()));
-                        ta.setContextMenu(new ContextMenu(saveRawMenuItem));
-                        fieldControl = ta;
-                    }
-                    break;
-                case NONE:
-                default:
-                    fieldControl = new Label("");
-            }
+            Control fieldControl = createDefaultControl(field);
+            
             fieldControl.setId(field.getUniqueId());
             fieldControl.getStyleClass().addAll("control");
+            
+//            if (field.isDefault()) {
+//                fieldControl = new Hyperlink(field.getDisplayValue());
+//                fieldControl.getStyleClass().add("default");
+//            }
             
             BorderPane valuePane = new BorderPane();
             valuePane.setCenter(fieldControl);
             row.getChildren().addAll(titlePane, valuePane);
-            addOnclickListener(fieldControl, field);
             rows.add(row);
             // TODO: remove this crutch :)
             if(TCP_OPTIONS.equals(type)) {
@@ -158,6 +132,66 @@ public class FieldEditorView {
         return rows;
     }
 
+    private Control createDefaultControl(Field field) {
+        Label label = new Label(field.getDisplayValue());
+        label.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> {
+            Control editableControl = createControl(field, label);
+            label.setGraphic(editableControl);
+            editableControl.requestFocus();
+        });
+        return label;
+    }
+    
+    private Control createControl(Field field, Label parent) {
+        Control fieldControl;
+        switch(field.getType()) {
+            case ENUM:
+                fieldControl = createEnumField(field, parent);
+                break;
+            case RAW:
+                if (field.getData().hasBinaryData() && !field.getData().hasValue()) {
+                    fieldControl = new Label(field.getDisplayValue());
+                } else {
+//                    row.getStyleClass().addAll("field-row-raw");
+                    TextArea ta = new TextArea(field.getData().hvalue);
+                    ta.setPrefSize(200, 40);
+                    MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
+                    saveRawMenuItem.setOnAction((event) -> field.setStringValue(ta.getText()));
+                    ta.setContextMenu(new ContextMenu(saveRawMenuItem));
+                    fieldControl = ta;
+                }
+                break;
+            case NONE:
+            default:
+                fieldControl = createTextField(field, parent);
+        }
+        
+        return fieldControl;
+    }
+    
+    private TextField createTextField(Field field, Label parent) {
+        TextField tf;
+        switch(field.getType()) {
+            case MAC_ADDRESS:
+                tf = createMacAddressField(field, parent);
+                break;
+            case IPV4ADDRESS:
+                tf = createIPAddressField(field, parent);
+                break;
+            case TCP_OPTIONS:
+            case NUMBER:
+            case STRING:
+                tf = new TextField(field.getDisplayValue());
+                break;
+            default:
+                return null;
+        }
+        addOnclickListener(tf, field, parent);
+        injectOnChangeHandler(tf, field, parent);
+        tf.setContextMenu(getContextMenu(field));
+        return  tf;
+    }
+    
     private Node createTCPOptionRow(TCPOptionsData tcpOption) {
         // TODO: reuse code
         BorderPane titlePane = new BorderPane();
@@ -180,14 +214,14 @@ public class FieldEditorView {
         return row;
     }
 
-    private MaskTextField createMacAddressField(Field field) {
+    private MaskTextField createMacAddressField(Field field, Label parent) {
         MaskTextField macField = MaskTextField.createMacAddressField();
         macField.setText(field.getValue().getAsString());
-        injectOnChangeHandler(macField, field);
+        injectOnChangeHandler(macField, field, parent);
         macField.setContextMenu(getContextMenu(field));
         return macField;
     }
-    private TextField createIPAddressField(Field field) {
+    private TextField createIPAddressField(Field field, Label parent) {
         TextField textField = new TextField();
         String partialBlock = "(([01]?[0-9]{0,2})|(2[0-4][0-9])|(25[0-5]))";
         String subsequentPartialBlock = "(\\."+partialBlock+")" ;
@@ -203,7 +237,7 @@ public class FieldEditorView {
         };
         textField.setTextFormatter(new TextFormatter<>(ipAddressFilter));
         textField.setText(field.getValue().getAsString());
-        injectOnChangeHandler(textField, field);
+        injectOnChangeHandler(textField, field, parent);
         textField.setContextMenu(getContextMenu(field));
         return textField;
     }
@@ -255,28 +289,34 @@ public class FieldEditorView {
         return row;
     }
     
-    private void addOnclickListener(Node node, Field field) {
-        node.setOnMouseClicked((event) -> {
+    private void addOnclickListener(Node node, Field field, Label parent) {
+        node.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> {
             controller.selectField(field);
+            parent.setGraphic(node);
         });
     }
-    
-    private void injectOnChangeHandler(TextField textField, Field field) {
+
+    private void injectOnChangeHandler(TextField textField, Field field, Label parent) {
         textField.setOnKeyReleased(e -> {
             if (e.getCode().equals(KeyCode.ENTER)) {
+                controller.setFieldValue(field, textField.getText());
                 field.setStringValue(textField.getText());
+                parent.setGraphic(null);
+            }
+            if (e.getCode().equals(KeyCode.ESCAPE)) {
+                parent.setGraphic(null);
             }
         });
     }
 
-    private void injectOnChangeHandler(ComboBox<ComboBoxItem> combo, Field field) {
+    private void injectOnChangeHandler(ComboBox<ComboBoxItem> combo, Field field, Label parent) {
         combo.setOnAction((event) -> {
             ComboBoxItem val = combo.getSelectionModel().getSelectedItem();
             field.setStringValue(val.getValue().getAsString());
         });
     }
     
-    private Control createEnumField(Field field) {
+    private Control createEnumField(Field field, Label parent) {
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.getStyleClass().addAll("control");
         List<ComboBoxItem> items = field.getMeta().getDictionary().entrySet().stream().map(entry -> new ComboBoxItem(entry.getKey(), entry.getValue())).collect(Collectors.toList());
@@ -287,7 +327,7 @@ public class FieldEditorView {
             items.add(defaultValue.get());
         }
         combo.getItems().addAll(items);
-        injectOnChangeHandler(combo, field);
+        injectOnChangeHandler(combo, field, parent);
         if (defaultValue.isPresent()) {
             combo.setValue(defaultValue.get());
         }

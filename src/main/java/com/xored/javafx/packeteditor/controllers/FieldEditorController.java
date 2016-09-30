@@ -230,4 +230,8 @@ public class FieldEditorController implements Initializable {
     public void redo() {
         model.redo();
     }
+
+    public void setFieldValue(Field field, String val) {
+        model.set
+    }
 }
