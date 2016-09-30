@@ -13,6 +13,7 @@ import com.xored.javafx.packeteditor.service.PacketDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +27,9 @@ public class FieldEditorModel {
      * Current packet representation in ScapyService format
      */
     ScapyPkt pkt = new ScapyPkt();
-    
+
+    File currentFile;
+
     @Inject
     EventBus eventBus;
 
@@ -226,7 +229,7 @@ public class FieldEditorModel {
         return packetDataService.reconstructPacket(pkt, modify);
     }
     
-    public void clearHistory() {
+    private void clearHistory() {
         undoRecords.clear();
         redoRecords.clear();
     }
@@ -240,4 +243,14 @@ public class FieldEditorModel {
         pkt = new ScapyPkt();
         reload();
     }
+
+    public File getCurrentFile() {
+        return currentFile;
+    }
+
+    public void setCurrentFile(File currentFile) {
+        this.currentFile = currentFile;
+        clearHistory();
+    }
+
 }

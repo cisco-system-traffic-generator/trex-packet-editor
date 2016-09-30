@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.scapy.ScapyUtils.createReconstructPktPayload;
 
-public class PacketDataService extends Observable {
+public class PacketDataService {
     static Logger log = LoggerFactory.getLogger(PacketDataService.class);
 
     final Gson gson = new Gson();
@@ -25,14 +25,9 @@ public class PacketDataService extends Observable {
     @Inject
     ScapyServerClient scapy;
 
-    File currentFile;
-
     public void init() {
         scapy.open("tcp://localhost:4507");
     }
-
-
-    public File getCurrentFile() { return currentFile; }
 
     public ScapyPkt reconstructPacket(ScapyPkt currentPkt, List<ReconstructProtocol> modify) {
         return reconstructPacket(currentPkt, gson.toJsonTree(modify));
