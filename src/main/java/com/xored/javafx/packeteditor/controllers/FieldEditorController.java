@@ -36,7 +36,7 @@ public class FieldEditorController implements Initializable {
     
     @FXML private StackPane fieldEditorPane;
     @FXML private ScrollPane scrollPane;
-    
+
     @Inject
     FieldEditorModel model;
     
@@ -171,6 +171,8 @@ public class FieldEditorController implements Initializable {
     public void newPacket() {
         model.newPacket();
     }
+
+    public FieldEditorModel getModel() { return model; }
 
     public void recalculateAutoValues() {
         

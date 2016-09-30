@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Observable;
 import java.util.stream.Collectors;
 
-import static com.xored.javafx.packeteditor.data.IField.DEFAULT;
-import static com.xored.javafx.packeteditor.data.IField.RANDOM;
 import static com.xored.javafx.packeteditor.scapy.ScapyUtils.createReconstructPktPayload;
 
 public class PacketDataService extends Observable {
@@ -48,35 +46,8 @@ public class PacketDataService extends Observable {
         return new ScapyPkt(scapy.reconstruct_pkt(bytes, new JsonArray()));
     }
 
-    /** can accept string representation for strings, integers, hex, ... */
-    public ScapyPkt setFieldValue(ScapyPkt currentPkt, IField field, String newValue) {
-        ScapyPkt result;
-        if (DEFAULT.equals(newValue)) {
-            result = setFieldDefaultValue(currentPkt, field);
-        } else if (RANDOM.equals(newValue)) {
-            result = setFieldRandomValue(currentPkt, field);
-        } else {
-            result = setFieldValue(currentPkt, field.getPath(), field.getId(), newValue);
-        }
-        return result;
-    }
-
-    /** @NotImplementedYet set binary payload to a field */
-    public ScapyPkt setFieldValueBytes(ScapyPkt currentPkt, IField field, byte[] bytes) {
-        // TODO: implement properly
-        return setFieldValue(currentPkt, field, "<binary payload" + bytes.length + ">");
-    }
-
-    private ScapyPkt setFieldValue(ScapyPkt currentPkt, List<String> fieldPath, String fieldName, String newValue) {
-        return reconstructPacket(currentPkt, createReconstructPktPayload(fieldPath, fieldName, newValue, false, false));
-    }
-
-    public ScapyPkt setFieldRandomValue(ScapyPkt currentPkt, IField field) {
-        return reconstructPacket(currentPkt, createReconstructPktPayload(field.getPath(), field.getId(), null, true, false));
-    }
-
-    public ScapyPkt setFieldDefaultValue(ScapyPkt currentPkt, IField field) {
-        return reconstructPacket(currentPkt, createReconstructPktPayload(field.getPath(), field.getId(), null, false, true));
+    public ScapyPkt setFieldValue(ScapyPkt currentPkt, IField field, ReconstructField newValue) {
+        return reconstructPacket(currentPkt, createReconstructPktPayload(field.getPath(), newValue));
     }
 
     /** appends protocol to the stack */

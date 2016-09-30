@@ -64,8 +64,8 @@ public class FieldEditorModel {
         setPktAndReload(newPkt);
         logger.info("Protocol {} added.", meta.getName());
     }
-    
-    
+
+
     public List<ProtocolMetadata> getAvailableProtocolsToAdd() {
         Map<String, ProtocolMetadata>  protocolsMetaMap = metadataService.getProtocols();
         if (protocols.size() == 0) {
@@ -141,15 +141,32 @@ public class FieldEditorModel {
             for (FieldData field: protocol.fields) {
                 Field fieldObj = new Field(protocolMetadata.getMetaForField(field.id), getCurrentPath(), protocolOffset, field);
                 fieldObj.setOnSetCallback(newValue -> {
-                    ScapyPkt newPkt = packetDataService.setFieldValue(pkt, fieldObj, newValue);
-                    setPktAndReload(newPkt);
+                    this.editField(fieldObj, newValue);
                 });
                 protocolObj.getFields().add(fieldObj);
             }
         }
         fireUpdateViewEvent();
     }
-    
+
+    public void editField(Field field, ReconstructField newValue) {
+        assert(field.getId() == newValue.id);
+        ScapyPkt newPkt = packetDataService.setFieldValue(pkt, field, newValue);
+        setPktAndReload(newPkt);
+    }
+
+    /** sets text value */
+    public void editField(Field field, String newValue) {
+        if (field.getData().getValueExpr() != null) {
+            // if original value was expression, which means there are no good representation for it,
+            // new string value should be treated as an expression as well. not as a hvalue
+            // at least until we do not improve support for h2i/i2h
+            editField(field, ReconstructField.setExpressionValue(field.getId(), newValue));
+        } else {
+            editField(field, ReconstructField.setHumanValue(field.getId(), newValue));
+        }
+    }
+
     public void setSelected(Field field) {
         binary.setSelected(field.getAbsOffset(), field.getLength());
     }

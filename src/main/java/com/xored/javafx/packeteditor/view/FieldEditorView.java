@@ -4,11 +4,14 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.data.Field;
+import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.IField.Type;
 import com.xored.javafx.packeteditor.data.Protocol;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
+import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
+import com.xored.javafx.packeteditor.service.PacketDataService;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -26,15 +29,13 @@ import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-import static com.xored.javafx.packeteditor.data.IField.DEFAULT;
-import static com.xored.javafx.packeteditor.data.IField.RANDOM;
 import static com.xored.javafx.packeteditor.data.IField.Type.BITMASK;
 import static com.xored.javafx.packeteditor.data.IField.Type.TCP_OPTIONS;
 
 public class FieldEditorView {
     @Inject
     FieldEditorController controller;
-    
+
     private StackPane fieldEditorPane;
     
     private VBox protocolsPane = new VBox();
@@ -249,7 +250,8 @@ public class FieldEditorView {
             int bitFlagMask = bitFlagMetadata.getMask();
             int selected = val.getValue().getAsInt();
             int current = field.getValue().getAsInt();
-            field.setStringValue(String.valueOf(current & ~(bitFlagMask) | selected));
+            String newVal = String.valueOf(current & ~(bitFlagMask) | selected);
+            controller.getModel().editField(field, newVal);
         });
         BorderPane valuePane = new BorderPane();
         valuePane.setLeft(combo);
@@ -300,11 +302,15 @@ public class FieldEditorView {
         ContextMenu context = new ContextMenu();
 
         MenuItem generateItem = new MenuItem(resourceBundle.getString("GENERATE"));
-        generateItem.setOnAction((event) -> field.setStringValue(RANDOM));
-        
+        generateItem.setOnAction(
+                event -> controller.getModel().editField(field, ReconstructField.randomizeValue(field.getId()))
+        );
+
         MenuItem defaultItem = new MenuItem(resourceBundle.getString("SET_DEFAULT"));
-        defaultItem.setOnAction((event) -> field.setStringValue(DEFAULT));
-        
+        defaultItem.setOnAction(
+                event -> controller.getModel().editField(field, ReconstructField.resetValue(field.getId()))
+        );
+
         context.getItems().addAll(generateItem, defaultItem);
         
         return context;

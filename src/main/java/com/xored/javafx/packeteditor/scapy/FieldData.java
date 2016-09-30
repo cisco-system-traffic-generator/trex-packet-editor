@@ -2,6 +2,7 @@ package com.xored.javafx.packeteditor.scapy;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import java.util.Base64;
 
@@ -30,4 +31,14 @@ public class FieldData {
     public boolean hasValue() { return value != null && !value.isJsonNull(); }
     public boolean hasBinaryData() { return value_base64 != null; }
     public byte[] getBinaryData() { return hasBinaryData() ? Base64.getDecoder().decode(value_base64) : null; }
+
+    /** returns scapy value expression or null */
+    public String getValueExpr() {
+        if (value instanceof JsonObject) {
+            if (value.getAsJsonObject().get("vtype") instanceof JsonPrimitive) {
+                return value.getAsJsonObject().get("expr").getAsString();
+            }
+        }
+        return null;
+    }
 }
