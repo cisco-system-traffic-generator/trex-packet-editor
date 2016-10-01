@@ -9,11 +9,11 @@ import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.IBinaryData;
+import com.xored.javafx.packeteditor.service.MetadataService;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.guice.provider.FXMLLoaderProvider;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import com.xored.javafx.packeteditor.service.IMetadataService;
-import com.xored.javafx.packeteditor.service.LocalFileMetadataService;
 import com.xored.javafx.packeteditor.view.FieldEditorView;
 import javafx.fxml.FXMLLoader;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class GuiceModule extends AbstractModule {
         bind(EventBus.class).in(Singleton.class);
         bind(FieldEditorController.class).in(Singleton.class);
         bind(FieldEditorView.class).in(Singleton.class);
-        bind(IMetadataService.class).to(LocalFileMetadataService.class).in(Singleton.class);
+        bind(IMetadataService.class).to(MetadataService.class).in(Singleton.class);
 
         bind(ResourceBundle.class)
                 .annotatedWith(Names.named("resources"))

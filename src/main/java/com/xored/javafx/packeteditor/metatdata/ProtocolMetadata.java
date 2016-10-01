@@ -6,10 +6,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ProtocolMetadata {
-    private String id;
-    private String name;
+    private String id; // scapy class id
+    private String name; // protocol name
     private LinkedTreeMap<String, FieldMetadata> fields = new LinkedTreeMap<>();
-    private List<String> payload;
+    private List<String> payload; // payload classes
 
     public ProtocolMetadata(String id, String name, List<FieldMetadata> fields, List<String> payload) {
         this.id = id;

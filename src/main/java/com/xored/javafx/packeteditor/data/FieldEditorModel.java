@@ -102,25 +102,6 @@ public class FieldEditorModel {
         eventBus.post(new RebuildViewEvent(protocols));
     }
 
-    public FieldMetadata buildFieldMetaFromScapy(FieldData field) {
-        JsonObject dict = field.values_dict;
-        final int max_enum_values_to_display = 100; // max sane number of choice enumeration.
-        if (dict != null && dict.size() > 0 && dict.size() < max_enum_values_to_display) {
-            Map<String, JsonElement> dict_map = dict.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            return new FieldMetadata(field.id, field.id, IField.Type.ENUM, dict_map, null);
-
-        } else {
-            return new FieldMetadata(field.id, field.id, IField.Type.STRING, null, null);
-        }
-    }
-
-    public ProtocolMetadata buildMetadataFromScapyModel(ProtocolData protocol) {
-        List<FieldMetadata> fields_metadata = protocol.fields.stream().map(this::buildFieldMetaFromScapy).collect(Collectors.toList());
-        List<String> payload = new ArrayList<>();
-        return new ProtocolMetadata(protocol.id, protocol.name, fields_metadata, payload);
-    }
-
     public void setPktAndReload(ScapyPkt pkt){
         beforeContentReplace(this.pkt);
         this.pkt = pkt;
@@ -133,10 +114,7 @@ public class FieldEditorModel {
         binary.setBytes(packet.getPacketBytes());
 
         for (ProtocolData protocol: packet.getProtocols()) {
-            ProtocolMetadata protocolMetadata = metadataService.getProtocolMetadataById(protocol.id);
-            if (protocolMetadata == null) {
-                 protocolMetadata = buildMetadataFromScapyModel(protocol);
-            }
+            ProtocolMetadata protocolMetadata = metadataService.getProtocolMetadata(protocol);
             Protocol protocolObj = buildProtocolFromMeta(protocolMetadata);
             protocols.push(protocolObj);
 
