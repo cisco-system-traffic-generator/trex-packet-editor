@@ -1,15 +1,20 @@
 package com.xored.javafx.packeteditor.scapy;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
+import java.util.Base64;
 
 /** This class defines the change, which needs to be applied to protocol field
  * all fields except 'id' are optional.
  * */
 public class ReconstructField {
-    String id; // required
-    JsonElement value;
-    String hvalue;
+    public String id; // required
+    public JsonElement value;
+    public String hvalue;
+    public String value_base64;
     Boolean delete; // clear field and use default value
     Boolean randomize; // set random value
 
@@ -53,9 +58,18 @@ public class ReconstructField {
         return setValue(fieldId, new JsonPrimitive(value));
     }
 
-    /** @NotImplemented not implemented yet on server side. mockup */
+    /** set field value */
     public static ReconstructField setValue(String fieldId, byte[] bytes) {
-        // TODO: implement with value_base64
-        return setValue(fieldId, new JsonPrimitive("<binary payload" + bytes.length + ">"));
+        ReconstructField res = new ReconstructField(fieldId);
+        res.value_base64 = Base64.getEncoder().encodeToString(bytes);
+        return res;
+    }
+
+    /** set raw eval python expression as a value */
+    public static ReconstructField setExpressionValue(String fieldId, String expr) {
+        JsonObject val = new JsonObject();
+        val.add("vtype", new JsonPrimitive("expr"));
+        val.add("expr", new JsonPrimitive(expr));
+        return setValue(fieldId, val);
     }
 }

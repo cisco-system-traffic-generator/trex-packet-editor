@@ -22,15 +22,14 @@ import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.data.IField.Type.*;
 
-public class LocalFileMetadataService implements IMetadataService {
+class LocalFileMetadataService {
 
-    private Logger logger= LoggerFactory.getLogger(MenuController.class); 
+    private Logger logger = LoggerFactory.getLogger(LocalFileMetadataService.class);
     
     private Gson gson = new Gson();
     
     private Map<String, ProtocolMetadata> protocols = new HashMap<>();
     
-    @Override
     public Map<String, ProtocolMetadata> getProtocols() {
         return protocols;
     }
@@ -39,7 +38,6 @@ public class LocalFileMetadataService implements IMetadataService {
         return protocols.get(protocolId);
     }
 
-    @Override
     public void initialize() {
         try {
             loadMeta();

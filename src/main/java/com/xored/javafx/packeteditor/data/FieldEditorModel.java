@@ -13,6 +13,7 @@ import com.xored.javafx.packeteditor.service.PacketDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +27,9 @@ public class FieldEditorModel {
      * Current packet representation in ScapyService format
      */
     ScapyPkt pkt = new ScapyPkt();
-    
+
+    File currentFile;
+
     @Inject
     EventBus eventBus;
 
@@ -99,25 +102,6 @@ public class FieldEditorModel {
         eventBus.post(new RebuildViewEvent(protocols));
     }
 
-    public FieldMetadata buildFieldMetaFromScapy(FieldData field) {
-        JsonObject dict = field.values_dict;
-        final int max_enum_values_to_display = 100; // max sane number of choice enumeration.
-        if (dict != null && dict.size() > 0 && dict.size() < max_enum_values_to_display) {
-            Map<String, JsonElement> dict_map = dict.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            return new FieldMetadata(field.id, field.id, IField.Type.ENUM, dict_map, null);
-
-        } else {
-            return new FieldMetadata(field.id, field.id, IField.Type.STRING, null, null);
-        }
-    }
-
-    public ProtocolMetadata buildMetadataFromScapyModel(ProtocolData protocol) {
-        List<FieldMetadata> fields_metadata = protocol.fields.stream().map(this::buildFieldMetaFromScapy).collect(Collectors.toList());
-        List<String> payload = new ArrayList<>();
-        return new ProtocolMetadata(protocol.id, protocol.name, fields_metadata, payload);
-    }
-
     public void setPktAndReload(ScapyPkt pkt){
         beforeContentReplace(this.pkt);
         this.pkt = pkt;
@@ -130,10 +114,7 @@ public class FieldEditorModel {
         binary.setBytes(packet.getPacketBytes());
 
         for (ProtocolData protocol: packet.getProtocols()) {
-            ProtocolMetadata protocolMetadata = metadataService.getProtocolMetadataById(protocol.id);
-            if (protocolMetadata == null) {
-                 protocolMetadata = buildMetadataFromScapyModel(protocol);
-            }
+            ProtocolMetadata protocolMetadata = metadataService.getProtocolMetadata(protocol);
             Protocol protocolObj = buildProtocolFromMeta(protocolMetadata);
             protocols.push(protocolObj);
 
@@ -141,15 +122,32 @@ public class FieldEditorModel {
             for (FieldData field: protocol.fields) {
                 Field fieldObj = new Field(protocolMetadata.getMetaForField(field.id), getCurrentPath(), protocolOffset, field);
                 fieldObj.setOnSetCallback(newValue -> {
-                    ScapyPkt newPkt = packetDataService.setFieldValue(pkt, fieldObj, newValue);
-                    setPktAndReload(newPkt);
+                    this.editField(fieldObj, newValue);
                 });
                 protocolObj.getFields().add(fieldObj);
             }
         }
         fireUpdateViewEvent();
     }
-    
+
+    public void editField(Field field, ReconstructField newValue) {
+        assert(field.getId() == newValue.id);
+        ScapyPkt newPkt = packetDataService.setFieldValue(pkt, field, newValue);
+        setPktAndReload(newPkt);
+    }
+
+    /** sets text value */
+    public void editField(Field field, String newValue) {
+        if (field.getData().getValueExpr() != null) {
+            // if original value was expression, which means there are no good representation for it,
+            // new string value should be treated as an expression as well. not as a hvalue
+            // at least until we do not improve support for h2i/i2h
+            editField(field, ReconstructField.setExpressionValue(field.getId(), newValue));
+        } else {
+            editField(field, ReconstructField.setHumanValue(field.getId(), newValue));
+        }
+    }
+
     public void setSelected(Field field) {
         binary.setSelected(field.getAbsOffset(), field.getLength());
     }
@@ -209,7 +207,7 @@ public class FieldEditorModel {
         return packetDataService.reconstructPacket(pkt, modify);
     }
     
-    public void clearHistory() {
+    private void clearHistory() {
         undoRecords.clear();
         redoRecords.clear();
     }
@@ -223,4 +221,14 @@ public class FieldEditorModel {
         pkt = new ScapyPkt();
         reload();
     }
+
+    public File getCurrentFile() {
+        return currentFile;
+    }
+
+    public void setCurrentFile(File currentFile) {
+        this.currentFile = currentFile;
+        clearHistory();
+    }
+
 }

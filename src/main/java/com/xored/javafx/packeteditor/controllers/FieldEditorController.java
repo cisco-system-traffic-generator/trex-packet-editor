@@ -37,7 +37,7 @@ public class FieldEditorController implements Initializable {
     
     @FXML private StackPane fieldEditorPane;
     @FXML private ScrollPane scrollPane;
-    
+
     @Inject
     FieldEditorModel model;
     
@@ -73,16 +73,15 @@ public class FieldEditorController implements Initializable {
         packetController.init();
         view.setParentPane(fieldEditorPane);
         model.setMetadataService(metadataService);
+    }
 
-        packetController.addObserver((source,params)->{
-            String title = resourceBundle.getString("EDITOR_TITLE");
-            if (packetController.getCurrentFile() != null) {
-                title += " - " + packetController.getCurrentFile().getAbsolutePath();
-            }
+    public void refreshTitle() {
+        String title = resourceBundle.getString("EDITOR_TITLE");
+        if (model.getCurrentFile() != null) {
+            title += " - " + model.getCurrentFile().getAbsolutePath();
+        }
 
-            ((Stage)fieldEditorPane.getScene().getWindow()).setTitle(title);
-        });
-
+        ((Stage)fieldEditorPane.getScene().getWindow()).setTitle(title);
     }
 
     @Subscribe
@@ -124,6 +123,8 @@ public class FieldEditorController implements Initializable {
     public void loadPcapFile(File pcapfile, boolean wantexception) throws IOException {
         try {
             byte[] bytes = Files.toByteArray(pcapfile);
+            model.setCurrentFile(pcapfile);
+            refreshTitle();
             ScapyPkt pkt = packetController.read_pcap_packet(bytes);
             model.setPktAndReload(pkt);
         } catch (Exception e) {
@@ -181,7 +182,7 @@ public class FieldEditorController implements Initializable {
     }
 
     public void initFileChooser() {
-        File file = packetController.getCurrentFile();
+        File file = model.getCurrentFile();
         if (file != null) {
             fileChooser.setInitialDirectory(file.getParentFile());
             fileChooser.setInitialFileName(file.getName());
@@ -215,6 +216,8 @@ public class FieldEditorController implements Initializable {
     public void newPacket() {
         model.newPacket();
     }
+
+    public FieldEditorModel getModel() { return model; }
 
     public void recalculateAutoValues() {
         

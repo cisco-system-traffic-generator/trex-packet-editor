@@ -4,7 +4,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ScapyUtils {
     public static JsonObject layer(String type) {
@@ -22,36 +25,16 @@ public class ScapyUtils {
         return payload;
     }
 
-    /** generates payload for reconstruct_pkt
-     * @param fieldPath: example: Ether, IP, TCP
-     * @param fieldName: src
-     * @param newValue: 127.0.0.1
-     * @return 'modify' payload for reconstruct_pkt
-     * */
-    public static JsonArray createReconstructPktPayload(List<String> fieldPath, String fieldName, String newValue, boolean randomize, boolean setdefault) {
-        if (fieldPath.isEmpty()) {
-            return new JsonArray();
+    /** generates payload for reconstruct_pkt */
+    public static List<ReconstructProtocol> createReconstructPktPayload(List<String> fieldPath, ReconstructField fieldEdit) {
+        List<ReconstructProtocol> res = fieldPath.stream().map(
+                protocolId->ReconstructProtocol.pass(protocolId)
+        ).collect(Collectors.toList());
+
+        if (!fieldPath.isEmpty()) {
+            res.get(res.size() - 1).fields = Arrays.asList(fieldEdit);
         }
-        JsonObject innerProtocol = null;
-        JsonArray protocols = new JsonArray();
-        for (String protoId: fieldPath) {
-            innerProtocol = new JsonObject();
-            protocols.add(innerProtocol);
-            innerProtocol.add("id", new JsonPrimitive(protoId));
-        }
-        JsonArray fieldsToModify = new JsonArray();
-        innerProtocol.add("fields", fieldsToModify);
-        JsonObject modifyFieldRecord = new JsonObject();
-        fieldsToModify.add(modifyFieldRecord);
-        modifyFieldRecord.add("id", new JsonPrimitive(fieldName));
-        if (newValue != null) {
-            modifyFieldRecord.add("hvalue", new JsonPrimitive(newValue));
-        } else if (randomize) {
-            modifyFieldRecord.add("randomize", new JsonPrimitive(true));
-        } else if (setdefault) {
-            modifyFieldRecord.add("delete", new JsonPrimitive(true));
-        }
-        return protocols;
+        return res;
     }
 
 }
