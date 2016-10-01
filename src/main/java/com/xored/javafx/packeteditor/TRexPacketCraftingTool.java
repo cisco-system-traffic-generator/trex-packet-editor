@@ -19,10 +19,15 @@ public class TRexPacketCraftingTool extends Application {
         TRexPacketCraftingTool.launch(args);
     }
 
+    Injector injector = Guice.createInjector(new GuiceModule());
+
+    public Injector getInjector() {
+        return injector;
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         log.debug("Running app");
-        Injector injector = Guice.createInjector(new GuiceModule());
         FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
         fxmlLoader.setLocation(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/app.fxml"));
         Parent parent = fxmlLoader.load();

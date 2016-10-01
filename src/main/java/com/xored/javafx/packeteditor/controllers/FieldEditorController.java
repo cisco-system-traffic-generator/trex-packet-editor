@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -114,19 +115,62 @@ public class FieldEditorController implements Initializable {
 
     public void loadPcapFile(File pcapfile) {
         try {
+            loadPcapFile(pcapfile, false);
+        } catch (IOException e) {
+            // hide exception
+        }
+    }
+
+    public void loadPcapFile(File pcapfile, boolean wantexception) throws IOException {
+        try {
             byte[] bytes = Files.toByteArray(pcapfile);
             ScapyPkt pkt = packetController.read_pcap_packet(bytes);
             model.setPktAndReload(pkt);
         } catch (Exception e) {
-            showError(resourceBundle.getString("LOAD_PCAP_ERROR"), e);
+            if (wantexception) {
+                throw e;
+            }
+            else {
+                showError(resourceBundle.getString("LOAD_PCAP_ERROR"), e);
+            }
         }
     }
 
-    public void writeToPcapFile(File file, ScapyPkt pkt) throws Exception {
-        byte[] pcap_bin = packetController.write_pcap_packet(pkt.getBinaryData());
-        Files.write(pcap_bin, file);
+
+    public void writeToPcapFile(File file) {
+        try {
+            writeToPcapFile(file, model.getPkt(), false);
+        } catch (Exception e) {
+            // hide exception
+        }
     }
-    
+
+    public void writeToPcapFile(File file, ScapyPkt pkt) {
+        try {
+            writeToPcapFile(file, pkt, false);
+        } catch (Exception e) {
+            // hide exception
+        }
+    }
+
+    public void writeToPcapFile(File file, boolean wantexception) throws Exception {
+        writeToPcapFile(file, model.getPkt(), wantexception);
+    }
+
+    public void writeToPcapFile(File file, ScapyPkt pkt, boolean wantexception) throws Exception {
+        try {
+            byte[] pcap_bin = packetController.write_pcap_packet(pkt.getBinaryData());
+            Files.write(pcap_bin, file);
+        } catch (Exception e) {
+            if (wantexception) {
+                throw e;
+            }
+            else {
+                showError(resourceBundle.getString("SAVE_PCAP_ERROR"), e);
+            }
+        }
+    }
+
     void showError(String title, Exception e) {
         logger.error("{}: {}", title, e);
         Alert alert = new Alert(Alert.AlertType.ERROR);

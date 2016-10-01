@@ -64,8 +64,8 @@ public class FieldEditorModel {
         setPktAndReload(newPkt);
         logger.info("Protocol {} added.", meta.getName());
     }
-    
-    
+
+
     public List<ProtocolMetadata> getAvailableProtocolsToAdd() {
         Map<String, ProtocolMetadata>  protocolsMetaMap = metadataService.getProtocols();
         if (protocols.size() == 0) {

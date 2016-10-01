@@ -34,7 +34,7 @@ import static com.xored.javafx.packeteditor.data.IField.Type.TCP_OPTIONS;
 public class FieldEditorView {
     @Inject
     FieldEditorController controller;
-    
+
     private StackPane fieldEditorPane;
     
     private VBox protocolsPane = new VBox();
