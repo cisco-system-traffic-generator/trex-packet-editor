@@ -79,10 +79,16 @@ public class FieldEditorModel {
         if (protocols.size() == 0) {
             return Arrays.asList(metadataService.getProtocolMetadataById("Ether"));
         }
-        return protocols.peek().getMeta().getPayload()
-                .stream().map(protocolsMetaMap::get)
-                .filter(item -> item != null) // Filter empty entries for undefined Protocols
-                .collect(Collectors.toList());
+
+        Set<String> suggested_extensions = protocols.peek().getMeta().getPayload().stream().collect(Collectors.toSet());
+        Map<Boolean, List<ProtocolMetadata>> suggested_proto = protocolsMetaMap.values().stream()
+                        .collect(Collectors.partitioningBy(m -> suggested_extensions.contains(m.getId())));
+
+        // stable sort
+        List<ProtocolMetadata> res = new ArrayList<>();
+        res.addAll(suggested_proto.get(true));
+        res.addAll(suggested_proto.get(false));
+        return res;
     }
     
     private Protocol buildProtocolFromMeta(ProtocolMetadata meta) {

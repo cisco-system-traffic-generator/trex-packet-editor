@@ -39,10 +39,10 @@ public class MenuController {
     @FXML
     private void handleAddProtocolAction(ActionEvent actionEvent) {
         List<ProtocolMetadata> items = controller.getAvailbleProtocolsToAdd();
-        
+
         dialog.getItems().clear();
         dialog.getItems().addAll(items);
-        if(items.size() == 1) {
+        if(!items.isEmpty()) {
             dialog.setSelectedItem(items.get(0));
         }
         
