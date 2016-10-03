@@ -115,8 +115,9 @@ public class FieldEditorController implements Initializable {
     public void loadPcapFile(File pcapfile) {
         try {
             loadPcapFile(pcapfile, false);
-        } catch (IOException e) {
-            // hide exception
+        } catch (Exception e) {
+            // Something is wrong, must not be here
+            logger.error(e.getMessage());
         }
     }
 
@@ -142,7 +143,8 @@ public class FieldEditorController implements Initializable {
         try {
             writeToPcapFile(file, model.getPkt(), false);
         } catch (Exception e) {
-            // hide exception
+            // Something is wrong, must not be here
+            logger.error(e.getMessage());
         }
     }
 
@@ -150,7 +152,8 @@ public class FieldEditorController implements Initializable {
         try {
             writeToPcapFile(file, pkt, false);
         } catch (Exception e) {
-            // hide exception
+            // Something is wrong, must not be here
+            logger.error(e.getMessage());
         }
     }
 
