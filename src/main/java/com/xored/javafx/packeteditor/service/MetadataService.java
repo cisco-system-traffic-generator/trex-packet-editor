@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.IField;
+import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.*;
@@ -29,26 +30,24 @@ public class MetadataService implements IMetadataService {
     Map<String, List<String>> payload_classes_cache = new HashMap<>();
 
     public void initialize() {
-        localFileMetadataService.initialize();
-        protocols.putAll(localFileMetadataService.getProtocols());
-        loadProtocolDefinitionsFromScapy();
+        loadProtocolDefinitions();
     }
 
     public Map<String, ProtocolMetadata> getProtocols() {
         return protocols;
     }
 
-    public void loadProtocolDefinitionsFromScapy() {
+    private void loadProtocolDefinitions() {
+        localFileMetadataService.initialize();
         try {
             scapy.get_definitions().protocols.forEach(proto -> {
-                // TODO: merge definitions from json and from file ( especially enums )
-                if (!this.protocols.containsKey(proto.id)) {
-                    protocols.put(proto.id, new ProtocolMetadata(
-                            proto.id,
-                            proto.name,
-                            proto.fields.stream().map(this::buildFieldMetadata).collect(Collectors.toList())
-                    ));
-                }
+                // merge definitions with the hand-crafted file. json has priority over metadata from scapy
+                ProtocolMetadata jsonProtocol = localFileMetadataService.getProtocols().getOrDefault(proto.id, null);
+                protocols.put(proto.id, new ProtocolMetadata(
+                        proto.id,
+                        jsonProtocol != null ? jsonProtocol.getName(): proto.name,
+                        proto.fields.stream().map( field -> buildFieldMetadata(field, jsonProtocol)).collect(Collectors.toList())
+                ));
             });
         } catch (Exception e) {
             logger.error("failed to load protocol defs from scapy: {}", e);
@@ -56,15 +55,31 @@ public class MetadataService implements IMetadataService {
     }
 
     /** builds field metadata from scapy field definition */
-    private FieldMetadata buildFieldMetadata(ScapyDefinitions.Field field) {
+    private FieldMetadata buildFieldMetadata(ScapyDefinitions.Field field, ProtocolMetadata jsonDefaults) {
+        String fieldName = field.name;
         IField.Type ftype = IField.Type.STRING;
         Map<String, JsonElement> dict_map = null;
-        if (field.values_dict instanceof JsonArray) {
-            ftype = IField.Type.ENUM;
-            dict_map = field.values_dict.getAsJsonObject().entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        List<BitFlagMetadata> bits_meta = null;
+
+        // merging definitions
+        if (jsonDefaults != null) {
+            FieldMetadata jsonFieldMeta = jsonDefaults.getMetaForFieldOrNull(field.id);
+            if (jsonFieldMeta != null) {
+                fieldName = jsonFieldMeta.getName();
+                dict_map = jsonFieldMeta.getDictionary();
+                ftype = jsonFieldMeta.getType();
+                bits_meta = jsonFieldMeta.getBits();
+            }
         }
-        return new FieldMetadata(field.id, field.name, ftype, dict_map, null);
+        if (dict_map == null && field.values_dict instanceof JsonObject) {
+            JsonObject field_dict = field.values_dict.getAsJsonObject();
+            if (field_dict.size() > 0) {
+                ftype = IField.Type.ENUM;
+                dict_map = field.values_dict.getAsJsonObject().entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            }
+        }
+        return new FieldMetadata(field.id, fieldName, ftype, dict_map, bits_meta);
     }
 
     /** normally should not be used, since we should have get_definitions */
