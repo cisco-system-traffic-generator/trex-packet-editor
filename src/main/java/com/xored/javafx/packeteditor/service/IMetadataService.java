@@ -4,6 +4,7 @@ package com.xored.javafx.packeteditor.service;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 
+import java.util.List;
 import java.util.Map;
 
 public interface IMetadataService {
@@ -11,6 +12,8 @@ public interface IMetadataService {
 
     ProtocolMetadata getProtocolMetadata(ProtocolData protocol);
     ProtocolMetadata getProtocolMetadataById(String protocolId);
+
+    List<String> getAllowedPayloadForProtocol(String protocolId);
 
     void initialize();
 }

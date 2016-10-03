@@ -91,13 +91,15 @@ class LocalFileMetadataService {
                 fieldsMeta.add(new FieldMetadata(fieldId, name, type, dict, bitFlags));
             }
 
+            /* TODO: restore or remove hand-crafted payload
             List<String> payload = new ArrayList<>();
 
             for (JsonElement jsonElement : entry.get("payload").getAsJsonArray()) {
                 payload.add(jsonElement.getAsString());
             }
+            */
 
-            ProtocolMetadata protocol = new ProtocolMetadata(entry.get("id").getAsString(), entry.get("name").getAsString(), fieldsMeta, payload);
+            ProtocolMetadata protocol = new ProtocolMetadata(entry.get("id").getAsString(), entry.get("name").getAsString(), fieldsMeta);
             protocols.put(entry.get("id").getAsString(), protocol);
         });
     }
