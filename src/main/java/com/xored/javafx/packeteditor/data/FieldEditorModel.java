@@ -83,7 +83,8 @@ public class FieldEditorModel {
         String lastProtocolId = protocols.peek().getMeta().getId();
         Set<String> suggested_extensions = metadataService.getAllowedPayloadForProtocol(lastProtocolId).stream().collect(Collectors.toSet());
         Map<Boolean, List<ProtocolMetadata>> suggested_proto = protocolsMetaMap.values().stream()
-                        .collect(Collectors.partitioningBy(m -> suggested_extensions.contains(m.getId())));
+                .sorted((p1, p2)->p1.getId().compareTo(p2.getId()))
+                .collect(Collectors.partitioningBy(m -> suggested_extensions.contains(m.getId())));
 
         // stable sort
         List<ProtocolMetadata> res = new ArrayList<>();
