@@ -4,21 +4,16 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.data.Field;
-import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.IField.Type;
 import com.xored.javafx.packeteditor.data.Protocol;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
-import com.xored.javafx.packeteditor.service.PacketDataService;
-import javafx.event.Event;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -113,11 +108,6 @@ public class FieldEditorView {
             
             fieldControl.setId(field.getUniqueId());
             fieldControl.getStyleClass().addAll("control");
-            
-//            if (field.isDefault()) {
-//                fieldControl = new Hyperlink(field.getDisplayValue());
-//                fieldControl.getStyleClass().add("default");
-//            }
             
             BorderPane valuePane = new BorderPane();
             valuePane.setCenter(fieldControl);
@@ -299,9 +289,8 @@ public class FieldEditorView {
     private void injectOnChangeHandler(TextField textField, Field field, Label parent) {
         textField.setOnKeyReleased(e -> {
             if (e.getCode().equals(KeyCode.ENTER)) {
-                controller.setFieldValue(field, textField.getText());
-                field.setStringValue(textField.getText());
                 parent.setGraphic(null);
+                controller.getModel().editField(field, ReconstructField.setValue(field.getId(), textField.getText()));
             }
             if (e.getCode().equals(KeyCode.ESCAPE)) {
                 parent.setGraphic(null);
@@ -312,7 +301,7 @@ public class FieldEditorView {
     private void injectOnChangeHandler(ComboBox<ComboBoxItem> combo, Field field, Label parent) {
         combo.setOnAction((event) -> {
             ComboBoxItem val = combo.getSelectionModel().getSelectedItem();
-            field.setStringValue(val.getValue().getAsString());
+            controller.getModel().editField(field, ReconstructField.setValue(field.getId(), val.getValue().getAsString()));
         });
     }
     

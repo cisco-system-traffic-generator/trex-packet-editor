@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
+import com.xored.javafx.packeteditor.data.user.Document;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
@@ -39,6 +40,8 @@ public class FieldEditorModel {
     @Inject
     PacketDataService packetDataService;
 
+    Document userModel = new Document();
+    
     Stack<ScapyPkt> undoRecords = new Stack<>();
     
     Stack<ScapyPkt> redoRecords = new Stack<>();
@@ -59,10 +62,12 @@ public class FieldEditorModel {
     
     public void deleteAllProtocols() {
         protocols.clear();
+        userModel.clear();
         fireUpdateViewEvent();
     }
     
     public void addProtocol(ProtocolMetadata meta) {
+        userModel.addProtocol(meta);
         ScapyPkt newPkt = packetDataService.appendProtocol(pkt, meta.getId());
         setPktAndReload(newPkt);
         logger.info("Protocol {} added.", meta.getName());
@@ -102,12 +107,42 @@ public class FieldEditorModel {
         eventBus.post(new RebuildViewEvent(protocols));
     }
 
-    public void setPktAndReload(ScapyPkt pkt){
+    public FieldMetadata buildFieldMetaFromScapy(FieldData field) {
+        JsonObject dict = field.values_dict;
+        final int max_enum_values_to_display = 100; // max sane number of choice enumeration.
+        if (dict != null && dict.size() > 0 && dict.size() < max_enum_values_to_display) {
+            Map<String, JsonElement> dict_map = dict.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            return new FieldMetadata(field.id, field.id, IField.Type.ENUM, dict_map, null);
+
+        } else {
+            return new FieldMetadata(field.id, field.id, IField.Type.STRING, null, null);
+        }
+    }
+
+    public ProtocolMetadata buildMetadataFromScapyModel(ProtocolData protocol) {
+        List<FieldMetadata> fields_metadata = protocol.fields.stream().map(this::buildFieldMetaFromScapy).collect(Collectors.toList());
+        List<String> payload = new ArrayList<>();
+        return new ProtocolMetadata(protocol.id, protocol.name, fields_metadata, payload);
+    }
+
+    public void setPktAndReload(ScapyPkt pkt) {
+        setPktAndReload(pkt, false);
+    }
+    public void setPktAndReload(ScapyPkt pkt, Boolean loadUserModel) {
         beforeContentReplace(this.pkt);
         this.pkt = pkt;
-        reload();
+        reload(loadUserModel);
     }
+
     public void reload () {
+        reload(false);
+    }
+
+    public void reload (Boolean loadUserModel) {
+        if(loadUserModel) {
+            userModel.clear();
+        }
         protocols.clear();
         PacketData packet = pkt.packet();
         
@@ -116,10 +151,16 @@ public class FieldEditorModel {
         for (ProtocolData protocol: packet.getProtocols()) {
             ProtocolMetadata protocolMetadata = metadataService.getProtocolMetadata(protocol);
             Protocol protocolObj = buildProtocolFromMeta(protocolMetadata);
+            if(loadUserModel) {
+                userModel.addProtocol(protocolMetadata);
+            }
             protocols.push(protocolObj);
 
             Integer protocolOffset = protocol.offset.intValue();
             for (FieldData field: protocol.fields) {
+                if (loadUserModel) {
+                    userModel.getCurrentProtocol().addField(field.id, field.hvalue);
+                }
                 Field fieldObj = new Field(protocolMetadata.getMetaForField(field.id), getCurrentPath(), protocolOffset, field);
                 fieldObj.setOnSetCallback(newValue -> {
                     this.editField(fieldObj, newValue);
@@ -137,8 +178,17 @@ public class FieldEditorModel {
 
     public void editField(Field field, ReconstructField newValue) {
         assert(field.getId() == newValue.id);
-        ScapyPkt newPkt = packetDataService.setFieldValue(pkt, field, newValue);
+
+        if (newValue.isDeleted() || newValue.isRandom()) {
+            userModel.deleteField(field.getId());
+        } else {
+            userModel.setFieldValue(field.getId(), newValue.value.getAsString());
+        }
+        ScapyPkt newPkt = packetDataService.buildPacket(userModel.asJson());
+        newPkt = packetDataService.reconstructPacketFromBinary(newPkt.getBinaryData());
+        pkt = newPkt;
         setPktAndReload(newPkt);
+        fireUpdateViewEvent();
     }
 
     /** sets text value */
@@ -223,6 +273,7 @@ public class FieldEditorModel {
 
     public void newPacket() {
         clearHistory();
+        userModel.clear();  
         pkt = new ScapyPkt();
         reload();
     }

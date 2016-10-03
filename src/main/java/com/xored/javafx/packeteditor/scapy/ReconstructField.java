@@ -1,6 +1,5 @@
 package com.xored.javafx.packeteditor.scapy;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -71,5 +70,13 @@ public class ReconstructField {
         val.add("vtype", new JsonPrimitive("expr"));
         val.add("expr", new JsonPrimitive(expr));
         return setValue(fieldId, val);
+    }
+
+    public boolean isDeleted() {
+        return delete != null && delete;
+    }
+
+    public boolean isRandom() {
+        return randomize != null && randomize;
     }
 }

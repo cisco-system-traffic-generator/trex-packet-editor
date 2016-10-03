@@ -126,7 +126,7 @@ public class FieldEditorController implements Initializable {
             model.setCurrentFile(pcapfile);
             refreshTitle();
             ScapyPkt pkt = packetController.read_pcap_packet(bytes);
-            model.setPktAndReload(pkt);
+            model.setPktAndReload(pkt, true);
         } catch (Exception e) {
             if (wantexception) {
                 throw e;
@@ -231,7 +231,4 @@ public class FieldEditorController implements Initializable {
         model.redo();
     }
 
-    public void setFieldValue(Field field, String val) {
-        model.set
-    }
 }

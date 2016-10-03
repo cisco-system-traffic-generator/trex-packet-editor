@@ -29,6 +29,10 @@ public class PacketDataService {
         scapy.open("tcp://localhost:4507");
     }
 
+    public ScapyPkt buildPacket(JsonElement pktStructure) {
+        return new ScapyPkt(scapy.build_pkt(pktStructure));
+    }
+    
     public ScapyPkt reconstructPacket(ScapyPkt currentPkt, List<ReconstructProtocol> modify) {
         return reconstructPacket(currentPkt, gson.toJsonTree(modify));
     }
