@@ -65,7 +65,7 @@ public class FieldEditorController implements Initializable {
     }
     
     public List<ProtocolMetadata> getAvailbleProtocolsToAdd() {
-        return model.getAvailableProtocolsToAdd();
+        return model.getAvailableProtocolsToAdd(false);
     }
     
     @Override

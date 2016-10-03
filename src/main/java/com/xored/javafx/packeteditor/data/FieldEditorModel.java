@@ -74,7 +74,7 @@ public class FieldEditorModel {
     }
 
 
-    public List<ProtocolMetadata> getAvailableProtocolsToAdd() {
+    public List<ProtocolMetadata> getAvailableProtocolsToAdd(boolean getUnsupported) {
         Map<String, ProtocolMetadata>  protocolsMetaMap = metadataService.getProtocols();
         if (protocols.size() == 0) {
             return Arrays.asList(metadataService.getProtocolMetadataById("Ether"));
@@ -82,14 +82,20 @@ public class FieldEditorModel {
 
         String lastProtocolId = protocols.peek().getMeta().getId();
         Set<String> suggested_extensions = metadataService.getAllowedPayloadForProtocol(lastProtocolId).stream().collect(Collectors.toSet());
-        Map<Boolean, List<ProtocolMetadata>> suggested_proto = protocolsMetaMap.values().stream()
-                .sorted((p1, p2)->p1.getId().compareTo(p2.getId()))
-                .collect(Collectors.partitioningBy(m -> suggested_extensions.contains(m.getId())));
-
-        // stable sort
         List<ProtocolMetadata> res = new ArrayList<>();
-        res.addAll(suggested_proto.get(true));
-        res.addAll(suggested_proto.get(false));
+        if (getUnsupported) {
+            Map<Boolean, List<ProtocolMetadata>> suggested_proto = protocolsMetaMap.values().stream()
+                    .sorted((p1, p2) -> p1.getId().compareTo(p2.getId()))
+                    .collect(Collectors.partitioningBy(m -> suggested_extensions.contains(m.getId())));
+            // stable sort
+            res.addAll(suggested_proto.getOrDefault(true, Arrays.asList()));
+            //res.addAll(suggested_proto.getOrDefault(false, Arrays.asList()));
+        } else {
+            res = protocolsMetaMap.values().stream()
+                    .filter(m -> suggested_extensions.contains(m.getId()))
+                    .sorted((p1, p2) -> p1.getId().compareTo(p2.getId()))
+                    .collect(Collectors.toList());
+        }
         return res;
     }
     
