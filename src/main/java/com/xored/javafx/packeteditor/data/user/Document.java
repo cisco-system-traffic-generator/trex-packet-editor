@@ -24,8 +24,8 @@ public class Document {
         protocols.push(newProtocol);
     }
     
-    public void setFieldValue(String fieldId, String value) {
-        Protocol protocol = protocols.peek();
+    public void setFieldValue(List<String> path, String fieldId, String value) {
+        Protocol protocol = getProtocolByPath(path);
         Field field = protocol.getField(fieldId);
         
         if (field == null) {
@@ -33,21 +33,24 @@ public class Document {
         }
         field.setValue(value);
     }
+
+    public Protocol getProtocolByPath(List<String> path) {
+        // TODO: check path
+        return protocols.get(path.size() - 1);
+    }
     
     public List<String> getCurrentPath() {
         return protocols.stream().map(Protocol::getId).collect(Collectors.toList());
     }
-    
-    public Protocol getCurrentProtocol() {
-        return protocols.peek();
-    }
-    
+
+    public Stack<Protocol> getProtocolStack() { return protocols; }
+
     public void clear() {
         protocols.clear();
     }
 
-    public void deleteField(String fieldUniqueId) {
-        getCurrentProtocol().deleteField(fieldUniqueId);
+    public void deleteField(List<String> path, String fieldUniqueId) {
+        getProtocolByPath(path).deleteField(fieldUniqueId);
     }
     
     public JsonElement asJson() {

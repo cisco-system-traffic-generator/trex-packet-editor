@@ -165,7 +165,7 @@ public class FieldEditorModel {
             Integer protocolOffset = protocol.offset.intValue();
             for (FieldData field: protocol.fields) {
                 if (loadUserModel) {
-                    userModel.getCurrentProtocol().addField(field.id, field.hvalue);
+                    userModel.getProtocolStack().peek().addField(field.id, field.hvalue);
                 }
                 Field fieldObj = new Field(protocolMetadata.getMetaForField(field.id), getCurrentPath(), protocolOffset, field);
                 fieldObj.setOnSetCallback(newValue -> {
@@ -186,9 +186,9 @@ public class FieldEditorModel {
         assert(field.getId() == newValue.id);
 
         if (newValue.isDeleted() || newValue.isRandom()) {
-            userModel.deleteField(field.getId());
+            userModel.deleteField(field.getPath(), field.getId());
         } else {
-            userModel.setFieldValue(field.getId(), newValue.value.getAsString());
+            userModel.setFieldValue(field.getPath(), field.getId(), newValue.value.getAsString());
         }
         ScapyPkt newPkt = packetDataService.buildPacket(userModel.asJson());
         newPkt = packetDataService.reconstructPacketFromBinary(newPkt.getBinaryData());
