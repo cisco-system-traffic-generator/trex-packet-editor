@@ -1,10 +1,7 @@
 package com.xored.javafx.packeteditor.service;
 
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.xored.javafx.packeteditor.controllers.MenuController;
 import com.xored.javafx.packeteditor.data.IField;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
@@ -58,9 +55,9 @@ class LocalFileMetadataService {
 
                 String fieldId = field.get("id").getAsString();
                 String name = field.get("name").getAsString();
-                String typeName = field.get("type").getAsString();
+                String typeName = (field.get("type") instanceof JsonPrimitive) ? field.get("type").getAsString(): null;
                 IField.Type type = getTypeByName(typeName);
-                Map<String, JsonElement> dict = Collections.EMPTY_MAP;
+                Map<String, JsonElement> dict = null;
                 List<BitFlagMetadata> bitFlags = new ArrayList<>();
 
                 if (ENUM.equals(type)) {
@@ -105,6 +102,8 @@ class LocalFileMetadataService {
     }
     
     private IField.Type getTypeByName(String id) {
+        if (id == null)
+            return STRING;
         switch (id) {
             case "NUMBER":
                 return NUMBER;
