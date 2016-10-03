@@ -60,7 +60,7 @@ public class Document {
             fields.stream().forEach(field -> {
                 JsonObject jsonField = new JsonObject();
                 jsonField.add("id", new JsonPrimitive(field.getId()));
-                jsonField.add("value", new JsonPrimitive(field.getValue()));
+                jsonField.add("hvalue", new JsonPrimitive(field.getValue()));
                 jsonFields.add(jsonField);
             });
             jsonProtocol.add("fields", jsonFields);
