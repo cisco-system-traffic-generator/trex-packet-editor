@@ -1,6 +1,8 @@
 package com.xored.javafx.packeteditor.scapy;
 
 import com.google.gson.*;
+
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
@@ -120,6 +122,26 @@ public class ScapyServerClient {
     public PacketData build_pkt(List<ReconstructProtocol> protocols) {
         JsonObject result = build_pkt(gson.toJsonTree(protocols));
         return gson.fromJson(result, PacketData.class);
+    }
+
+    public ScapyDefinitions get_definitions() {
+        JsonArray payload = new JsonArray();
+        payload.add(version_handler);
+        payload.add(JsonNull.INSTANCE);
+        JsonElement res = request("get_definitions", payload);
+        return gson.fromJson(res, ScapyDefinitions.class);
+    }
+
+    public List<String> get_payload_classes(List<ReconstructProtocol> protocols) {
+        JsonArray payload = new JsonArray();
+        payload.add(version_handler);
+        payload.add(gson.toJsonTree(protocols));
+        JsonElement res = request("get_payload_classes", payload);
+        return Arrays.asList(gson.fromJson(res, String[].class));
+    }
+
+    public List<String> get_payload_classes(String protocolId) {
+        return get_payload_classes(Arrays.asList(ReconstructProtocol.pass(protocolId)));
     }
 
     /** reads first packet from binary pcap file */

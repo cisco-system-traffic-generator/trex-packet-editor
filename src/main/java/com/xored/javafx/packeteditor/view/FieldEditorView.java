@@ -308,7 +308,10 @@ public class FieldEditorView {
     private Control createEnumField(Field field, Label parent) {
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.getStyleClass().addAll("control");
-        List<ComboBoxItem> items = field.getMeta().getDictionary().entrySet().stream().map(entry -> new ComboBoxItem(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+        List<ComboBoxItem> items = field.getMeta().getDictionary().entrySet().stream()
+                .sorted((e1, e2)->e1.getKey().compareTo(e2.getKey()))
+                .map(entry -> new ComboBoxItem(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
         
         Optional<ComboBoxItem> defaultValue = items.stream().filter(item -> item.equalsTo(field.getValue())).findFirst();
         if (!defaultValue.isPresent()){

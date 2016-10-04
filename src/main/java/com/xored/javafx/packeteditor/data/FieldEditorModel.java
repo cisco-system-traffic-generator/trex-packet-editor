@@ -74,20 +74,28 @@ public class FieldEditorModel {
     }
 
 
-    public List<ProtocolMetadata> getAvailableProtocolsToAdd() {
+    public List<ProtocolMetadata> getAvailableProtocolsToAdd(boolean getUnsupported) {
         Map<String, ProtocolMetadata>  protocolsMetaMap = metadataService.getProtocols();
         if (protocols.size() == 0) {
             return Arrays.asList(metadataService.getProtocolMetadataById("Ether"));
         }
 
-        Set<String> suggested_extensions = protocols.peek().getMeta().getPayload().stream().collect(Collectors.toSet());
-        Map<Boolean, List<ProtocolMetadata>> suggested_proto = protocolsMetaMap.values().stream()
-                        .collect(Collectors.partitioningBy(m -> suggested_extensions.contains(m.getId())));
-
-        // stable sort
+        String lastProtocolId = protocols.peek().getMeta().getId();
+        Set<String> suggested_extensions = metadataService.getAllowedPayloadForProtocol(lastProtocolId).stream().collect(Collectors.toSet());
         List<ProtocolMetadata> res = new ArrayList<>();
-        res.addAll(suggested_proto.get(true));
-        res.addAll(suggested_proto.get(false));
+        if (getUnsupported) {
+            Map<Boolean, List<ProtocolMetadata>> suggested_proto = protocolsMetaMap.values().stream()
+                    .sorted((p1, p2) -> p1.getId().compareTo(p2.getId()))
+                    .collect(Collectors.partitioningBy(m -> suggested_extensions.contains(m.getId())));
+            // stable sort
+            res.addAll(suggested_proto.getOrDefault(true, Arrays.asList()));
+            //res.addAll(suggested_proto.getOrDefault(false, Arrays.asList()));
+        } else {
+            res = protocolsMetaMap.values().stream()
+                    .filter(m -> suggested_extensions.contains(m.getId()))
+                    .sorted((p1, p2) -> p1.getId().compareTo(p2.getId()))
+                    .collect(Collectors.toList());
+        }
         return res;
     }
     
@@ -111,25 +119,6 @@ public class FieldEditorModel {
 
     private void fireUpdateViewEvent() {
         eventBus.post(new RebuildViewEvent(protocols));
-    }
-
-    public FieldMetadata buildFieldMetaFromScapy(FieldData field) {
-        JsonObject dict = field.values_dict;
-        final int max_enum_values_to_display = 100; // max sane number of choice enumeration.
-        if (dict != null && dict.size() > 0 && dict.size() < max_enum_values_to_display) {
-            Map<String, JsonElement> dict_map = dict.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            return new FieldMetadata(field.id, field.id, IField.Type.ENUM, dict_map, null);
-
-        } else {
-            return new FieldMetadata(field.id, field.id, IField.Type.STRING, null, null);
-        }
-    }
-
-    public ProtocolMetadata buildMetadataFromScapyModel(ProtocolData protocol) {
-        List<FieldMetadata> fields_metadata = protocol.fields.stream().map(this::buildFieldMetaFromScapy).collect(Collectors.toList());
-        List<String> payload = new ArrayList<>();
-        return new ProtocolMetadata(protocol.id, protocol.name, fields_metadata, payload);
     }
 
     public void setPktAndReload(ScapyPkt pkt) {
