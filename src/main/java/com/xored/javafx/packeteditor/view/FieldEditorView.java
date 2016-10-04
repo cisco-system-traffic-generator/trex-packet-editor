@@ -213,19 +213,6 @@ public class FieldEditorView {
     }
     private TextField createIPAddressField(Field field, Label parent) {
         TextField textField = new TextField();
-        String partialBlock = "(([01]?[0-9]{0,2})|(2[0-4][0-9])|(25[0-5]))";
-        String subsequentPartialBlock = "(\\."+partialBlock+")" ;
-        String ipAddress = partialBlock+"?"+subsequentPartialBlock+"{0,3}";
-        String regex = "^"+ipAddress;
-        final UnaryOperator<TextFormatter.Change> ipAddressFilter = c -> {
-            String text = c.getControlNewText();
-            if  (text.matches(regex)) {
-                return c ;
-            } else {
-                return null ;
-            }
-        };
-        textField.setTextFormatter(new TextFormatter<>(ipAddressFilter));
         textField.setText(field.getValue().getAsString());
         injectOnChangeHandler(textField, field, parent);
         textField.setContextMenu(getContextMenu(field));
