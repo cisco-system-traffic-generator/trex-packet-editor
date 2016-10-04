@@ -1,0 +1,10 @@
+language: java
+jdk: oraclejdk8
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+before_install:
+    - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
+script:
+    - bash ./scripts/ci-test.sh uiTest
