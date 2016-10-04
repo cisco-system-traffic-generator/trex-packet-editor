@@ -40,6 +40,7 @@ test {
 }
 
 task intTest(type: Test) {
+    outputs.upToDateWhen { false }
     testClassesDir = sourceSets.intTest.output.classesDir
     classpath = sourceSets.intTest.runtimeClasspath
 
@@ -49,6 +50,7 @@ task intTest(type: Test) {
 }
 
 task uiTest(type: Test) {
+    outputs.upToDateWhen { false }
     testClassesDir = sourceSets.uiTest.output.classesDir
     classpath = sourceSets.uiTest.runtimeClasspath
 
