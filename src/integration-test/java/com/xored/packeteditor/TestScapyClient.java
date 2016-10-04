@@ -1,6 +1,5 @@
 package com.xored.packeteditor;
 
-import com.google.common.collect.Iterables;
 import com.google.gson.*;
 import com.xored.javafx.packeteditor.scapy.*;
 import java.util.Arrays;
@@ -8,7 +7,6 @@ import org.junit.*;
 import org.junit.rules.Timeout;
 
 
-import static com.xored.javafx.packeteditor.scapy.ScapyUtils.tcpIpTemplate;
 import static org.junit.Assert.*;
 
 public class TestScapyClient {
@@ -45,10 +43,22 @@ public class TestScapyClient {
         assertEquals(pd.data.get(1).id, "IP");
         assertEquals(pd.data.get(2).id, "TCP");
 
-        FieldData sport = Iterables.find(pd.data.get(2).fields, field -> field.id.equals("sport"));
+        FieldData sport = pd.data.get(2).getFieldById("sport");
 
         assertEquals(sport.hvalue, "888");
         assertEquals(sport.getIntValue(), 888);
+    }
+
+
+    @Test
+    public void should_build_pkt_with_hvalue() {
+        PacketData pd = scapy.build_pkt(Arrays.asList(
+                ReconstructProtocol.pass("Ether"),
+                ReconstructProtocol.modify("IP", Arrays.asList(ReconstructField.setHumanValue("len", "123")))
+        ));
+        assertNotNull(pd.binary);
+        assertEquals(pd.data.get(1).id, "IP");
+        assertEquals(pd.data.get(1).getFieldById("len").getIntValue(), 123);
     }
 
     @Test
@@ -59,14 +69,15 @@ public class TestScapyClient {
 
     @Test
     public void rebuildPkt() {
-        byte[] ethernet_pkt = scapy.build_pkt(Arrays.asList(
+        PacketData ethernet_pkt = scapy.build_pkt(Arrays.asList(
                 ReconstructProtocol.modify("Ether", Arrays.asList(
-                        ReconstructField.setValue("src", "11:22:33:44:55:66"),
                         ReconstructField.setValue("dst", "de:ad:be:ef:de:ad")
                 ))
-        )).getPacketBytes();
+        ));
+        String origEtherSrc = ethernet_pkt.getProtocols().get(0).getFieldById("src").getStringValue();
+        assertEquals(origEtherSrc.length(), 17);
 
-        PacketData new_pkt = scapy.reconstruct_pkt(ethernet_pkt, Arrays.asList(
+        PacketData new_pkt = scapy.reconstruct_pkt(ethernet_pkt.getPacketBytes(), Arrays.asList(
                 ReconstructProtocol.modify("Ether", Arrays.asList(
                         ReconstructField.randomizeValue("src"),
                         ReconstructField.setValue("dst", "aa:bb:cc:dd:ee:ff")
@@ -74,9 +85,7 @@ public class TestScapyClient {
         ));
 
         ProtocolData ether = new_pkt.data.get(0);
-        String newEtherDst = Iterables.find(ether.fields, f->f.id.equals("dst")).getStringValue();
-        String newEtherSrc = Iterables.find(ether.fields, f->f.id.equals("src")).getStringValue();
-        assertEquals(newEtherDst, "aa:bb:cc:dd:ee:ff");
-        assertNotEquals(newEtherSrc, "11:22:33:44:55:66"); // src was randomized. chance to get same value is almost 0
+        assertEquals(ether.getFieldById("dst").getStringValue(), "aa:bb:cc:dd:ee:ff");
+        assertNotEquals(ether.getFieldById("src").getStringValue(), origEtherSrc); // src was randomized. chance to get same value is almost 0
     }
 }

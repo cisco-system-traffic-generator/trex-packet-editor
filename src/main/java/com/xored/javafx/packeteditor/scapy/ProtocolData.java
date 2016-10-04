@@ -11,4 +11,9 @@ public class ProtocolData {
     public String name; // protocol name
     public Number offset;
     public List<FieldData> fields;
+
+    /** returns field by Id or null */
+    public FieldData getFieldById(String fieldId) {
+        return fields.stream().filter(f->f.getId().equals(fieldId)).findFirst().orElse(null);
+    }
 }

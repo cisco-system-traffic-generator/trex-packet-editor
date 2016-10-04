@@ -18,6 +18,10 @@ public class FieldData {
 
     public JsonObject values_dict; // String -> value enum, optional
 
+    public String getId() {
+        return id;
+    }
+
     public String getStringValue() { return value.getAsString(); }
     public int getIntValue() { return value.getAsInt(); }
 

@@ -16,15 +16,6 @@ public class ScapyUtils {
         return res;
     }
 
-    // Ether()/IP()/TCP()
-    public static JsonArray tcpIpTemplate() {
-        JsonArray payload = new JsonArray();
-        payload.add(layer("Ether"));
-        payload.add(layer("IP"));
-        payload.add(layer("TCP"));
-        return payload;
-    }
-
     /** generates payload for reconstruct_pkt */
     public static List<ReconstructProtocol> createReconstructPktPayload(List<String> fieldPath, ReconstructField fieldEdit) {
         List<ReconstructProtocol> res = fieldPath.stream().map(

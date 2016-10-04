@@ -41,6 +41,7 @@ public class ScapyServerClient {
         close();
         context = ZMQ.context(1);
         session = context.socket(ZMQ.REQ);
+        log.info("connecting to scapy_server at {}", url);
         session.connect(url);
 
         JsonElement result = request("get_version", null);
