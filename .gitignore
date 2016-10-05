@@ -3,9 +3,6 @@ build/
 *.iml
 
 .gradle
-gradle
-gradlew
-gradlew.bat
 
 logging.properties
 
