@@ -3,6 +3,7 @@ package com.xored.packeteditor;
 import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import javafx.application.Platform;
+import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
@@ -13,9 +14,16 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+import org.testfx.api.FxRobot;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.service.query.NodeQuery;
 
+import static javafx.scene.input.KeyCode.CONTROL;
+import static javafx.scene.input.KeyCode.DOWN;
+import static javafx.scene.input.KeyCode.UP;
 import static org.junit.Assert.fail;
 
 /**
@@ -43,7 +51,7 @@ public class TestPacketEditorUIBase extends ApplicationTest {
      * @param action the {@link Runnable} to run
      * @throws NullPointerException if {@code action} is {@code null}
      */
-    public static void runAndWait(Runnable action) throws InterruptedException {
+    public static void runAndWait(Runnable action) throws InterruptedException, ExecutionException {
         if (action == null)
             throw new NullPointerException("action");
 
@@ -64,8 +72,21 @@ public class TestPacketEditorUIBase extends ApplicationTest {
         });
 
         doneLatch.await();
+
+        // TODO: javafx is still working with events, so some fields can't be accessed
+        // this is dumb waiting for javafx fills the  fields
+        Thread.sleep(2000);
     }
 
+    public void runAndWait2(Runnable action) throws InterruptedException, ExecutionException {
+        FutureTask<Void> task = new FutureTask<>(action, null);
+        Platform.runLater(task);
+        task.get();
+
+        // TODO: javafx is still working with events, so some fields can't be accessed
+        // this is dumb waiting for javafx fills the  fields
+        sleep(2000);
+    }
 
     TRexPacketCraftingTool trex = new TRexPacketCraftingTool();
     FieldEditorController editorController = trex.getInjector().getInstance(FieldEditorController.class);
@@ -87,10 +108,10 @@ public class TestPacketEditorUIBase extends ApplicationTest {
         }
     }
 
-    public void printControlId() {
+    public void printNodesId() {
         NodeQuery query2 = lookup((Node t) -> {
             if (t.getId()!=null) {
-                logger.debug(t.getId());
+                logger.debug("'" + t.getId() + "'");
                 return true;
             }
             return false;
@@ -120,6 +141,8 @@ public class TestPacketEditorUIBase extends ApplicationTest {
                 }
             });
         } catch (InterruptedException e) {
+            error[0] = e.getMessage();
+        } catch (ExecutionException e) {
             error[0] = e.getMessage();
         }
         if (mustfail && error[0] == null) {
@@ -154,6 +177,8 @@ public class TestPacketEditorUIBase extends ApplicationTest {
             });
         } catch (InterruptedException e) {
             error[0] = e.getMessage();
+        } catch (ExecutionException e) {
+            error[0] = e.getMessage();
         }
         if (mustfail && error[0] == null) {
             fail("The test must fail, but it passed instead");
@@ -174,6 +199,7 @@ public class TestPacketEditorUIBase extends ApplicationTest {
     void selectProtoType(String proto) {
         clickOn("#Ether-type");
         clickOn("#Ether-type");
+        push(CONTROL, DOWN);
         clickOn(proto);
     }
 

@@ -5,11 +5,18 @@
 <ScrollPane xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.xored.javafx.packeteditor.controllers.FieldEditorController"
-            fx:id="scrollPane">
+            fx:id="fieldEditorScrollPane"
+            styleClass="scrollpane">
     <content>
         <StackPane xmlns:fx="http://javafx.com/fxml/1"
-                   fx:id="fieldEditorPane"
+                   fx:id="fieldEditorStackPaneBorder"
                    prefWidth="800"
-                />
+                   styleClass="stackpane">
+            <StackPane xmlns:fx="http://javafx.com/fxml/1"
+                       fx:id="fieldEditorPane"
+                       prefWidth="800"
+                       styleClass="stackpane"
+            />
+        </StackPane>
     </content>
 </ScrollPane>

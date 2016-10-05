@@ -3,11 +3,18 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.Group?>
-<ScrollPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.xored.javafx.packeteditor.controllers.BinaryEditorController">
+<?import javafx.scene.layout.StackPane?>
+<ScrollPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.xored.javafx.packeteditor.controllers.BinaryEditorController">
    <padding>
       <Insets top="0" right="0" bottom="0" left="125"/>
    </padding>
    <content>
-      <Group fx:id="beGroup"/>
+      <ScrollPane xmlns:fx="http://javafx.com/fxml/1"
+                 fx:id="beGroupPane"
+                 styleClass="begroup">
+         <Group fx:id="beGroup"/>
+      </ScrollPane>
    </content>
 </ScrollPane>

@@ -7,9 +7,12 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -125,6 +128,12 @@ public class BinaryEditorController implements Initializable, Observer {
                 beGroup.getChildren().add(text);
                 beGroup.setFocusTraversable(true);
             }
+
+            Parent p = beGroup.getParent();
+            double wi = beGroup.getLayoutBounds().getWidth();
+            double hi = beGroup.getLayoutBounds().getHeight();
+            p.setLayoutX(wi);
+            p.setLayoutY(hi);
         }
 
         beGroup.setOnKeyPressed((KeyEvent ke) -> {

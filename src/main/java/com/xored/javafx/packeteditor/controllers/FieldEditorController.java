@@ -36,7 +36,7 @@ public class FieldEditorController implements Initializable {
     static Logger logger = LoggerFactory.getLogger(FieldEditorController.class);
     
     @FXML private StackPane fieldEditorPane;
-    @FXML private ScrollPane scrollPane;
+    @FXML private ScrollPane fieldEditorScrollPane;
 
     @Inject
     FieldEditorModel model;
@@ -86,7 +86,7 @@ public class FieldEditorController implements Initializable {
 
     @Subscribe
     public void handleRebuildViewEvent(RebuildViewEvent event) {
-        ScrollBar scrollBar = (ScrollBar) scrollPane.lookup(".scroll-bar:vertical");
+        ScrollBar scrollBar = (ScrollBar) fieldEditorScrollPane.lookup(".scroll-bar:vertical");
         double scrollBarValue = scrollBar.getValue();
         view.rebuild(event.getProtocols());
         Platform.runLater(()-> scrollBar.setValue(scrollBarValue));

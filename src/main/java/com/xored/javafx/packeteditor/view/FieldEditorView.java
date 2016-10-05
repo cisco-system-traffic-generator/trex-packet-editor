@@ -15,10 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import jidefx.scene.control.field.MaskTextField;
 import org.slf4j.Logger;
@@ -52,8 +49,36 @@ public class FieldEditorView {
 
     public void addProtocol(Protocol protocol) {
         
-        protocolsPane.getChildren().add(buildProtocolRow(protocol));
-        protocol.getFields().stream().forEach(field -> protocolsPane.getChildren().addAll(buildFieldRow(field)));
+        //protocolsPane.getChildren().add(buildProtocolRow_Old(protocol));
+        //protocol.getFields().stream().forEach(field -> protocolsPane.getChildren().addAll(buildFieldRow(field)));
+
+        TitledPane gridTitlePane = new TitledPane();
+        
+        GridPane grid = new GridPane();
+        grid.getStyleClass().add("protocolgrid");
+        grid.setVgap(4);
+        grid.setPadding(new Insets(5, 5, 5, 5));
+
+        final int[] ij = {0, 0};
+        protocol.getFields().stream().forEach(field -> {
+            List<Node> list = buildFieldRow(field);
+
+            FieldMetadata meta = field.getMeta();
+            Type type = meta.getType();
+
+            for (Node n: list) {
+                grid.add(n, ij[1]++, ij[0]);
+                if(BITMASK.equals(type)) {
+                    ij[0]++;
+                    ij[1] = 0;
+                }
+            }
+            ij[0]++;
+            ij[1] = 0;
+        });
+        gridTitlePane.setText(protocol.getName());
+        gridTitlePane.setContent(grid);
+        protocolsPane.getChildren().add(gridTitlePane);
     }
 
     public void rebuild(Stack<Protocol> protocols) {
@@ -66,18 +91,10 @@ public class FieldEditorView {
             logger.error("Error occurred during rebuilding view. Error {}", e);
         }
     }
-    
-    private HBox buildProtocolRow(Protocol protocol) {
-        HBox row = new HBox(13);
+
+    private TitledPane buildProtocolRow(Protocol protocol) {
+        TitledPane row = new TitledPane(protocol.getName(), null);
         row.getStyleClass().addAll("protocol-row");
-
-        Text textName = new Text("    " + protocol.getName());
-        textName.getStyleClass().add("protocol-name");
-
-        // TODO: replace * with proper symbol
-        Text icon = new Text("*");
-
-        row.getChildren().addAll(textName);
 
         return row;
     }

@@ -1,9 +1,97 @@
+#fieldEditorStackPaneBorder {
+    -fx-border-radius: 1px;
+    -fx-border-color: #d8d8d8;
+    -fx-border-insets: 0px;
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+    -fx-padding: 25 25 25 25;
+    -fx-alignment: center;
+    -fx-background-color: #ffffff;
+}
+
+#fieldEditorScrollPane {
+    -fx-background-color: #ececec;
+}
+
+.begroup > .viewport {
+    -fx-background-color: transparent;
+}
+
+.begroup {
+    -fx-border-radius: 3px;
+    -fx-background: #fafafa;
+    -fx-border: solid 1px #d8d8d8;
+    -fx-padding: 20 40 20 40;
+    -fx-font-family: PTMono;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-font-style: normal;
+    -fx-font-stretch: normal;
+    -fx-color: #4b4b4b;
+}
+
+.protocolgrid {
+    -fx-background-color: #ffffff;
+    -fx-border-width: 0px;
+}
+
+.titled-pane {
+    -fx-border-radius: 1px;
+    -fx-border-color: #d8d8d8;
+    -fx-border-insets: 0px;
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+}
+
+.titled-pane .content {
+    -fx-border-width: 0px;
+}
+
+.titled-pane .title {
+    -fx-background-color: #f4f4f4;
+    -fx-pref-height: 30px;
+    -fx-font-family: Verdana;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-font-style: normal;
+    -fx-font-stretch: normal;
+    -fx-color: #4b4b4b;
+}
+
+.titled-pane .arrow-button {
+    -fx-font-family: System;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-font-style: normal;
+    -fx-font-stretch: normal;
+}
+
+.stackpane {
+    -fx-border-radius: 0px;
+    -fx-border-color: #d8d8d8;
+    -fx-border-insets: 0px;
+    -fx-border-style: solid;
+    -fx-border-width: 0px;
+    -fx-padding: 0 0 0 0;
+    -fx-alignment: center;
+}
+
+.scrollpane {
+    -fx-border-radius: 0px;
+    -fx-border-color: #d8d8d8;
+    -fx-border-insets: 0px;
+    -fx-border-style: solid;
+    -fx-border-width: 0px;
+    -fx-padding: 25 25 25 25;
+    -fx-alignment: center;
+}
+
 .binary-field {
     -fx-text-box-border: transparent;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
-    -fx-border-radius: 0;
-    -fx-background-radius: 0;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
 }
 
 .binary-field.selected {
@@ -11,12 +99,12 @@
 }
 
 .protocol-row {
-    -fx-background-color: darkgrey;
+    -fx-background-color: #f4f4f4;
     -fx-pref-height: 30px;
     -fx-padding: 8 0 7 0px;
 }
 .field-row {
-    -fx-background-color: lightgray;
+    -fx-background-color: #ffffff;
     -fx-pref-height: 30px;
     -fx-padding: 8 0 7 40px;
 }

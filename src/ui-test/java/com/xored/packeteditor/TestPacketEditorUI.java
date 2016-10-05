@@ -17,8 +17,8 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     @Test
     public void should_build_tcpip_stack() {
         addLayer("Ethernet II");
-        addLayer("Internet Protocol Version 4");
         selectProtoType("IPv4");
+        addLayer("Internet Protocol Version 4");
         verifyThat("#Ether-IP-version", hasText("4"));
         recalculateAutoValues();
     }
