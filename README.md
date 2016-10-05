@@ -24,19 +24,11 @@ By default, UI connects to localhost:4507 scapy server
 SCAPY_SERVER='localhost:4507'
 ```
 
-### Getting scapy_server from trex-core
-get trex-core from git
-if on Mac, apply a fix to use local zmq library
-```
-pip install zmq # or pip3 install zmq for python3
-sed -i bak '/pyzmq.*arch-dep/d' $(find trex-core -name trex_stl_ext.py)
-```
+### Running scapy_server from trex-core
+`./scripts/run_scapy_server -v --scapy-port 4507`
 
 ##### Run scapy_server with python
-you can use `python` or `python3` to run scapy_server
-```
-(cd $(find trex-core -name scapy_server) && python scapy_zmq_server.py -v --scapy-port 4507)
-```
+`PYTHON=python3 ./scripts/run_scapy_server -v --scapy-port 4507`
 
 ### Enable Debug logging for packed editor UI
 ```
