@@ -2,20 +2,20 @@ Packet editor
 Requires TRex scapy server
 
 ### Build
-    gradle build
+    ./gradlew build
 
 ### Run
-    gradle run
+    ./gradlew run
 
 ### Run Test with scapy server
-    gradle cleanTest test intTest
+    ./gradlew cleanTest test intTest
     open ./build/reports/tests/index.html
 
 ### Run UI tests
-    gradle uiTest
+    ./gradlew uiTest
 
 ### Run UI tests(headless)
-    gradle -Pheadless uiTest
+    ./gradlew -Pheadless uiTest
 
 ### External Scapy server
 By default, UI connects to localhost:4507 scapy server
@@ -40,5 +40,5 @@ ENDL
 
 ### Build standalone jar file
     # builds standalone ./build/libs/TRexPacketCraftingTool.jar
-    gradle jar
+    ./gradlew jar
 
