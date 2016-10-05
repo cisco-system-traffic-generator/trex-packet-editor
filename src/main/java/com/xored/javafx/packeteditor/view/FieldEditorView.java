@@ -72,6 +72,11 @@ public class FieldEditorView {
                     ij[0]++;
                     ij[1] = 0;
                 }
+                else if(TCP_OPTIONS.equals(type)) {
+                    ij[0]++;
+                    ij[1] = 0;
+                }
+
             }
             ij[0]++;
             ij[1] = 0;
