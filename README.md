@@ -14,6 +14,9 @@ Requires TRex scapy server
 ### Run UI tests
     gradle uiTest
 
+### Run UI tests(headless)
+    gradle -Pheadless uiTest
+
 ### External Scapy server
 By default, UI connects to localhost:4507 scapy server
 ```

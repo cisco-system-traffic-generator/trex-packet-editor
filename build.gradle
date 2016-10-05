@@ -57,13 +57,19 @@ task uiTest(type: Test) {
     testLogging {
         events "passed", "skipped", "failed"
     }
-}
 
+
+    if (project.hasProperty('headless')) {
+        // for running JavaFX tests headless using Monocle
+        jvmArgs "-Dheadless=true"
+    }
+}
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile "org.testfx:testfx-core:4.0.+"
     testCompile "org.testfx:testfx-junit:4.0.+"
+    testRuntime "org.testfx:openjfx-monocle:1.8.0_20"
 
     compile group: 'com.google.inject', name: 'guice', version: '4.0'
     compile group: 'org.zeromq', name: 'jeromq', version: '0.3.2'

@@ -19,10 +19,22 @@ import org.testfx.service.query.NodeQuery;
 import static org.junit.Assert.fail;
 
 /**
- * Created by igor on 10/3/16.
+ * Base class for UI tests. supports headless testing
  */
 public class TestPacketEditorUIBase extends ApplicationTest {
     static org.slf4j.Logger logger = LoggerFactory.getLogger(TRexPacketCraftingTool.class);
+
+    static boolean isHeadless() { return Boolean.getBoolean("headless"); }
+
+    static {
+        if (isHeadless()) {
+            logger.info("using headless ui tests");
+            System.setProperty("testfx.robot", "glass");
+            System.setProperty("testfx.headless", "true");
+            System.setProperty("prism.order", "sw");
+            System.setProperty("prism.text", "t2k");
+        }
+    }
 
     /**
      * Runs the specified {@link Runnable} on the
