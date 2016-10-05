@@ -46,3 +46,7 @@ handlers= java.util.logging.ConsoleHandler
 ENDL
 ```
 
+### Build standalone jar file
+    # builds standalone ./build/libs/TRexPacketCraftingTool.jar
+    gradle jar
+
