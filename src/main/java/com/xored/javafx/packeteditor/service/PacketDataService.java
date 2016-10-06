@@ -45,6 +45,14 @@ public class PacketDataService {
         return new ScapyPkt(scapy.reconstruct_pkt(bytes, new JsonArray()));
     }
 
+    public FieldData getRandomFieldValue(String protocolId, String fieldId) {
+        PacketData pd = scapy.build_pkt(Arrays.asList(ReconstructProtocol.modify(
+                protocolId,
+                Arrays.asList(ReconstructField.randomizeValue(fieldId))
+        )));
+        return pd.getProtocols().get(0).getFieldById(fieldId);
+    }
+
     public ScapyPkt setFieldValue(ScapyPkt currentPkt, IField field, ReconstructField newValue) {
         return reconstructPacket(currentPkt, createReconstructPktPayload(field.getPath(), newValue));
     }

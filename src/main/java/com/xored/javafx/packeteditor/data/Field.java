@@ -72,7 +72,11 @@ public class Field implements IField {
         }
     }
 
+    /** returns protocol path of protocol id */
     public List<String> getPath() { return path; }
+
+    /** returns last protocol in path */
+    public String getProtocolId() { return path.get(path.size() - 1); }
 
     public String getUniqueId() {
         List<String> path = new ArrayList<>(this.path);

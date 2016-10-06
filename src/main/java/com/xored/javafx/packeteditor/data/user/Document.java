@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
+import com.xored.javafx.packeteditor.scapy.FieldData;
 
 import java.util.List;
 import java.util.Stack;
@@ -23,7 +24,7 @@ public class Document {
         
         protocols.push(newProtocol);
     }
-    
+
     public void setFieldValue(List<String> path, String fieldId, String value) {
         Protocol protocol = getProtocolByPath(path);
         Field field = protocol.getField(fieldId);
@@ -32,6 +33,11 @@ public class Document {
             field = protocol.createField(fieldId);
         }
         field.setValue(value);
+    }
+
+    public void setFieldValue(List<String> path, String fieldId, JsonElement value) {
+        // TODO: support JsonElement value
+        setFieldValue(path, fieldId, value.getAsString());
     }
 
     public Protocol getProtocolByPath(List<String> path) {

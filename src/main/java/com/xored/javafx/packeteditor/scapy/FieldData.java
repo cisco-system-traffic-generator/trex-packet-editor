@@ -16,8 +16,6 @@ public class FieldData {
     public Number length;
     public Boolean ignored; // optional
 
-    public JsonObject values_dict; // String -> value enum, optional
-
     public String getId() {
         return id;
     }
@@ -33,6 +31,7 @@ public class FieldData {
 
     /** if value can not be passed as JsonElement, it is passed as a value_base64 */
     public boolean hasValue() { return value != null && !value.isJsonNull(); }
+    public JsonElement getValue() { return value; }
     public boolean hasBinaryData() { return value_base64 != null; }
     public byte[] getBinaryData() { return hasBinaryData() ? Base64.getDecoder().decode(value_base64) : null; }
 

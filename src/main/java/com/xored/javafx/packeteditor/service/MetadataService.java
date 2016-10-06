@@ -92,7 +92,9 @@ public class MetadataService implements IMetadataService {
 
     /** normally should not be used, since we should have get_definitions */
     private ProtocolMetadata buildMetadataFromScapyModel(ProtocolData protocol) {
-        List<FieldMetadata> fields_metadata = protocol.fields.stream().map(this::buildFieldMetaFromScapy).collect(Collectors.toList());
+        List<FieldMetadata> fields_metadata = protocol.fields.stream().map(
+                field -> new FieldMetadata(field.id, field.id, IField.Type.STRING, null, null)
+        ).collect(Collectors.toList());
         ProtocolMetadata protocolMetadata = new ProtocolMetadata(protocol.id, protocol.name, fields_metadata);
         protocols.put(protocolMetadata.getId(), protocolMetadata);
         return protocolMetadata;
@@ -100,18 +102,6 @@ public class MetadataService implements IMetadataService {
 
     public ProtocolMetadata getProtocolMetadata(ProtocolData protocol) {
         return getProtocolMetadataById(protocol.id);
-    }
-
-    private FieldMetadata buildFieldMetaFromScapy(FieldData field) {
-        JsonObject dict = field.values_dict;
-        if (dict != null && dict.size() > 0 && dict.size() < max_enum_values_to_display) {
-            Map<String, JsonElement> dict_map = dict.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            return new FieldMetadata(field.id, field.id, IField.Type.ENUM, dict_map, null);
-
-        } else {
-            return new FieldMetadata(field.id, field.id, IField.Type.STRING, null, null);
-        }
     }
 
     @Override

@@ -56,6 +56,6 @@ public class Protocol {
     }
     
     public void deleteField(String fieldId) {
-        fieldMap.put(fieldId, null);
+        fieldMap.remove(fieldId);
     }
 }

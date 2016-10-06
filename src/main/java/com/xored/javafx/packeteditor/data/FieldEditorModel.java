@@ -177,10 +177,13 @@ public class FieldEditorModel {
     public void editField(Field field, ReconstructField newValue) {
         assert(field.getId() == newValue.id);
 
-        if (newValue.isDeleted() || newValue.isRandom()) {
+        if (newValue.isDeleted()) {
             userModel.deleteField(field.getPath(), field.getId());
+        } else if (newValue.isRandom()) {
+            FieldData randval = packetDataService.getRandomFieldValue(field.getProtocolId(), field.getId());
+            userModel.setFieldValue(field.getPath(), field.getId(), randval.getValue());
         } else {
-            userModel.setFieldValue(field.getPath(), field.getId(), newValue.value.getAsString());
+            userModel.setFieldValue(field.getPath(), field.getId(), newValue.value);
         }
         ScapyPkt newPkt = packetDataService.buildPacket(userModel.asJson());
         newPkt = packetDataService.reconstructPacketFromBinary(newPkt.getBinaryData());
