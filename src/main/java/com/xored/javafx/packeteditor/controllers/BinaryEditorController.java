@@ -3,16 +3,20 @@ package com.xored.javafx.packeteditor.controllers;
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.IBinaryData;
 import com.xored.javafx.packeteditor.service.PacketDataService;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
 import javafx.scene.Parent;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -26,6 +30,7 @@ import java.util.ResourceBundle;
 
 public class BinaryEditorController implements Initializable, Observer {
     @FXML private Group beGroup;
+    @FXML private ScrollPane beGroupScrollPane;
     @Inject private IBinaryData binaryData;
     @Inject
     PacketDataService packetController;
@@ -48,10 +53,26 @@ public class BinaryEditorController implements Initializable, Observer {
     int idxEditing = -1;
     int editingStep = 0;
 
+    ChangeListener<Number> sizeListener;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         reloadAll();
         binaryData.getObservable().addObserver(this);
+
+        sizeListener = new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov,
+                                Number old_val, Number new_val) {
+                Rectangle clip = new Rectangle(0
+                        , 0
+                        , beGroupScrollPane.getLayoutBounds().getWidth()
+                        , beGroupScrollPane.getLayoutBounds().getHeight());
+                beGroupScrollPane.setClip(clip);
+            }
+        };
+
+        beGroupScrollPane.widthProperty().addListener(sizeListener);
+        beGroupScrollPane.heightProperty().addListener(sizeListener);
     }
 
     private void reloadAll() {
@@ -128,12 +149,6 @@ public class BinaryEditorController implements Initializable, Observer {
                 beGroup.getChildren().add(text);
                 beGroup.setFocusTraversable(true);
             }
-
-            Parent p = beGroup.getParent();
-            double wi = beGroup.getLayoutBounds().getWidth();
-            double hi = beGroup.getLayoutBounds().getHeight();
-            p.setLayoutX(wi);
-            p.setLayoutY(hi);
         }
 
         beGroup.setOnKeyPressed((KeyEvent ke) -> {

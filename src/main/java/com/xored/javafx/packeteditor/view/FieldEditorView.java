@@ -44,7 +44,6 @@ public class FieldEditorView {
     
     public void setParentPane(StackPane parentPane) {
         this.fieldEditorPane = parentPane;
-        fieldEditorPane.setPadding(new Insets(25, 25, 25, 50));
     }
 
     public TitledPane buildProtocolPane(Protocol protocol) {

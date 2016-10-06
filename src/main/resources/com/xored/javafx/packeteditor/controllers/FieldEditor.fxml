@@ -2,21 +2,18 @@
 
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.StackPane?>
-<ScrollPane xmlns="http://javafx.com/javafx/8"
+<StackPane xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.xored.javafx.packeteditor.controllers.FieldEditorController"
-            fx:id="fieldEditorScrollPane"
-            styleClass="scrollpane">
-    <content>
-        <StackPane xmlns:fx="http://javafx.com/fxml/1"
-                   fx:id="fieldEditorStackPaneBorder"
-                   prefWidth="800"
-                   styleClass="stackpane">
+            fx:id="fieldEditorTopPane"
+            styleClass="fieldeditortoppane">
+        <ScrollPane xmlns:fx="http://javafx.com/fxml/1"
+                   fx:id="fieldEditorScrollPane"
+                   styleClass="fieldeditorscrollpane">
             <StackPane xmlns:fx="http://javafx.com/fxml/1"
                        fx:id="fieldEditorPane"
                        prefWidth="800"
                        styleClass="stackpane"
             />
-        </StackPane>
-    </content>
-</ScrollPane>
+        </ScrollPane>
+</StackPane>
