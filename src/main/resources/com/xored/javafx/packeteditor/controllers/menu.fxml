@@ -9,10 +9,10 @@
          <menus>
             <Menu mnemonicParsing="false" text="File">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#handleNewDocument" text="New Document" />
-                  <MenuItem mnemonicParsing="false" onAction="#handleLoadAction" text="Load pcap file" />
-                  <MenuItem mnemonicParsing="false" onAction="#handleSaveAction" text="Save to pcap file" />
-                  <MenuItem mnemonicParsing="false" onAction="#handleCloseAction" text="Exit" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleNewDocument" text="New Document" accelerator="Shortcut+N"/>
+                  <MenuItem mnemonicParsing="false" onAction="#handleLoadAction" text="Load pcap file" accelerator="Shortcut+O"/>
+                  <MenuItem mnemonicParsing="false" onAction="#handleSaveAction" text="Save to pcap file" accelerator="Shortcut+S"/>
+                  <MenuItem mnemonicParsing="false" onAction="#handleCloseAction" text="Exit" accelerator="Shortcut+Q"/>
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Edit">
@@ -24,7 +24,7 @@
             <Menu mnemonicParsing="false" text="Action">
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#handleAddProtocolAction" text="Add Protocol" />
-                  <MenuItem mnemonicParsing="false" onAction="#handleDeleteProtocolAction" text="Delete" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleDeleteProtocolAction" text="Delete" accelerator="Shortcut+D"/>
                   <MenuItem mnemonicParsing="false" onAction="#handleRecalculateValues" text="Recalculate auto-values" />
                </items>
             </Menu>
