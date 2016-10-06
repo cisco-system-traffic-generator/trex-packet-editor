@@ -8,4 +8,5 @@
 *.py text
 *.xml text
 *.fxml text
+*.json text
 

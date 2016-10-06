@@ -150,12 +150,37 @@ public class FieldEditorView {
         return row;
     }
 
+    private Node getFieldLabel(Field field) {
+        HBox row = new HBox();
+        Label lblInfo = new Label();
+        Label lblName = new Label(field.getName());
+
+        int len = field.getLength();
+        if (len > 0) {
+            int begin = field.getAbsOffset();
+            int end = begin + len;
+            lblInfo.setText(String.format("%04d-%04d [%04d]", begin, end, len));
+        }
+
+        lblInfo.setOnMouseClicked(e-> controller.selectField(field));
+        lblName.setOnMouseClicked(e-> controller.selectField(field));
+        lblName.setTooltip(new Tooltip(field.getId()));
+
+        if (field.getData().isIgnored()) {
+            lblInfo.getStyleClass().add("ignored-field");
+            lblInfo.setText("ignored");
+        }
+
+        lblInfo.getStyleClass().add("field-label-info");
+        lblName.getStyleClass().add("field-label-name");
+        row.getChildren().add(lblInfo);
+        row.getChildren().add(lblName);
+        return row;
+    }
+
     private List<Node> buildFieldRow(Field field) {
         List<Node> rows = new ArrayList<>();
         String title = field.getName();
-        if (field.getData().isIgnored()) {
-            title = title + "(ignored)";
-        }
         FieldMetadata meta = field.getMeta();
         Type type = meta.getType();
 
@@ -163,14 +188,7 @@ public class FieldEditorView {
         row.getStyleClass().addAll("field-row");
 
         BorderPane titlePane = new BorderPane();
-        Label titleControl = new Label(title);
-        titleControl.setOnMouseClicked(e-> controller.selectField(field));
-
-        if (field.getData().isIgnored()) {
-            titleControl.getStyleClass().add("ignored-field");
-        }
-        titleControl.setTooltip(new Tooltip(field.getId()));
-        titlePane.setLeft(titleControl);
+        titlePane.setLeft(getFieldLabel(field));
         titlePane.getStyleClass().add("title-pane");
 
         if(BITMASK.equals(type)) {

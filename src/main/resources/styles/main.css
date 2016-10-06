@@ -164,4 +164,13 @@
     -fx-background-color: white;
 }
 
+.field-label-info {
+    -fx-text-fill: grey;
+    -fx-pref-width: 150px;
+    -fx-font-family: Monospaced;
+}
+
+.field-label-name {
+    -fx-pref-width: 250px
+}
 

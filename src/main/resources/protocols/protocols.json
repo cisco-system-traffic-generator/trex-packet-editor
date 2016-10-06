@@ -40,12 +40,12 @@
       },
       {
         "id": "ihl",
-        "name": "Internet Header Length",
+        "name": "IHL",
         "type": "NUMBER"
       },
       {
         "id": "tos",
-        "name": "Differentiated Services Field",
+        "name": "TOS",
         "type": "NUMBER"
       },
       {
