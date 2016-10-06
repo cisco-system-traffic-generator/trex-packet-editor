@@ -8,6 +8,7 @@ import com.xored.javafx.packeteditor.data.IField.Type;
 import com.xored.javafx.packeteditor.data.Protocol;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
+import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
 import javafx.geometry.Insets;
@@ -22,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.data.IField.Type.BITMASK;
@@ -47,7 +47,7 @@ public class FieldEditorView {
         fieldEditorPane.setPadding(new Insets(25, 25, 25, 50));
     }
 
-    public void addProtocol(Protocol protocol) {
+    public TitledPane buildProtocolPane(Protocol protocol) {
         
         //protocolsPane.getChildren().add(buildProtocolRow_Old(protocol));
         //protocol.getFields().stream().forEach(field -> protocolsPane.getChildren().addAll(buildFieldRow(field)));
@@ -83,14 +83,55 @@ public class FieldEditorView {
         });
         gridTitlePane.setText(protocol.getName());
         gridTitlePane.setContent(grid);
-        protocolsPane.getChildren().add(gridTitlePane);
+        return gridTitlePane;
+    }
+
+    public TitledPane buildAppendProtocolPane() {
+        TitledPane pane = new TitledPane();
+        pane.setText("Append layer");
+        pane.getStyleClass().add("append-protocol");
+        HBox controls = new HBox();
+        pane.setContent(controls);
+
+        List<ProtocolMetadata> protocols = controller.getAvailbleProtocolsToAdd();
+        if (protocols.isEmpty()) {
+            pane.setExpanded(false);
+        }
+        ComboBox cb = new ComboBox();
+        cb.setEditable(true);
+        cb.getItems().addAll(protocols);
+        if (!protocols.isEmpty()) {
+            cb.getSelectionModel().select(0);
+        }
+        Button addBtn = new Button();
+        addBtn.setText("Add");
+        addBtn.setOnAction(e->{
+            Object sel = cb.getSelectionModel().getSelectedItem();
+            if (sel instanceof ProtocolMetadata) {
+                controller.getModel().addProtocol((ProtocolMetadata)sel);
+            } else if (sel instanceof String) {
+                String selText = (String)sel;
+                ProtocolMetadata meta = protocols.stream().filter(
+                        m -> m.getId().equals(selText) || m.getName().equals(selText)
+                ).findFirst().orElse(null);
+                controller.getModel().addProtocol(meta);
+            }
+        });
+
+        controls.getChildren().add(cb);
+        controls.getChildren().add(addBtn);
+        controls.setHgrow(cb, Priority.ALWAYS);
+        return pane;
     }
 
     public void rebuild(Stack<Protocol> protocols) {
         try {
             fieldEditorPane.getChildren().clear();
             protocolsPane.getChildren().clear();
-            protocols.stream().forEach(this::addProtocol);
+            protocols.stream().forEach(
+                    p -> protocolsPane.getChildren().add(buildProtocolPane(p))
+            );
+            protocolsPane.getChildren().add(buildAppendProtocolPane());
             fieldEditorPane.getChildren().add(protocolsPane);
         } catch(Exception e) {
             logger.error("Error occurred during rebuilding view. Error {}", e);
@@ -117,7 +158,11 @@ public class FieldEditorView {
         row.getStyleClass().addAll("field-row");
 
         BorderPane titlePane = new BorderPane();
-        Text titleControl = new Text(title);
+        Label titleControl = new Label(title);
+        if (field.getData().isIgnored()) {
+            titleControl.getStyleClass().add("ignored-field");
+        }
+        titleControl.setTooltip(new Tooltip(field.getId()));
         titlePane.setLeft(titleControl);
         titlePane.getStyleClass().add("title-pane");
 
@@ -226,18 +271,15 @@ public class FieldEditorView {
         return row;
     }
 
-    private MaskTextField createMacAddressField(Field field, Label parent) {
+    private TextField createMacAddressField(Field field, Label parent) {
         MaskTextField macField = MaskTextField.createMacAddressField();
         macField.setText(field.getValue().getAsString());
-        injectOnChangeHandler(macField, field, parent);
-        macField.setContextMenu(getContextMenu(field));
         return macField;
     }
+
     private TextField createIPAddressField(Field field, Label parent) {
         TextField textField = new TextField();
         textField.setText(field.getValue().getAsString());
-        injectOnChangeHandler(textField, field, parent);
-        textField.setContextMenu(getContextMenu(field));
         return textField;
     }
 

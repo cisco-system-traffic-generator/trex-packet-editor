@@ -72,7 +72,6 @@ public class FieldEditorController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         packetController.init();
         view.setParentPane(fieldEditorPane);
-        model.setMetadataService(metadataService);
     }
 
     public void refreshTitle() {

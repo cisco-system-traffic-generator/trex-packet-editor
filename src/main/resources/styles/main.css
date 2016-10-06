@@ -66,6 +66,17 @@
     -fx-font-stretch: normal;
 }
 
+.append-protocol .title {
+    -fx-background-color: WHITE;
+    -fx-color: WHITE;
+    -fx-font-weight: normal;
+    -fx-font-style: italic;
+}
+
+.ignored-field {
+    -fx-text-fill: grey;
+}
+
 .stackpane {
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;

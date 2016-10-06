@@ -40,6 +40,9 @@ public class FieldEditorModel {
     @Inject
     PacketDataService packetDataService;
 
+    @Inject
+    IMetadataService metadataService;
+
     Document userModel = new Document();
     
     Stack<ScapyPkt> undoRecords = new Stack<>();
@@ -49,8 +52,6 @@ public class FieldEditorModel {
     Stack<ScapyPkt> undoingFrom;
     
     Stack<ScapyPkt> undoingTo;
-    
-    private IMetadataService metadataService;
 
     public Protocol getCurrentProtocol() {
         try {
@@ -65,12 +66,18 @@ public class FieldEditorModel {
         userModel.clear();
         fireUpdateViewEvent();
     }
-    
+
+    public void addProtocol(String protocolId) {
+        addProtocol(metadataService.getProtocolMetadataById(protocolId));
+    }
+
     public void addProtocol(ProtocolMetadata meta) {
-        userModel.addProtocol(meta);
-        ScapyPkt newPkt = packetDataService.appendProtocol(pkt, meta.getId());
-        setPktAndReload(newPkt);
-        logger.info("Protocol {} added.", meta.getName());
+        if (meta != null) {
+            userModel.addProtocol(meta);
+            ScapyPkt newPkt = packetDataService.appendProtocol(pkt, meta.getId());
+            setPktAndReload(newPkt);
+            logger.info("Protocol {} added.", meta.getName());
+        }
     }
 
 
@@ -105,10 +112,6 @@ public class FieldEditorModel {
     
     private List<String> getCurrentPath() {
         return protocols.stream().map(Protocol::getId).collect(Collectors.toList());
-    }
-
-    public void setMetadataService(IMetadataService metadataService) {
-        this.metadataService = metadataService;
     }
 
     public void removeLast() {
@@ -268,9 +271,9 @@ public class FieldEditorModel {
 
     public void newPacket() {
         clearHistory();
-        userModel.clear();  
+        userModel.clear();
         pkt = new ScapyPkt();
-        reload();
+        addProtocol("Ether");
     }
 
     public File getCurrentFile() {
