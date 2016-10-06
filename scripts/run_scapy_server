@@ -21,6 +21,10 @@ cd $TARGET/trex-core/scripts/automation/trex_control_plane/stl/services/scapy_se
 if [ "Darwin" = `uname` ]; then
     echo "Patching trex scapy server for Mac's native zmq"
     sed -i bak '/pyzmq.*arch-dep/d' $TARGET/trex-core/scripts/automation/trex_control_plane/stl/trex_stl_lib/trex_stl_ext.py
+    if [ ! -f /etc/ethertypes ]; then
+        echo "ERROR: No /etc/ethertypes found. Run the following command to install"
+        echo "sudo wget -O /etc/ethertypes http://www.secdev.org/projects/scapy/files/ethertypes"
+    fi
 fi
 
 echo "Running scapy server"
