@@ -178,6 +178,19 @@ public class FieldEditorView {
         return row;
     }
 
+    private Node buildIndentedFieldLabel(String info, String name) {
+        HBox row = new HBox();
+        Label lblInfo = new Label(info);
+        Label lblName = new Label(name);
+
+        lblInfo.getStyleClass().add("field-label-info");
+        lblName.getStyleClass().add("field-label-name");
+        lblName.getStyleClass().add("indented");
+        row.getChildren().add(lblInfo);
+        row.getChildren().add(lblName);
+        return row;
+    }
+
     private List<Node> buildFieldRow(Field field) {
         List<Node> rows = new ArrayList<>();
         String title = field.getName();
@@ -277,8 +290,7 @@ public class FieldEditorView {
     private Node createTCPOptionRow(TCPOptionsData tcpOption) {
         // TODO: reuse code
         BorderPane titlePane = new BorderPane();
-        Text titleLabel = new Text("        "+tcpOption.getName());
-        titlePane.setLeft(titleLabel);
+        titlePane.setLeft(buildIndentedFieldLabel("", tcpOption.getName()));
         titlePane.getStyleClass().add("title-pane");
         HBox row = new HBox();
         row.getStyleClass().addAll("field-row");
@@ -308,11 +320,16 @@ public class FieldEditorView {
         return textField;
     }
 
+    private String maskToString(int mask) {
+        return String.format("%4s", Integer.toBinaryString(mask)).replace(' ', '.').replace('0', '.');
+    }
+
     private Node createBitFlagRow(Field field, BitFlagMetadata bitFlagMetadata) {
         BorderPane titlePane = new BorderPane();
         String flagName = bitFlagMetadata.getName();
-        Text titleLabel = new Text("        " + flagName);
-        titlePane.setLeft(titleLabel);
+        String maskString = maskToString(bitFlagMetadata.getMask());
+
+        titlePane.setLeft(buildIndentedFieldLabel(maskString, flagName));
         titlePane.getStyleClass().add("title-pane");
         HBox row = new HBox();
         row.getStyleClass().addAll("field-row");
