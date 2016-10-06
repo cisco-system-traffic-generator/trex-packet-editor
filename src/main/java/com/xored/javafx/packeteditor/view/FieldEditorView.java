@@ -115,7 +115,11 @@ public class FieldEditorView {
                 ProtocolMetadata meta = protocols.stream().filter(
                         m -> m.getId().equals(selText) || m.getName().equals(selText)
                 ).findFirst().orElse(null);
-                controller.getModel().addProtocol(meta);
+                if (meta != null) {
+                    controller.getModel().addProtocol(meta);
+                } else {
+                    controller.getModel().addProtocol(selText);
+                }
             }
         });
 
@@ -160,6 +164,8 @@ public class FieldEditorView {
 
         BorderPane titlePane = new BorderPane();
         Label titleControl = new Label(title);
+        titleControl.setOnMouseClicked(e-> controller.selectField(field));
+
         if (field.getData().isIgnored()) {
             titleControl.getStyleClass().add("ignored-field");
         }
