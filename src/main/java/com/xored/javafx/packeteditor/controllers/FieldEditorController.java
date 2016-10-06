@@ -72,6 +72,7 @@ public class FieldEditorController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         packetController.init();
         view.setParentPane(fieldEditorPane);
+        Platform.runLater(()-> newPacket());
     }
 
     public void refreshTitle() {

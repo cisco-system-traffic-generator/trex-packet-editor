@@ -98,6 +98,7 @@ public class FieldEditorView {
             pane.setExpanded(false);
         }
         ComboBox cb = new ComboBox();
+        cb.getStyleClass().add("layer-type-selector");
         cb.setEditable(true);
         cb.getItems().addAll(protocols);
         if (!protocols.isEmpty()) {

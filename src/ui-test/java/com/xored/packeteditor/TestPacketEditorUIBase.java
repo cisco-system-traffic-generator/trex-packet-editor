@@ -189,23 +189,28 @@ public class TestPacketEditorUIBase extends ApplicationTest {
     }
 
     void addLayer(String layerType) {
-        clickOn("Action");
-        clickOn("Add Protocol");
-        clickOn((ComboBox e)->true);
+        //clickOn("Action");
+        //clickOn("Add Protocol");
+        clickOn(".layer-type-selector .arrow-button");
         clickOn(layerType);
-        clickOn("OK");
+        clickOn("Add");
     }
 
     void selectProtoType(String proto) {
         clickOn("#Ether-type");
         clickOn("#Ether-type");
-        push(CONTROL, DOWN);
+        //push(CONTROL, DOWN);
         clickOn(proto);
     }
 
     void recalculateAutoValues() {
         clickOn("Action");
         clickOn("Recalculate auto-values");
+    }
+
+    void newDocument() {
+        clickOn("File");
+        clickOn("New Document");
     }
 
 }

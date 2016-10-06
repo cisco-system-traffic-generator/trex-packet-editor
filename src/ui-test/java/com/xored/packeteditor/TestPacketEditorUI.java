@@ -8,15 +8,8 @@ import static org.testfx.util.NodeQueryUtils.hasText;
 public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
-    public void should_create_proto_on_enter() {
-        clickOn("Action");
-        clickOn("Add Protocol");
-        push(ENTER);
-    }
-
-    @Test
     public void should_build_tcpip_stack() {
-        addLayer("Ethernet II");
+        newDocument();
         selectProtoType("IPv4");
         addLayer("Internet Protocol Version 4");
         verifyThat("#Ether-IP-version", hasText("4"));
@@ -53,8 +46,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     public void load_and_save_pcap_file() {
         loadPcapFile("http.pcap");
         savePcapFile("http-2.pcap");
-        clickOn("File");
-        clickOn("New Document");
+        newDocument();
         loadPcapFile("http-2.pcap");
         verifyThat("#Ether-IP-version", hasText("4"));
         verifyThat("#Ether-IP-TCP-seq", hasText("951057939"));
