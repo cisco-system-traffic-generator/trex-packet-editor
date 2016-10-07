@@ -9,6 +9,6 @@
            prefWidth="850">
     <items>
         <fx:include source="FieldEditor.fxml" />
-        <fx:include source="BinaryEditor.fxml" />
+        <fx:include source="BinaryEditor.fxml" SplitPane.resizableWithParent="false" />
     </items>
 </SplitPane>
