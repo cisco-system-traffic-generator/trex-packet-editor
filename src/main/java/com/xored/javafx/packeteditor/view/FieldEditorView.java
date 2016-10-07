@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.data.IField.Type.BITMASK;
+import static com.xored.javafx.packeteditor.data.IField.Type.RAW;
 import static com.xored.javafx.packeteditor.data.IField.Type.TCP_OPTIONS;
 
 public class FieldEditorView {
@@ -47,9 +48,6 @@ public class FieldEditorView {
     }
 
     public TitledPane buildProtocolPane(Protocol protocol) {
-        
-        //protocolsPane.getChildren().add(buildProtocolRow_Old(protocol));
-        //protocol.getFields().stream().forEach(field -> protocolsPane.getChildren().addAll(buildFieldRow(field)));
 
         TitledPane gridTitlePane = new TitledPane();
         
@@ -58,30 +56,30 @@ public class FieldEditorView {
         grid.setVgap(4);
         grid.setPadding(new Insets(5, 5, 5, 5));
 
-        final int[] ij = {0, 0};
+        final int[] ij = {0, 0}; // col, row
+
         protocol.getFields().stream().forEach(field -> {
             List<Node> list = buildFieldRow(field);
-
             FieldMetadata meta = field.getMeta();
             Type type = meta.getType();
 
             for (Node n: list) {
-                grid.add(n, ij[1]++, ij[0]);
+                grid.add(n, ij[0]++, ij[1], 1, 1);
                 if(BITMASK.equals(type)) {
-                    ij[0]++;
-                    ij[1] = 0;
+                    ij[0] = 0;
+                    ij[1]++;
                 }
                 else if(TCP_OPTIONS.equals(type)) {
-                    ij[0]++;
-                    ij[1] = 0;
+                    ij[0] = 0;
+                    ij[1]++;
                 }
-
             }
-            ij[0]++;
-            ij[1] = 0;
+            ij[0] = 0;
+            ij[1]++;
         });
         gridTitlePane.setText(protocol.getName());
         gridTitlePane.setContent(grid);
+
         return gridTitlePane;
     }
 
@@ -140,13 +138,6 @@ public class FieldEditorView {
         } catch(Exception e) {
             logger.error("Error occurred during rebuilding view. Error {}", e);
         }
-    }
-
-    private TitledPane buildProtocolRow(Protocol protocol) {
-        TitledPane row = new TitledPane(protocol.getName(), null);
-        row.getStyleClass().addAll("protocol-row");
-
-        return row;
     }
 
     private Node getFieldLabel(Field field) {
@@ -215,6 +206,9 @@ public class FieldEditorView {
             
             BorderPane valuePane = new BorderPane();
             valuePane.setCenter(fieldControl);
+            if (RAW.equals(type)) {
+                valuePane.getStyleClass().addAll("field-row-raw-value");
+            }
             row.getChildren().addAll(titlePane, valuePane);
             rows.add(row);
             // TODO: remove this crutch :)
@@ -246,7 +240,6 @@ public class FieldEditorView {
                 if (field.getData().hasBinaryData() && !field.getData().hasValue()) {
                     fieldControl = new Label(field.getDisplayValue());
                 } else {
-//                    row.getStyleClass().addAll("field-row-raw");
                     TextArea ta = new TextArea(field.getData().hvalue);
                     ta.setPrefSize(200, 40);
                     MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
@@ -254,6 +247,7 @@ public class FieldEditorView {
                     ta.setContextMenu(new ContextMenu(saveRawMenuItem));
                     fieldControl = ta;
                 }
+                fieldControl.getStyleClass().addAll("field-row-raw-value");
                 break;
             case NONE:
             default:

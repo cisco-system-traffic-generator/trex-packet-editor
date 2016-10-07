@@ -153,13 +153,20 @@
 }
 .field-row {
     -fx-background-color: #ffffff;
-    -fx-pref-height: 30px;
+    /*-fx-pref-height: 30px;*/
     -fx-padding: 8 0 7 40px;
+    -fx-fill-height: true;
 }
+.field-row-raw-value{
+    -fx-pref-height: 200px;
+    -fx-fill-height: true;
+}
+
 .field-row-raw {
     -fx-background-color: lightgray;
     -fx-pref-height: 220px;
     -fx-padding: 8 0 7 40px;
+    -fx-fill-height: true;
 }
 
 .protocol-name {
