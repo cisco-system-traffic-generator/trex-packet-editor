@@ -11,6 +11,7 @@ import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
+import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -18,7 +19,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import jidefx.scene.control.field.MaskTextField;
+import org.controlsfx.control.textfield.CustomTextField;
+import org.controlsfx.control.textfield.TextFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,12 +97,23 @@ public class FieldEditorView {
             pane.setExpanded(false);
         }
         ComboBox cb = new ComboBox();
+        cb.addEventHandler(EventType.ROOT, e->{
+            logger.info("action {}", e);
+        });
+        cb.setOnAction(e->{
+            logger.info("action {}", e);
+        });
         cb.getStyleClass().add("layer-type-selector");
         cb.setEditable(true);
         cb.getItems().addAll(protocols);
-        if (!protocols.isEmpty()) {
-            cb.getSelectionModel().select(0);
-        }
+
+        // Display only available protocols, but let user choose any
+        List<String> protoIds = controller.getMetadataService().getProtocols().values().stream()
+                .map(m -> m.getId()).sorted()
+                .collect(Collectors.toList());
+
+        TextFields.bindAutoCompletion(cb.getEditor(), protoIds);
+
         Button addBtn = new Button();
         addBtn.setText("Add");
         addBtn.setOnAction(e->{
@@ -266,15 +279,11 @@ public class FieldEditorView {
         TextField tf;
         switch(field.getType()) {
             case MAC_ADDRESS:
-                tf = createMacAddressField(field, parent);
-                break;
             case IPV4ADDRESS:
-                tf = createIPAddressField(field, parent);
-                break;
             case TCP_OPTIONS:
             case NUMBER:
             case STRING:
-                tf = new TextField(field.getDisplayValue());
+                tf = createFieldTextProperty(field, parent);
                 break;
             default:
                 return null;
@@ -306,16 +315,14 @@ public class FieldEditorView {
         return row;
     }
 
-    private TextField createMacAddressField(Field field, Label parent) {
-        MaskTextField macField = MaskTextField.createMacAddressField();
-        macField.setText(field.getValue().getAsString());
-        return macField;
-    }
+    private TextField createFieldTextProperty(Field field, Label parent) {
+        CustomTextField tf = (CustomTextField)TextFields.createClearableTextField();
+        tf.rightProperty().get().setOnMouseReleased(event ->
+                clearFieldValue(field)
+        );
 
-    private TextField createIPAddressField(Field field, Label parent) {
-        TextField textField = new TextField();
-        textField.setText(field.getValue().getAsString());
-        return textField;
+        tf.setText(field.getValue().getAsString());
+        return tf;
     }
 
     private String maskToString(int mask) {
@@ -416,18 +423,26 @@ public class FieldEditorView {
         }
         return combo;
     }
-    
+
+    private void clearFieldValue(Field field) {
+        controller.getModel().editField(field, ReconstructField.resetValue(field.getId()));
+    }
+
+    private void randomizeFieldValue(Field field) {
+        controller.getModel().editField(field, ReconstructField.randomizeValue(field.getId()));
+    }
+
     private ContextMenu getContextMenu(Field field) {
         ContextMenu context = new ContextMenu();
 
         MenuItem generateItem = new MenuItem(resourceBundle.getString("GENERATE"));
-        generateItem.setOnAction(
-                event -> controller.getModel().editField(field, ReconstructField.randomizeValue(field.getId()))
+        generateItem.setOnAction(event ->
+                clearFieldValue(field)
         );
 
         MenuItem defaultItem = new MenuItem(resourceBundle.getString("SET_DEFAULT"));
-        defaultItem.setOnAction(
-                event -> controller.getModel().editField(field, ReconstructField.resetValue(field.getId()))
+        defaultItem.setOnAction(event ->
+                randomizeFieldValue(field)
         );
 
         context.getItems().addAll(generateItem, defaultItem);

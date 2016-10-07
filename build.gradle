@@ -76,11 +76,13 @@ dependencies {
     compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.7'
-    compile group: 'com.jidesoft', name: 'jidefx-fields', version: '0.9.1-b128'
 
     if (project.hasProperty('jdk31')) {
         // optional compatibility with JDK < 1.8 u40
         compile group: 'org.controlsfx', name: 'openjfx-dialogs', version: '1.0.3'
+        compile group: 'org.controlsfx', name: 'controlsfx', version: '8.20.9'
+    } else {
+        compile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.12'
     }
 }
 
