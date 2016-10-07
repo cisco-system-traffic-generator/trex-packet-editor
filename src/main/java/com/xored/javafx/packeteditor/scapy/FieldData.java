@@ -23,6 +23,9 @@ public class FieldData {
     public String getStringValue() { return value.getAsString(); }
     public int getIntValue() { return value.getAsInt(); }
 
+    /** check if field has length and offset specified */
+    public boolean hasPosition() { return length != null && offset != null; }
+
     public int getLength() { return length.intValue(); }
     public int getOffset() { return offset.intValue(); }
 

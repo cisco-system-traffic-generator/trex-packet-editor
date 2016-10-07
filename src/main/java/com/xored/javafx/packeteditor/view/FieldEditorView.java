@@ -145,11 +145,16 @@ public class FieldEditorView {
         Label lblInfo = new Label();
         Label lblName = new Label(field.getName());
 
-        int len = field.getLength();
-        if (len > 0) {
+        if (field.getData().hasPosition()) {
+            int len = field.getLength();
             int begin = field.getAbsOffset();
             int end = begin + len;
-            lblInfo.setText(String.format("%04d-%04d [%04d]", begin, end, len));
+
+            if (len > 0) {
+                lblInfo.setText(String.format("%04d-%04d [%04d]", begin, end, len));
+            } else {
+                lblInfo.setText(String.format("%04d-%04d [bits]", begin, end));
+            }
         }
 
         lblInfo.setOnMouseClicked(e-> controller.selectField(field));
@@ -314,7 +319,7 @@ public class FieldEditorView {
     }
 
     private String maskToString(int mask) {
-        return String.format("%4s", Integer.toBinaryString(mask)).replace(' ', '.').replace('0', '.');
+        return String.format("%8s", Integer.toBinaryString(mask)).replace(' ', '.').replace('0', '.');
     }
 
     private Node createBitFlagRow(Field field, BitFlagMetadata bitFlagMetadata) {
