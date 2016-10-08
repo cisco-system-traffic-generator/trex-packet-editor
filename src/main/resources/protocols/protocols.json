@@ -15,12 +15,7 @@
       },
       {
         "id": "type",
-        "name": "Type",
-        "type": "enum",
-        "dict": {
-          "IPv4" : 2048,
-          "IPv6": 34525
-        }
+        "name": "Type"
       }
     ],
     "payload": ["Dot1Q", "IP", "IPv6"]
@@ -31,12 +26,7 @@
     "fields": [
       {
         "id": "version",
-        "name": "Version",
-        "type": "enum",
-        "readonly": true,
-        "dict": {
-          "4": 4
-        }
+        "name": "Version"
       },
       {
         "id": "ihl",
@@ -80,12 +70,7 @@
       },
       {
         "id": "proto",
-        "name": "Protocol",
-        "type": "enum",
-        "dict": {
-          "TCP": 6 ,
-          "UDP": 17 
-        }
+        "name": "Protocol"
       },
       {
         "id": "chksum",
