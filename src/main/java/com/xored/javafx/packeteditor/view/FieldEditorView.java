@@ -98,12 +98,6 @@ public class FieldEditorView {
             pane.setExpanded(false);
         }
         ComboBox cb = new ComboBox();
-        cb.addEventHandler(EventType.ROOT, e->{
-            logger.info("action {}", e);
-        });
-        cb.setOnAction(e->{
-            logger.info("action {}", e);
-        });
         cb.getStyleClass().add("layer-type-selector");
         cb.setEditable(true);
         cb.getItems().addAll(protocols);

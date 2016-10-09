@@ -8,18 +8,18 @@ import java.util.List;
  * structure of scapy.get_definitions
  */
 public class ScapyDefinitions {
-    public class Protocol {
+    public class ScapyProtocol {
         public String id;
         public String name;
-        public List<Field> fields;
+        public List<ScapyField> fields;
     }
 
-    public class Field {
+    public class ScapyField {
         public String id;
         public String name;
         public String field_type;
         public JsonElement values_dict;
     }
 
-    public List<Protocol> protocols;
+    public List<ScapyProtocol> protocols;
 }

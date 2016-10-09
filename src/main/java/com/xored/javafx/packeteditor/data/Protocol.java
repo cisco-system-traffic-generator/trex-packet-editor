@@ -7,12 +7,6 @@ import java.util.List;
 
 public class Protocol {
     
-    public enum State {
-        OPEN, COLLAPSED
-    }
-
-    private State state = State.OPEN;
-
     private ProtocolMetadata meta;
 
     private List<String> path;
@@ -31,20 +25,12 @@ public class Protocol {
         this.fields = new ArrayList<>();
     }
 
-    public State getState() {
-        return state;
-    }
-
     public ProtocolMetadata getMeta() {
         return meta;
     }
 
     public List<String> getPath() {
         return path;
-    }
-
-    public void setState(State state) {
-        this.state = state;
     }
 
     public List<Field> getFields() {
