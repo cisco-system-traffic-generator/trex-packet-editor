@@ -248,6 +248,8 @@ public class FieldEditorView {
             if (val != null) {
                 labelText = String.format("%s (%s)", humanVal, val.toString());
             }
+        } else if (field.getMeta().isAuto()) {
+            labelText = String.format("%s (auto-calculated)", humanVal);
         }
 
         Label label = new Label(labelText);

@@ -9,23 +9,24 @@ import java.util.Map;
 public class FieldMetadata {
     
     private String id;
-    
     private String name;
-    
     private IField.Type type;
-    
+    private Boolean auto;
     private Map<String, JsonElement> dictionary;
-
     private List<BitFlagMetadata> bits;
 
-    public FieldMetadata(String id, String name, IField.Type type, Map<String, JsonElement> dictionary, List<BitFlagMetadata> bits) {
+    public FieldMetadata(
+            String id, String name, IField.Type type,
+            Map<String, JsonElement> dictionary, List<BitFlagMetadata> bits, Boolean auto) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.dictionary = dictionary;
         this.bits = bits;
+        this.auto = auto;
     }
 
+    /** bit definition for bit fields */
     public List<BitFlagMetadata> getBits() {
         return bits;
     }
@@ -42,7 +43,14 @@ public class FieldMetadata {
         return type;
     }
 
+    /** dictionary for enum fields */
     public Map<String, JsonElement> getDictionary() {
         return dictionary;
     }
+
+    /** true if the field is automatically calculated */
+    public boolean isAuto() {
+        return auto != null && auto;
+    }
+
 }

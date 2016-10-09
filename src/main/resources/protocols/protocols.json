@@ -31,7 +31,8 @@
       {
         "id": "ihl",
         "name": "IHL",
-        "type": "NUMBER"
+        "type": "NUMBER",
+        "auto": true
       },
       {
         "id": "tos",
@@ -75,7 +76,8 @@
       {
         "id": "chksum",
         "name": "Checksum",
-        "type": "STRING"
+        "type": "STRING",
+        "auto": true
       },
       {
         "id": "src",

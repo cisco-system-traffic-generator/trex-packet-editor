@@ -1,6 +1,5 @@
 package com.xored.javafx.packeteditor.service;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
@@ -60,6 +59,7 @@ public class MetadataService implements IMetadataService {
         IField.Type ftype = IField.Type.STRING;
         Map<String, JsonElement> dict_map = null;
         List<BitFlagMetadata> bits_meta = null;
+        boolean isAuto = false;
 
         // merging definitions
         if (jsonDefaults != null) {
@@ -69,6 +69,7 @@ public class MetadataService implements IMetadataService {
                 dict_map = jsonFieldMeta.getDictionary();
                 ftype = jsonFieldMeta.getType();
                 bits_meta = jsonFieldMeta.getBits();
+                isAuto = jsonFieldMeta.isAuto();
             }
         }
         if (dict_map == null && field.values_dict instanceof JsonObject) {
@@ -79,7 +80,7 @@ public class MetadataService implements IMetadataService {
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             }
         }
-        return new FieldMetadata(field.id, fieldName, ftype, dict_map, bits_meta);
+        return new FieldMetadata(field.id, fieldName, ftype, dict_map, bits_meta, isAuto);
     }
 
     /** normally should not be used, since we should have get_definitions */
@@ -93,7 +94,7 @@ public class MetadataService implements IMetadataService {
     /** normally should not be used, since we should have get_definitions */
     private ProtocolMetadata buildMetadataFromScapyModel(ProtocolData protocol) {
         List<FieldMetadata> fields_metadata = protocol.fields.stream().map(
-                field -> new FieldMetadata(field.id, field.id, IField.Type.STRING, null, null)
+                field -> new FieldMetadata(field.id, field.id, IField.Type.STRING, null, null, false)
         ).collect(Collectors.toList());
         ProtocolMetadata protocolMetadata = new ProtocolMetadata(protocol.id, protocol.name, fields_metadata);
         protocols.put(protocolMetadata.getId(), protocolMetadata);

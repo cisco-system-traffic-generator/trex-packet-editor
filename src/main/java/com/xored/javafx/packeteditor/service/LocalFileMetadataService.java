@@ -53,8 +53,10 @@ class LocalFileMetadataService {
             for (JsonElement jsonElement : entry.get("fields").getAsJsonArray()) {
                 JsonObject field = (JsonObject) jsonElement;
 
+                // TODO: use GSON parsing to internal class with JsonArray/JsonObject
                 String fieldId = field.get("id").getAsString();
                 String name = field.get("name").getAsString();
+                Boolean isAuto = (field.get("auto") instanceof  JsonPrimitive) ? field.get("auto").getAsBoolean(): null;
                 String typeName = (field.get("type") instanceof JsonPrimitive) ? field.get("type").getAsString(): null;
                 IField.Type type = getTypeByName(typeName);
                 Map<String, JsonElement> dict = null;
@@ -85,7 +87,7 @@ class LocalFileMetadataService {
                     }
                 }
 
-                fieldsMeta.add(new FieldMetadata(fieldId, name, type, dict, bitFlags));
+                fieldsMeta.add(new FieldMetadata(fieldId, name, type, dict, bitFlags, isAuto));
             }
 
             /* TODO: restore or remove hand-crafted payload
