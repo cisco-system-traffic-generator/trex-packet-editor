@@ -25,9 +25,6 @@ public interface IField {
     }
 
     FieldMetadata getMeta();
-    int getOffset();
-    int getAbsOffset();
-    int getLength();
     String getId();
     String getName();
     String getDisplayValue();

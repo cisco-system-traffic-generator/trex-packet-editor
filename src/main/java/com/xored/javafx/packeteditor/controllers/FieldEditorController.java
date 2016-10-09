@@ -4,7 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.xored.javafx.packeteditor.data.Field;
+import com.xored.javafx.packeteditor.data.ScapyField;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
@@ -208,7 +208,7 @@ public class FieldEditorController implements Initializable {
         }
     }
 
-    public void selectField(Field field) {
+    public void selectField(ScapyField field) {
         model.setSelected(field);
     }
 

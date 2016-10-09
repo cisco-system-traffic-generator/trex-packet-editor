@@ -4,15 +4,14 @@ import com.google.gson.JsonElement;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
-import com.xored.javafx.packeteditor.data.Field;
+import com.xored.javafx.packeteditor.data.ScapyField;
 import com.xored.javafx.packeteditor.data.IField.Type;
-import com.xored.javafx.packeteditor.data.Protocol;
+import com.xored.javafx.packeteditor.data.ScapyProtocol;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -50,7 +49,7 @@ public class FieldEditorView {
         this.fieldEditorPane = parentPane;
     }
 
-    public TitledPane buildProtocolPane(Protocol protocol) {
+    public TitledPane buildProtocolPane(ScapyProtocol protocol) {
 
         TitledPane gridTitlePane = new TitledPane();
         
@@ -134,7 +133,7 @@ public class FieldEditorView {
         return pane;
     }
 
-    public void rebuild(Stack<Protocol> protocols) {
+    public void rebuild(Stack<ScapyProtocol> protocols) {
         try {
             fieldEditorPane.getChildren().clear();
             protocolsPane.getChildren().clear();
@@ -148,7 +147,7 @@ public class FieldEditorView {
         }
     }
 
-    private Node getFieldLabel(Field field) {
+    private Node getFieldLabel(ScapyField field) {
         HBox row = new HBox();
         Label lblInfo = new Label();
         Label lblName = new Label(field.getName());
@@ -194,7 +193,7 @@ public class FieldEditorView {
         return row;
     }
 
-    private List<Node> buildFieldRow(Field field) {
+    private List<Node> buildFieldRow(ScapyField field) {
         List<Node> rows = new ArrayList<>();
         String title = field.getName();
         FieldMetadata meta = field.getMeta();
@@ -233,7 +232,7 @@ public class FieldEditorView {
         return rows;
     }
 
-    private Control createDefaultControl(Field field) {
+    private Control createDefaultControl(ScapyField field) {
         String humanVal = field.getDisplayValue();
         String labelText = humanVal;
         if (field.getType() == Type.ENUM) {
@@ -255,7 +254,7 @@ public class FieldEditorView {
         return label;
     }
     
-    private Control createControl(Field field, Label parent) {
+    private Control createControl(ScapyField field, Label parent) {
         Control fieldControl;
         switch(field.getType()) {
             case ENUM:
@@ -282,7 +281,7 @@ public class FieldEditorView {
         return fieldControl;
     }
     
-    private TextField createTextField(Field field, Label parent) {
+    private TextField createTextField(ScapyField field, Label parent) {
         TextField tf;
         switch(field.getType()) {
             case MAC_ADDRESS:
@@ -322,7 +321,7 @@ public class FieldEditorView {
         return row;
     }
 
-    private TextField createFieldTextProperty(Field field, Label parent) {
+    private TextField createFieldTextProperty(ScapyField field, Label parent) {
         CustomTextField tf = (CustomTextField)TextFields.createClearableTextField();
         tf.rightProperty().get().setOnMouseReleased(event ->
                 clearFieldValue(field)
@@ -336,7 +335,7 @@ public class FieldEditorView {
         return String.format("%8s", Integer.toBinaryString(mask)).replace(' ', '.').replace('0', '.');
     }
 
-    private Node createBitFlagRow(Field field, BitFlagMetadata bitFlagMetadata) {
+    private Node createBitFlagRow(ScapyField field, BitFlagMetadata bitFlagMetadata) {
         BorderPane titlePane = new BorderPane();
         String flagName = bitFlagMetadata.getName();
         String maskString = maskToString(bitFlagMetadata.getMask());
@@ -384,14 +383,14 @@ public class FieldEditorView {
         return row;
     }
     
-    private void addOnclickListener(Node node, Field field, Label parent) {
+    private void addOnclickListener(Node node, ScapyField field, Label parent) {
         node.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> {
             controller.selectField(field);
             parent.setGraphic(node);
         });
     }
 
-    private void injectOnChangeHandler(TextField textField, Field field, Label parent) {
+    private void injectOnChangeHandler(TextField textField, ScapyField field, Label parent) {
         textField.setOnKeyReleased(e -> {
             if (e.getCode().equals(KeyCode.ENTER)) {
                 parent.setGraphic(null);
@@ -403,7 +402,7 @@ public class FieldEditorView {
         });
     }
 
-    private Control createEnumField(Field field, Label parent) {
+    private Control createEnumField(ScapyField field, Label parent) {
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.setEditable(true);
         combo.getStyleClass().addAll("control");
@@ -439,15 +438,15 @@ public class FieldEditorView {
         return combo;
     }
 
-    private void clearFieldValue(Field field) {
+    private void clearFieldValue(ScapyField field) {
         controller.getModel().editField(field, ReconstructField.resetValue(field.getId()));
     }
 
-    private void randomizeFieldValue(Field field) {
+    private void randomizeFieldValue(ScapyField field) {
         controller.getModel().editField(field, ReconstructField.randomizeValue(field.getId()));
     }
 
-    private ContextMenu getContextMenu(Field field) {
+    private ContextMenu getContextMenu(ScapyField field) {
         ContextMenu context = new ContextMenu();
 
         MenuItem generateItem = new MenuItem(resourceBundle.getString("GENERATE"));

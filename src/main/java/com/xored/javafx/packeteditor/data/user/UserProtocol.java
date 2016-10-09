@@ -9,28 +9,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Protocol {
+public class UserProtocol {
     private ProtocolMetadata meta;
     private String id;
     private List<String> path = new ArrayList<>();
-    private Map<String, Field> fieldMap = new LinkedHashMap<>();
+    private Map<String, UserField> fieldMap = new LinkedHashMap<>();
     
-    public Protocol(ProtocolMetadata meta, List<String> path) {
+    public UserProtocol(ProtocolMetadata meta, List<String> path) {
         this.meta = meta;
         this.id = meta.getId();
         this.path.addAll(path);
     }
-    public void addField(Field field) {
+    public void addField(UserField field) {
         fieldMap.put(field.getId(), field);
     }
 
     public void addField(String fieldId, String value) {
-        Field field = new Field(fieldId, path);
+        UserField field = new UserField(fieldId, path);
         field.setValue(value);
         fieldMap.put(field.getId(), field);
     }
 
-    public Field getField(String fieldId) {
+    public UserField getField(String fieldId) {
         return fieldMap.get(fieldId);
     }
     
@@ -42,15 +42,15 @@ public class Protocol {
         return id;
     }
 
-    public List<Field> getFields() {
+    public List<UserField> getFields() {
         return fieldMap.entrySet().stream()
-                .filter(entry -> entry.getValue().getValue() != null)
+                .filter(entry -> entry.getValue().getStringValue() != null)
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
     }
 
-    public Field createField(String fieldId) {
-        Field field = new Field(fieldId, path);
+    public UserField createField(String fieldId) {
+        UserField field = new UserField(fieldId, path);
         fieldMap.put(fieldId, field);
         return field;
     }

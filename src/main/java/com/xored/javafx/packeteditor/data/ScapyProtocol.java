@@ -5,7 +5,7 @@ import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Protocol {
+public class ScapyProtocol {
     
     private ProtocolMetadata meta;
 
@@ -15,9 +15,9 @@ public class Protocol {
 
     private final String name;
 
-    private final List<Field> fields;
+    private final List<ScapyField> fields;
 
-    public Protocol(ProtocolMetadata meta, List<String> path) {
+    public ScapyProtocol(ProtocolMetadata meta, List<String> path) {
         this.meta = meta;
         this.path = path;
         this.id = meta.getId();
@@ -33,7 +33,7 @@ public class Protocol {
         return path;
     }
 
-    public List<Field> getFields() {
+    public List<ScapyField> getFields() {
         return fields;
     }
 

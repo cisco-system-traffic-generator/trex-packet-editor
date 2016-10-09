@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
-import com.xored.javafx.packeteditor.scapy.FieldData;
 
 import java.util.List;
 import java.util.Stack;
@@ -13,21 +12,21 @@ import java.util.stream.Collectors;
 
 public class Document {
     
-    private Stack<Protocol> protocols = new Stack<>();
+    private Stack<UserProtocol> protocols = new Stack<>();
     
     public void addProtocol(ProtocolMetadata metadata) {
         List<String> currentPath = getCurrentPath();
         currentPath.add(metadata.getId());
-        Protocol newProtocol = new Protocol(metadata, getCurrentPath());
+        UserProtocol newProtocol = new UserProtocol(metadata, getCurrentPath());
         
-        metadata.getFields().stream().forEach(entry -> newProtocol.addField(new Field(entry.getId(), getCurrentPath())));
+        metadata.getFields().stream().forEach(entry -> newProtocol.addField(new UserField(entry.getId(), getCurrentPath())));
         
         protocols.push(newProtocol);
     }
 
     public void setFieldValue(List<String> path, String fieldId, String value) {
-        Protocol protocol = getProtocolByPath(path);
-        Field field = protocol.getField(fieldId);
+        UserProtocol protocol = getProtocolByPath(path);
+        UserField field = protocol.getField(fieldId);
         
         if (field == null) {
             field = protocol.createField(fieldId);
@@ -40,16 +39,16 @@ public class Document {
         setFieldValue(path, fieldId, value.getAsString());
     }
 
-    public Protocol getProtocolByPath(List<String> path) {
+    public UserProtocol getProtocolByPath(List<String> path) {
         // TODO: check path
         return protocols.get(path.size() - 1);
     }
     
     public List<String> getCurrentPath() {
-        return protocols.stream().map(Protocol::getId).collect(Collectors.toList());
+        return protocols.stream().map(UserProtocol::getId).collect(Collectors.toList());
     }
 
-    public Stack<Protocol> getProtocolStack() { return protocols; }
+    public Stack<UserProtocol> getProtocolStack() { return protocols; }
 
     public void clear() {
         protocols.clear();
@@ -64,12 +63,12 @@ public class Document {
         protocols.stream().forEach(protocol -> {
             JsonObject jsonProtocol = new JsonObject();
             jsonProtocol.add("id", new JsonPrimitive(protocol.getId()));
-            List<Field> fields = protocol.getFields();
+            List<UserField> fields = protocol.getFields();
             JsonArray jsonFields = new JsonArray();
             fields.stream().forEach(field -> {
                 JsonObject jsonField = new JsonObject();
                 jsonField.add("id", new JsonPrimitive(field.getId()));
-                jsonField.add("hvalue", new JsonPrimitive(field.getValue()));
+                jsonField.add("hvalue", new JsonPrimitive(field.getStringValue()));
                 jsonFields.add(jsonField);
             });
             jsonProtocol.add("fields", jsonFields);

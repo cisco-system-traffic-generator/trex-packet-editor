@@ -2,11 +2,9 @@ package com.xored.javafx.packeteditor.data;
 
 import com.google.common.eventbus.EventBus;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.user.Document;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
-import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.*;
 import com.xored.javafx.packeteditor.service.IMetadataService;
@@ -22,7 +20,7 @@ public class FieldEditorModel {
 
     private Logger logger= LoggerFactory.getLogger(FieldEditorModel.class);
     
-    private Stack<Protocol> protocols = new Stack<>();
+    private Stack<ScapyProtocol> protocols = new Stack<>();
 
     /**
      * Current packet representation in ScapyService format
@@ -53,7 +51,7 @@ public class FieldEditorModel {
     
     Stack<ScapyPkt> undoingTo;
 
-    public Protocol getCurrentProtocol() {
+    public ScapyProtocol getCurrentProtocol() {
         try {
             return protocols.peek();
         } catch (EmptyStackException e) {
@@ -76,7 +74,7 @@ public class FieldEditorModel {
             userModel.addProtocol(meta);
             ScapyPkt newPkt = packetDataService.appendProtocol(pkt, meta.getId());
             setPktAndReload(newPkt);
-            logger.info("Protocol {} added.", meta.getName());
+            logger.info("UserProtocol {} added.", meta.getName());
         }
     }
 
@@ -106,12 +104,12 @@ public class FieldEditorModel {
         return res;
     }
     
-    private Protocol buildProtocolFromMeta(ProtocolMetadata meta) {
-        return new Protocol(meta, getCurrentPath());
+    private ScapyProtocol buildProtocolFromMeta(ProtocolMetadata meta) {
+        return new ScapyProtocol(meta, getCurrentPath());
     }
     
     private List<String> getCurrentPath() {
-        return protocols.stream().map(Protocol::getId).collect(Collectors.toList());
+        return protocols.stream().map(ScapyProtocol::getId).collect(Collectors.toList());
     }
 
     public void removeLast() {
@@ -148,7 +146,7 @@ public class FieldEditorModel {
 
         for (ProtocolData protocol: packet.getProtocols()) {
             ProtocolMetadata protocolMetadata = metadataService.getProtocolMetadata(protocol);
-            Protocol protocolObj = buildProtocolFromMeta(protocolMetadata);
+            ScapyProtocol protocolObj = buildProtocolFromMeta(protocolMetadata);
             if(loadUserModel) {
                 userModel.addProtocol(protocolMetadata);
             }
@@ -159,7 +157,7 @@ public class FieldEditorModel {
                 if (loadUserModel) {
                     userModel.getProtocolStack().peek().addField(field.id, field.hvalue);
                 }
-                Field fieldObj = new Field(protocolMetadata.getMetaForField(field.id), getCurrentPath(), protocolOffset, field);
+                ScapyField fieldObj = new ScapyField(protocolMetadata.getMetaForField(field.id), getCurrentPath(), protocolOffset, field);
                 fieldObj.setOnSetCallback(newValue -> {
                     this.editField(fieldObj, newValue);
                 });
@@ -169,12 +167,12 @@ public class FieldEditorModel {
         fireUpdateViewEvent();
     }
     
-    public void setValue(Field field, JsonElement value) {
+    public void setValue(ScapyField field, JsonElement value) {
         field.setIsDefault(false);
         field.setValue(value);
     }
 
-    public void editField(Field field, ReconstructField newValue) {
+    public void editField(ScapyField field, ReconstructField newValue) {
         assert(field.getId() == newValue.id);
 
         if (newValue.isDeleted()) {
@@ -193,7 +191,7 @@ public class FieldEditorModel {
     }
 
     /** sets text value */
-    public void editField(Field field, String newValue) {
+    public void editField(ScapyField field, String newValue) {
         if (field.getData().getValueExpr() != null) {
             // if original value was expression, which means there are no good representation for it,
             // new string value should be treated as an expression as well. not as a hvalue
@@ -204,7 +202,7 @@ public class FieldEditorModel {
         }
     }
 
-    public void setSelected(Field field) {
+    public void setSelected(ScapyField field) {
         binary.setSelected(field.getAbsOffset(), field.getLength());
     }
 

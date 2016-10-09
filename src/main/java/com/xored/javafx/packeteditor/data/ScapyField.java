@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Field implements IField {
+public class ScapyField implements IField {
     private boolean isDefault = true;
     private FieldMetadata meta;
     private FieldData field_data;
@@ -19,7 +19,7 @@ public class Field implements IField {
     public interface FieldEditHandler {
         void operation(String value);
     }
-    public Field(FieldMetadata meta, List<String> path, int globalOffset, FieldData field_data) {
+    public ScapyField(FieldMetadata meta, List<String> path, int globalOffset, FieldData field_data) {
         this.meta = meta;
         this.path.addAll(path);
         this.globalOffset = globalOffset;

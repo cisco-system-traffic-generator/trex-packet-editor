@@ -54,7 +54,7 @@ public class MetadataService implements IMetadataService {
     }
 
     /** builds field metadata from scapy field definition */
-    private FieldMetadata buildFieldMetadata(ScapyDefinitions.Field field, ProtocolMetadata jsonDefaults) {
+    private FieldMetadata buildFieldMetadata(ScapyDefinitions.ScapyField field, ProtocolMetadata jsonDefaults) {
         String fieldName = field.name;
         IField.Type ftype = IField.Type.STRING;
         Map<String, JsonElement> dict_map = null;
