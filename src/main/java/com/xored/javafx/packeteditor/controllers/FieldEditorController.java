@@ -6,6 +6,8 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.ScapyField;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
+import com.xored.javafx.packeteditor.data.combined.CombinedField;
+import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
@@ -88,7 +90,7 @@ public class FieldEditorController implements Initializable {
     public void handleRebuildViewEvent(RebuildViewEvent event) {
         ScrollBar scrollBar = (ScrollBar) fieldEditorScrollPane.lookup(".scroll-bar:vertical");
         double scrollBarValue = scrollBar.getValue();
-        view.rebuild(event.getProtocols());
+        view.rebuild(event.getModel());
         Platform.runLater(()-> scrollBar.setValue(scrollBarValue));
     }
 
@@ -208,7 +210,7 @@ public class FieldEditorController implements Initializable {
         }
     }
 
-    public void selectField(ScapyField field) {
+    public void selectField(CombinedField field) {
         model.setSelected(field);
     }
 

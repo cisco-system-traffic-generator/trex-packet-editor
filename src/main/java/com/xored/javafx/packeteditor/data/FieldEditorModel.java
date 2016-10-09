@@ -3,7 +3,10 @@ package com.xored.javafx.packeteditor.data;
 import com.google.common.eventbus.EventBus;
 import com.google.gson.JsonElement;
 import com.google.inject.Inject;
+import com.xored.javafx.packeteditor.data.combined.CombinedField;
+import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.data.user.Document;
+import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.*;
@@ -51,14 +54,6 @@ public class FieldEditorModel {
     
     Stack<ScapyPkt> undoingTo;
 
-    public ScapyProtocol getCurrentProtocol() {
-        try {
-            return protocols.peek();
-        } catch (EmptyStackException e) {
-            return null;
-        }
-    }
-    
     public void deleteAllProtocols() {
         protocols.clear();
         userModel.clear();
@@ -85,7 +80,7 @@ public class FieldEditorModel {
             return Arrays.asList(metadataService.getProtocolMetadataById("Ether"));
         }
 
-        String lastProtocolId = protocols.peek().getMeta().getId();
+        String lastProtocolId = protocols.peek().getId();
         Set<String> suggested_extensions = metadataService.getAllowedPayloadForProtocol(lastProtocolId).stream().collect(Collectors.toSet());
         List<ProtocolMetadata> res = new ArrayList<>();
         if (getUnsupported) {
@@ -119,7 +114,7 @@ public class FieldEditorModel {
     }
 
     private void fireUpdateViewEvent() {
-        eventBus.post(new RebuildViewEvent(protocols));
+        eventBus.post(new RebuildViewEvent(CombinedProtocolModel.fromScapyData(metadataService, userModel, pkt.packet().getProtocols())));
     }
 
     public void setPktAndReload(ScapyPkt pkt) {
@@ -165,21 +160,28 @@ public class FieldEditorModel {
         fireUpdateViewEvent();
     }
     
-    public void setValue(ScapyField field, JsonElement value) {
-        //field.setIsDefault(false);
-        field.setValue(value);
-    }
+    public void editField(CombinedField field, ReconstructField newValue) {
+        assert(field.getMeta().getId() == newValue.id);
 
-    public void editField(ScapyField field, ReconstructField newValue) {
-        assert(field.getId() == newValue.id);
+        UserProtocol userProtocol = field.getProtocol().getUserProtocol();
+        if (userProtocol == null) {
+            logger.error("no userProtocol");
+            return;
+        }
+
+        List<String> protoPath = field.getProtocol().getPath();
+        String fieldId = field.getMeta().getId();
 
         if (newValue.isDeleted()) {
-            userModel.deleteField(field.getPath(), field.getId());
+            userModel.deleteField(protoPath, fieldId);
         } else if (newValue.isRandom()) {
-            FieldData randval = packetDataService.getRandomFieldValue(field.getProtocolId(), field.getId());
-            userModel.setFieldValue(field.getPath(), field.getId(), randval.getValue());
+            FieldData randval = packetDataService.getRandomFieldValue(
+                    field.getProtocol().getMeta().getId(),
+                    field.getMeta().getId()
+            );
+            userModel.setFieldValue(protoPath, fieldId, randval.getValue());
         } else {
-            userModel.setFieldValue(field.getPath(), field.getId(), newValue.value);
+            userModel.setFieldValue(protoPath, fieldId, newValue.value);
         }
         ScapyPkt newPkt = packetDataService.buildPacket(userModel.asJson());
         newPkt = packetDataService.reconstructPacketFromBinary(newPkt.getBinaryData());
@@ -189,19 +191,29 @@ public class FieldEditorModel {
     }
 
     /** sets text value */
-    public void editField(ScapyField field, String newValue) {
-        if (field.getData().getValueExpr() != null) {
+    public void editField(CombinedField field, String newValue) {
+        if (field.getScapyFieldData() != null && field.getScapyFieldData().getValueExpr() != null) {
             // if original value was expression, which means there are no good representation for it,
             // new string value should be treated as an expression as well. not as a hvalue
             // at least until we do not improve support for h2i/i2h
-            editField(field, ReconstructField.setExpressionValue(field.getId(), newValue));
+            editField(field, ReconstructField.setExpressionValue(field.getMeta().getId(), newValue));
         } else {
-            editField(field, ReconstructField.setHumanValue(field.getId(), newValue));
+            editField(field, ReconstructField.setHumanValue(field.getMeta().getId(), newValue));
         }
     }
 
-    public void setSelected(ScapyField field) {
-        binary.setSelected(field.getAbsOffset(), field.getLength());
+    public void setSelected(CombinedField field) {
+        int absoluteOffset = 0;
+        int len = 0;
+        if (field != null && field.getScapyFieldData() != null) {
+            FieldData fd = field.getScapyFieldData();
+            if (fd.hasPosition()) {
+                int protoOffset = field.getProtocol().getScapyProtocol().offset.intValue();
+                absoluteOffset = protoOffset + fd.getOffset();
+                len = fd.getLength();
+            }
+        }
+        binary.setSelected(absoluteOffset, len);
     }
 
     /** should be called when modification is done */

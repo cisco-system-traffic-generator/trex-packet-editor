@@ -1,17 +1,15 @@
 package com.xored.javafx.packeteditor.events;
 
-import com.xored.javafx.packeteditor.data.ScapyProtocol;
-
-import java.util.Stack;
+import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 
 public class RebuildViewEvent {
-    private Stack<ScapyProtocol> protocols;
+    private CombinedProtocolModel model;
 
-    public RebuildViewEvent(Stack<ScapyProtocol> protocols) {
-        this.protocols = protocols;
+    public RebuildViewEvent(CombinedProtocolModel model) {
+        this.model = model;
     }
 
-    public Stack<ScapyProtocol> getProtocols() {
-        return protocols;
+    public CombinedProtocolModel getModel() {
+        return model;
     }
 }

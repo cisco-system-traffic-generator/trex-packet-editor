@@ -1,16 +1,22 @@
 package com.xored.javafx.packeteditor.view;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.data.ScapyField;
 import com.xored.javafx.packeteditor.data.IField.Type;
 import com.xored.javafx.packeteditor.data.ScapyProtocol;
+import com.xored.javafx.packeteditor.data.combined.CombinedField;
+import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
+import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
+import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
+import com.xored.javafx.packeteditor.scapy.ScapyDefinitions;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -27,9 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.xored.javafx.packeteditor.data.IField.Type.BITMASK;
-import static com.xored.javafx.packeteditor.data.IField.Type.RAW;
-import static com.xored.javafx.packeteditor.data.IField.Type.TCP_OPTIONS;
+import static com.xored.javafx.packeteditor.data.IField.Type.*;
 
 public class FieldEditorView {
     @Inject
@@ -49,7 +53,7 @@ public class FieldEditorView {
         this.fieldEditorPane = parentPane;
     }
 
-    public TitledPane buildProtocolPane(ScapyProtocol protocol) {
+    public TitledPane buildProtocolPane(CombinedProtocol protocol) {
 
         TitledPane gridTitlePane = new TitledPane();
         
@@ -79,7 +83,7 @@ public class FieldEditorView {
             ij[0] = 0;
             ij[1]++;
         });
-        gridTitlePane.setText(protocol.getName());
+        gridTitlePane.setText(protocol.getMeta().getName());
         gridTitlePane.setContent(grid);
 
         return gridTitlePane;
@@ -133,12 +137,12 @@ public class FieldEditorView {
         return pane;
     }
 
-    public void rebuild(Stack<ScapyProtocol> protocols) {
+    public void rebuild(CombinedProtocolModel model) {
         try {
             fieldEditorPane.getChildren().clear();
             protocolsPane.getChildren().clear();
-            protocols.stream().forEach(
-                    p -> protocolsPane.getChildren().add(buildProtocolPane(p))
+            model.getProtocolStack().stream().forEach(proto ->
+                protocolsPane.getChildren().add(buildProtocolPane(proto))
             );
             protocolsPane.getChildren().add(buildAppendProtocolPane());
             fieldEditorPane.getChildren().add(protocolsPane);
@@ -147,14 +151,17 @@ public class FieldEditorView {
         }
     }
 
-    private Node getFieldLabel(ScapyField field) {
+    private Node getFieldLabel(CombinedField field) {
         HBox row = new HBox();
         Label lblInfo = new Label();
-        Label lblName = new Label(field.getName());
+        Label lblName = new Label(field.getMeta().getName());
 
-        if (field.getData().hasPosition()) {
-            int len = field.getLength();
-            int begin = field.getAbsOffset();
+        FieldData scapyData = field.getScapyFieldData();
+
+        if (scapyData != null && scapyData.hasPosition()) {
+            int protocolOffset = field.getProtocol().getScapyProtocol().offset.intValue();
+            int len = scapyData.getLength();
+            int begin = protocolOffset + scapyData.getOffset();
             int end = begin + len;
 
             if (len > 0) {
@@ -162,13 +169,15 @@ public class FieldEditorView {
             } else {
                 lblInfo.setText(String.format("%04d-%04d [bits]", begin, end));
             }
+        } else {
+            lblInfo.setText("meta-field");
         }
 
         lblInfo.setOnMouseClicked(e-> controller.selectField(field));
         lblName.setOnMouseClicked(e-> controller.selectField(field));
-        lblName.setTooltip(new Tooltip(field.getId()));
+        lblName.setTooltip(new Tooltip(field.getMeta().getId()));
 
-        if (field.getData().isIgnored()) {
+        if (scapyData != null && scapyData.isIgnored()) {
             lblInfo.getStyleClass().add("ignored-field");
             lblInfo.setText("ignored");
         }
@@ -193,9 +202,14 @@ public class FieldEditorView {
         return row;
     }
 
-    private List<Node> buildFieldRow(ScapyField field) {
+    private String getUniqueIdFor(CombinedField field) {
+        List<String> fullpath = new ArrayList<>(field.getProtocol().getPath());
+        fullpath.add(field.getMeta().getId());
+        return fullpath.stream().collect(Collectors.joining("-"));
+    }
+
+    private List<Node> buildFieldRow(CombinedField field) {
         List<Node> rows = new ArrayList<>();
-        String title = field.getName();
         FieldMetadata meta = field.getMeta();
         Type type = meta.getType();
 
@@ -213,7 +227,7 @@ public class FieldEditorView {
         } else {
             Control fieldControl = createDefaultControl(field);
             
-            fieldControl.setId(field.getUniqueId());
+            fieldControl.setId(getUniqueIdFor(field));
             fieldControl.getStyleClass().addAll("control");
             
             BorderPane valuePane = new BorderPane();
@@ -224,18 +238,20 @@ public class FieldEditorView {
             row.getChildren().addAll(titlePane, valuePane);
             rows.add(row);
             // TODO: remove this crutch :)
-            if(TCP_OPTIONS.equals(type)) {
-                TCPOptionsData.fromFieldData(field.getData()).stream().forEach(fd -> rows.add(createTCPOptionRow(fd)));
+            if(TCP_OPTIONS.equals(type) && field.getScapyFieldData() != null) {
+                TCPOptionsData.fromFieldData(field.getScapyFieldData()).stream().forEach(fd ->
+                        rows.add(createTCPOptionRow(fd))
+                );
             }
         }
 
         return rows;
     }
 
-    private Control createDefaultControl(ScapyField field) {
+    private Control createDefaultControl(CombinedField field) {
         String humanVal = field.getDisplayValue();
         String labelText = humanVal;
-        if (field.getType() == Type.ENUM) {
+        if (field.getMeta().getType() == Type.ENUM) {
             // for enums also show value
             JsonElement val = field.getMeta().getDictionary().getOrDefault(humanVal, null);
             if (val != null) {
@@ -254,17 +270,18 @@ public class FieldEditorView {
         return label;
     }
     
-    private Control createControl(ScapyField field, Label parent) {
+    private Control createControl(CombinedField field, Label parent) {
         Control fieldControl;
-        switch(field.getType()) {
+        switch(field.getMeta().getType()) {
             case ENUM:
                 fieldControl = createEnumField(field, parent);
                 break;
             case RAW:
-                if (field.getData().hasBinaryData() && !field.getData().hasValue()) {
+                FieldData fieldData = field.getScapyFieldData();
+                if (fieldData != null && fieldData.hasBinaryData() && !(fieldData.getValue() instanceof JsonPrimitive)) {
                     fieldControl = new Label(field.getDisplayValue());
                 } else {
-                    TextArea ta = new TextArea(field.getData().hvalue);
+                    TextArea ta = new TextArea(field.getDisplayValue());
                     ta.setPrefSize(200, 40);
                     MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
                     saveRawMenuItem.setOnAction((event) -> controller.getModel().editField(field, ta.getText()));
@@ -281,9 +298,9 @@ public class FieldEditorView {
         return fieldControl;
     }
     
-    private TextField createTextField(ScapyField field, Label parent) {
+    private TextField createTextField(CombinedField field, Label parent) {
         TextField tf;
-        switch(field.getType()) {
+        switch(field.getMeta().getType()) {
             case MAC_ADDRESS:
             case IPV4ADDRESS:
             case TCP_OPTIONS:
@@ -321,7 +338,7 @@ public class FieldEditorView {
         return row;
     }
 
-    private TextField createFieldTextProperty(ScapyField field, Label parent) {
+    private TextField createFieldTextProperty(CombinedField field, Label parent) {
         CustomTextField tf = (CustomTextField)TextFields.createClearableTextField();
         tf.rightProperty().get().setOnMouseReleased(event ->
                 clearFieldValue(field)
@@ -335,7 +352,7 @@ public class FieldEditorView {
         return String.format("%8s", Integer.toBinaryString(mask)).replace(' ', '.').replace('0', '.');
     }
 
-    private Node createBitFlagRow(ScapyField field, BitFlagMetadata bitFlagMetadata) {
+    private Node createBitFlagRow(CombinedField field, BitFlagMetadata bitFlagMetadata) {
         BorderPane titlePane = new BorderPane();
         String flagName = bitFlagMetadata.getName();
         String maskString = maskToString(bitFlagMetadata.getMask());
@@ -354,7 +371,7 @@ public class FieldEditorView {
                 .collect(Collectors.toList());
         combo.getItems().addAll(items);
 
-        combo.setId(field.getUniqueId() + "-" + flagName);
+        combo.setId(getUniqueIdFor(field) + "-" + flagName);
         
         Integer bitFlagValue = field.getValue().getAsInt();
         
@@ -383,14 +400,14 @@ public class FieldEditorView {
         return row;
     }
     
-    private void addOnclickListener(Node node, ScapyField field, Label parent) {
+    private void addOnclickListener(Node node, CombinedField field, Label parent) {
         node.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> {
             controller.selectField(field);
             parent.setGraphic(node);
         });
     }
 
-    private void injectOnChangeHandler(TextField textField, ScapyField field, Label parent) {
+    private void injectOnChangeHandler(TextField textField, CombinedField field, Label parent) {
         textField.setOnKeyReleased(e -> {
             if (e.getCode().equals(KeyCode.ENTER)) {
                 parent.setGraphic(null);
@@ -402,7 +419,7 @@ public class FieldEditorView {
         });
     }
 
-    private Control createEnumField(ScapyField field, Label parent) {
+    private Control createEnumField(CombinedField field, Label parent) {
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.setEditable(true);
         combo.getStyleClass().addAll("control");
@@ -411,14 +428,19 @@ public class FieldEditorView {
                 .map(entry -> new ComboBoxItem(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
         
-        Optional<ComboBoxItem> defaultValue = items.stream().filter(item -> item.equalsTo(field.getValue())).findFirst();
-        if (!defaultValue.isPresent()){
-            defaultValue = Optional.of(new ComboBoxItem(field.getData().hvalue, field.getData().value));
-            items.add(defaultValue.get());
+        ComboBoxItem defaultValue = items.stream().filter(item ->
+                item.equalsTo(field.getValue())
+        ).findFirst().orElse(null);
+
+        if (defaultValue == null && field.getScapyFieldData() != null) {
+            String label = field.getValue().toString();
+            FieldData fd = field.getScapyFieldData();
+            defaultValue = new ComboBoxItem(fd.getHumanValue(), fd.value);
+            items.add(defaultValue);
         }
         combo.getItems().addAll(items);
-        if (defaultValue.isPresent()) {
-            combo.setValue(defaultValue.get());
+        if (defaultValue != null) {
+            combo.setValue(defaultValue);
         }
 
         TextFields.bindAutoCompletion(combo.getEditor(), items.stream().map(f -> f.toString()).collect(Collectors.toList()));
@@ -438,15 +460,15 @@ public class FieldEditorView {
         return combo;
     }
 
-    private void clearFieldValue(ScapyField field) {
-        controller.getModel().editField(field, ReconstructField.resetValue(field.getId()));
+    private void clearFieldValue(CombinedField field) {
+        controller.getModel().editField(field, ReconstructField.resetValue(field.getMeta().getId()));
     }
 
-    private void randomizeFieldValue(ScapyField field) {
-        controller.getModel().editField(field, ReconstructField.randomizeValue(field.getId()));
+    private void randomizeFieldValue(CombinedField field) {
+        controller.getModel().editField(field, ReconstructField.randomizeValue(field.getMeta().getId()));
     }
 
-    private ContextMenu getContextMenu(ScapyField field) {
+    private ContextMenu getContextMenu(CombinedField field) {
         ContextMenu context = new ContextMenu();
 
         MenuItem generateItem = new MenuItem(resourceBundle.getString("GENERATE"));
