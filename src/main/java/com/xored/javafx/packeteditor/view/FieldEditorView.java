@@ -396,15 +396,9 @@ public class FieldEditorView {
         });
     }
 
-    private void injectOnChangeHandler(ComboBox<ComboBoxItem> combo, Field field, Label parent) {
-        combo.setOnAction((event) -> {
-            ComboBoxItem val = combo.getSelectionModel().getSelectedItem();
-            controller.getModel().editField(field, ReconstructField.setValue(field.getId(), val.getValue().getAsString()));
-        });
-    }
-    
     private Control createEnumField(Field field, Label parent) {
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
+        combo.setEditable(true);
         combo.getStyleClass().addAll("control");
         List<ComboBoxItem> items = field.getMeta().getDictionary().entrySet().stream()
                 .sorted((e1, e2)->e1.getKey().compareTo(e2.getKey()))
@@ -417,10 +411,24 @@ public class FieldEditorView {
             items.add(defaultValue.get());
         }
         combo.getItems().addAll(items);
-        injectOnChangeHandler(combo, field, parent);
         if (defaultValue.isPresent()) {
             combo.setValue(defaultValue.get());
         }
+
+        TextFields.bindAutoCompletion(combo.getEditor(), items.stream().map(f -> f.toString()).collect(Collectors.toList()));
+        combo.setOnAction((event) -> {
+            ComboBoxItem val = null;
+            Object sel = combo.getSelectionModel().getSelectedItem(); // yes, it can be string
+            if (sel instanceof String) {
+                val = items.stream().filter(f -> f.toString().equals(sel)).findFirst().orElse(null);
+            } else if (sel instanceof ComboBoxItem) {
+                val = (ComboBoxItem)sel;
+            }
+            if (val != null) {
+                controller.getModel().editField(field, ReconstructField.setValue(field.getId(), val.getValue().getAsString()));
+            }
+        });
+
         return combo;
     }
 
