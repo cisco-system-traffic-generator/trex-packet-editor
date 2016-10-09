@@ -1,5 +1,6 @@
 package com.xored.javafx.packeteditor.view;
 
+import com.google.gson.JsonElement;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
@@ -239,7 +240,17 @@ public class FieldEditorView {
     }
 
     private Control createDefaultControl(Field field) {
-        Label label = new Label(field.getDisplayValue());
+        String humanVal = field.getDisplayValue();
+        String labelText = humanVal;
+        if (field.getType() == Type.ENUM) {
+            // for enums also show value
+            JsonElement val = field.getMeta().getDictionary().getOrDefault(humanVal, null);
+            if (val != null) {
+                labelText = String.format("%s (%s)", humanVal, val.toString());
+            }
+        }
+
+        Label label = new Label(labelText);
         label.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> {
             Control editableControl = createControl(field, label);
             label.setGraphic(editableControl);
