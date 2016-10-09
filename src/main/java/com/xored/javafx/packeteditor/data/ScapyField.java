@@ -29,10 +29,6 @@ public class ScapyField implements IField {
         this.field_data.value = value;
     }
 
-    public void setIsDefault(boolean isDefault) { this.isDefault = isDefault; }
-
-    public boolean isDefault() { return isDefault; }
-
     public FieldMetadata getMeta() {
         return meta;
     }
@@ -56,20 +52,12 @@ public class ScapyField implements IField {
         return meta.getName();
     }
 
-    public void setOnSetCallback(FieldEditHandler onSetValue) { this.onSetValue = onSetValue; }
-    
     public String getDisplayValue() { return field_data.hvalue; }
     
     public JsonElement getValue() { return field_data.value; }
 
     public Type getType() {
         return meta.getType();
-    }
-
-    public void setStringValue(String value) {
-        if (onSetValue != null) {
-            onSetValue.operation(value);
-        }
     }
 
     /** returns protocol path of protocol id */

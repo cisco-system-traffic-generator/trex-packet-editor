@@ -267,7 +267,7 @@ public class FieldEditorView {
                     TextArea ta = new TextArea(field.getData().hvalue);
                     ta.setPrefSize(200, 40);
                     MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
-                    saveRawMenuItem.setOnAction((event) -> field.setStringValue(ta.getText()));
+                    saveRawMenuItem.setOnAction((event) -> controller.getModel().editField(field, ta.getText()));
                     ta.setContextMenu(new ContextMenu(saveRawMenuItem));
                     fieldControl = ta;
                 }

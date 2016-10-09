@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 public class UserField {
     
     private String id;
+
     private JsonElement value;
     
     private List<String> path;
@@ -32,4 +33,9 @@ public class UserField {
     public String getStringValue() {
         return value.getAsString();
     }
+
+    public JsonElement getValue() {
+        return value;
+    }
+
 }

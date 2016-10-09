@@ -158,17 +158,15 @@ public class FieldEditorModel {
                     userModel.getProtocolStack().peek().addField(field.id, field.hvalue);
                 }
                 ScapyField fieldObj = new ScapyField(protocolMetadata.getMetaForField(field.id), getCurrentPath(), protocolOffset, field);
-                fieldObj.setOnSetCallback(newValue -> {
-                    this.editField(fieldObj, newValue);
-                });
                 protocolObj.getFields().add(fieldObj);
             }
         }
+
         fireUpdateViewEvent();
     }
     
     public void setValue(ScapyField field, JsonElement value) {
-        field.setIsDefault(false);
+        //field.setIsDefault(false);
         field.setValue(value);
     }
 
