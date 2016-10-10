@@ -355,9 +355,9 @@ public class FieldEditorView {
     private Node createBitFlagRow(CombinedField field, BitFlagMetadata bitFlagMetadata) {
         BorderPane titlePane = new BorderPane();
         String flagName = bitFlagMetadata.getName();
-        String maskString = maskToString(bitFlagMetadata.getMask());
+        int flagMask = bitFlagMetadata.getMask();
 
-        titlePane.setLeft(buildIndentedFieldLabel(maskString, flagName));
+        titlePane.setLeft(buildIndentedFieldLabel(maskToString(flagMask), flagName));
         titlePane.getStyleClass().add("title-pane");
         HBox row = new HBox();
         row.getStyleClass().addAll("field-row");
@@ -376,18 +376,12 @@ public class FieldEditorView {
         ComboBoxItem defaultValue = null;
 
         if (field.getValue() instanceof JsonPrimitive) {
-            Integer bitFlagValue = field.getValue().getAsInt();
+            Integer fieldValue = field.getValue().getAsInt();
             defaultValue = items.stream().filter(item ->
-                    (bitFlagValue & item.getValue().getAsInt()) > 0
+                    (fieldValue & flagMask) == item.getValue().getAsInt()
             ).findFirst().orElse(null);
         }
-        /*
-        if(defaultValue == null) {
-            defaultValue = items.stream().filter(item ->
-                    item.getValue().getAsInt() == 0
-            ).findFirst().orElse(null);
-        }
-        */
+
         combo.setValue(defaultValue);
         
         combo.setOnAction((event) -> {
