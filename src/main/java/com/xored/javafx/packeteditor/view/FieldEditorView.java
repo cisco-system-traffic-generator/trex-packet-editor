@@ -458,15 +458,18 @@ public class FieldEditorView {
 
         TextFields.bindAutoCompletion(combo.getEditor(), items.stream().map(f -> f.toString()).collect(Collectors.toList()));
         combo.setOnAction((event) -> {
-            ComboBoxItem val = null;
             Object sel = combo.getSelectionModel().getSelectedItem(); // yes, it can be string
             if (sel instanceof String) {
-                val = items.stream().filter(f -> f.toString().equals(sel)).findFirst().orElse(null);
+                ComboBoxItem item = items.stream().filter(f -> f.toString().equals(sel)).findFirst().orElse(null);
+                if (item != null) {
+                    // selected item from list
+                    controller.getModel().editField(field, ReconstructField.setValue(field.getId(), item.getValue().getAsString()));
+                } else {
+                    // raw string value
+                    controller.getModel().editField(field, ReconstructField.setValue(field.getId(), (String)sel));
+                }
             } else if (sel instanceof ComboBoxItem) {
-                val = (ComboBoxItem)sel;
-            }
-            if (val != null) {
-                controller.getModel().editField(field, ReconstructField.setValue(field.getId(), val.getValue().getAsString()));
+                controller.getModel().editField(field, ReconstructField.setValue(field.getId(), ((ComboBoxItem)sel).getValue().getAsString()));
             }
         });
 

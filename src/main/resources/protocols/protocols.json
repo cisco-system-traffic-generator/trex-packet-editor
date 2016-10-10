@@ -42,7 +42,8 @@
       {
         "id": "len",
         "name": "Total Length",
-        "type": "NUMBER"
+        "type": "NUMBER",
+        "auto": true
       },
       {
         "id": "id",
