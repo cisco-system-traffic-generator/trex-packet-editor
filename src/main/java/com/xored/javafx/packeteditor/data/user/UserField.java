@@ -2,6 +2,7 @@ package com.xored.javafx.packeteditor.data.user;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import com.xored.javafx.packeteditor.scapy.PacketData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,11 @@ public class UserField {
     }
 
     public String getStringValue() {
-        return value == null ? "" : value.getAsString();
+        if (value instanceof JsonPrimitive) {
+            return value.getAsString();
+        } else  {
+            return null;
+        }
     }
 
     public boolean isSet() { return value != null; }

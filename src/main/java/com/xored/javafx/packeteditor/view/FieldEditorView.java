@@ -357,7 +357,9 @@ public class FieldEditorView {
                 clearFieldValue(field)
         );
 
-        tf.setText(field.getValue().getAsString());
+        if (field.getValue() instanceof JsonPrimitive) {
+            tf.setText(field.getValue().getAsString());
+        }
         return tf;
     }
 

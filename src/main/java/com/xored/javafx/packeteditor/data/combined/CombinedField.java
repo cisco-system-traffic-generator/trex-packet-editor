@@ -23,7 +23,11 @@ public class CombinedField {
     }
 
 
-    public String getDisplayValue() { return getScapyDisplayValue(); }
+    public String getDisplayValue() {
+        String res = getScapyDisplayValue();
+        if (res == null) res = getUserStringValue();
+        return res;
+    }
     public JsonElement getValue() { return getScapyValue(); }
 
     public boolean hasUserValue() { return userField != null && userField.getValue() != null; }
