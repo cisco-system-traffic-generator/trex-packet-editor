@@ -8,6 +8,7 @@ import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.data.FieldRules;
+import com.xored.javafx.packeteditor.controls.PayloadEditor;
 import com.xored.javafx.packeteditor.data.IField.Type;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
@@ -84,12 +85,7 @@ public class FieldEditorView {
             Type type = meta.getType();
             List<Node> list;
 
-            if (RAW.equals(type)) {
-                list = buildFieldRowRaw(field, grid);
-            }
-            else {
-                list = buildFieldRow(field);
-            }
+            list = buildFieldRow(field);
 
             for (Node n: list) {
                 grid.add(n, ij[0]++, ij[1], 1, 1);
@@ -264,16 +260,13 @@ public class FieldEditorView {
             rows.add(row);
             field.getMeta().getBits().stream().forEach(bitFlagMetadata -> rows.add(this.createBitFlagRow(field, bitFlagMetadata)));
         } else {
-            Control fieldControl = createDefaultControl(field);
+            Node fieldControl = createDefaultControl(field);
             
             fieldControl.setId(getUniqueIdFor(field));
             fieldControl.getStyleClass().addAll("control");
             
             BorderPane valuePane = new BorderPane();
             valuePane.setCenter(fieldControl);
-            if (RAW.equals(type)) {
-                valuePane.getStyleClass().addAll("field-row-raw-value");
-            }
             row.getChildren().addAll(titlePane, valuePane);
             rows.add(row);
             // TODO: remove this crutch :)
@@ -360,7 +353,7 @@ public class FieldEditorView {
         return rows;
     }
 
-    private Control createDefaultControl(CombinedField field) {
+    private Node createDefaultControl(CombinedField field) {
         String humanVal = field.getDisplayValue();
         String labelText = humanVal;
 
@@ -376,24 +369,35 @@ public class FieldEditorView {
             labelText = String.format("%s (auto-calculated)", humanVal);
         }
 
-        Label label = new Label(labelText);
+        if (field.getMeta().getType() == Type.RAW) {
+            PayloadEditor node = new PayloadEditor(injector);
+            node.setText(labelText);
+            node.select(0);
 
-        if (isDefaultValue) {
-            label.getStyleClass().add("field-value-default");
-        } else {
-            label.getStyleClass().add("field-value-set");
+            return node;
         }
+        else {
+            Label label = new Label(labelText);
 
-        label.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> {
-            Control editableControl = createControl(field, label);
-            label.setGraphic(editableControl);
-            editableControl.requestFocus();
-        });
-        return label;
+            if (isDefaultValue) {
+                label.getStyleClass().add("field-value-default");
+            } else {
+                label.getStyleClass().add("field-value-set");
+            }
+
+            label.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> {
+                Node editableControl = createControl(field, label);
+                label.setGraphic(editableControl);
+                editableControl.requestFocus();
+            });
+
+            return label;
+        }
     }
     
-    private Control createControl(CombinedField field, Label parent) {
-        Control fieldControl;
+    private Node createControl(CombinedField field, Label parent) {
+        Node fieldControl;
+
         switch(field.getMeta().getType()) {
             case ENUM:
                 fieldControl = createEnumField(field, parent);
@@ -403,12 +407,13 @@ public class FieldEditorView {
                 if (fieldData != null && fieldData.hasBinaryData() && !(fieldData.getValue() instanceof JsonPrimitive)) {
                     fieldControl = new Label(field.getDisplayValue());
                 } else {
-                    TextArea ta = new TextArea(field.getDisplayValue());
-                    ta.setPrefSize(200, 40);
+                    PayloadEditor pe = new PayloadEditor(injector);
+                    pe.setText(field.getDisplayValue());
+                    pe.setPrefSize(parent.getWidth(), parent.getHeight());
                     MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
-                    saveRawMenuItem.setOnAction((event) -> controller.getModel().editField(field, ta.getText()));
-                    ta.setContextMenu(new ContextMenu(saveRawMenuItem));
-                    fieldControl = ta;
+                    saveRawMenuItem.setOnAction((event) -> controller.getModel().editField(field, pe.getText()));
+                    pe.setContextMenu(new ContextMenu(saveRawMenuItem));
+                    fieldControl = (Node) pe;
                 }
                 fieldControl.getStyleClass().addAll("field-row-raw-value");
                 break;
@@ -444,7 +449,7 @@ public class FieldEditorView {
     
     private Validator createTextFieldValidator(FieldMetadata fieldMetadata) {
         FieldRules rules = fieldMetadata.getFieldRules();
-        
+
         if (rules != null) {
             if(rules.hasSpecifiedInterval()) {
                 return Validator.<String>createPredicateValidator(newStringValue -> {
@@ -459,11 +464,11 @@ public class FieldEditorView {
                 return Validator.createRegexValidator("", rules.getRegex(), Severity.ERROR);
             }
         }
-        
+
         // An empty validator
         return Validator.createPredicateValidator(newValue -> true, "");
     }
-    
+
     private Node createTCPOptionRow(TCPOptionsData tcpOption) {
         // TODO: reuse code
         BorderPane titlePane = new BorderPane();

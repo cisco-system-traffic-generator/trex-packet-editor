@@ -3,7 +3,6 @@ package com.xored.javafx.packeteditor;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.xored.javafx.packeteditor.guice.GuiceModule;
-
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

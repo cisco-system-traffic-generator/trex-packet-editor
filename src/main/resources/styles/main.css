@@ -260,24 +260,60 @@
     -fx-text-fill: blue;
 }
 
+.field-error {
+    -fx-background-color: lightcoral;
+}
+
+/* For paylod editor control */
 .payloadhbox {
-    -fx-min-height: 30px;
-    -fx-pref-height: 30px;
+    /*-fx-min-height: 30px;
+    -fx-pref-height: 30px;*/
     -fx-min-width: 300px;
     -fx-pref-width: 300px;
     -fx-spacing: 7px;
+    -fx-padding: 0px 0px 4px 0px;
+}
+
+.payloadvbox {
+    -fx-spacing: 7px;
+    -fx-padding: 0px 0px 4px 0px;
 }
 
 .payloadchoice {
-    -fx-min-height: 30px;
+    -fx-min-height: 10px;
     -fx-pref-height: 30px;
+    -fx-pref-width: 150px;
+    -fx-min-width: 150px;
 }
 
 .payloadbutton {
     -fx-min-height: 30px;
     -fx-pref-height: 30px;
-    -fx-min-width: 80px;
+    -fx-min-width: 100px;
+    -fx-pref-width: 100px;
 }
-.field-error {
-    -fx-background-color: lightcoral;
+
+.payloadlabel {
+    -fx-min-height: 30px;
+    -fx-pref-height: 30px;
+    -fx-min-width: 100px;
+    -fx-pref-width: 100px;
+}
+
+.payloadeditorgrid {
+    /*-fx-min-hight: -Infinity;
+    -fx-max-height: -Infinity;
+    -fx-max-width: -Infinity;*/
+}
+
+.payloadeditortextarea {
+    -fx-pref-hight: 200px;
+    -fx-min-height: 200px;
+    -fx-pref-width: 300px;
+    -fx-min-width: 300px;
+}
+
+.payloadeditortextfield {
+    -fx-pref-width: 300px;
+    -fx-min-width: 100px;
 }

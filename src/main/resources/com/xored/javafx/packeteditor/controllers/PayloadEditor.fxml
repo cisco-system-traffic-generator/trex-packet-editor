@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.*?>
+<fx:root xmlns:fx="http://javafx.com/fxml"
+         type="javafx.scene.layout.VBox"
+         styleClass="payloadvbox">
+    <HBox styleClass="payloadhbox">
+        <children>
+            <ChoiceBox fx:id="payloadChoiceType"
+                       styleClass="payloadchoice"
+                       HBox.hgrow="ALWAYS">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Text"/>
+                        <String fx:value="File"/>
+                        <String fx:value="Text pattern"/>
+                        <String fx:value="Load pattern from file"/>
+                        <String fx:value="Random ascii"/>
+                        <String fx:value="Random non-ascii"/>
+                    </FXCollections>
+                </items>
+            </ChoiceBox>
+            <Button fx:id="payloadButtonGo"
+                    mnemonicParsing="false"
+                    text="Generate"
+                    styleClass="payloadbutton">
+            </Button>
+
+        </children>
+    </HBox>
+    <HBox styleClass="payloadhbox">
+        <GridPane xmlns:fx="http://javafx.com/fxml/1"
+                  minWidth="-Infinity"
+                  xmlns="http://javafx.com/javafx/8"
+                  fx:id="payloadEditorGrid"
+                  styleClass="payloadeditorgrid">
+            <children>
+                <HBox GridPane.rowIndex="0"
+                      styleClass="payloadhbox">
+                    <children>
+                        <TextArea fx:id="textText"
+                                  styleClass="payloadeditortextarea"/>
+                    </children>
+                </HBox>
+                <HBox GridPane.rowIndex="1"
+                      styleClass="payloadhbox">
+                    <children>
+                        <TextField fx:id="textFilename"
+                                   styleClass="payloadeditortextfield"/>
+                        <Button mnemonicParsing="false"
+                                HBox.hgrow="ALWAYS"
+                                text="Select file"
+                                fx:id="textFilenameButton"
+                                styleClass="payloadbutton"/>
+                    </children>
+                </HBox>
+                <VBox GridPane.rowIndex="2" spacing="2.0">
+                    <children>
+                        <HBox styleClass="payloadhbox">
+                            <children>
+                                <Label text="Payload size: "
+                                       HBox.hgrow="ALWAYS"
+                                       styleClass="payloadlabel"/>
+                                <TextField fx:id="textPatternSize"
+                                           styleClass="payloadeditortextfield"/>
+                            </children>
+                        </HBox>
+                        <TextArea fx:id="textPatternText"
+                                  styleClass="payloadeditortextarea"/>
+                    </children>
+                </VBox>
+                <VBox GridPane.rowIndex="3" prefWidth="100.0" spacing="2.0">
+                    <children>
+                        <HBox styleClass="payloadhbox">
+                            <children>
+                                <Label text="Payload size: "
+                                       HBox.hgrow="ALWAYS"
+                                       styleClass="payloadlabel"/>
+                                <TextField fx:id="filePatternSize"
+                                           styleClass="payloadeditortextfield"/>
+                            </children>
+                        </HBox>
+                        <HBox styleClass="payloadhbox">
+                            <children>
+                                <TextField fx:id="filePatternFilename"
+                                           styleClass="payloadeditortextfield"/>
+                                <Button mnemonicParsing="false"
+                                        HBox.hgrow="ALWAYS"
+                                        text="Select file"
+                                        fx:id="filePatternButton"
+                                        styleClass="payloadbutton"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+                <HBox GridPane.rowIndex="4"
+                      styleClass="payloadhbox">
+                    <children>
+                        <Label text="Payload size:"
+                               HBox.hgrow="ALWAYS"
+                               styleClass="payloadlabel"/>
+                        <TextField fx:id="randomAsciiSize"
+                                   styleClass="payloadeditortextfield"/>
+                    </children>
+                </HBox>
+                <HBox GridPane.rowIndex="5"
+                      styleClass="payloadhbox">
+                    <children>
+                        <Label text="Payload size:"
+                               HBox.hgrow="ALWAYS"
+                               styleClass="payloadlabel"/>
+                        <TextField fx:id="randomNonAsciiSize"
+                                   styleClass="payloadeditortextfield"/>
+                    </children>
+                </HBox>
+            </children>
+        </GridPane>
+    </HBox>
+</fx:root>
