@@ -3,12 +3,12 @@ package com.xored.packeteditor;
 import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import javafx.application.Platform;
-import javafx.geometry.VerticalDirection;
 import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
 import org.junit.Assert;
 import org.slf4j.LoggerFactory;
+import org.testfx.framework.junit.ApplicationTest;
+import org.testfx.service.query.NodeQuery;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -17,13 +17,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import org.testfx.api.FxRobot;
-import org.testfx.framework.junit.ApplicationTest;
-import org.testfx.service.query.NodeQuery;
-
-import static javafx.scene.input.KeyCode.CONTROL;
-import static javafx.scene.input.KeyCode.DOWN;
-import static javafx.scene.input.KeyCode.UP;
 import static org.junit.Assert.fail;
 
 /**

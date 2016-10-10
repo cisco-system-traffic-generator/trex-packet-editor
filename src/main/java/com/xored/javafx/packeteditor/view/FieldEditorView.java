@@ -3,11 +3,10 @@ package com.xored.javafx.packeteditor.view;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
-import com.xored.javafx.packeteditor.data.ScapyField;
 import com.xored.javafx.packeteditor.data.IField.Type;
-import com.xored.javafx.packeteditor.data.ScapyProtocol;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
@@ -16,10 +15,11 @@ import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
-import com.xored.javafx.packeteditor.scapy.ScapyDefinitions;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
-import javafx.geometry.Insets;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
@@ -30,10 +30,17 @@ import org.controlsfx.control.textfield.TextFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.data.IField.Type.*;
+
+//import org.controlsfx.control.textfield.CustomTextField;
+//import org.controlsfx.control.textfield.TextFields;
+//import org.controlsfx.control.textfield.*;
 
 public class FieldEditorView {
     @Inject
@@ -48,7 +55,10 @@ public class FieldEditorView {
     @Inject
     @Named("resources")
     ResourceBundle resourceBundle;
-    
+
+    @Inject
+    Injector injector;
+
     public void setParentPane(StackPane parentPane) {
         this.fieldEditorPane = parentPane;
     }
@@ -59,23 +69,26 @@ public class FieldEditorView {
         
         GridPane grid = new GridPane();
         grid.getStyleClass().add("protocolgrid");
-        grid.setVgap(4);
-        grid.setPadding(new Insets(5, 5, 5, 5));
 
         final int[] ij = {0, 0}; // col, row
 
         protocol.getFields().stream().forEach(field -> {
-            List<Node> list = buildFieldRow(field);
             FieldMetadata meta = field.getMeta();
             Type type = meta.getType();
+            List<Node> list;
+
+            if (RAW.equals(type)) {
+                list = buildFieldRowRaw(field, grid);
+            }
+            else {
+                list = buildFieldRow(field);
+            }
 
             for (Node n: list) {
                 grid.add(n, ij[0]++, ij[1], 1, 1);
-                if(BITMASK.equals(type)) {
-                    ij[0] = 0;
-                    ij[1]++;
-                }
-                else if(TCP_OPTIONS.equals(type)) {
+                if (BITMASK.equals(type)
+                        || TCP_OPTIONS.equals(type)
+                        || RAW.equals(type)) {
                     ij[0] = 0;
                     ij[1]++;
                 }
@@ -194,6 +207,20 @@ public class FieldEditorView {
         return row;
     }
 
+    private Node getEmptyFieldLabel() {
+        HBox row = new HBox();
+        Label lblInfo = new Label("");
+        Label lblName = new Label("");
+
+        lblInfo.getStyleClass().add("field-label-info");
+        lblName.getStyleClass().add("field-label-name");
+
+        row.getChildren().add(lblInfo);
+        row.getChildren().add(lblName);
+
+        return row;
+    }
+
     private Node buildIndentedFieldLabel(String info, String name) {
         HBox row = new HBox();
         Label lblInfo = new Label(info);
@@ -247,6 +274,79 @@ public class FieldEditorView {
                 TCPOptionsData.fromFieldData(field.getScapyFieldData()).stream().forEach(fd ->
                         rows.add(createTCPOptionRow(fd))
                 );
+            }
+        }
+
+        return rows;
+    }
+
+    private List<Node> buildFieldRowRaw(CombinedField field, GridPane grid) {
+        List<Node> rows = new ArrayList<>();
+        HBox row;
+
+        // 1) Create first row with offset, name, type controls
+        row = new HBox();
+        row.getStyleClass().addAll("field-row-raw-head");
+
+        BorderPane titlePane = new BorderPane();
+        titlePane.setLeft(getFieldLabel(field));
+        titlePane.getStyleClass().add("title-pane");
+
+        BorderPane valuePane = new BorderPane();
+        Parent parent = null;
+        FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
+        try {
+            parent = fxmlLoader.load(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/payloadEditor.fxml"));
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+        valuePane.getChildren().clear();
+        valuePane.getChildren().add(parent);
+
+        ChoiceBox payloadChoiceType = (ChoiceBox)parent.lookup("#payloadChoiceType");
+        payloadChoiceType.setItems(FXCollections.observableArrayList(
+                "Text",
+                "File",
+                "Text pattern",
+                "Load pattern from file",
+                "Random ascii",
+                "Random non-ascii"));
+        row.getChildren().addAll(titlePane, valuePane);
+        rows.add(row);
+
+        // 2) Create value controls
+        row = new HBox();
+        row.getStyleClass().addAll("field-row-raw");
+
+        titlePane = new BorderPane();
+        titlePane.setLeft(getEmptyFieldLabel());
+        titlePane.getStyleClass().add("title-pane");
+        row.setHgrow(titlePane, Priority.ALWAYS);
+
+        valuePane = new BorderPane();
+        try {
+            parent = fxmlLoader.load(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/payloadEditorGrid.fxml"));
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+        valuePane.getChildren().clear();
+        valuePane.getChildren().add(parent);
+        row.setHgrow(valuePane, Priority.ALWAYS);
+        row.getChildren().addAll(titlePane, valuePane);
+        rows.add(row);
+
+        // Set event handler for choce
+        GridPane payloadEditorGrid = (GridPane) parent.lookup("#payloadEditorGrid");
+        injectOnChangeHandlerPayload(payloadChoiceType, field, payloadEditorGrid);
+
+        // Init values
+        FieldData fieldData = field.getScapyFieldData();
+        if (fieldData != null) {
+            // TODO: define text or binary
+            if (fieldData.hasBinaryData()) {
+                TextArea te = (TextArea) payloadEditorGrid.lookup("#payloadText");
+                te.setText(fieldData.getHumanValue());
+                javafx.application.Platform.runLater(() -> {payloadChoiceType.getSelectionModel().select("Text");});
             }
         }
 
@@ -427,6 +527,32 @@ public class FieldEditorView {
             if (e.getCode().equals(KeyCode.ESCAPE)) {
                 parent.setGraphic(null);
             }
+        });
+    }
+
+    private void gridSetVisible(GridPane grid, int index) {
+        for (Node node : grid.getChildren()) {
+            node.setVisible(false);
+            node.setManaged(false);
+        }
+        if (index >= 0) {
+            Node node = grid.getChildren().get(index);
+            node.setVisible(true);
+            node.setManaged(true);
+
+            double width = node.getLayoutBounds().getWidth();
+            double height = node.getLayoutBounds().getHeight();
+            Pane parentpane = (Pane) grid.getParent();
+            parentpane.setMinSize(width, height);
+            parentpane.setPrefSize(width, height);
+            parentpane.setMaxSize(width, height);
+        }
+    }
+
+    private void injectOnChangeHandlerPayload(ChoiceBox<String> choice, CombinedField field, GridPane grid) {
+        choice.setOnAction((event) -> {
+            int index = choice.getSelectionModel().getSelectedIndex();
+            javafx.application.Platform.runLater(() -> gridSetVisible(grid, index));
         });
     }
 
