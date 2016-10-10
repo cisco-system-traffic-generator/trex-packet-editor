@@ -409,7 +409,7 @@ public class FieldEditorView {
         textField.setOnKeyReleased(e -> {
             if (e.getCode().equals(KeyCode.ENTER)) {
                 parent.setGraphic(null);
-                controller.getModel().editField(field, ReconstructField.setValue(field.getId(), textField.getText()));
+                controller.getModel().editField(field, ReconstructField.setHumanValue(field.getId(), textField.getText()));
             }
             if (e.getCode().equals(KeyCode.ESCAPE)) {
                 parent.setGraphic(null);

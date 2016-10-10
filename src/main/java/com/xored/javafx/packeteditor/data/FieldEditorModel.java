@@ -187,25 +187,30 @@ public class FieldEditorModel {
     public void editField(CombinedField field, ReconstructField newValue) {
         assert(field.getMeta().getId() == newValue.id);
 
-        UserProtocol userProtocol = field.getProtocol().getUserProtocol();
-        if (userProtocol == null) {
-            logger.error("no userProtocol");
-            return;
-        }
-
         List<String> protoPath = field.getProtocol().getPath();
         String fieldId = field.getMeta().getId();
 
-        if (newValue.isDeleted()) {
-            userModel.deleteField(protoPath, fieldId);
-        } else if (newValue.isRandom()) {
-            FieldData randval = packetDataService.getRandomFieldValue(
-                    field.getProtocol().getMeta().getId(),
-                    field.getMeta().getId()
-            );
-            userModel.setFieldValue(protoPath, fieldId, randval.getValue());
+        UserProtocol userProtocol = field.getProtocol().getUserProtocol();
+        if (userProtocol != null) {
+            if (newValue.isDeleted()) {
+                userModel.deleteField(protoPath, fieldId);
+            } else if (newValue.isRandom()) {
+                FieldData randval = packetDataService.getRandomFieldValue(
+                        field.getProtocol().getMeta().getId(),
+                        field.getMeta().getId()
+                );
+                userModel.setFieldValue(protoPath, fieldId, randval.getValue());
+            } else if (newValue.hvalue != null){
+                userModel.setFieldValue(protoPath, fieldId, newValue.hvalue);
+            } else {
+                userModel.setFieldValue(protoPath, fieldId, newValue.value);
+            }
         } else {
-            userModel.setFieldValue(protoPath, fieldId, newValue.value);
+            logger.warn("no userProtocol");
+            if (!isBinaryMode()) {
+                logger.warn("missing userProtocol");
+                return;
+            }
         }
 
         ScapyPkt newPkt;
