@@ -158,8 +158,8 @@
 
 .field-row {
     -fx-background-color: #ffffff;
-    /*-fx-pref-height: 50px;*/
-    -fx-min-height: 30px;
+    /*-fx-pref-height: 50px;
+    -fx-min-height: 30px; */
     -fx-padding: 8 0 7 40px;
     -fx-fill-height: true;
     -fx-fill-width: true;
