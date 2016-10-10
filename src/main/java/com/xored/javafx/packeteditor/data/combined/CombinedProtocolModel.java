@@ -1,11 +1,16 @@
 package com.xored.javafx.packeteditor.data.combined;
 
 import com.xored.javafx.packeteditor.data.user.Document;
+import com.xored.javafx.packeteditor.data.user.UserField;
+import com.xored.javafx.packeteditor.data.user.UserProtocol;
+import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -24,22 +29,74 @@ public class CombinedProtocolModel {
         List<String> currentPath = new ArrayList<>();
         for (ProtocolData protocol : scapyStack) {
             currentPath = new ArrayList<>(currentPath);
-            currentPath.add(protocol.id);
+            currentPath.add(protocol.getId());
 
             CombinedProtocol protocolObj = new CombinedProtocol();
-            protocolObj.meta = metadataService.getProtocolMetadata(protocol);
+            protocolObj.meta = metadataService.getProtocolMetadataById(protocol.getId());
             protocolObj.path = currentPath;
             protocolObj.scapyProtocol = protocol;
 
-            for (FieldData field : protocol.fields) {
-                CombinedField cfield = new CombinedField();
-                cfield.parent = protocolObj;
-                cfield.meta = protocolObj.meta.getMetaForField(field.id);
-                cfield.scapyField = field;
-                protocolObj.fields.add(cfield);
-            }
+            createFields(protocolObj);
 
             res.protocolStack.add(protocolObj);
+        }
+        return res;
+    }
+
+    public static CombinedProtocolModel fromUserModel(IMetadataService metadataService, Document userModel, List<ProtocolData> scapyStack) {
+        CombinedProtocolModel res = new CombinedProtocolModel();
+
+        List<String> currentPath = new ArrayList<>();
+        for (UserProtocol protocol : userModel.getProtocolStack()) {
+            currentPath = new ArrayList<>(currentPath);
+            currentPath.add(protocol.getId());
+
+            CombinedProtocol protocolObj = new CombinedProtocol();
+            protocolObj.meta = metadataService.getProtocolMetadataById(protocol.getId());
+            protocolObj.path = currentPath;
+            protocolObj.userProtocol = protocol;
+            protocolObj.scapyProtocol = getByPath(currentPath, scapyStack);
+
+            createFields(protocolObj);
+
+            res.protocolStack.add(protocolObj);
+        }
+        return res;
+    }
+
+    private static void createFields(CombinedProtocol protocolObj) {
+        for (FieldMetadata field : protocolObj.getMeta().getFields()) {
+            CombinedField cfield = new CombinedField();
+            cfield.parent = protocolObj;
+            cfield.meta = field;
+            if (protocolObj.scapyProtocol != null) {
+                cfield.scapyField = protocolObj.scapyProtocol.getFieldById(field.getId());
+            }
+            if (protocolObj.userProtocol != null) {
+                cfield.userField = protocolObj.userProtocol.getField(field.getId());
+            }
+            protocolObj.fields.add(cfield);
+        }
+    }
+
+    public static CombinedProtocolModel constructModel(IMetadataService metadataService, Document userModel, List<ProtocolData> scapyStack) {
+        return fromUserModel(metadataService, userModel, scapyStack);
+    }
+
+    static public ProtocolData getByPath(List<String> path, List<ProtocolData> stack) {
+        ProtocolData res = null;
+        Iterator<String> pathIt = path.iterator();
+        Iterator<ProtocolData> stackIt = stack.iterator();
+        while (pathIt.hasNext()) {
+            if (!stackIt.hasNext()) {
+                // path is longer
+                return null;
+            }
+            res = stackIt.next();
+            if (!pathIt.next().equals(res.getId())) {
+                // id mismatch
+                return null;
+            }
         }
         return res;
     }

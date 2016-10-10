@@ -11,13 +11,11 @@ import java.util.stream.Collectors;
 
 public class UserProtocol {
     private ProtocolMetadata meta;
-    private String id;
     private List<String> path = new ArrayList<>();
     private Map<String, UserField> fieldMap = new LinkedHashMap<>();
     
     public UserProtocol(ProtocolMetadata meta, List<String> path) {
         this.meta = meta;
-        this.id = meta.getId();
         this.path.addAll(path);
     }
     public void addField(UserField field) {
@@ -31,20 +29,15 @@ public class UserProtocol {
     }
 
     public UserField getField(String fieldId) {
-        return fieldMap.get(fieldId);
+        return fieldMap.getOrDefault(fieldId, null);
     }
     
-    public ProtocolMetadata getMeta() {
-        return meta;
-    }
-
     public String getId() {
-        return id;
+        return meta.getId();
     }
 
     public List<UserField> getFields() {
         return fieldMap.entrySet().stream()
-                .filter(entry -> entry.getValue().getStringValue() != null)
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
     }

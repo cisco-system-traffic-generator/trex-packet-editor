@@ -101,6 +101,7 @@ public class MetadataService implements IMetadataService {
         return protocolMetadata;
     }
 
+    @Deprecated
     public ProtocolMetadata getProtocolMetadata(ProtocolData protocol) {
         return getProtocolMetadataById(protocol.id);
     }

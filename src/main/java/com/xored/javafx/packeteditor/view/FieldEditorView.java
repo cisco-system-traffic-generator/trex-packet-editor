@@ -372,18 +372,22 @@ public class FieldEditorView {
         combo.getItems().addAll(items);
 
         combo.setId(getUniqueIdFor(field) + "-" + flagName);
-        
-        Integer bitFlagValue = field.getValue().getAsInt();
-        
-        ComboBoxItem defaultValue;
-        
-        Optional<ComboBoxItem> res = items.stream().filter(item -> (bitFlagValue & item.getValue().getAsInt()) > 0).findFirst();
-        if(res.isPresent()) {
-            defaultValue = res.get();
-        } else {
-            Optional<ComboBoxItem> unsetValue = items.stream().filter(item -> (item.getValue().getAsInt() == 0)).findFirst();
-            defaultValue = unsetValue.isPresent()? unsetValue.get() : null;
+
+        ComboBoxItem defaultValue = null;
+
+        if (field.getValue() instanceof JsonPrimitive) {
+            Integer bitFlagValue = field.getValue().getAsInt();
+            defaultValue = items.stream().filter(item ->
+                    (bitFlagValue & item.getValue().getAsInt()) > 0
+            ).findFirst().orElse(null);
         }
+        /*
+        if(defaultValue == null) {
+            defaultValue = items.stream().filter(item ->
+                    item.getValue().getAsInt() == 0
+            ).findFirst().orElse(null);
+        }
+        */
         combo.setValue(defaultValue);
         
         combo.setOnAction((event) -> {

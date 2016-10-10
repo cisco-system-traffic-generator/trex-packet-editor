@@ -114,7 +114,7 @@ public class FieldEditorModel {
     }
 
     private void fireUpdateViewEvent() {
-        eventBus.post(new RebuildViewEvent(CombinedProtocolModel.fromScapyData(metadataService, userModel, pkt.packet().getProtocols())));
+        eventBus.post(new RebuildViewEvent(CombinedProtocolModel.constructModel(metadataService, userModel, pkt.packet().getProtocols())));
     }
 
     public void setPktAndReload(ScapyPkt pkt) {
