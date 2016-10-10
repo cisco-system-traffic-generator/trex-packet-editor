@@ -484,12 +484,12 @@ public class FieldEditorView {
 
         MenuItem generateItem = new MenuItem(resourceBundle.getString("GENERATE"));
         generateItem.setOnAction(event ->
-                clearFieldValue(field)
+                randomizeFieldValue(field)
         );
 
         MenuItem defaultItem = new MenuItem(resourceBundle.getString("SET_DEFAULT"));
         defaultItem.setOnAction(event ->
-                randomizeFieldValue(field)
+                clearFieldValue(field)
         );
 
         context.getItems().addAll(generateItem, defaultItem);
