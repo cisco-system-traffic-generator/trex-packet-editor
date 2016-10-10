@@ -6,12 +6,14 @@
       {
         "id": "dst",
         "name": "Destination",
-        "type": "MACADDRESS"
+        "type": "MACADDRESS",
+        "regex": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"
       },
       {
         "id": "src",
         "name": "Source",
-        "type": "MACADDRESS"
+        "type": "MACADDRESS",
+        "regex": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"
       },
       {
         "id": "type",
@@ -68,7 +70,10 @@
       {
         "id": "ttl",
         "name": "TTL",
-        "type": "NUMBER"
+        "type": "NUMBER",
+        "min": 1,
+        "max": 255
+        
       },
       {
         "id": "proto",
@@ -105,12 +110,17 @@
       {
         "id": "sport",
         "name": "Source port",
-        "type": "NUMBER"
+        "type": "NUMBER",
+        "min": 0,
+        "max": 65535
+        
       },
       {
         "id": "dport",
         "name": "Destination port",
-        "type": "NUMBER"
+        "type": "NUMBER",
+        "min": 0,
+        "max": 65535
       },
       {
         "id": "seq",
