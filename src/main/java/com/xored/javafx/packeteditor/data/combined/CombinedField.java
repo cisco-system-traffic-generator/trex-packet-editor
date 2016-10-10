@@ -26,6 +26,7 @@ public class CombinedField {
     public String getDisplayValue() { return getScapyDisplayValue(); }
     public JsonElement getValue() { return getScapyValue(); }
 
+    public boolean hasUserValue() { return userField != null && userField.getValue() != null; }
     public JsonElement getUserValue() {
         return userField != null ? userField.getValue() : null;
     }

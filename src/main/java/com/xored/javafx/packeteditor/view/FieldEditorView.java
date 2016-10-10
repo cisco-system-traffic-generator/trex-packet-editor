@@ -251,17 +251,25 @@ public class FieldEditorView {
     private Control createDefaultControl(CombinedField field) {
         String humanVal = field.getDisplayValue();
         String labelText = humanVal;
+
+        boolean isDefaultValue = !controller.getModel().isBinaryMode() && !field.hasUserValue();
+
         if (field.getMeta().getType() == Type.ENUM) {
             // for enums also show value
             JsonElement val = field.getMeta().getDictionary().getOrDefault(humanVal, null);
             if (val != null) {
                 labelText = String.format("%s (%s)", humanVal, val.toString());
             }
-        } else if (field.getMeta().isAuto()) {
+        } else if (isDefaultValue && field.getMeta().isAuto()) {
             labelText = String.format("%s (auto-calculated)", humanVal);
         }
 
         Label label = new Label(labelText);
+
+        if (isDefaultValue) {
+            label.getStyleClass().add("field-value-default");
+        }
+
         label.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> {
             Control editableControl = createControl(field, label);
             label.setGraphic(editableControl);
