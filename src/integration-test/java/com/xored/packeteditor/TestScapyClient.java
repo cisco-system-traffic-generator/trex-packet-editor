@@ -3,6 +3,8 @@ package com.xored.packeteditor;
 import com.google.gson.*;
 import com.xored.javafx.packeteditor.scapy.*;
 import java.util.Arrays;
+import java.util.List;
+
 import org.junit.*;
 import org.junit.rules.Timeout;
 
@@ -87,5 +89,17 @@ public class TestScapyClient {
         ProtocolData ether = new_pkt.data.get(0);
         assertEquals(ether.getFieldById("dst").getStringValue(), "aa:bb:cc:dd:ee:ff");
         assertNotEquals(ether.getFieldById("src").getStringValue(), origEtherSrc); // src was randomized. chance to get same value is almost 0
+    }
+
+    @Test
+    public void should_return_ether_payload_classes() {
+        List<String> etherPayload = scapy.get_payload_classes("Ether");
+
+        assertTrue(etherPayload.contains("IP"));
+        assertTrue(etherPayload.contains("Dot1Q"));
+        assertTrue(etherPayload.contains("Raw"));
+
+        assertTrue(!etherPayload.contains("Ether"));
+        assertTrue(!etherPayload.contains("TCO"));
     }
 }
