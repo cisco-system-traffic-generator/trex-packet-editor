@@ -2,6 +2,7 @@ package com.xored.javafx.packeteditor.controllers;
 
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.IBinaryData;
+import com.xored.javafx.packeteditor.scapy.ScapyUtils;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -9,14 +10,10 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
-import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -192,7 +189,7 @@ public class BinaryEditorController implements Initializable, Observer {
     private String convertHexToString(byte[] hex) {
         StringBuilder sb = new StringBuilder();
         for (byte decimal : hex) {
-            if (!Character.isISOControl(decimal)) {
+            if (ScapyUtils.isPrintableChar(decimal)) {
                 sb.append((char) decimal);
             } else {
                 sb.append('.');
