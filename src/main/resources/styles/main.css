@@ -155,22 +155,46 @@
     -fx-pref-height: 30px;
     -fx-padding: 8 0 7 0px;
 }
+
 .field-row {
     -fx-background-color: #ffffff;
-    /*-fx-pref-height: 30px;*/
+    /*-fx-pref-height: 50px;*/
+    -fx-min-height: 30px;
     -fx-padding: 8 0 7 40px;
     -fx-fill-height: true;
-}
-.field-row-raw-value{
-    -fx-pref-height: 200px;
-    -fx-fill-height: true;
+    -fx-fill-width: true;
 }
 
 .field-row-raw {
-    -fx-background-color: lightgray;
+    -fx-background-color: #ffffff;
     -fx-pref-height: 220px;
+    -fx-padding: 0 0 7 40px;
+}
+
+.field-row-raw-head {
+    -fx-background-color: #ffffff;
+    -fx-pref-height: 50px;
+    -fx-min-height: 50px;
     -fx-padding: 8 0 7 40px;
-    -fx-fill-height: true;
+}
+
+.field-row-raw-value {
+    -fx-pref-width: 340px;
+    -fx-pref-height: 220px;
+    -fx-min-width: 340px;
+    -fx-min-height: 220px;
+    -fx-border-radius: 1px;
+    -fx-border-color: #d8d8d8;
+    -fx-border-insets: 0px;
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+    -fx-padding: 0 0 0 0;
+    /*-fx-fill-height: true;
+    -fx-fill-width: true;*/
+}
+
+.field-row-raw-button {
+    -fx-padding: 5 5 5 5;
 }
 
 .protocol-name {
@@ -182,6 +206,7 @@
 .control {
     -fx-pref-width: 180px;
 }
+
 .hyperlink .text{
     -fx-underline: false;
 }
@@ -231,3 +256,21 @@
     -fx-text-fill: grey;
 }
 
+.payloadhbox {
+    -fx-min-height: 30px;
+    -fx-pref-height: 30px;
+    -fx-min-width: 300px;
+    -fx-pref-width: 300px;
+    -fx-spacing: 7px;
+}
+
+.payloadchoice {
+    -fx-min-height: 30px;
+    -fx-pref-height: 30px;
+}
+
+.payloadbutton {
+    -fx-min-height: 30px;
+    -fx-pref-height: 30px;
+    -fx-min-width: 80px;
+}

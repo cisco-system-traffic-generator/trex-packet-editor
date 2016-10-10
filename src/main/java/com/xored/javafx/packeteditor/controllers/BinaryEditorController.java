@@ -53,14 +53,12 @@ public class BinaryEditorController implements Initializable, Observer {
     int idxEditing = -1;
     int editingStep = 0;
 
-    ChangeListener<Number> sizeListener;
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         reloadAll();
         binaryData.getObservable().addObserver(this);
 
-        sizeListener = new ChangeListener<Number>() {
+        ChangeListener<Number> sizeListener = new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov,
                                 Number old_val, Number new_val) {
                 Rectangle clip = new Rectangle(0
