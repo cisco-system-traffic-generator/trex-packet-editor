@@ -256,6 +256,10 @@
     -fx-text-fill: grey;
 }
 
+.field-value-set {
+    -fx-text-fill: blue;
+}
+
 .payloadhbox {
     -fx-min-height: 30px;
     -fx-pref-height: 30px;

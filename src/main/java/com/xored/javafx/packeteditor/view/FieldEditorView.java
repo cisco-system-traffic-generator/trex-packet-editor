@@ -373,6 +373,8 @@ public class FieldEditorView {
 
         if (isDefaultValue) {
             label.getStyleClass().add("field-value-default");
+        } else {
+            label.getStyleClass().add("field-value-set");
         }
 
         label.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> {
