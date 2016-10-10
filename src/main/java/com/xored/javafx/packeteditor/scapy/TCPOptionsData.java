@@ -38,7 +38,12 @@ public class TCPOptionsData {
             // TODO: use stringbuilder
             String jsonLikeExpr = expr.replace("b'", "'").replace("'", "\"").replace('(', '[').replace(')', ']');
 
-            JsonArray optionsArray = new JsonParser().parse(jsonLikeExpr).getAsJsonArray();
+            JsonElement payload = new JsonParser().parse(jsonLikeExpr);
+            if (!payload.isJsonArray()) {
+                // scapy can return {}, which is not supported
+                return options;
+            }
+            JsonArray optionsArray = payload.getAsJsonArray();
             for (JsonElement option: optionsArray) {
                 JsonArray opt_tuple = option.getAsJsonArray();
                 options.add(new TCPOptionsData(
