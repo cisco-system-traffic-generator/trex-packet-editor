@@ -83,7 +83,12 @@ public class FieldEditorView {
             ij[0] = 0;
             ij[1]++;
         });
-        gridTitlePane.setText(protocol.getMeta().getName());
+        String title = protocol.getMeta().getName();
+        if (protocol.getUserProtocol() != null && protocol.getScapyProtocol() == null) {
+            title = title + "(as Raw payload)";
+            gridTitlePane.getStyleClass().add("invalid-protocol");
+        }
+        gridTitlePane.setText(title);
         gridTitlePane.setContent(grid);
 
         return gridTitlePane;

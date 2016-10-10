@@ -105,6 +105,10 @@
     -fx-color: #4b4b4b;
 }
 
+.invalid-protocol .title {
+    -fx-background-color: #dbbaba;
+}
+
 .titled-pane .arrow-button {
     -fx-font-family: System;
     -fx-font-size: 14px;
