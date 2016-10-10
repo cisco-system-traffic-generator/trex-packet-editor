@@ -1,11 +1,13 @@
 package com.xored.javafx.packeteditor.view;
 
+import com.google.common.base.Strings;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
+import com.xored.javafx.packeteditor.data.FieldRules;
 import com.xored.javafx.packeteditor.data.IField.Type;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
@@ -27,6 +29,11 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import org.controlsfx.control.textfield.CustomTextField;
 import org.controlsfx.control.textfield.TextFields;
+import org.controlsfx.validation.Severity;
+import org.controlsfx.validation.ValidationResult;
+import org.controlsfx.validation.ValidationSupport;
+import org.controlsfx.validation.Validator;
+import org.controlsfx.validation.decoration.StyleClassValidationDecoration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -426,10 +433,35 @@ public class FieldEditorView {
             default:
                 return null;
         }
+        ValidationSupport validationSupport = new ValidationSupport();
+        validationSupport.setValidationDecorator(new StyleClassValidationDecoration("field-error", "field-warning"));
+        validationSupport.registerValidator(tf, createTextFieldValidator(field.getMeta()));
         addOnclickListener(tf, field, parent);
-        injectOnChangeHandler(tf, field, parent);
+        injectOnChangeHandler(tf, field, parent, validationSupport);
         tf.setContextMenu(getContextMenu(field));
         return  tf;
+    }
+    
+    private Validator createTextFieldValidator(FieldMetadata fieldMetadata) {
+        FieldRules rules = fieldMetadata.getFieldRules();
+        
+        if (rules != null) {
+            if(rules.hasSpecifiedInterval()) {
+                return Validator.<String>createPredicateValidator(newStringValue -> {
+                    try {
+                        Integer newValue = Strings.isNullOrEmpty(newStringValue) ? 0 : Integer.valueOf(newStringValue);
+                        return newValue >= rules.getMin() && newValue <= rules.getMax();
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                }, String.format("Must be between %s and %s", rules.getMin(), rules.getMax()));
+            } else if (rules.hasRegex()) {
+                return Validator.createRegexValidator("", rules.getRegex(), Severity.ERROR);
+            }
+        }
+        
+        // An empty validator
+        return Validator.createPredicateValidator(newValue -> true, "");
     }
     
     private Node createTCPOptionRow(TCPOptionsData tcpOption) {
@@ -522,11 +554,14 @@ public class FieldEditorView {
         });
     }
 
-    private void injectOnChangeHandler(TextField textField, CombinedField field, Label parent) {
+    private void injectOnChangeHandler(TextField textField, CombinedField field, Label parent, ValidationSupport validationSupport) {
         textField.setOnKeyReleased(e -> {
             if (e.getCode().equals(KeyCode.ENTER)) {
-                parent.setGraphic(null);
-                controller.getModel().editField(field, ReconstructField.setHumanValue(field.getId(), textField.getText()));
+                ValidationResult result = validationSupport.getValidationResult();
+                if (result.getErrors().isEmpty()) {
+                    parent.setGraphic(null);
+                    controller.getModel().editField(field, ReconstructField.setHumanValue(field.getId(), textField.getText()));
+                }
             }
             if (e.getCode().equals(KeyCode.ESCAPE)) {
                 parent.setGraphic(null);

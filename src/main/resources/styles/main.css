@@ -278,3 +278,6 @@
     -fx-pref-height: 30px;
     -fx-min-width: 80px;
 }
+.field-error {
+    -fx-background-color: lightcoral;
+}
