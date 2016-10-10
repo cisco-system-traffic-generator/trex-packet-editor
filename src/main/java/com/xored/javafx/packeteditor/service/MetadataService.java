@@ -3,6 +3,7 @@ package com.xored.javafx.packeteditor.service;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
+import com.xored.javafx.packeteditor.data.FieldRules;
 import com.xored.javafx.packeteditor.data.IField;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
@@ -60,6 +61,7 @@ public class MetadataService implements IMetadataService {
         Map<String, JsonElement> dict_map = null;
         List<BitFlagMetadata> bits_meta = null;
         boolean isAuto = false;
+        FieldRules rules = null;
 
         // merging definitions
         if (jsonDefaults != null) {
@@ -70,6 +72,7 @@ public class MetadataService implements IMetadataService {
                 ftype = jsonFieldMeta.getType();
                 bits_meta = jsonFieldMeta.getBits();
                 isAuto = jsonFieldMeta.isAuto();
+                rules = jsonFieldMeta.getFieldRules();
             }
         }
         if (dict_map == null && field.values_dict instanceof JsonObject) {
@@ -80,7 +83,7 @@ public class MetadataService implements IMetadataService {
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             }
         }
-        return new FieldMetadata(field.id, fieldName, ftype, dict_map, bits_meta, isAuto);
+        return new FieldMetadata(field.id, fieldName, ftype, dict_map, bits_meta, isAuto, rules);
     }
 
     /** normally should not be used, since we should have get_definitions */

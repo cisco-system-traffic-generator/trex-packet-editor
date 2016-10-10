@@ -2,10 +2,10 @@ package com.xored.javafx.packeteditor.service;
 
 
 import com.google.gson.*;
-import com.xored.javafx.packeteditor.controllers.MenuController;
+import com.xored.javafx.packeteditor.data.FieldRules;
 import com.xored.javafx.packeteditor.data.IField;
-import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
+import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,12 @@ class LocalFileMetadataService {
                 String fieldId = field.get("id").getAsString();
                 String name = field.get("name").getAsString();
                 Boolean isAuto = (field.get("auto") instanceof  JsonPrimitive) ? field.get("auto").getAsBoolean(): null;
-                String typeName = (field.get("type") instanceof JsonPrimitive) ? field.get("type").getAsString(): null;
+                String typeName = getAttrStringValue(field, "type");
+                Integer min = getAttrIntValue(field, "min");
+                Integer max = getAttrIntValue(field, "max");
+                String regex = getAttrStringValue(field, "regex");
+                FieldRules fieldRules = new FieldRules(min, max, regex);
+                
                 IField.Type type = getTypeByName(typeName);
                 Map<String, JsonElement> dict = null;
                 List<BitFlagMetadata> bitFlags = new ArrayList<>();
@@ -87,7 +92,7 @@ class LocalFileMetadataService {
                     }
                 }
 
-                fieldsMeta.add(new FieldMetadata(fieldId, name, type, dict, bitFlags, isAuto));
+                fieldsMeta.add(new FieldMetadata(fieldId, name, type, dict, bitFlags, isAuto, fieldRules));
             }
 
             /* TODO: restore or remove hand-crafted payload
@@ -102,7 +107,15 @@ class LocalFileMetadataService {
             protocols.put(entry.get("id").getAsString(), protocol);
         });
     }
-    
+
+    private String getAttrStringValue(JsonObject field, String attrName) {
+        return (field.get(attrName) instanceof JsonPrimitive) ? field.get(attrName).getAsString() : null;
+    }
+
+    private Integer getAttrIntValue(JsonObject field, String attrName) {
+        return (field.get(attrName) instanceof JsonPrimitive) ? field.get(attrName).getAsInt() : null;
+    }
+
     private IField.Type getTypeByName(String id) {
         if (id == null)
             return STRING;
