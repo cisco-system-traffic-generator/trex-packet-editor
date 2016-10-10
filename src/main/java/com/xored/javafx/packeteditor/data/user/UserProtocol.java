@@ -23,13 +23,13 @@ public class UserProtocol {
     }
 
     public void addField(String fieldId, String value) {
-        UserField field = new UserField(fieldId, path);
+        UserField field = new UserField(fieldId);
         field.setValue(value);
         fieldMap.put(field.getId(), field);
     }
 
     public UserField getField(String fieldId) {
-        return fieldMap.getOrDefault(fieldId, null);
+        return fieldMap.get(fieldId);
     }
     
     public String getId() {
@@ -38,17 +38,19 @@ public class UserProtocol {
 
     public List<UserField> getFields() {
         return fieldMap.entrySet().stream()
+                .filter(entry -> entry.getValue().getValue() != null)
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
     }
 
     public UserField createField(String fieldId) {
-        UserField field = new UserField(fieldId, path);
+        UserField field = new UserField(fieldId);
         fieldMap.put(fieldId, field);
         return field;
     }
     
     public void deleteField(String fieldId) {
         fieldMap.remove(fieldId);
+        createField(fieldId);
     }
 }

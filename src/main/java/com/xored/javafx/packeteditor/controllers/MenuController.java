@@ -90,4 +90,12 @@ public class MenuController {
     public void handleRedo(ActionEvent actionEvent) {
         controller.redo();
     }
+
+    public void handleModeBinary(ActionEvent actionEvent) {
+        controller.getModel().setBinaryMode(true);
+    }
+
+    public void handleModeAbstract(ActionEvent actionEvent) {
+        controller.getModel().setBinaryMode(false);
+    }
 }

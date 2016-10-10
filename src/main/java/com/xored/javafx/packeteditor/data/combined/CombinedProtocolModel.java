@@ -79,10 +79,6 @@ public class CombinedProtocolModel {
         }
     }
 
-    public static CombinedProtocolModel constructModel(IMetadataService metadataService, Document userModel, List<ProtocolData> scapyStack) {
-        return fromUserModel(metadataService, userModel, scapyStack);
-    }
-
     static public ProtocolData getByPath(List<String> path, List<ProtocolData> stack) {
         ProtocolData res = null;
         Iterator<String> pathIt = path.iterator();

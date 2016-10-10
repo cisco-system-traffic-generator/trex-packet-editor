@@ -28,6 +28,12 @@
                   <MenuItem mnemonicParsing="false" onAction="#handleRecalculateValues" text="Recalculate auto-values" />
                </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Mode">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#handleModeBinary" text="Switch to binary mode" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleModeAbstract" text="Switch to abstract mode" />
+               </items>
+            </Menu>
          </menus>
       </MenuBar>
    </children>

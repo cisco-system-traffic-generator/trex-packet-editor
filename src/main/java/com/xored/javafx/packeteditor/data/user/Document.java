@@ -17,9 +17,9 @@ public class Document {
     public void addProtocol(ProtocolMetadata metadata) {
         List<String> currentPath = getCurrentPath();
         currentPath.add(metadata.getId());
-        UserProtocol newProtocol = new UserProtocol(metadata, getCurrentPath());
+        UserProtocol newProtocol = new UserProtocol(metadata, currentPath);
         
-        metadata.getFields().stream().forEach(entry -> newProtocol.addField(new UserField(entry.getId(), getCurrentPath())));
+        metadata.getFields().stream().forEach(entry -> newProtocol.addField(new UserField(entry.getId())));
         
         protocols.push(newProtocol);
     }

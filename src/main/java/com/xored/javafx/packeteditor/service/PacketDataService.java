@@ -41,6 +41,10 @@ public class PacketDataService {
         return new ScapyPkt(scapy.reconstruct_pkt(currentPkt.getBinaryData(), modifyProtocols));
     }
 
+    public ScapyPkt reconstructPacketField(ScapyPkt currentPkt, List<String> path, ReconstructField newValue) {
+        return reconstructPacket(currentPkt, createReconstructPktPayload(path, newValue));
+    }
+
     public ScapyPkt reconstructPacketFromBinary(byte[] bytes) {
         return new ScapyPkt(scapy.reconstruct_pkt(bytes, new JsonArray()));
     }
@@ -51,10 +55,6 @@ public class PacketDataService {
                 Arrays.asList(ReconstructField.randomizeValue(fieldId))
         )));
         return pd.getProtocols().get(0).getFieldById(fieldId);
-    }
-
-    public ScapyPkt setFieldValue(ScapyPkt currentPkt, IField field, ReconstructField newValue) {
-        return reconstructPacket(currentPkt, createReconstructPktPayload(field.getPath(), newValue));
     }
 
     /** appends protocol to the stack */

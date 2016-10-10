@@ -10,14 +10,10 @@ import java.util.stream.Collectors;
 public class UserField {
     
     private String id;
-
     private JsonElement value;
-    
-    private List<String> path;
 
-    public UserField(String id, List<String> path) {
+    public UserField(String id) {
         this.id = id;
-        this.path = path;
     }
 
     public void setValue(String value) {
@@ -31,9 +27,10 @@ public class UserField {
     }
 
     public String getStringValue() {
-        return value.getAsString();
+        return value == null ? "" : value.getAsString();
     }
 
+    public boolean isSet() { return value != null; }
     public JsonElement getValue() {
         return value;
     }
