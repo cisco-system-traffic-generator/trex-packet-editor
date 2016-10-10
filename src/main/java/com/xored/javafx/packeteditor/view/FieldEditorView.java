@@ -588,7 +588,7 @@ public class FieldEditorView {
         }
     }
 
-    private void injectOnChangeHandlerPayload(ChoiceBox<String> choice, CombinedField field, GridPane grid) {
+    private void injectOnChangeHandlerPayload(ChoiceBox choice, CombinedField field, GridPane grid) {
         choice.setOnAction((event) -> {
             int index = choice.getSelectionModel().getSelectedIndex();
             javafx.application.Platform.runLater(() -> gridSetVisible(grid, index));
