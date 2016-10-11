@@ -359,7 +359,7 @@ public class FieldEditorView {
         validationSupport.setValidationDecorator(new StyleClassValidationDecoration("field-error", "field-warning"));
         validationSupport.registerValidator(tf, createTextFieldValidator(field.getMeta()));
         addSelectOnclickListener(tf, field);
-        injectOnChangeHandler(tf, field, parent, validationSupport);
+        addOnChangeAndOnLostFocusHandlers(tf, field, parent, validationSupport);
         tf.setContextMenu(getContextMenu(field));
         return tf;
     }
@@ -461,12 +461,21 @@ public class FieldEditorView {
         node.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> controller.selectField(field));
     }
 
-    private void injectOnChangeHandler(TextField textField, CombinedField field, FlowPane parent, ValidationSupport validationSupport) {
+    private void addOnChangeAndOnLostFocusHandlers(TextField textField, CombinedField field, FlowPane parent, ValidationSupport validationSupport) {
+        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            // On lost focus
+            if (!newValue) {
+                if (isValid(validationSupport)) {
+                    commitChanges(field, textField);
+                } else {
+                    textField.requestFocus();
+                }
+            }
+        });
         textField.setOnKeyReleased(e -> {
             if (e.getCode().equals(KeyCode.ENTER)) {
-                ValidationResult result = validationSupport.getValidationResult();
-                if (result.getErrors().isEmpty()) {
-                    controller.getModel().editField(field, ReconstructField.setHumanValue(field.getId(), textField.getText()));
+                if (isValid(validationSupport)) {
+                    commitChanges(field, textField);
                 }
             }
             if (e.getCode().equals(KeyCode.ESCAPE)) {
@@ -477,6 +486,15 @@ public class FieldEditorView {
         });
     }
 
+    private void commitChanges(CombinedField field, TextField textField) {
+        controller.getModel().editField(field, ReconstructField.setHumanValue(field.getId(), textField.getText()));
+    }
+    
+    private boolean isValid(ValidationSupport validationSupport) {
+        ValidationResult result = validationSupport.getValidationResult();
+        return result != null && result.getErrors().isEmpty();
+    }
+    
     private void gridSetVisible(GridPane grid, int index) {
         for (Node node : grid.getChildren()) {
             node.setVisible(false);
@@ -544,7 +562,7 @@ public class FieldEditorView {
                     controller.getModel().editField(field, ReconstructField.setValue(field.getId(), item.getValue().getAsString()));
                 } else {
                     // raw string value
-                    controller.getModel().editField(field, ReconstructField.setValue(field.getId(), (String)sel));
+                    controller.getModel().editField(field, ReconstructField.setValue(field.getId(), (String) sel));
                 }
             } else if (sel instanceof ComboBoxItem) {
                 controller.getModel().editField(field, ReconstructField.setValue(field.getId(), ((ComboBoxItem)sel).getValue().getAsString()));
