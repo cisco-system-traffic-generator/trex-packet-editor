@@ -9,33 +9,17 @@ import java.util.List;
 
 public class CombinedProtocol {
     ProtocolMetadata meta;
-
     List<String> path;
-
-    public UserProtocol getUserProtocol() {
-        return userProtocol;
-    }
-
+    List<CombinedField> fields = new ArrayList<>();
     UserProtocol userProtocol;
-
-    public ProtocolData getScapyProtocol() {
-        return scapyProtocol;
-    }
-
     ProtocolData scapyProtocol;
 
-    public List<CombinedField> getFields() {
-        return fields;
-    }
+    public List<CombinedField> getFields() { return fields; }
+    public UserProtocol getUserProtocol() { return userProtocol; }
+    public ProtocolData getScapyProtocol() { return scapyProtocol; }
 
-    List<CombinedField> fields = new ArrayList<>();
+    public String getId() { return getMeta().getId(); }
+    public ProtocolMetadata getMeta() { return meta; }
 
-    public ProtocolMetadata getMeta() {
-        return meta;
-    }
-
-    public List<String> getPath() {
-        return path;
-    }
-
+    public List<String> getPath() { return path; }
 }

@@ -9,7 +9,6 @@ import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.controls.PayloadEditor;
 import com.xored.javafx.packeteditor.data.FieldRules;
-import com.xored.javafx.packeteditor.data.IField.Type;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
@@ -40,11 +39,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import static com.xored.javafx.packeteditor.data.IField.Type.*;
-
-//import org.controlsfx.control.textfield.CustomTextField;
-//import org.controlsfx.control.textfield.TextFields;
-//import org.controlsfx.control.textfield.*;
+import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.*;
 
 public class FieldEditorView {
     @Inject
@@ -78,7 +73,7 @@ public class FieldEditorView {
 
         protocol.getFields().stream().forEach(field -> {
             FieldMetadata meta = field.getMeta();
-            Type type = meta.getType();
+            FieldMetadata.FieldType type = meta.getType();
             List<Node> list;
 
             list = buildFieldRow(field);
@@ -87,7 +82,7 @@ public class FieldEditorView {
                 grid.add(n, ij[0]++, ij[1], 1, 1);
                 if (BITMASK.equals(type)
                         || TCP_OPTIONS.equals(type)
-                        || RAW.equals(type)) {
+                        || BYTES.equals(type)) {
                     ij[0] = 0;
                     ij[1]++;
                 }
@@ -243,7 +238,7 @@ public class FieldEditorView {
     private List<Node> buildFieldRow(CombinedField field) {
         List<Node> rows = new ArrayList<>();
         FieldMetadata meta = field.getMeta();
-        Type type = meta.getType();
+        FieldMetadata.FieldType type = meta.getType();
 
         HBox row = new HBox();
         row.getStyleClass().addAll("field-row");
@@ -279,7 +274,7 @@ public class FieldEditorView {
         FlowPane parent = new FlowPane();
         Node editableControl = createControl(field, parent);
 
-        if (field.getMeta().getType() != Type.RAW) {
+        if (editableControl != null && field.getMeta().getType() != FieldMetadata.FieldType.BYTES) {
             editableControl.setVisible(false);
             Label label = createValueLabel(parent, field, editableControl);
             parent.getChildren().addAll(label);
@@ -295,7 +290,7 @@ public class FieldEditorView {
 
         boolean isDefaultValue = !controller.getModel().isBinaryMode() && !field.hasUserValue();
 
-        if (field.getMeta().getType() == Type.ENUM) {
+        if (field.getMeta().getType() == FieldMetadata.FieldType.ENUM) {
             // for enums also show value
             JsonElement val = field.getMeta().getDictionary().getOrDefault(labelText, null);
             if (val != null) {
@@ -330,8 +325,7 @@ public class FieldEditorView {
             case ENUM:
                 fieldControl = createEnumField(field, parent);
                 break;
-            case RAW:
-                FieldData fieldData = field.getScapyFieldData();
+            case BYTES:
                 PayloadEditor pe = new PayloadEditor(injector);
                 pe.setLabel(field.getDisplayValue());
                 MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
@@ -339,7 +333,6 @@ public class FieldEditorView {
                 pe.setContextMenu(new ContextMenu(saveRawMenuItem));
                 fieldControl = pe;
                 break;
-            case NONE:
             default:
                 fieldControl = createTextField(field, parent);
         }
@@ -348,17 +341,13 @@ public class FieldEditorView {
     }
     
     private TextField createTextField(CombinedField field, FlowPane parent) {
-        TextField tf;
-        switch(field.getMeta().getType()) {
-            case MAC_ADDRESS:
-            case IPV4ADDRESS:
-            case TCP_OPTIONS:
-            case NUMBER:
-            case STRING:
-                tf = createFieldText(field);
-                break;
-            default:
-                return null;
+        CustomTextField tf = (CustomTextField)TextFields.createClearableTextField();
+        tf.rightProperty().get().setOnMouseReleased(event ->
+                clearFieldValue(field)
+        );
+
+        if (field.getValue() instanceof JsonPrimitive) {
+            tf.setText(field.getValue().getAsString());
         }
         ValidationSupport validationSupport = new ValidationSupport();
         validationSupport.setValidationDecorator(new StyleClassValidationDecoration("field-error", "field-warning"));
@@ -366,7 +355,7 @@ public class FieldEditorView {
         addSelectOnclickListener(tf, field);
         injectOnChangeHandler(tf, field, parent, validationSupport);
         tf.setContextMenu(getContextMenu(field));
-        return  tf;
+        return tf;
     }
     
     private Validator createTextFieldValidator(FieldMetadata fieldMetadata) {
@@ -410,18 +399,6 @@ public class FieldEditorView {
         valuePane.setLeft(valueCtrl);
         row.getChildren().addAll(titlePane, valuePane);
         return row;
-    }
-
-    private TextField createFieldText(CombinedField field) {
-        CustomTextField tf = (CustomTextField)TextFields.createClearableTextField();
-        tf.rightProperty().get().setOnMouseReleased(event ->
-                clearFieldValue(field)
-        );
-
-        if (field.getValue() instanceof JsonPrimitive) {
-            tf.setText(field.getValue().getAsString());
-        }
-        return tf;
     }
 
     private String maskToString(int mask) {

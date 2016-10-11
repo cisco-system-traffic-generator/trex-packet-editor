@@ -10,9 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
-
+/** binding to scapy server */
 public class ScapyServerClient {
-    static Logger log = LoggerFactory.getLogger(ScapyServerClient.class);
+    static Logger logger = LoggerFactory.getLogger(ScapyServerClient.class);
 
     final Base64.Encoder base64Encoder = Base64.getEncoder();
     final Base64.Decoder base64Decoder = Base64.getDecoder();
@@ -41,23 +41,23 @@ public class ScapyServerClient {
         close();
         context = ZMQ.context(1);
         session = context.socket(ZMQ.REQ);
-        log.info("connecting to scapy_server at {}", url);
+        logger.info("connecting to scapy_server at {}", url);
         session.connect(url);
 
         JsonElement result = request("get_version", null);
         if (result == null) {
-            log.error("get_version returned null");
+            logger.error("get_version returned null");
             throw new ScapyException("Failed to get Scapy version");
         }
         // version: "1.01"
-        log.info("Scapy version is {}", result.getAsJsonObject().get("version").getAsString());
+        logger.info("Scapy version is {}", result.getAsJsonObject().get("version").getAsString());
 
         JsonArray vers = new JsonArray();
         vers.add("1");
         vers.add("01");
         result = request("get_version_handler", vers);
         if (result == null) {
-            log.error("get_version returned null");
+            logger.error("get_version returned null");
             throw new ScapyException("Failed to get version handler");
         }
         version_handler = result.getAsString();
@@ -83,29 +83,29 @@ public class ScapyServerClient {
         reqs.params = params;
 
         String request_json = gson.toJson(reqs);
-        log.debug(" sending: {}", request_json);
+        logger.debug(" sending: {}", request_json);
 
         session.send(request_json.getBytes(), 0);
 
         byte[] response_bytes = session.recv(0);
         if (response_bytes == null) {
-            log.info("Received null response");
+            logger.info("Received null response");
             throw new NullPointerException();
         }
 
         String response_json = new String(response_bytes, java.nio.charset.StandardCharsets.UTF_8);
-        log.debug("received: {}", response_json);
+        logger.debug("received: {}", response_json);
 
         Response resp = gson.fromJson(response_json, Response.class);
 
         if (!resp.id.equals(reqs.id)) {
-            log.error("received id:{}, expected:{}", resp.id, reqs.id);
+            logger.error("received id:{}, expected:{}", resp.id, reqs.id);
             throw new ScapyException("unexpected result id");
         }
 
         if (resp.error != null) {
             String error_msg = resp.error.get("message").getAsString();
-            log.error("received error: {}", error_msg);
+            logger.error("received error: {}", error_msg);
             throw new ScapyException(error_msg);
         }
 
@@ -113,16 +113,15 @@ public class ScapyServerClient {
     }
 
     /** builds packet from JSON definition using scapy */
-    public JsonObject build_pkt(JsonElement params) {
+    public PacketData build_pkt(JsonElement params) {
         JsonArray payload = new JsonArray();
         payload.add(version_handler);
         payload.add(params);
-        return request("build_pkt", payload).getAsJsonObject();
+        return packetFromJson(request("build_pkt", payload));
     }
 
     public PacketData build_pkt(List<ReconstructProtocol> protocols) {
-        JsonObject result = build_pkt(gson.toJsonTree(protocols));
-        return gson.fromJson(result, PacketData.class);
+        return build_pkt(gson.toJsonTree(protocols));
     }
 
     public ScapyDefinitions get_definitions() {
@@ -146,14 +145,14 @@ public class ScapyServerClient {
     }
 
     /** reads first packet from binary pcap file */
-    public ScapyPkt read_pcap_packet(byte[] pcap_binary) {
+    public PacketData read_pcap_packet(byte[] pcap_binary) {
         JsonArray payload = new JsonArray();
         String payload_b64 = base64Encoder.encodeToString(pcap_binary);
         payload.add(version_handler);
         payload.add(payload_b64);
         JsonArray pcap_packets = (JsonArray)request("read_pcap", payload);
-        ScapyPkt pkt = new ScapyPkt(pcap_packets.get(0)); // get only 1st packet, ignore others
-        return pkt;
+        JsonElement first_packet = pcap_packets.get(0);
+        return packetFromJson(first_packet);
     }
 
     /** write single pcap packet to a file, returns result binary pcap file content */
@@ -174,6 +173,12 @@ public class ScapyServerClient {
         return request("get_tree", payload);
     }
 
+    /** builds packet from bytes */
+    public PacketData reconstruct_pkt(byte[] packet_binary) {
+        JsonObject result = reconstruct_pkt(packet_binary, new JsonArray());
+        return gson.fromJson(result, PacketData.class);
+    }
+
     /** builds packet from bytes, modifies fields */
     public PacketData reconstruct_pkt(byte[] packet_binary, List<ReconstructProtocol> protocols) {
         JsonObject result = reconstruct_pkt(packet_binary, gson.toJsonTree(protocols));
@@ -190,5 +195,8 @@ public class ScapyServerClient {
         return result.getAsJsonObject();
     }
 
+    private PacketData packetFromJson(JsonElement packet) {
+        return gson.fromJson(packet, PacketData.class);
+    }
 }
 

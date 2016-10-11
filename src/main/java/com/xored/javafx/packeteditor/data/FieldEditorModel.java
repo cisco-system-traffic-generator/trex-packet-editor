@@ -1,7 +1,6 @@
 package com.xored.javafx.packeteditor.data;
 
 import com.google.common.eventbus.EventBus;
-import com.google.gson.JsonElement;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
@@ -20,17 +19,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class FieldEditorModel {
-
-    private Logger logger= LoggerFactory.getLogger(FieldEditorModel.class);
-    
-    private Stack<ScapyProtocol> protocols = new Stack<>();
+    private Logger logger = LoggerFactory.getLogger(FieldEditorModel.class);
 
     /**
      * Current packet representation in ScapyService format
      */
-    ScapyPkt pkt = new ScapyPkt();
-
-    File currentFile;
+    PacketData packet = new PacketData();
 
     @Inject
     EventBus eventBus;
@@ -44,21 +38,23 @@ public class FieldEditorModel {
     @Inject
     IMetadataService metadataService;
 
+    Stack<PacketData> undoRecords = new Stack<>();
+    Stack<PacketData> redoRecords = new Stack<>();
+    Stack<PacketData> undoingFrom;
+    Stack<PacketData> undoingTo;
+
+    /** abstract user model. contains field values */
     Document userModel = new Document();
-    
-    Stack<ScapyPkt> undoRecords = new Stack<>();
-    
-    Stack<ScapyPkt> redoRecords = new Stack<>();
-    
-    Stack<ScapyPkt> undoingFrom;
-    
-    Stack<ScapyPkt> undoingTo;
 
     boolean binaryMode = false;
+    File currentFile;
+
+    /** model, produced using userModel and information from Scapy. user for building UI structure */
+    CombinedProtocolModel model = new CombinedProtocolModel();
 
     public void deleteAllProtocols() {
-        protocols.clear();
         userModel.clear();
+        model = new CombinedProtocolModel();
         fireUpdateViewEvent();
     }
 
@@ -79,7 +75,7 @@ public class FieldEditorModel {
         if (meta != null) {
             userModel.addProtocol(meta);
             if (isBinaryMode()) {
-                setPktAndReload(packetDataService.appendProtocol(pkt, meta.getId()));
+                setPktAndReload(packetDataService.appendProtocol(packet, meta.getId()));
             } else {
                 setPktAndReload(packetDataService.buildPacket(userModel.asJson()));
             }
@@ -90,12 +86,12 @@ public class FieldEditorModel {
 
     public List<ProtocolMetadata> getAvailableProtocolsToAdd(boolean getUnsupported) {
         Map<String, ProtocolMetadata>  protocolsMetaMap = metadataService.getProtocols();
-        if (protocols.size() == 0) {
+
+        if (model.getProtocolStack().isEmpty()) {
             return Arrays.asList(metadataService.getProtocolMetadataById("Ether"));
         }
 
-        String lastProtocolId = protocols.peek().getId();
-        Set<String> suggested_extensions = metadataService.getAllowedPayloadForProtocol(lastProtocolId).stream().collect(Collectors.toSet());
+        Set<String> suggested_extensions = metadataService.getAllowedPayloadForProtocol(model.getLastProtocolId()).stream().collect(Collectors.toSet());
         List<ProtocolMetadata> res = new ArrayList<>();
         if (getUnsupported) {
             Map<Boolean, List<ProtocolMetadata>> suggested_proto = protocolsMetaMap.values().stream()
@@ -113,75 +109,55 @@ public class FieldEditorModel {
         return res;
     }
     
-    private ScapyProtocol buildProtocolFromMeta(ProtocolMetadata meta) {
-        return new ScapyProtocol(meta, getCurrentPath());
-    }
-    
-    private List<String> getCurrentPath() {
-        return protocols.stream().map(ScapyProtocol::getId).collect(Collectors.toList());
-    }
-
     public void removeLast() {
-        undoRecords.push(pkt);
+        undoRecords.push(packet);
         if (isBinaryMode()) {
-            ScapyPkt newPkt = packetDataService.removeLastProtocol(pkt);
-            setPktAndReload(newPkt);
+            setPktAndReload(packetDataService.removeLastProtocol(packet));
         } else {
             if (!userModel.getProtocolStack().isEmpty()) {
                 userModel.getProtocolStack().pop();
-                ScapyPkt newPkt = packetDataService.buildPacket(userModel.asJson());
-                setPktAndReload(newPkt);
+                setPktAndReload(packetDataService.buildPacket(userModel.asJson()));
             }
         }
     }
 
     private void fireUpdateViewEvent() {
-        CombinedProtocolModel model;
         if (isBinaryMode()) {
-            model = CombinedProtocolModel.fromScapyData(metadataService, userModel, pkt.packet().getProtocols());
+            model = CombinedProtocolModel.fromScapyData(metadataService, userModel, packet.getProtocols());
         } else {
-            model = CombinedProtocolModel.fromUserModel(metadataService, userModel, pkt.packet().getProtocols());
+            model = CombinedProtocolModel.fromUserModel(metadataService, userModel, packet.getProtocols());
         }
         eventBus.post(new RebuildViewEvent(model));
     }
 
-    public void setPktAndReload(ScapyPkt pkt) {
+    public void setPktAndReload(PacketData pkt) {
         setPktAndReload(pkt, false);
     }
-    public void setPktAndReload(ScapyPkt pkt, Boolean loadUserModel) {
-        beforeContentReplace(this.pkt);
-        this.pkt = pkt;
+    public void setPktAndReload(PacketData pkt, Boolean loadUserModel) {
+        beforeContentReplace(this.packet);
+        this.packet = pkt;
         reload(loadUserModel);
     }
 
     public void reload (Boolean loadUserModel) {
         if(loadUserModel) {
-            userModel.clear();
+            importUserModelFromScapy(packet);
         }
-        protocols.clear();
-        PacketData packet = pkt.packet();
-        
         binary.setBytes(packet.getPacketBytes());
-
-        for (ProtocolData protocol: packet.getProtocols()) {
-            ProtocolMetadata protocolMetadata = metadataService.getProtocolMetadata(protocol);
-            ScapyProtocol protocolObj = buildProtocolFromMeta(protocolMetadata);
-            if(loadUserModel) {
-                userModel.addProtocol(protocolMetadata);
-            }
-            protocols.push(protocolObj);
-
-            Integer protocolOffset = protocol.offset.intValue();
-            for (FieldData field: protocol.fields) {
-                if (loadUserModel) {
-                    userModel.getProtocolStack().peek().addField(field.id, field.hvalue);
-                }
-                ScapyField fieldObj = new ScapyField(protocolMetadata.getMetaForField(field.id), getCurrentPath(), protocolOffset, field);
-                protocolObj.getFields().add(fieldObj);
-            }
-        }
-
         fireUpdateViewEvent();
+    }
+
+    private void importUserModelFromScapy(PacketData packet) {
+        userModel.clear();
+
+        packet.getProtocols().forEach(protocolData -> {
+            userModel.addProtocol(metadataService.getProtocolMetadataById(protocolData.id));
+            UserProtocol userProtocol = userModel.getProtocolStack().peek();
+            protocolData.getFields().forEach(fieldData -> {
+                // TODO: import value object(binary payload)
+                userProtocol.addField(fieldData.id, fieldData.hvalue);
+            });
+        });
     }
     
     public void editField(CombinedField field, ReconstructField newValue) {
@@ -213,9 +189,9 @@ public class FieldEditorModel {
             }
         }
 
-        ScapyPkt newPkt;
+        PacketData newPkt;
         if (isBinaryMode()) {
-            newPkt = packetDataService.reconstructPacketField(pkt, field.getProtocol().getPath(), newValue);
+            newPkt = packetDataService.reconstructPacketField(packet, field.getProtocol().getPath(), newValue);
         } else {
             newPkt = packetDataService.buildPacket(userModel.asJson());
             //newPkt = packetDataService.reconstructPacketFromBinary(newPkt.getBinaryData());
@@ -252,7 +228,7 @@ public class FieldEditorModel {
     }
 
     /** should be called when modification is done */
-    public void beforeContentReplace(ScapyPkt oldPkt) {
+    public void beforeContentReplace(PacketData oldPkt) {
         if (undoingFrom == null) {
             // new user change
             undoRecords.push(oldPkt);
@@ -263,7 +239,7 @@ public class FieldEditorModel {
         }
     }
 
-    void doUndo(Stack<ScapyPkt> from, Stack<ScapyPkt> to) {
+    void doUndo(Stack<PacketData> from, Stack<PacketData> to) {
         if (from.empty()) {
             logger.debug("Nothing to undo/redo");
             return;
@@ -289,36 +265,19 @@ public class FieldEditorModel {
         doUndo(redoRecords, undoRecords);
     }
 
-    /* Reset length and chksum fields
-     * type fields can be calculated for layers with payload
-     *  */
-    public ScapyPkt recalculateAutoValues(ScapyPkt pkt) {
-        List<ProtocolData> protocols = pkt.packet().getProtocols();
-        List<ReconstructProtocol> modify = protocols.stream().map(
-                protocol -> {
-                    boolean is_last_layer = protocol == protocols.get(protocols.size() - 1);
-                    return ReconstructProtocol.modify(protocol.id, protocol.fields.stream().filter(field ->
-                                    field.id.equals("length") ||
-                                            field.id.equals("chksum") ||
-                                            (field.id.equals("type") && is_last_layer)
-                    ).map(f -> ReconstructField.resetValue(f.id)).collect(Collectors.toList()));
-                }).collect(Collectors.toList());
-        return packetDataService.reconstructPacket(pkt, modify);
-    }
-    
     private void clearHistory() {
         undoRecords.clear();
         redoRecords.clear();
     }
 
-    public ScapyPkt getPkt() {
-        return pkt;
+    public PacketData getPkt() {
+        return packet;
     }
 
     public void newPacket() {
         clearHistory();
         userModel.clear();
-        pkt = new ScapyPkt();
+        packet = new PacketData();
         addProtocol("Ether");
     }
 

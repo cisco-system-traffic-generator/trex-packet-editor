@@ -17,11 +17,15 @@ import java.util.List;
  * used to show user and scapy models aside
  */
 public class CombinedProtocolModel {
+    List<CombinedProtocol> protocolStack = new ArrayList<>();
+
     public List<CombinedProtocol> getProtocolStack() {
         return protocolStack;
     }
 
-    List<CombinedProtocol> protocolStack = new ArrayList<>();
+    public String getLastProtocolId() {
+        return protocolStack.get(protocolStack.size() - 1).getId();
+    }
 
     public static CombinedProtocolModel fromScapyData(IMetadataService metadataService, Document userModel, List<ProtocolData> scapyStack) {
         CombinedProtocolModel res = new CombinedProtocolModel();

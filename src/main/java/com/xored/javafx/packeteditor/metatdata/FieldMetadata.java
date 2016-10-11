@@ -2,23 +2,42 @@ package com.xored.javafx.packeteditor.metatdata;
 
 import com.google.gson.JsonElement;
 import com.xored.javafx.packeteditor.data.FieldRules;
-import com.xored.javafx.packeteditor.data.IField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
+import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.*;
+
 public class FieldMetadata {
-    
+    static Logger logger = LoggerFactory.getLogger(FieldMetadata.class);
+
     private String id;
     private String name;
-    private IField.Type type;
+    private FieldType type;
     private Boolean auto;
     private FieldRules fieldRules;
     private Map<String, JsonElement> dictionary;
     private List<BitFlagMetadata> bits;
 
+
+    public enum FieldType {
+        STRING,
+        NUMBER,
+        ENUM,
+        BYTES, // used for payload. can be displayed as text if possible(printable ascii)
+        BITMASK,
+        METAFIELD, // TODO: support this for complex fields like a TCP_OPTIONS, IP_OPTIONS and replace it
+        TCP_OPTIONS, // TODO: remove me
+        IP_OPTIONS,  // TODO: remove me
+        MAC_ADDRESS,
+        IP_ADDRESS,
+        UNKNOWN,
+    }
+
     public FieldMetadata(
-            String id, String name, IField.Type type,
+            String id, String name, FieldType type,
             Map<String, JsonElement> dictionary, List<BitFlagMetadata> bits, Boolean auto) {
         this.id = id;
         this.name = name;
@@ -29,7 +48,7 @@ public class FieldMetadata {
     }
 
     public FieldMetadata(
-            String id, String name, IField.Type type,
+            String id, String name, FieldType type,
             Map<String, JsonElement> dictionary, List<BitFlagMetadata> bits, Boolean auto, FieldRules fieldRules) {
         this(id, name, type, dictionary, bits, auto);
         this.fieldRules = fieldRules;
@@ -48,7 +67,7 @@ public class FieldMetadata {
         return name;
     }
 
-    public IField.Type getType() {
+    public FieldType getType() {
         return type;
     }
 
@@ -64,5 +83,17 @@ public class FieldMetadata {
 
     public FieldRules getFieldRules() {
         return fieldRules;
+    }
+
+    public static FieldType fieldTypeFromString(String type) {
+        if (type == null) {
+            return STRING;
+        }
+        try {
+            return FieldMetadata.FieldType.valueOf(type);
+        } catch (Exception e) {
+            logger.error("Failed to parse enum value {}", e);
+            return STRING;
+        }
     }
 }

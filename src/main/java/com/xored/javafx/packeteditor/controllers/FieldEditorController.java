@@ -4,14 +4,12 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.xored.javafx.packeteditor.data.ScapyField;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
-import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
+import com.xored.javafx.packeteditor.scapy.PacketData;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
-import com.xored.javafx.packeteditor.scapy.ScapyPkt;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 import com.xored.javafx.packeteditor.view.FieldEditorView;
 import javafx.application.Platform;
@@ -128,8 +126,7 @@ public class FieldEditorController implements Initializable {
             byte[] bytes = Files.toByteArray(pcapfile);
             model.setCurrentFile(pcapfile);
             refreshTitle();
-            ScapyPkt pkt = packetController.read_pcap_packet(bytes);
-            model.setPktAndReload(pkt, true);
+            model.setPktAndReload(packetController.read_pcap_packet(bytes), true);
         } catch (Exception e) {
             if (wantexception) {
                 throw e;
@@ -150,7 +147,7 @@ public class FieldEditorController implements Initializable {
         }
     }
 
-    public void writeToPcapFile(File file, ScapyPkt pkt) {
+    public void writeToPcapFile(File file, PacketData pkt) {
         try {
             writeToPcapFile(file, pkt, false);
         } catch (Exception e) {
@@ -163,9 +160,9 @@ public class FieldEditorController implements Initializable {
         writeToPcapFile(file, model.getPkt(), wantexception);
     }
 
-    public void writeToPcapFile(File file, ScapyPkt pkt, boolean wantexception) throws Exception {
+    public void writeToPcapFile(File file, PacketData pkt, boolean wantexception) throws Exception {
         try {
-            byte[] pcap_bin = packetController.write_pcap_packet(pkt.getBinaryData());
+            byte[] pcap_bin = packetController.write_pcap_packet(pkt.getPacketBytes());
             Files.write(pcap_bin, file);
         } catch (Exception e) {
             if (wantexception) {

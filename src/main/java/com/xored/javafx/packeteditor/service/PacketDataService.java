@@ -15,9 +15,7 @@ import java.util.stream.Collectors;
 import static com.xored.javafx.packeteditor.scapy.ScapyUtils.createReconstructPktPayload;
 
 public class PacketDataService {
-    static Logger log = LoggerFactory.getLogger(PacketDataService.class);
-
-    final Gson gson = new Gson();
+    static Logger logger = LoggerFactory.getLogger(PacketDataService.class);
 
     @Inject
     ScapyServerClient scapy;
@@ -26,24 +24,20 @@ public class PacketDataService {
         scapy.open("tcp://localhost:4507");
     }
 
-    public ScapyPkt buildPacket(JsonElement pktStructure) {
-        return new ScapyPkt(scapy.build_pkt(pktStructure));
+    public PacketData buildPacket(JsonElement pktStructure) {
+        return scapy.build_pkt(pktStructure);
     }
     
-    public ScapyPkt reconstructPacket(ScapyPkt currentPkt, List<ReconstructProtocol> modify) {
-        return reconstructPacket(currentPkt, gson.toJsonTree(modify));
+    public PacketData reconstructPacket(PacketData currentPkt, List<ReconstructProtocol> modify) {
+        return scapy.reconstruct_pkt(currentPkt.getPacketBytes(), modify);
     }
 
-    public ScapyPkt reconstructPacket(ScapyPkt currentPkt, JsonElement modifyProtocols) {
-        return new ScapyPkt(scapy.reconstruct_pkt(currentPkt.getBinaryData(), modifyProtocols));
-    }
-
-    public ScapyPkt reconstructPacketField(ScapyPkt currentPkt, List<String> path, ReconstructField newValue) {
+    public PacketData reconstructPacketField(PacketData currentPkt, List<String> path, ReconstructField newValue) {
         return reconstructPacket(currentPkt, createReconstructPktPayload(path, newValue));
     }
 
-    public ScapyPkt reconstructPacketFromBinary(byte[] bytes) {
-        return new ScapyPkt(scapy.reconstruct_pkt(bytes, new JsonArray()));
+    public PacketData reconstructPacketFromBinary(byte[] bytes) {
+        return scapy.reconstruct_pkt(bytes);
     }
 
     public FieldData getRandomFieldValue(String protocolId, String fieldId) {
@@ -55,13 +49,11 @@ public class PacketDataService {
     }
 
     /** appends protocol to the stack */
-    public ScapyPkt appendProtocol(ScapyPkt currentPkt, String protocolId) {
+    public PacketData appendProtocol(PacketData currentPkt, String protocolId) {
         if (currentPkt == null) {
-            JsonArray params = new JsonArray();
-            params.add(ScapyUtils.layer(protocolId));
-            return new ScapyPkt(scapy.build_pkt(params));
+            return scapy.build_pkt(Arrays.asList(ReconstructProtocol.pass(protocolId)));
         }
-        List<ReconstructProtocol> modify = currentPkt.packet().getProtocols().stream().map(protocol ->
+        List<ReconstructProtocol> modify = currentPkt.getProtocols().stream().map(protocol ->
                 ReconstructProtocol.pass(protocol.id)
         ).collect(Collectors.toList());
         if (protocolId.equals("Raw")) {
@@ -74,8 +66,8 @@ public class PacketDataService {
     }
 
     /** removes inner protocol */
-    public ScapyPkt removeLastProtocol(ScapyPkt pkt) {
-        List<ReconstructProtocol> protocols = pkt.packet().getProtocols().stream().map(protocol ->
+    public PacketData removeLastProtocol(PacketData pkt) {
+        List<ReconstructProtocol> protocols = pkt.getProtocols().stream().map(protocol ->
                 ReconstructProtocol.pass(protocol.id)
         ).collect(Collectors.toList());
 
@@ -83,7 +75,7 @@ public class PacketDataService {
             protocols.get(protocols.size() - 1).delete = true;
             return reconstructPacket(pkt, protocols);
         } else {
-           return new ScapyPkt();
+           return new PacketData();
         }
     }
 
@@ -91,7 +83,7 @@ public class PacketDataService {
         return scapy.write_pcap_packet(binaryData);
     }
 
-    public ScapyPkt read_pcap_packet(byte[] binaryData) {
+    public PacketData read_pcap_packet(byte[] binaryData) {
         return scapy.read_pcap_packet(binaryData);
     }
 }
