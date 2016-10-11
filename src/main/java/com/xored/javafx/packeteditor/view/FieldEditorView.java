@@ -252,10 +252,7 @@ public class FieldEditorView {
             rows.add(row);
             field.getMeta().getBits().stream().forEach(bitFlagMetadata -> rows.add(this.createBitFlagRow(field, bitFlagMetadata)));
         } else if (RAW.equals(type)) {
-            PayloadEditor node = new PayloadEditor(injector);
-            node.setText(field.getDisplayValue());
-            node.select(0);
-            row.getChildren().addAll(titlePane, node);
+            row.getChildren().addAll(titlePane, createPayloadEditorControl(field));
             rows.add(row);
         } else {
             FlowPane parent = new FlowPane();
@@ -320,6 +317,8 @@ public class FieldEditorView {
         Node fieldControl;
 
         switch(field.getMeta().getType()) {
+            case RAW:
+                throw new UnsupportedClassVersionError("Raw field types should created via createPayloadEditorControl");
             case ENUM:
                 fieldControl = createEnumField(field, parent);
                 break;
@@ -331,6 +330,15 @@ public class FieldEditorView {
         }
         
         return fieldControl;
+    }
+    
+    private Node createPayloadEditorControl(CombinedField field) {
+        PayloadEditor pe = new PayloadEditor(injector);
+        pe.setLabel(field.getDisplayValue());
+        MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
+        saveRawMenuItem.setOnAction((event) -> controller.getModel().editField(field, pe.getText()));
+        pe.setContextMenu(new ContextMenu(saveRawMenuItem));
+        return pe;
     }
 
     private PayloadEditor createPayloadField(CombinedField field, FlowPane parent) {
