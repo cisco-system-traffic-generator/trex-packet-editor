@@ -1,20 +1,10 @@
 package com.xored.javafx.packeteditor.scapy;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ScapyUtils {
-    public static JsonObject layer(String type) {
-        JsonObject res = new JsonObject();
-        res.add("id", new JsonPrimitive(type));
-        return res;
-    }
 
     /** generates payload for reconstruct_pkt */
     public static List<ReconstructProtocol> createReconstructPktPayload(List<String> fieldPath, ReconstructField fieldEdit) {
