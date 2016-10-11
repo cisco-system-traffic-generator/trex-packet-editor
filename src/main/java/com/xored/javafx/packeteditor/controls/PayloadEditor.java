@@ -3,6 +3,8 @@ package com.xored.javafx.packeteditor.controls;
 import com.google.inject.Injector;
 import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import javafx.beans.property.StringProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -73,6 +75,10 @@ public class PayloadEditor extends VBox {
         return textProperty().get();
     }
 
+    public void setLabel(String value) {
+        textProperty().set(value);
+    }
+
     public void setText(String value) {
         textProperty().set(value);
     }
@@ -98,6 +104,10 @@ public class PayloadEditor extends VBox {
             gridSetVisible(payloadEditorGrid, index);
             getSelectionModel().select(index);
         });
+    }
+
+    public final void setOnAction(EventHandler<ActionEvent> value) {
+        payloadButtonGo.setOnAction(value);
     }
 
     private void gridSetVisible(GridPane grid, int index) {

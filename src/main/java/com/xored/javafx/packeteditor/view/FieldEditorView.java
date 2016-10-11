@@ -7,8 +7,8 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
-import com.xored.javafx.packeteditor.data.FieldRules;
 import com.xored.javafx.packeteditor.controls.PayloadEditor;
+import com.xored.javafx.packeteditor.data.FieldRules;
 import com.xored.javafx.packeteditor.data.IField.Type;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
@@ -19,10 +19,7 @@ import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
-import javafx.collections.FXCollections;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
@@ -38,7 +35,6 @@ import org.controlsfx.validation.decoration.StyleClassValidationDecoration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -278,95 +274,19 @@ public class FieldEditorView {
         return rows;
     }
 
-    private List<Node> buildFieldRowRaw(CombinedField field, GridPane grid) {
-        List<Node> rows = new ArrayList<>();
-        HBox row;
-
-        // 1) Create first row with offset, name, type controls
-        row = new HBox();
-        row.getStyleClass().addAll("field-row-raw-head");
-
-        BorderPane titlePane = new BorderPane();
-        titlePane.setLeft(getFieldLabel(field));
-        titlePane.getStyleClass().add("title-pane");
-
-        BorderPane valuePane = new BorderPane();
-        Parent parent = null;
-        FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
-        try {
-            parent = fxmlLoader.load(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/payloadEditor.fxml"));
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-        valuePane.getChildren().clear();
-        valuePane.getChildren().add(parent);
-
-        ChoiceBox payloadChoiceType = (ChoiceBox)parent.lookup("#payloadChoiceType");
-        payloadChoiceType.setItems(FXCollections.observableArrayList(
-                "Text",
-                "File",
-                "Text pattern",
-                "Load pattern from file",
-                "Random ascii",
-                "Random non-ascii"));
-        row.getChildren().addAll(titlePane, valuePane);
-        rows.add(row);
-
-        // 2) Create value controls
-        row = new HBox();
-        row.getStyleClass().addAll("field-row-raw");
-
-        titlePane = new BorderPane();
-        titlePane.setLeft(getEmptyFieldLabel());
-        titlePane.getStyleClass().add("title-pane");
-        row.setHgrow(titlePane, Priority.ALWAYS);
-
-        valuePane = new BorderPane();
-        try {
-            parent = fxmlLoader.load(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/payloadEditorGrid.fxml"));
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-        valuePane.getChildren().clear();
-        valuePane.getChildren().add(parent);
-        row.setHgrow(valuePane, Priority.ALWAYS);
-        row.getChildren().addAll(titlePane, valuePane);
-        rows.add(row);
-
-        // Set event handler for choce
-        GridPane payloadEditorGrid = (GridPane) parent.lookup("#payloadEditorGrid");
-        injectOnChangeHandlerPayload(payloadChoiceType, field, payloadEditorGrid);
-
-        // Init values
-        FieldData fieldData = field.getScapyFieldData();
-        if (fieldData != null) {
-            // TODO: define text or binary
-            if (fieldData.hasBinaryData()) {
-                TextArea te = (TextArea) payloadEditorGrid.lookup("#payloadText");
-                te.setText(fieldData.getHumanValue());
-                javafx.application.Platform.runLater(() -> {payloadChoiceType.getSelectionModel().select("Text");});
-            }
-        }
-
-        return rows;
-    }
-
     private Node createDefaultControl(CombinedField field) {
         
-        if (field.getMeta().getType() == Type.RAW) {
-            PayloadEditor node = new PayloadEditor(injector);
-            node.setText(field.getDisplayValue());
-            node.select(0);
-            return node;
-        }
-        else {
-            FlowPane parent = new FlowPane();
-            Node editableControl = createControl(field, parent);
+        FlowPane parent = new FlowPane();
+        Node editableControl = createControl(field, parent);
+
+        if (field.getMeta().getType() != Type.RAW) {
             editableControl.setVisible(false);
             Label label = createValueLabel(parent, field, editableControl);
-            parent.getChildren().addAll(label, editableControl);
-            return parent;
+            parent.getChildren().addAll(label);
         }
+
+        parent.getChildren().addAll(editableControl);
+        return parent;
     }
     
     
@@ -412,18 +332,12 @@ public class FieldEditorView {
                 break;
             case RAW:
                 FieldData fieldData = field.getScapyFieldData();
-                if (fieldData != null && fieldData.hasBinaryData() && !(fieldData.getValue() instanceof JsonPrimitive)) {
-                    fieldControl = new Label(field.getDisplayValue());
-                } else {
-                    PayloadEditor pe = new PayloadEditor(injector);
-                    pe.setText(field.getDisplayValue());
-                    pe.setPrefSize(parent.getWidth(), parent.getHeight());
-                    MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
-                    saveRawMenuItem.setOnAction((event) -> controller.getModel().editField(field, pe.getText()));
-                    pe.setContextMenu(new ContextMenu(saveRawMenuItem));
-                    fieldControl = pe;
-                }
-                fieldControl.getStyleClass().addAll("field-row-raw-value");
+                PayloadEditor pe = new PayloadEditor(injector);
+                pe.setLabel(field.getDisplayValue());
+                MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
+                saveRawMenuItem.setOnAction((event) -> controller.getModel().editField(field, pe.getText()));
+                pe.setContextMenu(new ContextMenu(saveRawMenuItem));
+                fieldControl = pe;
                 break;
             case NONE:
             default:
