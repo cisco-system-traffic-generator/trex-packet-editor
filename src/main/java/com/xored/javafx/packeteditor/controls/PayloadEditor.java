@@ -59,6 +59,26 @@ public class PayloadEditor extends VBox {
     private FXMLLoader fxmlLoader = null;
     private Injector injector;
 
+    public enum PayloadType {
+        UNKNOWN,
+        TEXT,
+        FILE,
+        TEXT_PATTERN,
+        FILE_PATTERN,
+        RANDOM_ASCII,
+        RANDOM_NON_ASCII
+    };
+
+    public enum PayloadMode {
+        UNKNOWN,
+        READ,
+        EDIT
+    };
+
+    private PayloadType type = PayloadType.UNKNOWN;
+
+    private PayloadMode mode = PayloadMode.UNKNOWN;
+
     public PayloadEditor(Injector injector) {
         this.injector = injector;
         this.fxmlLoader = injector.getInstance(FXMLLoader.class);
@@ -83,21 +103,85 @@ public class PayloadEditor extends VBox {
         });
 
         payloadEditorLabel.setOnMouseClicked(e -> {
-            payloadEditorHboxLabel.setVisible(false);
-            payloadEditorHboxLabel.setManaged(false);
-            payloadEditorHboxChoice.setVisible(true);
-            payloadEditorHboxChoice.setManaged(true);
+            setMode(PayloadMode.EDIT);
+        });
+    }
 
-            int index = payloadChoiceType.getSelectionModel().getSelectedIndex();
-            if (index >= 0) {
-                payloadEditorHboxValue.setVisible(true);
-                payloadEditorHboxValue.setManaged(true);
-            }
-            else {
+    public PayloadMode getMode() {
+        return mode;
+    }
+
+    public void setMode(PayloadMode mode) {
+        this.mode = mode;
+        switch (mode) {
+            case READ:
+                payloadEditorHboxLabel.setVisible(true);
+                payloadEditorHboxLabel.setManaged(true);
+                payloadEditorHboxChoice.setVisible(false);
+                payloadEditorHboxChoice.setManaged(false);
                 payloadEditorHboxValue.setVisible(false);
                 payloadEditorHboxValue.setManaged(false);
-            }
-        });
+                break;
+            case EDIT:
+                payloadEditorHboxLabel.setVisible(false);
+                payloadEditorHboxLabel.setManaged(false);
+                payloadEditorHboxChoice.setVisible(true);
+                payloadEditorHboxChoice.setManaged(true);
+
+                int index = payloadChoiceType.getSelectionModel().getSelectedIndex();
+                if (index >= 0) {
+                    payloadEditorHboxValue.setVisible(true);
+                    payloadEditorHboxValue.setManaged(true);
+                } else {
+                    payloadEditorHboxValue.setVisible(false);
+                    payloadEditorHboxValue.setManaged(false);
+                }
+                break;
+            default:
+                logger.error("Unknown payload editor mode");
+        }
+    }
+
+    public PayloadType getType() {
+        return type;
+    }
+
+    public void setType(PayloadType type) {
+        this.type = type;
+        switch (type) {
+            case TEXT:
+                select(0);
+                setMode(PayloadMode.EDIT);
+                break;
+            case FILE:
+                select(1);
+                setMode(PayloadMode.EDIT);
+                break;
+            case TEXT_PATTERN:
+                select(2);
+                setMode(PayloadMode.EDIT);
+                break;
+            case FILE_PATTERN:
+                select(3);
+                setMode(PayloadMode.EDIT);
+                break;
+            case RANDOM_ASCII:
+                select(4);
+                setMode(PayloadMode.EDIT);
+                break;
+            case RANDOM_NON_ASCII:
+                select(5);
+                setMode(PayloadMode.EDIT);
+                break;
+            case UNKNOWN:
+                getSelectionModel().select(false);
+                payloadEditorHboxValue.setVisible(false);
+                payloadEditorHboxValue.setManaged(false);
+                setMode(PayloadMode.READ);
+                break;
+            default:
+                logger.error("Unknown payload type");
+        }
     }
 
     public String getText() {

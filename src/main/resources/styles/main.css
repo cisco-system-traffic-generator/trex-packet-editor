@@ -160,7 +160,7 @@
     -fx-background-color: #ffffff;
     /*-fx-pref-height: 50px;
     -fx-min-height: 30px; */
-    -fx-padding: 8 0 7 40px;
+    -fx-padding: 2 0 1 40px;
     -fx-fill-height: true;
     -fx-fill-width: true;
 }
@@ -168,14 +168,14 @@
 .field-row-raw {
     -fx-background-color: #ffffff;
     -fx-pref-height: 220px;
-    -fx-padding: 0 0 7 40px;
+    -fx-padding: 0 0 1 40px;
 }
 
 .field-row-raw-head {
     -fx-background-color: #ffffff;
     -fx-pref-height: 50px;
     -fx-min-height: 50px;
-    -fx-padding: 8 0 7 40px;
+    -fx-padding: 2 0 1 40px;
 }
 
 .field-row-raw-value {
