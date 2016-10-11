@@ -128,7 +128,8 @@ public class FieldEditorView {
 
         // Display only available protocols, but let user choose any
         List<String> protoIds = controller.getMetadataService().getProtocols().values().stream()
-                .map(m -> m.getId()).sorted()
+                .map(ProtocolMetadata::getId)
+                .sorted()
                 .collect(Collectors.toList());
 
         TextFields.bindAutoCompletion(cb.getEditor(), protoIds);
@@ -154,7 +155,7 @@ public class FieldEditorView {
 
         controls.getChildren().add(cb);
         controls.getChildren().add(addBtn);
-        controls.setHgrow(cb, Priority.ALWAYS);
+        HBox.setHgrow(cb, Priority.ALWAYS);
         return pane;
     }
 
@@ -262,9 +263,6 @@ public class FieldEditorView {
         } else {
             Node fieldControl = createDefaultControl(field);
             
-            fieldControl.setId(getUniqueIdFor(field));
-            fieldControl.getStyleClass().addAll("control");
-            
             BorderPane valuePane = new BorderPane();
             valuePane.setCenter(fieldControl);
             row.getChildren().addAll(titlePane, valuePane);
@@ -354,48 +352,58 @@ public class FieldEditorView {
     }
 
     private Node createDefaultControl(CombinedField field) {
-        String humanVal = field.getDisplayValue();
-        String labelText = humanVal;
+        
+        if (field.getMeta().getType() == Type.RAW) {
+            PayloadEditor node = new PayloadEditor(injector);
+            node.setText(field.getDisplayValue());
+            node.select(0);
+            return node;
+        }
+        else {
+            FlowPane parent = new FlowPane();
+            Node editableControl = createControl(field, parent);
+            editableControl.setVisible(false);
+            Label label = createValueLabel(parent, field, editableControl);
+            parent.getChildren().addAll(label, editableControl);
+            return parent;
+        }
+    }
+    
+    
+    private Label createValueLabel(FlowPane parent, CombinedField field, Node editableControl) {
+        String labelText = field.getDisplayValue();
 
         boolean isDefaultValue = !controller.getModel().isBinaryMode() && !field.hasUserValue();
 
         if (field.getMeta().getType() == Type.ENUM) {
             // for enums also show value
-            JsonElement val = field.getMeta().getDictionary().getOrDefault(humanVal, null);
+            JsonElement val = field.getMeta().getDictionary().getOrDefault(labelText, null);
             if (val != null) {
-                labelText = String.format("%s (%s)", humanVal, val.toString());
+                labelText = String.format("%s (%s)", labelText, val.toString());
             }
         } else if (isDefaultValue && field.getMeta().isAuto()) {
-            labelText = String.format("%s (auto-calculated)", humanVal);
+            labelText = String.format("%s (auto-calculated)", labelText);
         }
 
-        if (field.getMeta().getType() == Type.RAW) {
-            PayloadEditor node = new PayloadEditor(injector);
-            node.setText(labelText);
-            node.select(0);
+        Label label = new Label(labelText);
 
-            return node;
+        if (isDefaultValue) {
+            label.getStyleClass().add("field-value-default");
+        } else {
+            label.getStyleClass().add("field-value-set");
         }
-        else {
-            Label label = new Label(labelText);
-
-            if (isDefaultValue) {
-                label.getStyleClass().add("field-value-default");
-            } else {
-                label.getStyleClass().add("field-value-set");
-            }
-
-            label.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> {
-                Node editableControl = createControl(field, label);
-                label.setGraphic(editableControl);
-                editableControl.requestFocus();
-            });
-
-            return label;
-        }
+        addSelectOnclickListener(label, field);
+        
+        label.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> {
+            parent.getChildren().clear();
+            editableControl.setVisible(true);
+            parent.getChildren().add(editableControl);
+            editableControl.requestFocus();
+        });
+        return label;
     }
     
-    private Node createControl(CombinedField field, Label parent) {
+    private Node createControl(CombinedField field, FlowPane parent) {
         Node fieldControl;
 
         switch(field.getMeta().getType()) {
@@ -413,7 +421,7 @@ public class FieldEditorView {
                     MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
                     saveRawMenuItem.setOnAction((event) -> controller.getModel().editField(field, pe.getText()));
                     pe.setContextMenu(new ContextMenu(saveRawMenuItem));
-                    fieldControl = (Node) pe;
+                    fieldControl = pe;
                 }
                 fieldControl.getStyleClass().addAll("field-row-raw-value");
                 break;
@@ -425,7 +433,7 @@ public class FieldEditorView {
         return fieldControl;
     }
     
-    private TextField createTextField(CombinedField field, Label parent) {
+    private TextField createTextField(CombinedField field, FlowPane parent) {
         TextField tf;
         switch(field.getMeta().getType()) {
             case MAC_ADDRESS:
@@ -433,7 +441,7 @@ public class FieldEditorView {
             case TCP_OPTIONS:
             case NUMBER:
             case STRING:
-                tf = createFieldTextProperty(field, parent);
+                tf = createFieldText(field);
                 break;
             default:
                 return null;
@@ -441,7 +449,7 @@ public class FieldEditorView {
         ValidationSupport validationSupport = new ValidationSupport();
         validationSupport.setValidationDecorator(new StyleClassValidationDecoration("field-error", "field-warning"));
         validationSupport.registerValidator(tf, createTextFieldValidator(field.getMeta()));
-        addOnclickListener(tf, field, parent);
+        addSelectOnclickListener(tf, field);
         injectOnChangeHandler(tf, field, parent, validationSupport);
         tf.setContextMenu(getContextMenu(field));
         return  tf;
@@ -490,7 +498,7 @@ public class FieldEditorView {
         return row;
     }
 
-    private TextField createFieldTextProperty(CombinedField field, Label parent) {
+    private TextField createFieldText(CombinedField field) {
         CustomTextField tf = (CustomTextField)TextFields.createClearableTextField();
         tf.rightProperty().get().setOnMouseReleased(event ->
                 clearFieldValue(field)
@@ -552,24 +560,22 @@ public class FieldEditorView {
         return row;
     }
     
-    private void addOnclickListener(Node node, CombinedField field, Label parent) {
-        node.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> {
-            controller.selectField(field);
-            parent.setGraphic(node);
-        });
+    private void addSelectOnclickListener(Node node, CombinedField field) {
+        node.addEventHandler(MouseEvent.MOUSE_CLICKED, (mouseEvent) -> controller.selectField(field));
     }
 
-    private void injectOnChangeHandler(TextField textField, CombinedField field, Label parent, ValidationSupport validationSupport) {
+    private void injectOnChangeHandler(TextField textField, CombinedField field, FlowPane parent, ValidationSupport validationSupport) {
         textField.setOnKeyReleased(e -> {
             if (e.getCode().equals(KeyCode.ENTER)) {
                 ValidationResult result = validationSupport.getValidationResult();
                 if (result.getErrors().isEmpty()) {
-                    parent.setGraphic(null);
                     controller.getModel().editField(field, ReconstructField.setHumanValue(field.getId(), textField.getText()));
                 }
             }
             if (e.getCode().equals(KeyCode.ESCAPE)) {
-                parent.setGraphic(null);
+                parent.getChildren().clear();
+                textField.setText(field.getDisplayValue());
+                parent.getChildren().add(createValueLabel(parent, field, textField));
             }
         });
     }
@@ -601,7 +607,7 @@ public class FieldEditorView {
         });
     }
 
-    private Control createEnumField(CombinedField field, Label parent) {
+    private Control createEnumField(CombinedField field, FlowPane parent) {
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.setEditable(true);
         combo.getStyleClass().addAll("control");
@@ -615,9 +621,7 @@ public class FieldEditorView {
         ).findFirst().orElse(null);
 
         if (defaultValue == null && field.getScapyFieldData() != null) {
-            String label = field.getValue().toString();
-            FieldData fd = field.getScapyFieldData();
-            defaultValue = new ComboBoxItem(fd.getHumanValue(), fd.value);
+            defaultValue = createDefaultCBItem(field);
             items.add(defaultValue);
         }
         combo.getItems().addAll(items);
@@ -642,7 +646,23 @@ public class FieldEditorView {
             }
         });
 
+        
+        combo.setOnKeyReleased(e -> {
+            if (e.getCode().equals(KeyCode.ESCAPE)) {
+                parent.getChildren().clear();
+                combo.setValue(createDefaultCBItem(field));
+                parent.getChildren().add(createValueLabel(parent, field, combo));
+            }
+        });
+        
         return combo;
+    }
+
+    private ComboBoxItem createDefaultCBItem(CombinedField field) {
+        ComboBoxItem defaultValue;
+        FieldData fd = field.getScapyFieldData();
+        defaultValue = new ComboBoxItem(fd.getHumanValue(), fd.value);
+        return defaultValue;
     }
 
     private void clearFieldValue(CombinedField field) {
