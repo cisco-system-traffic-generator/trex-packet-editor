@@ -317,3 +317,11 @@
     -fx-pref-width: 300px;
     -fx-min-width: 100px;
 }
+
+.payloadeditorlabel {
+    -fx-pref-hight: 200px;
+    -fx-min-height: 200px;
+    -fx-pref-width: 300px;
+    -fx-min-width: 300px;
+}
+

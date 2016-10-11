@@ -10,11 +10,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * Created by igor on 10/10/16.
@@ -23,9 +22,15 @@ public class PayloadEditor extends VBox {
     static org.slf4j.Logger logger = LoggerFactory.getLogger(TRexPacketCraftingTool.class);
 
     @FXML private VBox root;
-    @FXML private ChoiceBox payloadChoiceType;
+    @FXML private HBox payloadEditorHboxLabel;
+    @FXML private HBox payloadEditorHboxChoice;
+    @FXML private HBox payloadEditorHboxValue;
+
+    // Label
+    @FXML private Label     payloadEditorLabel;
 
     // Choice
+    @FXML private ChoiceBox payloadChoiceType;
     @FXML private Button payloadButtonGo;
     @FXML private GridPane payloadEditorGrid;
 
@@ -51,23 +56,47 @@ public class PayloadEditor extends VBox {
     // Payload random non-ascii generation
     @FXML private TextField randomNonAsciiSize;
 
-    FXMLLoader fxmlLoader = null;
+    private FXMLLoader fxmlLoader = null;
+    private Injector injector;
 
     public PayloadEditor(Injector injector) {
-        FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
+        this.injector = injector;
+        this.fxmlLoader = injector.getInstance(FXMLLoader.class);
+
         fxmlLoader.setLocation(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/PayloadEditor.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
         try {
             fxmlLoader.load();
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
         }
 
         payloadChoiceType.setOnAction((event) -> {
             int index = payloadChoiceType.getSelectionModel().getSelectedIndex();
-            javafx.application.Platform.runLater(() -> gridSetVisible(payloadEditorGrid, index));
+            if (index >= 0) {
+                payloadEditorHboxValue.setVisible(true);
+                payloadEditorHboxValue.setManaged(true);
+                javafx.application.Platform.runLater(() -> gridSetVisible(payloadEditorGrid, index));
+            }
+        });
+
+        payloadEditorLabel.setOnMouseClicked(e -> {
+            payloadEditorHboxLabel.setVisible(false);
+            payloadEditorHboxLabel.setManaged(false);
+            payloadEditorHboxChoice.setVisible(true);
+            payloadEditorHboxChoice.setManaged(true);
+
+            int index = payloadChoiceType.getSelectionModel().getSelectedIndex();
+            if (index >= 0) {
+                payloadEditorHboxValue.setVisible(true);
+                payloadEditorHboxValue.setManaged(true);
+            }
+            else {
+                payloadEditorHboxValue.setVisible(false);
+                payloadEditorHboxValue.setManaged(false);
+            }
         });
     }
 
@@ -76,7 +105,7 @@ public class PayloadEditor extends VBox {
     }
 
     public void setLabel(String value) {
-        textProperty().set(value);
+        payloadEditorLabel.setText(value);
     }
 
     public void setText(String value) {

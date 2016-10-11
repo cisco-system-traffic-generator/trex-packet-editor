@@ -8,7 +8,15 @@
 <fx:root xmlns:fx="http://javafx.com/fxml"
          type="javafx.scene.layout.VBox"
          styleClass="payloadvbox">
-    <HBox styleClass="payloadhbox">
+    <HBox fx:id="payloadEditorHboxLabel"
+          styleClass="payloadhbox">
+        <Label fx:id="payloadEditorLabel"
+               styleClass="payloadleditorabel"/>
+    </HBox>
+    <HBox fx:id="payloadEditorHboxChoice"
+          visible="false"
+          managed="false"
+          styleClass="payloadhbox">
         <children>
             <ChoiceBox fx:id="payloadChoiceType"
                        styleClass="payloadchoice"
@@ -32,7 +40,10 @@
 
         </children>
     </HBox>
-    <HBox styleClass="payloadhbox">
+    <HBox fx:id="payloadEditorHboxValue"
+          visible="false"
+          managed="false"
+          styleClass="payloadhbox">
         <GridPane xmlns:fx="http://javafx.com/fxml/1"
                   minWidth="-Infinity"
                   xmlns="http://javafx.com/javafx/8"
