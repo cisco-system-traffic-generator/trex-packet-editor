@@ -261,7 +261,7 @@
 }
 
 .field-error {
-    -fx-background-color: lightcoral;
+    -fx-focus-color: red;
 }
 
 /* For paylod editor control */
