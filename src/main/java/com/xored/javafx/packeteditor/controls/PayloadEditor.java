@@ -57,13 +57,6 @@ public class PayloadEditor extends VBox {
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 
-        /*if (fxmlLoader == null) {
-            fxmlLoader = new FXMLLoader(getClass().getResource("com/xored/javafx/packeteditor/controllers/PayloadEditor.fxml"));
-        }
-        fxmlLoader.setLocation(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/PayloadEditor.fxml"));
-        fxmlLoader.setRoot(this);
-        fxmlLoader.setController(this);*/
-
         try {
             fxmlLoader.load();
         } catch (IOException exception) {
