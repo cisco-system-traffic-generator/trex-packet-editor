@@ -251,9 +251,17 @@ public class FieldEditorView {
             row.getChildren().add(titlePane);
             rows.add(row);
             field.getMeta().getBits().stream().forEach(bitFlagMetadata -> rows.add(this.createBitFlagRow(field, bitFlagMetadata)));
+        } else if (RAW.equals(type)) {
+            PayloadEditor node = new PayloadEditor(injector);
+            node.setText(field.getDisplayValue());
+            node.select(0);
+            row.getChildren().addAll(titlePane, node);
+            rows.add(row);
         } else {
-            Node fieldControl = createDefaultControl(field);
-            
+            FlowPane parent = new FlowPane();
+            Node editableControl = createControl(field, parent);
+            editableControl.setVisible(false);
+            Node fieldControl = createDefaultControlPane(field, parent, editableControl);
             BorderPane valuePane = new BorderPane();
             valuePane.setCenter(fieldControl);
             row.getChildren().addAll(titlePane, valuePane);
@@ -269,20 +277,11 @@ public class FieldEditorView {
         return rows;
     }
 
-    private Node createDefaultControl(CombinedField field) {
-        FlowPane parent = new FlowPane();
-        Node editableControl = createControl(field, parent);
-
-        if (editableControl != null && field.getMeta().getType() != FieldMetadata.FieldType.BYTES) {
-            editableControl.setVisible(false);
-            Label label = createValueLabel(parent, field, editableControl);
-            parent.getChildren().addAll(label);
-        }
-
-        parent.getChildren().addAll(editableControl);
+    private Node createDefaultControlPane(CombinedField field, FlowPane parent, Node editableControl) {
+        Label label = createValueLabel(parent, field, editableControl);
+        parent.getChildren().addAll(label, editableControl);
         return parent;
     }
-    
     
     private Label createValueLabel(FlowPane parent, CombinedField field, Node editableControl) {
         String labelText = field.getDisplayValue();
@@ -419,9 +418,9 @@ public class FieldEditorView {
 
         titlePane.setLeft(buildIndentedFieldLabel(maskToString(flagMask), flagName));
         titlePane.getStyleClass().add("title-pane");
+        
         HBox row = new HBox();
         row.getStyleClass().addAll("field-row");
-
 
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.getStyleClass().addAll("control");
