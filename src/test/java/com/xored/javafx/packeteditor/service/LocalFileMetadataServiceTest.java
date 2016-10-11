@@ -1,9 +1,11 @@
 package com.xored.javafx.packeteditor.service;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 
 public class LocalFileMetadataServiceTest {
@@ -14,9 +16,9 @@ public class LocalFileMetadataServiceTest {
     public void testLoadFile(){
         try {
             metadataService.loadMeta();
-            Assert.assertNotEquals(0, metadataService.getProtocols().size());
+            assertFalse(metadataService.getProtocols().isEmpty());
         } catch (IOException e) {
-            Assert.fail("Unable to load metadata");
+            fail("Unable to load metadata");
         }
     }
 }
