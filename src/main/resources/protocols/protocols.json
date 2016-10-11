@@ -6,13 +6,13 @@
       {
         "id": "dst",
         "name": "Destination",
-        "type": "MACADDRESS",
+        "type": "MAC_ADDRESS",
         "regex": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"
       },
       {
         "id": "src",
         "name": "Source",
-        "type": "MACADDRESS",
+        "type": "MAC_ADDRESS",
         "regex": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"
       },
       {
@@ -55,7 +55,7 @@
       {
         "id": "flags",
         "name": "Flags",
-        "type": "bitmask",
+        "type": "BITMASK",
         "bits": [
           {"name": "Reserved", "mask": 4, "values":[{"name":"Not Set", "value": 0}, {"name":"Set", "value": 4}]},
           {"name": "Fragment", "mask": 2, "values":[{"name":"May fragment (0)", "value": 0}, {"name":"Don't fragment (1)", "value": 2}]},
@@ -88,17 +88,17 @@
       {
         "id": "src",
         "name": "Source address",
-        "type": "IPv4Address"
+        "type": "IP_ADDRESS"
       },
       {
         "id": "dst",
         "name": "Destination address",
-        "type": "IPv4Address"
+        "type": "IP_ADDRESS"
       },
       {
         "id": "options",
         "name": "Options",
-        "type": "IPOptions"
+        "type": "IP_OPTIONS"
       }
     ],
     "payload": ["TCP", "UDP"]
@@ -146,7 +146,7 @@
         "id": "flags",
         "name": "Flags",
         "auto": false,
-        "type": "bitmask",
+        "type": "BITMASK",
         "bits": [
           {"name": "URG", "mask": 32, "values":[{"name":"Not Set", "value": 0}, {"name":"Set", "value": 32}]},
           {"name": "ACK", "mask": 16, "values":[{"name":"Not Set", "value": 0}, {"name":"Set", "value": 16}]},
@@ -175,7 +175,7 @@
       {
         "id": "options",
         "name": "Options",
-        "type": "TCPOptions"
+        "type": "TCP_OPTIONS"
       }
     ],
     "payload": ["Raw"]
@@ -187,7 +187,7 @@
       {
         "id": "load",
         "name": "Payload",
-        "type": "raw"
+        "type": "BYTES"
       }
     ],
     "payload": []

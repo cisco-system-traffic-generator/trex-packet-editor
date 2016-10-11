@@ -3,7 +3,6 @@ package com.xored.javafx.packeteditor.service;
 
 import com.google.gson.*;
 import com.xored.javafx.packeteditor.data.FieldRules;
-import com.xored.javafx.packeteditor.data.IField;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
@@ -17,7 +16,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.xored.javafx.packeteditor.data.IField.Type.*;
+import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.*;
 
 class LocalFileMetadataService {
 
@@ -63,7 +62,7 @@ class LocalFileMetadataService {
                 String regex = getAttrStringValue(field, "regex");
                 FieldRules fieldRules = new FieldRules(min, max, regex);
                 
-                IField.Type type = getTypeByName(typeName);
+                FieldMetadata.FieldType type = FieldMetadata.fieldTypeFromString(typeName);
                 Map<String, JsonElement> dict = null;
                 List<BitFlagMetadata> bitFlags = new ArrayList<>();
 
@@ -114,28 +113,5 @@ class LocalFileMetadataService {
 
     private Integer getAttrIntValue(JsonObject field, String attrName) {
         return (field.get(attrName) instanceof JsonPrimitive) ? field.get(attrName).getAsInt() : null;
-    }
-
-    private IField.Type getTypeByName(String id) {
-        if (id == null)
-            return STRING;
-        switch (id) {
-            case "NUMBER":
-                return NUMBER;
-            case "IPv4Address":
-                return IPV4ADDRESS;
-            case "MACADDRESS":
-                return MAC_ADDRESS;
-            case "enum":
-                return ENUM;
-            case "TCPOptions":
-                return TCP_OPTIONS;
-            case "bitmask":
-                return BITMASK;
-            case "raw":
-                return RAW;
-            default:
-                return STRING;
-        }
     }
 }
