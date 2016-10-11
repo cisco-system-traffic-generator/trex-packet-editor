@@ -274,7 +274,7 @@ public class FieldEditorView {
         FlowPane parent = new FlowPane();
         Node editableControl = createControl(field, parent);
 
-        if (field.getMeta().getType() != FieldMetadata.FieldType.BYTES) {
+        if (editableControl != null && field.getMeta().getType() != FieldMetadata.FieldType.BYTES) {
             editableControl.setVisible(false);
             Label label = createValueLabel(parent, field, editableControl);
             parent.getChildren().addAll(label);
@@ -326,7 +326,6 @@ public class FieldEditorView {
                 fieldControl = createEnumField(field, parent);
                 break;
             case BYTES:
-                FieldData fieldData = field.getScapyFieldData();
                 PayloadEditor pe = new PayloadEditor(injector);
                 pe.setLabel(field.getDisplayValue());
                 MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
@@ -342,16 +341,13 @@ public class FieldEditorView {
     }
     
     private TextField createTextField(CombinedField field, FlowPane parent) {
-        TextField tf;
-        switch(field.getMeta().getType()) {
-            case MAC_ADDRESS:
-            case TCP_OPTIONS:
-            case NUMBER:
-            case STRING:
-                tf = createFieldText(field);
-                break;
-            default:
-                return null;
+        CustomTextField tf = (CustomTextField)TextFields.createClearableTextField();
+        tf.rightProperty().get().setOnMouseReleased(event ->
+                clearFieldValue(field)
+        );
+
+        if (field.getValue() instanceof JsonPrimitive) {
+            tf.setText(field.getValue().getAsString());
         }
         ValidationSupport validationSupport = new ValidationSupport();
         validationSupport.setValidationDecorator(new StyleClassValidationDecoration("field-error", "field-warning"));
@@ -359,7 +355,7 @@ public class FieldEditorView {
         addSelectOnclickListener(tf, field);
         injectOnChangeHandler(tf, field, parent, validationSupport);
         tf.setContextMenu(getContextMenu(field));
-        return  tf;
+        return tf;
     }
     
     private Validator createTextFieldValidator(FieldMetadata fieldMetadata) {
@@ -403,18 +399,6 @@ public class FieldEditorView {
         valuePane.setLeft(valueCtrl);
         row.getChildren().addAll(titlePane, valuePane);
         return row;
-    }
-
-    private TextField createFieldText(CombinedField field) {
-        CustomTextField tf = (CustomTextField)TextFields.createClearableTextField();
-        tf.rightProperty().get().setOnMouseReleased(event ->
-                clearFieldValue(field)
-        );
-
-        if (field.getValue() instanceof JsonPrimitive) {
-            tf.setText(field.getValue().getAsString());
-        }
-        return tf;
     }
 
     private String maskToString(int mask) {
