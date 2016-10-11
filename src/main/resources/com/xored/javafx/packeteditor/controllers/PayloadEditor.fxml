@@ -11,7 +11,7 @@
     <HBox fx:id="payloadEditorHboxLabel"
           styleClass="payloadhbox">
         <Label fx:id="payloadEditorLabel"
-               styleClass="payloadleditorabel"/>
+               styleClass="payloadeditorlabel"/>
     </HBox>
     <HBox fx:id="payloadEditorHboxChoice"
           visible="false"

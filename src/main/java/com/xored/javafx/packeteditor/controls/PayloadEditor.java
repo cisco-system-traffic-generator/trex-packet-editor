@@ -56,28 +56,49 @@ public class PayloadEditor extends VBox {
     // Payload random non-ascii generation
     @FXML private TextField randomNonAsciiSize;
 
+
+    public enum PT {
+        UNKNOWN         (-1, "UNKNOWN"),
+        TEXT            (0, "Text"),
+        FILE            (1, "File"),
+        TEXT_PATTERN    (2, "Text pattern"),
+        FILE_PATTERN    (3, "File pattern"),
+        RANDOM_ASCII    (4, "Random ASCII"),
+        RANDOM_NON_ASCII(5, "Random non ASCII");
+
+        private final int    index;
+        private final String human;
+
+        PT(int index, String human) {
+            this.index = index;
+            this.human = human;
+        }
+
+        public int    index() { return index; }
+        public String human() { return human; }
+    };
+
+    public enum PM {
+        UNKNOWN (-1, "UNKNOWN"),
+        READ    (0, "Reading mode"),
+        EDIT    (1, "Editing mode");
+
+        private final int    mode;
+        private final String human;
+
+        PM(int mode, String human) {
+            this.mode = mode;
+            this.human = human;
+        }
+
+        public int    mode()  { return mode; }
+        public String human() { return human; }
+    };
+
     private FXMLLoader fxmlLoader = null;
     private Injector injector;
-
-    public enum PayloadType {
-        UNKNOWN,
-        TEXT,
-        FILE,
-        TEXT_PATTERN,
-        FILE_PATTERN,
-        RANDOM_ASCII,
-        RANDOM_NON_ASCII
-    };
-
-    public enum PayloadMode {
-        UNKNOWN,
-        READ,
-        EDIT
-    };
-
-    private PayloadType type = PayloadType.UNKNOWN;
-
-    private PayloadMode mode = PayloadMode.UNKNOWN;
+    private PT type = PT.UNKNOWN;
+    private PM mode = PM.UNKNOWN;
 
     public PayloadEditor(Injector injector) {
         this.injector = injector;
@@ -99,19 +120,25 @@ public class PayloadEditor extends VBox {
                 payloadEditorHboxValue.setVisible(true);
                 payloadEditorHboxValue.setManaged(true);
                 javafx.application.Platform.runLater(() -> gridSetVisible(payloadEditorGrid, index));
+                setType(int2type(index));
+                setMode(PM.EDIT);
+            }
+            else {
+                setType(PT.UNKNOWN);
+                setMode(PM.READ);
             }
         });
 
         payloadEditorLabel.setOnMouseClicked(e -> {
-            setMode(PayloadMode.EDIT);
+            setMode(PM.EDIT);
         });
     }
 
-    public PayloadMode getMode() {
+    public PM getMode() {
         return mode;
     }
 
-    public void setMode(PayloadMode mode) {
+    public void setMode(PM mode) {
         this.mode = mode;
         switch (mode) {
             case READ:
@@ -142,45 +169,22 @@ public class PayloadEditor extends VBox {
         }
     }
 
-    public PayloadType getType() {
+    public PT getType() {
         return type;
     }
 
-    public void setType(PayloadType type) {
+    public void setType(PT type) {
         this.type = type;
-        switch (type) {
-            case TEXT:
-                select(0);
-                setMode(PayloadMode.EDIT);
-                break;
-            case FILE:
-                select(1);
-                setMode(PayloadMode.EDIT);
-                break;
-            case TEXT_PATTERN:
-                select(2);
-                setMode(PayloadMode.EDIT);
-                break;
-            case FILE_PATTERN:
-                select(3);
-                setMode(PayloadMode.EDIT);
-                break;
-            case RANDOM_ASCII:
-                select(4);
-                setMode(PayloadMode.EDIT);
-                break;
-            case RANDOM_NON_ASCII:
-                select(5);
-                setMode(PayloadMode.EDIT);
-                break;
-            case UNKNOWN:
-                getSelectionModel().select(false);
-                payloadEditorHboxValue.setVisible(false);
-                payloadEditorHboxValue.setManaged(false);
-                setMode(PayloadMode.READ);
-                break;
-            default:
-                logger.error("Unknown payload type");
+
+        if (type != PT.UNKNOWN) {
+            select(type2int(type));
+            setMode(PM.EDIT);
+        }
+        else {
+            getSelectionModel().select(false);
+            payloadEditorHboxValue.setVisible(false);
+            payloadEditorHboxValue.setManaged(false);
+            setMode(PM.READ);
         }
     }
 
@@ -242,4 +246,14 @@ public class PayloadEditor extends VBox {
         }
     }
 
+    private int type2int(PT type) {
+        return type.index;
+    }
+
+    private PT int2type(int index) {
+        for (PT t : PT.values()) {
+            if (t.index == index) return t;
+        }
+        return PT.UNKNOWN;
+    }
 }

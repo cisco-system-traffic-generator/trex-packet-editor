@@ -270,7 +270,6 @@ public class FieldEditorView {
     }
 
     private Node createDefaultControl(CombinedField field) {
-        
         FlowPane parent = new FlowPane();
         Node editableControl = createControl(field, parent);
 
@@ -326,12 +325,7 @@ public class FieldEditorView {
                 fieldControl = createEnumField(field, parent);
                 break;
             case BYTES:
-                PayloadEditor pe = new PayloadEditor(injector);
-                pe.setLabel(field.getDisplayValue());
-                MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
-                saveRawMenuItem.setOnAction((event) -> controller.getModel().editField(field, pe.getText()));
-                pe.setContextMenu(new ContextMenu(saveRawMenuItem));
-                fieldControl = pe;
+                fieldControl = createPayloadField(field, parent);
                 break;
             default:
                 fieldControl = createTextField(field, parent);
@@ -339,7 +333,20 @@ public class FieldEditorView {
         
         return fieldControl;
     }
-    
+
+    private PayloadEditor createPayloadField(CombinedField field, FlowPane parent) {
+        FieldData fieldData = field.getScapyFieldData();
+        PayloadEditor pe = new PayloadEditor(injector);
+        pe.setLabel(field.getDisplayValue());
+        MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
+        saveRawMenuItem.setOnAction((event) -> {
+            controller.getModel().editField(field, pe.getText());
+        });
+        pe.setContextMenu(new ContextMenu(saveRawMenuItem));
+        injectOnChangeHandlerPayload(pe, field, parent);
+        return  pe;
+    }
+
     private TextField createTextField(CombinedField field, FlowPane parent) {
         CustomTextField tf = (CustomTextField)TextFields.createClearableTextField();
         tf.rightProperty().get().setOnMouseReleased(event ->
@@ -490,11 +497,19 @@ public class FieldEditorView {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void injectOnChangeHandlerPayload(ChoiceBox choice, CombinedField field, GridPane grid) {
-        choice.setOnAction((event) -> {
-            int index = choice.getSelectionModel().getSelectedIndex();
-            javafx.application.Platform.runLater(() -> gridSetVisible(grid, index));
+    private void injectOnChangeHandlerPayload(PayloadEditor payload, CombinedField field, FlowPane parent) {
+        payload.setOnAction((event) -> {
+            PayloadEditor.PT type = payload.getType();
+            switch (type) {
+                case TEXT:
+                    String text = payload.getText();
+                    // TODO
+                    logger.info("\n\tText field: \n\t\t" + text + "\n");
+                    break;
+                default:
+                    // TODO
+                    logger.info("\n\tNot yet implemented\n");
+            }
         });
     }
 

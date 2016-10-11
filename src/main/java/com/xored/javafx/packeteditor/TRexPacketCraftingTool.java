@@ -31,7 +31,7 @@ public class TRexPacketCraftingTool extends Application {
         fxmlLoader.setLocation(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/app.fxml"));
         Parent parent = fxmlLoader.load();
         Scene scene = new Scene(parent);
-        scene.getStylesheets().add(ClassLoader.getSystemResource("styles/main.css").toExternalForm());
+        scene.getStylesheets().add(ClassLoader.getSystemResource("styles/main-narrow.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.setTitle("Packet Crafting Tool");
         primaryStage.show();
