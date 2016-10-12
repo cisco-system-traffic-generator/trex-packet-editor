@@ -25,7 +25,10 @@ public class PayloadEditor extends VBox {
     @FXML private HBox payloadEditorHboxValue;
 
     // Choice
-    @FXML private ChoiceBox payloadChoiceType;
+    @SuppressWarnings("unchecked")
+    @FXML
+    private ChoiceBox payloadChoiceType;
+    
     @FXML private Button payloadButtonGo;
     @FXML private GridPane payloadEditorGrid;
 
