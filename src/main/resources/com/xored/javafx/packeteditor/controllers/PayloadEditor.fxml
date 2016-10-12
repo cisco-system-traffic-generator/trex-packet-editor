@@ -8,11 +8,6 @@
 <fx:root xmlns:fx="http://javafx.com/fxml"
          type="javafx.scene.layout.VBox"
          styleClass="payloadvbox">
-    <HBox fx:id="payloadEditorHboxLabel"
-          styleClass="payloadhbox">
-        <Label fx:id="payloadEditorLabel"
-               styleClass="payloadeditorlabel"/>
-    </HBox>
     <HBox fx:id="payloadEditorHboxChoice"
           visible="false"
           managed="false"

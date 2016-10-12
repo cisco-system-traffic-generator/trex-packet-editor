@@ -258,7 +258,7 @@
 }
 
 .field-error {
-    -fx-background-color: lightcoral;
+    -fx-focus-color: red;
 }
 
 /* For payload editor control */

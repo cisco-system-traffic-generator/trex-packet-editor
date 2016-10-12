@@ -260,10 +260,6 @@
     -fx-text-fill: blue;
 }
 
-.field-error {
-    -fx-focus-color: red;
-}
-
 /* For paylod editor control */
 .payloadhbox {
     /*-fx-min-height: 30px;

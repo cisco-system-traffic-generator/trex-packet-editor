@@ -5,10 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
-import com.xored.javafx.packeteditor.controls.PayloadEditor;
 import com.xored.javafx.packeteditor.controls.ProtocolField;
-import com.xored.javafx.packeteditor.data.IField.Type;
-import com.xored.javafx.packeteditor.data.FieldRules;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
@@ -252,9 +249,6 @@ public class FieldEditorView {
             row.getChildren().add(titlePane);
             rows.add(row);
             field.getMeta().getBits().stream().forEach(bitFlagMetadata -> rows.add(this.createBitFlagRow(field, bitFlagMetadata)));
-        } else if (RAW.equals(type)) {
-            row.getChildren().addAll(titlePane, createPayloadEditorControl(field));
-            rows.add(row);
         } else {
             
             ProtocolField fieldControl = injector.getInstance(ProtocolField.class);
@@ -273,27 +267,6 @@ public class FieldEditorView {
         }
 
         return rows;
-    }
-    
-    private Node createPayloadEditorControl(CombinedField field) {
-        PayloadEditor pe = new PayloadEditor(injector);
-        pe.setLabel(field.getDisplayValue());
-        MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
-        saveRawMenuItem.setOnAction((event) -> controller.getModel().editField(field, pe.getText()));
-        pe.setContextMenu(new ContextMenu(saveRawMenuItem));
-        return pe;
-    }
-
-    private PayloadEditor createPayloadField(CombinedField field, FlowPane parent) {
-        PayloadEditor pe = new PayloadEditor(injector);
-        pe.setLabel(field.getDisplayValue());
-        MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
-        saveRawMenuItem.setOnAction((event) -> {
-            controller.getModel().editField(field, pe.getText());
-        });
-        pe.setContextMenu(new ContextMenu(saveRawMenuItem));
-        injectOnChangeHandlerPayload(pe, field, parent);
-        return  pe;
     }
     
     private Node createTCPOptionRow(TCPOptionsData tcpOption) {
@@ -365,40 +338,5 @@ public class FieldEditorView {
         valuePane.setLeft(combo);
         row.getChildren().addAll(titlePane, valuePane);
         return row;
-    }
-    
-    private void gridSetVisible(GridPane grid, int index) {
-        for (Node node : grid.getChildren()) {
-            node.setVisible(false);
-            node.setManaged(false);
-        }
-        if (index >= 0) {
-            Node node = grid.getChildren().get(index);
-            node.setVisible(true);
-            node.setManaged(true);
-
-            double width = node.getLayoutBounds().getWidth();
-            double height = node.getLayoutBounds().getHeight();
-            Pane parentpane = (Pane) grid.getParent();
-            parentpane.setMinSize(width, height);
-            parentpane.setPrefSize(width, height);
-            parentpane.setMaxSize(width, height);
-        }
-    }
-
-    private void injectOnChangeHandlerPayload(PayloadEditor payload, CombinedField field, FlowPane parent) {
-        payload.setOnAction((event) -> {
-            PayloadEditor.PT type = payload.getType();
-            switch (type) {
-                case TEXT:
-                    String text = payload.getText();
-                    // TODO
-                    logger.info("\n\tText field: \n\t\t" + text + "\n");
-                    break;
-                default:
-                    // TODO
-                    logger.info("\n\tNot yet implemented\n");
-            }
-        });
     }
 }

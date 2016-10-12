@@ -4,10 +4,10 @@ import com.google.common.base.Strings;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.data.FieldRules;
-import com.xored.javafx.packeteditor.data.IField;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
@@ -24,12 +24,19 @@ import org.controlsfx.validation.Severity;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
 import org.controlsfx.validation.decoration.StyleClassValidationDecoration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.*;
+
 public class ProtocolField extends FlowPane {
+
+    @Inject
+    Injector injector;
     
     @Inject
     FieldEditorController controller;
@@ -48,6 +55,8 @@ public class ProtocolField extends FlowPane {
     @Inject
     @Named("resources")
     ResourceBundle resourceBundle;
+
+    private Logger logger = LoggerFactory.getLogger(ProtocolField.class);
 
     public void init(CombinedField combinedField) {
         this.combinedField = combinedField;
@@ -71,7 +80,7 @@ public class ProtocolField extends FlowPane {
     private Label createLabel() {
         String labelText = combinedField.getDisplayValue();
 
-        if (combinedField.getMeta().getType() == IField.Type.ENUM) {
+        if (combinedField.getMeta().getType() == ENUM) {
             // for enums also show value
             JsonElement val = combinedField.getMeta().getDictionary().getOrDefault(labelText, null);
             if (val != null) {
@@ -99,23 +108,27 @@ public class ProtocolField extends FlowPane {
         Node fieldControl;
         
         switch(combinedField.getMeta().getType()) {
-            case RAW:
-                throw new UnsupportedClassVersionError("Raw field types should created via FieldEditorView.createPayloadEditorControl");
             case ENUM:
                 fieldControl = createEnumField();
                 break;
-            case MAC_ADDRESS:
-            case IPV4ADDRESS:
-            case TCP_OPTIONS:
-            case NUMBER:
-            case STRING:
-            case NONE:
+            case BYTES:
+                fieldControl = createPayloadField();
+                break;
             default:
                 fieldControl = createTextField();
         }
         return fieldControl;
     }
 
+    private PayloadEditor createPayloadField() {
+        PayloadEditor pe = new PayloadEditor(injector);
+        MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
+        saveRawMenuItem.setOnAction((event) -> controller.getModel().editField(combinedField, pe.getText()));
+        pe.setContextMenu(new ContextMenu(saveRawMenuItem));
+        injectOnChangeHandlerPayload(pe);
+        return  pe;
+    }
+    
     private Control createEnumField() {
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.setEditable(true);
@@ -289,5 +302,21 @@ public class ProtocolField extends FlowPane {
 
     private boolean isValid() {
         return isValid;
+    }
+
+    private void injectOnChangeHandlerPayload(PayloadEditor payload) {
+        payload.setOnAction((event) -> {
+            PayloadEditor.PayloadType type = payload.getType();
+            switch (type) {
+                case TEXT:
+                    String text = payload.getText();
+                    // TODO
+                    logger.info("\n\tText field: \n\t\t" + text + "\n");
+                    break;
+                default:
+                    // TODO
+                    logger.info("\n\tNot yet implemented\n");
+            }
+        });
     }
 }

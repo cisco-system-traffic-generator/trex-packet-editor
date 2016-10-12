@@ -15,19 +15,14 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by igor on 10/10/16.
- */
+import static javafx.application.Platform.*;
+
 public class PayloadEditor extends VBox {
     static org.slf4j.Logger logger = LoggerFactory.getLogger(TRexPacketCraftingTool.class);
 
     @FXML private VBox root;
-    @FXML private HBox payloadEditorHboxLabel;
     @FXML private HBox payloadEditorHboxChoice;
     @FXML private HBox payloadEditorHboxValue;
-
-    // Label
-    @FXML private Label     payloadEditorLabel;
 
     // Choice
     @FXML private ChoiceBox payloadChoiceType;
@@ -57,7 +52,7 @@ public class PayloadEditor extends VBox {
     @FXML private TextField randomNonAsciiSize;
 
 
-    public enum PT {
+    public enum PayloadType {
         UNKNOWN         (-1, "UNKNOWN"),
         TEXT            (0, "Text"),
         FILE            (1, "File"),
@@ -69,16 +64,16 @@ public class PayloadEditor extends VBox {
         private final int    index;
         private final String human;
 
-        PT(int index, String human) {
+        PayloadType(int index, String human) {
             this.index = index;
             this.human = human;
         }
 
         public int    index() { return index; }
         public String human() { return human; }
-    };
+    }
 
-    public enum PM {
+    public enum EditorMode {
         UNKNOWN (-1, "UNKNOWN"),
         READ    (0, "Reading mode"),
         EDIT    (1, "Editing mode");
@@ -86,23 +81,20 @@ public class PayloadEditor extends VBox {
         private final int    mode;
         private final String human;
 
-        PM(int mode, String human) {
+        EditorMode(int mode, String human) {
             this.mode = mode;
             this.human = human;
         }
 
         public int    mode()  { return mode; }
         public String human() { return human; }
-    };
+    }
 
-    private FXMLLoader fxmlLoader = null;
-    private Injector injector;
-    private PT type = PT.UNKNOWN;
-    private PM mode = PM.UNKNOWN;
+    private PayloadType type = PayloadType.UNKNOWN;
+    private EditorMode mode = EditorMode.UNKNOWN;
 
     public PayloadEditor(Injector injector) {
-        this.injector = injector;
-        this.fxmlLoader = injector.getInstance(FXMLLoader.class);
+        FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
 
         fxmlLoader.setLocation(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/PayloadEditor.fxml"));
         fxmlLoader.setRoot(this);
@@ -119,39 +111,32 @@ public class PayloadEditor extends VBox {
             if (index >= 0) {
                 payloadEditorHboxValue.setVisible(true);
                 payloadEditorHboxValue.setManaged(true);
-                javafx.application.Platform.runLater(() -> gridSetVisible(payloadEditorGrid, index));
+                runLater(() -> gridSetVisible(payloadEditorGrid, index));
                 setType(int2type(index));
-                setMode(PM.EDIT);
+                setMode(EditorMode.EDIT);
             }
             else {
-                setType(PT.UNKNOWN);
-                setMode(PM.READ);
+                setType(PayloadType.UNKNOWN);
+                setMode(EditorMode.READ);
             }
         });
-
-        payloadEditorLabel.setOnMouseClicked(e -> {
-            setMode(PM.EDIT);
-        });
+        setMode(EditorMode.EDIT);
     }
 
-    public PM getMode() {
+    public EditorMode getMode() {
         return mode;
     }
 
-    public void setMode(PM mode) {
+    public void setMode(EditorMode mode) {
         this.mode = mode;
         switch (mode) {
             case READ:
-                payloadEditorHboxLabel.setVisible(true);
-                payloadEditorHboxLabel.setManaged(true);
                 payloadEditorHboxChoice.setVisible(false);
                 payloadEditorHboxChoice.setManaged(false);
                 payloadEditorHboxValue.setVisible(false);
                 payloadEditorHboxValue.setManaged(false);
                 break;
             case EDIT:
-                payloadEditorHboxLabel.setVisible(false);
-                payloadEditorHboxLabel.setManaged(false);
                 payloadEditorHboxChoice.setVisible(true);
                 payloadEditorHboxChoice.setManaged(true);
 
@@ -169,31 +154,27 @@ public class PayloadEditor extends VBox {
         }
     }
 
-    public PT getType() {
+    public PayloadType getType() {
         return type;
     }
 
-    public void setType(PT type) {
+    public void setType(PayloadType type) {
         this.type = type;
 
-        if (type != PT.UNKNOWN) {
+        if (type != PayloadType.UNKNOWN) {
             select(type2int(type));
-            setMode(PM.EDIT);
+            setMode(EditorMode.EDIT);
         }
         else {
             getSelectionModel().select(false);
             payloadEditorHboxValue.setVisible(false);
             payloadEditorHboxValue.setManaged(false);
-            setMode(PM.READ);
+            setMode(EditorMode.READ);
         }
     }
 
     public String getText() {
         return textProperty().get();
-    }
-
-    public void setLabel(String value) {
-        payloadEditorLabel.setText(value);
     }
 
     public void setText(String value) {
@@ -217,7 +198,7 @@ public class PayloadEditor extends VBox {
     }
 
     public void select(int index) {
-        javafx.application.Platform.runLater(() -> {
+        runLater(() -> {
             gridSetVisible(payloadEditorGrid, index);
             getSelectionModel().select(index);
         });
@@ -246,14 +227,14 @@ public class PayloadEditor extends VBox {
         }
     }
 
-    private int type2int(PT type) {
+    private int type2int(PayloadType type) {
         return type.index;
     }
 
-    private PT int2type(int index) {
-        for (PT t : PT.values()) {
+    private PayloadType int2type(int index) {
+        for (PayloadType t : PayloadType.values()) {
             if (t.index == index) return t;
         }
-        return PT.UNKNOWN;
+        return PayloadType.UNKNOWN;
     }
 }
