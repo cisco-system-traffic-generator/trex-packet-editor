@@ -168,7 +168,7 @@ public class PayloadEditor extends VBox {
             setMode(EditorMode.EDIT);
         }
         else {
-            getSelectionModel().select(false);
+            getSelectionModel().select(null);
             payloadEditorHboxValue.setVisible(false);
             payloadEditorHboxValue.setManaged(false);
             setMode(EditorMode.READ);
@@ -195,7 +195,7 @@ public class PayloadEditor extends VBox {
         textText.setContextMenu(contextMenu);
     }
 
-    public SingleSelectionModel getSelectionModel() {
+    public SingleSelectionModel<String> getSelectionModel() {
         return payloadChoiceType.getSelectionModel();
     }
 

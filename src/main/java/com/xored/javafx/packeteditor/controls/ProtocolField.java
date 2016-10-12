@@ -177,7 +177,7 @@ public class ProtocolField extends FlowPane {
         return defaultValue;
     }
     
-    private Validator createTextFieldValidator(FieldMetadata fieldMetadata) {
+    private Validator<String> createTextFieldValidator(FieldMetadata fieldMetadata) {
         FieldRules rules = fieldMetadata.getFieldRules();
 
         if (rules != null) {

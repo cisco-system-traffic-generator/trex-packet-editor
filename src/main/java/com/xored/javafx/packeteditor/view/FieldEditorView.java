@@ -110,7 +110,7 @@ public class FieldEditorView {
         if (protocols.isEmpty()) {
             pane.setExpanded(false);
         }
-        ComboBox cb = new ComboBox();
+        ComboBox<ProtocolMetadata> cb = new ComboBox<>();
         cb.getStyleClass().add("layer-type-selector");
         cb.setEditable(true);
         cb.getItems().addAll(protocols);
