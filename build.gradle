@@ -87,6 +87,7 @@ dependencies {
         compile group: 'org.controlsfx', name: 'controlsfx', version: '8.20.9'
     } else {
         compile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.12'
+        testCompile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.12'
     }
 }
 

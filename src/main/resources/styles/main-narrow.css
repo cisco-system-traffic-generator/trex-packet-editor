@@ -215,7 +215,9 @@
 
 .title-pane {
     -fx-fit-to-height: true;
-    -fx-min-width: 300px;
+    -fx-min-width: 30em;
+    -fx-pref-width: -fx-min-width;
+    -fx-max-width: -fx-min-width;
 }
 
 .field-row.value-pane {
@@ -298,13 +300,13 @@
 }
 
 .payloadeditorgrid {
-    /*-fx-min-hight: -Infinity;
+    /*-fx-min-height: -Infinity;
     -fx-max-height: -Infinity;
     -fx-max-width: -Infinity;*/
 }
 
 .payloadeditortextarea {
-    -fx-pref-hight: 200px;
+    -fx-pref-height: 200px;
     -fx-min-height: 200px;
     -fx-pref-width: 300px;
     -fx-min-width: 300px;
@@ -316,12 +318,11 @@
 }
 
 .payloadeditorlabel {
-    -fx-pref-hight: 200px;
+    -fx-pref-height: 200px;
     -fx-min-height: 200px;
     -fx-pref-width: 300px;
     -fx-min-width: 300px;
 }
-
 
 /* Narrowing */
 .titled-pane .label,
@@ -330,7 +331,7 @@
 .titled-pane .choice-box,
 .titled-pane .list-cell {
     -fx-padding: 1px;
-    -fx-pref-hight: 1.51em;
+    -fx-pref-height: 1.51em;
     -fx-min-height: 1.51em;
     -fx-max-height: 1.51em;
 }
@@ -342,7 +343,22 @@
 
 /* Restore after narrowing */
 #payloadEditorHboxLabel .label {
-    -fx-pref-hight: 10em;
+    -fx-pref-height: 10em;
     -fx-min-height: 10em;
     -fx-max-height: 10em;
 }
+
+.field-value-default-raw,
+.field-value-set-raw {
+    -fx-min-height: 10em;
+    -fx-pref-height: -fx-min-height;
+    -fx-max-height: -fx-min-height;
+    -fx-min-width: 25em;
+    -fx-pref-width: -fx-min-width;
+    -fx-max-width: -fx-min-width;
+    -fx-alignment: top-left;
+    -fx-text-overrun: center-ellipsis;
+    -fx-ellipsis-string: ".....";
+}
+
+

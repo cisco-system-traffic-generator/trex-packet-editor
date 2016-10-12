@@ -29,7 +29,7 @@
             </ChoiceBox>
             <Button fx:id="payloadButtonGo"
                     mnemonicParsing="false"
-                    text="Generate"
+                    text="Save"
                     styleClass="payloadbutton">
             </Button>
 

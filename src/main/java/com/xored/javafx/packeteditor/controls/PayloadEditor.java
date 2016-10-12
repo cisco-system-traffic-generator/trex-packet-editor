@@ -15,7 +15,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import org.slf4j.LoggerFactory;
 
-import static javafx.application.Platform.*;
+import java.io.*;
+import java.nio.file.Files;
+
+import static javafx.application.Platform.runLater;
 
 public class PayloadEditor extends VBox {
     static org.slf4j.Logger logger = LoggerFactory.getLogger(TRexPacketCraftingTool.class);
@@ -27,7 +30,7 @@ public class PayloadEditor extends VBox {
     // Choice
     @FXML
     private ChoiceBox<String> payloadChoiceType;
-    
+
     @FXML private Button payloadButtonGo;
     @FXML private GridPane payloadEditorGrid;
 
@@ -142,10 +145,9 @@ public class PayloadEditor extends VBox {
                 payloadEditorHboxChoice.setVisible(true);
                 payloadEditorHboxChoice.setManaged(true);
 
-                int index = payloadChoiceType.getSelectionModel().getSelectedIndex();
+                int index = type2int(type);
                 if (index >= 0) {
-                    payloadEditorHboxValue.setVisible(true);
-                    payloadEditorHboxValue.setManaged(true);
+                    select(index);
                 } else {
                     payloadEditorHboxValue.setVisible(false);
                     payloadEditorHboxValue.setManaged(false);
@@ -154,6 +156,19 @@ public class PayloadEditor extends VBox {
             default:
                 logger.error("Unknown payload editor mode");
         }
+    }
+
+    public String getText() {
+        if (type==PayloadType.TEXT || type==PayloadType.TEXT_PATTERN) {
+            return textProperty().get();
+        } else {
+            return null;
+        }
+    }
+
+    public void setText(String text) {
+        textProperty().set(text);
+        setType(PayloadType.TEXT);
     }
 
     public PayloadType getType() {
@@ -175,14 +190,6 @@ public class PayloadEditor extends VBox {
         }
     }
 
-    public String getText() {
-        return textProperty().get();
-    }
-
-    public void setText(String value) {
-        textProperty().set(value);
-    }
-
     public StringProperty textProperty() {
         return textText.textProperty();
     }
@@ -199,15 +206,15 @@ public class PayloadEditor extends VBox {
         return payloadChoiceType.getSelectionModel();
     }
 
+    public final void setOnAction(EventHandler<ActionEvent> value) {
+        payloadButtonGo.setOnAction(value);
+    }
+
     public void select(int index) {
         runLater(() -> {
             gridSetVisible(payloadEditorGrid, index);
             getSelectionModel().select(index);
         });
-    }
-
-    public final void setOnAction(EventHandler<ActionEvent> value) {
-        payloadButtonGo.setOnAction(value);
     }
 
     private void gridSetVisible(GridPane grid, int index) {
@@ -239,4 +246,57 @@ public class PayloadEditor extends VBox {
         }
         return PayloadType.UNKNOWN;
     }
+
+    public static boolean isTextFile(String fileUrl) throws IOException {
+        File f = new File(fileUrl);
+        String type = Files.probeContentType(f.toPath());
+        boolean res1, res2;
+
+        if (type == null) {
+            //type couldn't be determined, assume binary
+            res1 = false;
+        } else if (type.startsWith("text")) {
+            res1 = true;
+        } else {
+            //type isn't text
+            res1 = false;
+        }
+
+        FileInputStream in = new FileInputStream(f);
+        res2 = isTextStream(in);
+        in.close();
+
+        return res1 && res2;
+    }
+
+    public static boolean isTextArray(byte[] array) throws IOException {
+        InputStream in = new ByteArrayInputStream(array);
+        boolean res2 = isTextStream(in);
+        in.close();
+        return res2;
+    }
+
+    public static boolean isTextStream(InputStream in) throws IOException {
+        int size = in.available();
+        if(size > (1024 * 64)) size = 1024 * 64;
+        byte[] data = new byte[size];
+        in.read(data);
+
+        int ascii = 0;
+        int other = 0;
+
+        for (int i = 0; i < data.length; i++) {
+            byte b = data[i];
+            if( b < 0x09 ) return true;
+
+            if( b == 0x09 || b == 0x0A || b == 0x0C || b == 0x0D ) ascii++;
+            else if( b >= 0x20  &&  b <= 0x7E ) ascii++;
+            else other++;
+        }
+
+        if( other == 0 ) return true;
+
+        return 100 * other / (ascii + other) <= 95;
+    }
+
 }

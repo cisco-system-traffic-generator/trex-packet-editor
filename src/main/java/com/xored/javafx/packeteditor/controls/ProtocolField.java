@@ -93,6 +93,10 @@ public class ProtocolField extends FlowPane {
         Label label = new Label(labelText);
 
         String cssClassName = hasDefaultValue() ? "field-value-default" : "field-value-set";
+        if (combinedField.getMeta().getType() == BYTES) {
+            cssClassName = cssClassName.concat("-raw");
+            label.getStyleClass().removeAll("label");
+        }
         label.getStyleClass().add(cssClassName);
         
         label.setOnMouseClicked(e -> {
@@ -122,10 +126,28 @@ public class ProtocolField extends FlowPane {
 
     private PayloadEditor createPayloadField() {
         PayloadEditor pe = new PayloadEditor(injector);
-        MenuItem saveRawMenuItem = new MenuItem(resourceBundle.getString("SAVE_PAYLOAD_TITLE"));
-        saveRawMenuItem.setOnAction((event) -> controller.getModel().editField(combinedField, pe.getText()));
-        pe.setContextMenu(new ContextMenu(saveRawMenuItem));
-        injectOnChangeHandlerPayload(pe);
+        if (combinedField.getValue() instanceof JsonPrimitive) {
+            pe.setText(combinedField.getValue().getAsString());
+        } else {
+            pe.setText(combinedField.getScapyDisplayValue());
+        }
+
+        pe.setOnKeyReleased(e -> {
+            if (e.getCode().equals(KeyCode.ESCAPE)) {
+                //pe.setText(combinedField.getScapyFieldData().getValue().getAsString());
+                if (combinedField.getValue() instanceof JsonPrimitive) {
+                    pe.setText(combinedField.getValue().getAsString());
+                } else {
+                    pe.setText(combinedField.getScapyDisplayValue());
+                }
+                pe.setMode(PayloadEditor.EditorMode.READ);
+                this.showLabel();
+            }
+        });
+        pe.setOnAction((event) -> {
+            commitChanges(pe);
+        });
+
         return  pe;
     }
     
@@ -295,9 +317,13 @@ public class ProtocolField extends FlowPane {
             controller.getModel().editField(combinedField, ReconstructField.setValue(combinedField.getId(), ((ComboBoxItem)sel).getValue().getAsString()));
         }
     }
-    
+
     private void commitChanges(TextField textField) {
         controller.getModel().editField(combinedField, ReconstructField.setHumanValue(combinedField.getId(), textField.getText()));
+    }
+
+    private void commitChanges(PayloadEditor payloadEditor) {
+        controller.getModel().editField(combinedField, ReconstructField.setHumanValue(combinedField.getId(), payloadEditor.getText()));
     }
 
     private boolean isValid() {

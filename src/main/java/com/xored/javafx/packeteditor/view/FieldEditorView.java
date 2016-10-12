@@ -250,7 +250,7 @@ public class FieldEditorView {
             rows.add(row);
             field.getMeta().getBits().stream().forEach(bitFlagMetadata -> rows.add(this.createBitFlagRow(field, bitFlagMetadata)));
         } else {
-            
+
             ProtocolField fieldControl = injector.getInstance(ProtocolField.class);
             fieldControl.init(field);
             
@@ -268,7 +268,7 @@ public class FieldEditorView {
 
         return rows;
     }
-    
+
     private Node createTCPOptionRow(TCPOptionsData tcpOption) {
         // TODO: reuse code
         BorderPane titlePane = new BorderPane();
@@ -301,7 +301,7 @@ public class FieldEditorView {
 
         titlePane.setLeft(buildIndentedFieldLabel(maskToString(flagMask), flagName));
         titlePane.getStyleClass().add("title-pane");
-        
+
         HBox row = new HBox();
         row.getStyleClass().addAll("field-row");
 
