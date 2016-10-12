@@ -38,6 +38,9 @@ public class FieldData {
     public boolean hasValue() { return value != null && !value.isJsonNull(); }
     public JsonElement getValue() { return value; }
     public boolean hasBinaryData() { return value_base64 != null; }
+    public String getFieldType() { return field_type; }
+    public boolean isExpression() { return getValueExpr() != null; }
+    public boolean isPrimitive() { return value instanceof JsonPrimitive; }
     public byte[] getBinaryData() { return hasBinaryData() ? Base64.getDecoder().decode(value_base64) : null; }
 
     /** returns scapy value expression or null */

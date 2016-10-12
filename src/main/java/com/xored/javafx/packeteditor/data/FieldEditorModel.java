@@ -154,8 +154,9 @@ public class FieldEditorModel {
             userModel.addProtocol(metadataService.getProtocolMetadataById(protocolData.id));
             UserProtocol userProtocol = userModel.getProtocolStack().peek();
             protocolData.getFields().forEach(fieldData -> {
-                // TODO: import value object(binary payload)
-                userProtocol.addField(fieldData.id, fieldData.hvalue);
+                if (fieldData.isPrimitive()) {
+                    userProtocol.addField(fieldData.id, fieldData.hvalue);
+                }
             });
         });
     }

@@ -13,9 +13,21 @@ public class ReconstructField {
     public String id; // required
     public JsonElement value;
     public String hvalue;
-    public String value_base64;
+    public String value_base64; // left for compatibility. will be replaced with ObjectValue
     Boolean delete; // clear field and use default value
     Boolean randomize; // set random value
+
+    /** special value type for custom objects like binary payloads(base64)
+     * and python expressions.
+     * STRING, NUMBER are JSON primitives, they are specified directly in JSON
+     * TODO: move value to a separate class to handle custom value objects and serialize them to user-model JSON
+     * */
+    enum ObjectValue {
+        EXPRESSION, // {vtype: "EXPRESSION", "expr": "[1,2,3]"}
+        BYTES, // {vtype: "BYTES", "base64": "BASE64PAYLOAD"}
+        RANDOM, // meta-value. will be replaced with random
+        // also supported extensions: MACHINE, OBJECT(see ScapyServer)
+    }
 
     public ReconstructField(String id) { this.id = id; }
 
@@ -67,7 +79,7 @@ public class ReconstructField {
     /** set raw eval python expression as a value */
     public static ReconstructField setExpressionValue(String fieldId, String expr) {
         JsonObject val = new JsonObject();
-        val.add("vtype", new JsonPrimitive("expr"));
+        val.add("vtype", new JsonPrimitive("EXPRESSION"));
         val.add("expr", new JsonPrimitive(expr));
         return setValue(fieldId, val);
     }
