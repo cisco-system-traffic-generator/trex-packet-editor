@@ -3,6 +3,7 @@ package com.xored.javafx.packeteditor.controls;
 import com.google.inject.Injector;
 import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -95,28 +96,143 @@ public class PayloadEditor extends VBox {
     private PayloadType type = PayloadType.UNKNOWN;
     private EditorMode mode = EditorMode.UNKNOWN;
 
+    private boolean file2text() {
+        File file = new File(textFilename.getText());
+
+        if (file.exists() && file.canRead()) {
+            try {
+                if (isTextFile(file.getAbsolutePath())) {
+                    setText(new String(Files.readAllBytes(file.toPath())));
+                    return true;
+                }
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+            }
+        }
+        else {
+            logger.error("File '" + file.getAbsolutePath() + "' not exists or is not readable");
+        }
+        return false;
+    }
+
+    private boolean textpattern2text() {
+        String ssize = textPatternSize.getText();
+        if (ssize==null) {
+            logger.error("Size must be greater than zero");
+            return false;
+        }
+
+        int size = 0;
+        try {
+            size = Integer.parseInt(ssize);
+        }
+        catch (NumberFormatException e) {
+            logger.error("Size must be greater than zero");
+            return false;
+        }
+
+        if (size > 0) {
+            if (size > 64*1024) size = 64*1024;
+            String pattern = textPatternText.getText();
+            if (pattern.length() > 0) {
+                String text = new String("");
+
+                while (text.length() < size) {
+                    text = text.concat(pattern);
+                }
+                text = text.substring(0, size - 1);
+                setText(text);
+                return true;
+            } else {
+                logger.error("Pattern must be greater than zero");
+            }
+        } else {
+            logger.error("Size must be greater than zero");
+        }
+        return false;
+    }
+
+    private boolean filepattern2text() {
+        File file = new File(filePatternFilename.getText());
+        String pattern = null;
+
+        if (file.exists() && file.canRead()) {
+            try {
+                if (isTextFile(file.getAbsolutePath())) {
+                    pattern = new String(Files.readAllBytes(file.toPath()));
+                }
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+                return false;
+            }
+        }
+        else {
+            logger.error("File '" + file.getAbsolutePath() + "' not exists or is not readable");
+            return false;
+        }
+
+        String ssize = filePatternSize.getText();
+        if (ssize==null) {
+            logger.error("Size must be greater than zero");
+            return false;
+        }
+
+        int size = 0;
+        try {
+            size = Integer.parseInt(ssize);
+        }
+        catch (NumberFormatException e) {
+            logger.error("Size must be greater than zero");
+            return false;
+        }
+
+        if (size > 0) {
+            if (size > 64*1024) size = 64*1024;
+            if (pattern.length() > 0) {
+                String text = new String("");
+
+                while (text.length() < size) {
+                    text = text.concat(pattern);
+                }
+                text = text.substring(0, size - 1);
+                setText(text);
+                return true;
+            } else {
+                logger.error("Pattern must be greater than zero");
+            }
+        } else {
+            logger.error("Size must be greater than zero");
+        }
+        return false;
+    }
+
+    private ChangeListener<String> onlyNumberListener = (observable, oldValue, newValue) -> {
+        if (!newValue.matches("\\d*"))
+            ((StringProperty) observable).set(oldValue);
+    };
+
     private EventHandler<ActionEvent> handlerActionSaveInternal = new EventHandler<ActionEvent>() {
         public void handle(ActionEvent event) {
+            boolean weok = false;
+
             // First call our code
             if (type == PayloadType.FILE) {
-                File file = new File(textFilename.getText());
+                weok = file2text();
+            }
+            else if (type == PayloadType.TEXT_PATTERN) {
+                weok = textpattern2text();
+            }
+            else if (type == PayloadType.FILE_PATTERN) {
+                weok = filepattern2text();
+            }
 
-                if (file.exists() && file.canRead()) {
-                    try {
-                        if (isTextFile(file.getAbsolutePath())) {
-                            setText(new String(Files.readAllBytes(file.toPath())));
-                        }
-                    } catch (IOException e) {
-                        logger.error(e.getMessage());
-                    }
+            if (weok) {
+                if (handlerActionSaveExternal != null) {
+                    handlerActionSaveExternal.handle(event);
                 }
             }
-
-            // Then call their code
-            if (handlerActionSaveExternal != null) {
-                handlerActionSaveExternal.handle(event);
-            }
         }};
+
     private EventHandler<ActionEvent> handlerActionSaveExternal;
 
     public PayloadEditor(Injector injector) {
@@ -165,6 +281,11 @@ public class PayloadEditor extends VBox {
                 filePatternFilename.setText(file.getAbsolutePath());
             }
         });
+
+        textPatternSize.textProperty().addListener(onlyNumberListener);
+        filePatternSize.textProperty().addListener(onlyNumberListener);
+        randomAsciiSize.textProperty().addListener(onlyNumberListener);
+        randomNonAsciiSize.textProperty().addListener(onlyNumberListener);
 
         setMode(EditorMode.UNKNOWN);
     }
