@@ -77,7 +77,7 @@ public class FieldEditorModel {
             if (isBinaryMode()) {
                 setPktAndReload(packetDataService.appendProtocol(packet, meta.getId()));
             } else {
-                setPktAndReload(packetDataService.buildPacket(userModel.asJson()));
+                setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
             }
             logger.info("UserProtocol {} added.", meta.getName());
         }
@@ -116,7 +116,7 @@ public class FieldEditorModel {
         } else {
             if (!userModel.getProtocolStack().isEmpty()) {
                 userModel.getProtocolStack().pop();
-                setPktAndReload(packetDataService.buildPacket(userModel.asJson()));
+                setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
             }
         }
     }
@@ -177,8 +177,6 @@ public class FieldEditorModel {
                         field.getMeta().getId()
                 );
                 userModel.setFieldValue(protoPath, fieldId, randval.getValue());
-            } else if (newValue.hvalue != null){
-                userModel.setFieldValue(protoPath, fieldId, newValue.hvalue);
             } else {
                 userModel.setFieldValue(protoPath, fieldId, newValue.value);
             }
@@ -194,7 +192,7 @@ public class FieldEditorModel {
         if (isBinaryMode()) {
             newPkt = packetDataService.reconstructPacketField(packet, field.getProtocol().getPath(), newValue);
         } else {
-            newPkt = packetDataService.buildPacket(userModel.asJson());
+            newPkt = packetDataService.buildPacket(userModel.buildScapyModel());
             //newPkt = packetDataService.reconstructPacketFromBinary(newPkt.getBinaryData());
         }
         //pkt = newPkt;

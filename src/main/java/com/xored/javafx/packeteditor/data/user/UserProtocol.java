@@ -36,7 +36,7 @@ public class UserProtocol {
         return meta.getId();
     }
 
-    public List<UserField> getFields() {
+    public List<UserField> getSetFields() {
         return fieldMap.entrySet().stream()
                 .filter(entry -> entry.getValue().getValue() != null)
                 .map(Map.Entry::getValue)

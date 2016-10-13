@@ -4,16 +4,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import java.util.Base64;
-
 public class FieldData {
     public String id;
-    public String field_type; // name of the Scapy class, optional metadata
+
+    /** Scapy value. can be primitive(string, number) or custom object(array/dict). can be serialized and passed back build_pkt */
     public JsonElement value;
+
+    /** human-readable representation of the object. */
     public String hvalue;
-    public String value_base64; // optional
+
     public Number offset;
     public Number length;
+
+    /** true, if this field was used for binary representation generation. no length/offset if not */
     public Boolean ignored; // optional
 
     public String getId() {
@@ -34,22 +37,18 @@ public class FieldData {
     /** this field is ignored for current protocol configuration */
     public boolean isIgnored() { return ignored != null && ignored; }
 
-    /** if value can not be passed as JsonElement, it is passed as a value_base64 */
-    public boolean hasValue() { return value != null && !value.isJsonNull(); }
-    public JsonElement getValue() { return value; }
-    public boolean hasBinaryData() { return value_base64 != null; }
-    public String getFieldType() { return field_type; }
-    public boolean isExpression() { return getValueExpr() != null; }
+    public FieldValue.ObjectType getObjectValueType() { return FieldValue.getObjectValueType(value); }
     public boolean isPrimitive() { return value instanceof JsonPrimitive; }
-    public byte[] getBinaryData() { return hasBinaryData() ? Base64.getDecoder().decode(value_base64) : null; }
+    public boolean isObject() { return getObjectValueType() != null; }
+
+    /** returns value. can be primitive(number/string) or a custom object(bytes, expressions, ...). see ObjectType */
+    public JsonElement getValue() { return value; }
+
+    /** returns bytes if this is a byte[] field or null otherwise */
+    public byte[] getBytes() { return FieldValue.getBytes(value); }
 
     /** returns scapy value expression or null */
     public String getValueExpr() {
-        if (value instanceof JsonObject) {
-            if (value.getAsJsonObject().get("vtype") instanceof JsonPrimitive) {
-                return value.getAsJsonObject().get("expr").getAsString();
-            }
-        }
-        return null;
+        return FieldValue.getExpression(value);
     }
 }

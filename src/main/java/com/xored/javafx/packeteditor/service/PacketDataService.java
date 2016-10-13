@@ -24,7 +24,7 @@ public class PacketDataService {
         scapy.open("tcp://localhost:4507");
     }
 
-    public PacketData buildPacket(JsonElement pktStructure) {
+    public PacketData buildPacket(List<ReconstructProtocol> pktStructure) {
         return scapy.build_pkt(pktStructure);
     }
     
