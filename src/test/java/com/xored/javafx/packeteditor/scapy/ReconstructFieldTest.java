@@ -13,35 +13,6 @@ public class ReconstructFieldTest {
     Gson gson = new Gson();
 
     @Test
-    public void should_delete_protocol() {
-        String result = gson.toJson(Arrays.asList(
-                ReconstructProtocol.pass("Ether"),
-                ReconstructProtocol.deleteIt("IP")
-        ));
-        assertEquals(result, "[{\"id\":\"Ether\"},{\"id\":\"IP\",\"delete\":true}]");
-    }
-
-    @Test
-    public void should_reset_field() {
-        String result = gson.toJson(Arrays.asList(
-                ReconstructProtocol.modify("Ether", Arrays.asList(
-                        ReconstructField.resetValue("src")
-                ))
-        ));
-        assertEquals(result, "[{\"id\":\"Ether\",\"fields\":[{\"id\":\"src\",\"delete\":true}]}]");
-    }
-
-    @Test
-    public void should_set_hvalue() {
-        String result = gson.toJson(Arrays.asList(
-                ReconstructProtocol.modify("Ether", Arrays.asList(
-                        ReconstructField.setHumanValue("type", "0x800")
-                ))
-        ));
-        assertEquals(result, "[{\"id\":\"Ether\",\"fields\":[{\"id\":\"type\",\"hvalue\":\"0x800\"}]}]");
-    }
-
-    @Test
     public void should_set_value_int() {
         String result = gson.toJson(Arrays.asList(
                 ReconstructProtocol.modify("Ether", Arrays.asList(
