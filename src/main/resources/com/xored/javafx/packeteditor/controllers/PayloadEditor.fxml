@@ -13,7 +13,7 @@
           managed="false"
           styleClass="payloadhbox">
         <children>
-            <ChoiceBox fx:id="payloadChoiceType"
+            <ComboBox fx:id="payloadChoiceType"
                        styleClass="payloadchoice"
                        HBox.hgrow="ALWAYS">
                 <items>
@@ -26,7 +26,7 @@
                         <String fx:value="Random non-ascii"/>
                     </FXCollections>
                 </items>
-            </ChoiceBox>
+            </ComboBox>
             <Button fx:id="payloadButtonSave"
                     mnemonicParsing="false"
                     text="Save"

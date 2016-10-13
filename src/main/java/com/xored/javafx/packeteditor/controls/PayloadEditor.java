@@ -27,7 +27,7 @@ public class PayloadEditor extends VBox {
     @FXML private GridPane payloadEditorGrid;
 
     // Choice and save button
-    @FXML private ChoiceBox<String> payloadChoiceType;
+    @FXML private ComboBox<String> payloadChoiceType;
     @FXML private Button payloadButtonSave;
 
     // Payload from text
