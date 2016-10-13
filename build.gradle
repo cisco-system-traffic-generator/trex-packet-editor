@@ -46,6 +46,7 @@ task intTest(type: Test) {
 
     testLogging {
         events "passed", "skipped", "failed"
+        exceptionFormat "full"
     }
 }
 
@@ -56,8 +57,8 @@ task uiTest(type: Test) {
 
     testLogging {
         events "passed", "skipped", "failed"
+        exceptionFormat "full"
     }
-
 
     if (project.hasProperty('headless')) {
         // for running JavaFX tests headless using Monocle
