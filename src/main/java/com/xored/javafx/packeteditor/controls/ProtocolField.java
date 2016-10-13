@@ -305,17 +305,34 @@ public class ProtocolField extends FlowPane {
     private void commitChanges(ComboBox combo) {
         List<ComboBoxItem> items = getComboBoxItems();
         Object sel = combo.getSelectionModel().getSelectedItem(); // yes, it can be string
+        ReconstructField newVal;
         if (sel instanceof String) {
             ComboBoxItem item = items.stream().filter(f -> f.toString().equals(sel)).findFirst().orElse(null);
             if (item != null) {
-                // selected item from list
-                controller.getModel().editField(combinedField, ReconstructField.setValue(combinedField.getId(), item.getValue().getAsString()));
+                // selected item from list. (enums use strings to pass values)
+                newVal = ReconstructField.setValue(combinedField.getId(), item.getValue().getAsString());
             } else {
                 // raw string value
-                controller.getModel().editField(combinedField, ReconstructField.setValue(combinedField.getId(), (String) sel));
+                if ("".equals(sel)) {
+                    newVal = ReconstructField.resetValue(combinedField.getId());
+                } else {
+                    newVal = ReconstructField.setValue(combinedField.getId(), (String)sel);
+                }
             }
         } else if (sel instanceof ComboBoxItem) {
-            controller.getModel().editField(combinedField, ReconstructField.setValue(combinedField.getId(), ((ComboBoxItem)sel).getValue().getAsString()));
+            newVal = ReconstructField.setValue(combinedField.getId(), ((ComboBoxItem)sel).getValue().getAsString());
+        } else {
+            logger.warn("Ignored input on {}", combinedField.getId());
+            return;
+        }
+
+        try {
+            controller.getModel().editField(combinedField, newVal);
+        } catch (Exception e) {
+            logger.warn("Failed to build packet with new value of {}", combinedField.getId());
+            // TODO: implement validator and/or message box/popup
+            combo.getStyleClass().add("field-error");
+            //view.setHasInvalidInput(true);
         }
     }
 

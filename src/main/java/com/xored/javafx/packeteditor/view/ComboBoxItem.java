@@ -23,6 +23,6 @@ public class ComboBoxItem {
     public String toString() { return displayValue; }
 
     public boolean equalsTo(JsonElement value) {
-        return this.value.toString().equals(value.toString());
+        return value != null && this.value.toString().equals(value.toString());
     }
 }

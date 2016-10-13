@@ -4,8 +4,11 @@ import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import javafx.application.Platform;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import org.junit.Assert;
+import org.junit.Before;
 import org.slf4j.LoggerFactory;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.service.query.NodeQuery;
@@ -16,7 +19,9 @@ import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.function.Consumer;
 
+import static javafx.scene.input.KeyCode.*;
 import static org.junit.Assert.fail;
 
 /**
@@ -36,6 +41,33 @@ public class TestPacketEditorUIBase extends ApplicationTest {
             System.setProperty("prism.text", "t2k");
         }
     }
+
+    @Before
+    public void test_init() {
+        interrupt(); // wait for JavaFX events to be handled
+    }
+
+    /** runs an action with the field */
+    public <T extends Node> void with(String query, final Consumer<T> action) {
+        action.accept(lookup(query).query());
+    }
+
+    /** puts a value to a editable combo box */
+    public void setComboBoxText(String query, String val) {
+        with(query, (ComboBox c)->c.getEditor().setText(val));
+    }
+
+    /** label contains a user model value */
+    public boolean fieldLabelIsSet(Label label) {
+        return label.getStyleClass().contains("field-value-set");
+    }
+
+    public void setComboFieldText(String query, String val) {
+        clickOn(query); // click on label
+        setComboBoxText(query, val);
+        push(ENTER);
+    }
+
 
     /**
      * Runs the specified {@link Runnable} on the
@@ -65,6 +97,7 @@ public class TestPacketEditorUIBase extends ApplicationTest {
         });
 
         doneLatch.await();
+
 
         // TODO: javafx is still working with events, so some fields can't be accessed
         // this is dumb waiting for javafx fills the  fields

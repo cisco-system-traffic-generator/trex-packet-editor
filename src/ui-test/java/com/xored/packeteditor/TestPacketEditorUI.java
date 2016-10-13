@@ -2,6 +2,7 @@ package com.xored.packeteditor;
 
 import javafx.scene.control.Label;
 import org.junit.Test;
+
 import static javafx.scene.input.KeyCode.*;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.util.NodeQueryUtils.hasText;
@@ -15,13 +16,27 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
     public void should_build_tcpip_stack() {
-        newDocument();
         addLayer("Internet Protocol Version 4");
         verifyThat("#Ether-IP-version", hasText("4"));
         verifyThat("#Ether-type", (Label t) -> t.getText().contains("IPv4"));
         selectProtoType("IPv4");
         push(ENTER); // TODO: remove me once extra enter is not required
         verifyThat("#Ether-type", (Label t) -> t.getStyleClass().contains("field-value-set"));
+    }
+
+    @Test
+    public void should_set_enum_value_as_text() {
+        setComboFieldText("#Ether-type", "0x800"); // IPv4
+        verifyThat("#Ether-type", (Label t) -> t.getText().contains("IPv4"));
+        verifyThat("#Ether-type", this::fieldLabelIsSet);
+
+        setComboFieldText("#Ether-type", ""); // clear and set default
+        verifyThat("#Ether-type", (Label t) -> t.getText().contains("LOOP")); // default value for Ether
+        verifyThat("#Ether-type", (Label t) -> !fieldLabelIsSet(t));
+
+        setComboFieldText("#Ether-type", "0x86DD"); // IPv6
+        verifyThat("#Ether-type", (Label t) -> t.getText().contains("IPv6"));
+        verifyThat("#Ether-type", this::fieldLabelIsSet);
     }
 
     @Test

@@ -206,9 +206,11 @@ public class FieldEditorModel {
             // if original value was expression, which means there are no good representation for it,
             // new string value should be treated as an expression as well. not as a hvalue
             // at least until we do not improve support for h2i/i2h
-            editField(field, ReconstructField.setExpressionValue(field.getMeta().getId(), newValue));
+            editField(field, ReconstructField.setExpressionValue(field.getId(), newValue));
+        } else if ("".equals(newValue)) {
+            editField(field, ReconstructField.resetValue(field.getId()));
         } else {
-            editField(field, ReconstructField.setHumanValue(field.getMeta().getId(), newValue));
+            editField(field, ReconstructField.setHumanValue(field.getId(), newValue));
         }
     }
 
