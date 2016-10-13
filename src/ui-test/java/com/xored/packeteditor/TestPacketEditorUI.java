@@ -18,7 +18,6 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         newDocument();
         addLayer("Internet Protocol Version 4");
         verifyThat("#Ether-IP-version", hasText("4"));
-        verifyThat("#Ether-type", hasText("IPv4 (2048)"));
         verifyThat("#Ether-type", (Label t) -> t.getText().contains("IPv4"));
         selectProtoType("IPv4");
         push(ENTER); // TODO: remove me once extra enter is not required
