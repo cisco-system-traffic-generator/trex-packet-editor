@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.util.Random;
 
 public class PayloadEditor extends VBox {
     static org.slf4j.Logger logger = LoggerFactory.getLogger(TRexPacketCraftingTool.class);
@@ -93,147 +94,63 @@ public class PayloadEditor extends VBox {
         public String human() { return human; }
     }
 
+    static private Random rand = new Random();
+
+    public static void randomBytes(boolean ascii, byte[] bytes) {
+        int mask = 0xFF;
+        if (ascii) mask = 0x7F;
+        for (int i = 0; i < bytes.length; ) {
+            for (int rnd = rand.nextInt(), n = Math.min(bytes.length - i, 4); n-- > 0; rnd >>= 8) {
+                bytes[i++] = (byte) (rnd & mask);
+            }
+        }
+    }
+
+    private EventHandler<ActionEvent> handlerActionSaveExternal;
     private PayloadType type = PayloadType.UNKNOWN;
-    private EditorMode mode = EditorMode.UNKNOWN;
-
-    private boolean file2text() {
-        File file = new File(textFilename.getText());
-
-        if (file.exists() && file.canRead()) {
-            try {
-                if (isTextFile(file.getAbsolutePath())) {
-                    setText(new String(Files.readAllBytes(file.toPath())));
-                    return true;
-                }
-            } catch (IOException e) {
-                logger.error(e.getMessage());
-            }
-        }
-        else {
-            logger.error("File '" + file.getAbsolutePath() + "' not exists or is not readable");
-        }
-        return false;
-    }
-
-    private boolean textpattern2text() {
-        String ssize = textPatternSize.getText();
-        if (ssize==null) {
-            logger.error("Size must be greater than zero");
-            return false;
-        }
-
-        int size = 0;
-        try {
-            size = Integer.parseInt(ssize);
-        }
-        catch (NumberFormatException e) {
-            logger.error("Size must be greater than zero");
-            return false;
-        }
-
-        if (size > 0) {
-            if (size > 64*1024) size = 64*1024;
-            String pattern = textPatternText.getText();
-            if (pattern.length() > 0) {
-                String text = new String("");
-
-                while (text.length() < size) {
-                    text = text.concat(pattern);
-                }
-                text = text.substring(0, size - 1);
-                setText(text);
-                return true;
-            } else {
-                logger.error("Pattern must be greater than zero");
-            }
-        } else {
-            logger.error("Size must be greater than zero");
-        }
-        return false;
-    }
-
-    private boolean filepattern2text() {
-        File file = new File(filePatternFilename.getText());
-        String pattern = null;
-
-        if (file.exists() && file.canRead()) {
-            try {
-                if (isTextFile(file.getAbsolutePath())) {
-                    pattern = new String(Files.readAllBytes(file.toPath()));
-                }
-            } catch (IOException e) {
-                logger.error(e.getMessage());
-                return false;
-            }
-        }
-        else {
-            logger.error("File '" + file.getAbsolutePath() + "' not exists or is not readable");
-            return false;
-        }
-
-        String ssize = filePatternSize.getText();
-        if (ssize==null) {
-            logger.error("Size must be greater than zero");
-            return false;
-        }
-
-        int size = 0;
-        try {
-            size = Integer.parseInt(ssize);
-        }
-        catch (NumberFormatException e) {
-            logger.error("Size must be greater than zero");
-            return false;
-        }
-
-        if (size > 0) {
-            if (size > 64*1024) size = 64*1024;
-            if (pattern.length() > 0) {
-                String text = new String("");
-
-                while (text.length() < size) {
-                    text = text.concat(pattern);
-                }
-                text = text.substring(0, size - 1);
-                setText(text);
-                return true;
-            } else {
-                logger.error("Pattern must be greater than zero");
-            }
-        } else {
-            logger.error("Size must be greater than zero");
-        }
-        return false;
-    }
+    private EditorMode  mode = EditorMode.UNKNOWN;
+    private byte[]      data;
 
     private ChangeListener<String> onlyNumberListener = (observable, oldValue, newValue) -> {
         if (!newValue.matches("\\d*"))
             ((StringProperty) observable).set(oldValue);
     };
 
-    private EventHandler<ActionEvent> handlerActionSaveInternal = new EventHandler<ActionEvent>() {
-        public void handle(ActionEvent event) {
-            boolean weok = false;
+    private EventHandler<ActionEvent> handlerActionSaveInternal = (event) -> {
+        boolean itsok = false;
 
-            // First call our code
-            if (type == PayloadType.FILE) {
-                weok = file2text();
+        // First call our code
+        if (type == PayloadType.TEXT) {
+            itsok = true;
+        }
+        else if (type == PayloadType.FILE) {
+            itsok = file2text();
+        }
+        else if (type == PayloadType.TEXT_PATTERN) {
+            itsok = textpattern2text();
+        }
+        else if (type == PayloadType.FILE_PATTERN) {
+            itsok = filepattern2text();
+        }
+        else if (type == PayloadType.RANDOM_ASCII) {
+            itsok = generateRandomBytes(true);
+            if (itsok) {
+                setText(new String(data));
             }
-            else if (type == PayloadType.TEXT_PATTERN) {
-                weok = textpattern2text();
+        }
+        else if (type == PayloadType.RANDOM_NON_ASCII) {
+            itsok = generateRandomBytes(false);
+            if (itsok) {
+                setText(new String(data));
             }
-            else if (type == PayloadType.FILE_PATTERN) {
-                weok = filepattern2text();
-            }
+        }
 
-            if (weok) {
-                if (handlerActionSaveExternal != null) {
-                    handlerActionSaveExternal.handle(event);
-                }
+        if (itsok) {
+            if (handlerActionSaveExternal != null) {
+                handlerActionSaveExternal.handle(event);
             }
-        }};
-
-    private EventHandler<ActionEvent> handlerActionSaveExternal;
+        }
+    };
 
     public PayloadEditor(Injector injector) {
         FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
@@ -386,29 +303,6 @@ public class PayloadEditor extends VBox {
         getSelectionModel().select(index);
     }
 
-    private void gridSetVisible(GridPane grid, int index) {
-        for (Node node : grid.getChildren()) {
-            node.setVisible(false);
-            node.setManaged(false);
-        }
-        if (index >= 0) {
-            Node node = grid.getChildren().get(index);
-            node.setVisible(true);
-            node.setManaged(true);
-        }
-    }
-
-    private int type2int(PayloadType type) {
-        return type.index;
-    }
-
-    private PayloadType int2type(int index) {
-        for (PayloadType t : PayloadType.values()) {
-            if (t.index == index) return t;
-        }
-        return PayloadType.UNKNOWN;
-    }
-
     public static boolean isTextFile(String fileUrl) throws IOException {
         File f = new File(fileUrl);
         String type = Files.probeContentType(f.toPath());
@@ -459,6 +353,173 @@ public class PayloadEditor extends VBox {
         if( other == 0 ) return true;
 
         return 100 * other / (ascii + other) <= 95;
+    }
+
+    private void gridSetVisible(GridPane grid, int index) {
+        for (Node node : grid.getChildren()) {
+            node.setVisible(false);
+            node.setManaged(false);
+        }
+        if (index >= 0) {
+            Node node = grid.getChildren().get(index);
+            node.setVisible(true);
+            node.setManaged(true);
+            payloadEditorHboxValue.setVisible(true);
+            payloadEditorHboxValue.setManaged(true);
+        }
+    }
+
+    private int type2int(PayloadType type) {
+        return type.index;
+    }
+
+    private PayloadType int2type(int index) {
+        for (PayloadType t : PayloadType.values()) {
+            if (t.index == index) return t;
+        }
+        return PayloadType.UNKNOWN;
+    }
+
+    private boolean file2text() {
+        File file = new File(textFilename.getText());
+
+        if (file.exists() && file.canRead()) {
+            try {
+                if (isTextFile(file.getAbsolutePath())) {
+                    setText(new String(Files.readAllBytes(file.toPath())));
+                    return true;
+                }
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+            }
+        }
+        else {
+            logger.error("File '" + file.getAbsolutePath() + "' not exists or is not readable");
+        }
+        return false;
+    }
+
+    private boolean textpattern2text() {
+        String ssize = textPatternSize.getText();
+        if (ssize==null) {
+            logger.error("Size must be greater than zero");
+            return false;
+        }
+
+        int size = 0;
+        try {
+            size = Integer.parseInt(ssize);
+        }
+        catch (NumberFormatException e) {
+            logger.error("Size must be greater than zero");
+            return false;
+        }
+
+        if (size > 0) {
+            if (size > 64*1024) size = 64*1024;
+            String pattern = textPatternText.getText();
+            if (pattern.length() > 0) {
+                String text = new String("");
+
+                while (text.length() < size) {
+                    text = text.concat(pattern);
+                }
+                text = text.substring(0, size - 1);
+                setText(text);
+                return true;
+            } else {
+                logger.error("Pattern must be greater than zero");
+            }
+        } else {
+            logger.error("Size must be greater than zero");
+        }
+        return false;
+    }
+
+    private boolean filepattern2text() {
+        File file = new File(filePatternFilename.getText());
+        String pattern = null;
+
+        if (file.exists() && file.canRead()) {
+            try {
+                if (isTextFile(file.getAbsolutePath())) {
+                    pattern = new String(Files.readAllBytes(file.toPath()));
+                }
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+                return false;
+            }
+        }
+        else {
+            logger.error("File '" + file.getAbsolutePath() + "' not exists or is not readable");
+            return false;
+        }
+
+        String ssize = filePatternSize.getText();
+        if (ssize==null) {
+            logger.error("Size must be greater than zero");
+            return false;
+        }
+
+        int size = 0;
+        try {
+            size = Integer.parseInt(ssize);
+        }
+        catch (NumberFormatException e) {
+            logger.error("Size must be greater than zero");
+            return false;
+        }
+
+        if (size > 0) {
+            if (size > 64*1024) size = 64*1024;
+            if (pattern.length() > 0) {
+                String text = new String("");
+
+                while (text.length() < size) {
+                    text = text.concat(pattern);
+                }
+                text = text.substring(0, size - 1);
+                setText(text);
+                return true;
+            } else {
+                logger.error("Pattern must be greater than zero");
+            }
+        } else {
+            logger.error("Size must be greater than zero");
+        }
+        return false;
+    }
+
+    private boolean generateRandomBytes(boolean ascii) {
+        String ssize = null;
+
+        if (ascii) ssize = randomAsciiSize.getText();
+        else       ssize = randomNonAsciiSize.getText();
+
+        if (ssize==null) {
+            logger.error("Size must be greater than zero");
+            return false;
+        }
+
+        int size = 0;
+        try {
+            size = Integer.parseInt(ssize);
+        }
+        catch (NumberFormatException e) {
+            logger.error("Size must be greater than zero");
+            return false;
+        }
+
+        if (size > 0) {
+            if (size > 64*1024) size = 64*1024;
+            data = new byte[size];
+            randomBytes(ascii, data);
+            return true;
+        } else {
+            logger.error("Size must be greater than zero");
+        }
+
+        return false;
     }
 
 }

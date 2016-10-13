@@ -15,6 +15,24 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     }
 
     @Test
+    public void should_build_payload() {
+        newDocument();
+        addLayer("Raw");
+        addLayer("Raw");
+        verifyThat("#Ether-Raw-load", hasText("dummy"));
+        clickOn("#Ether-Raw-load");
+        clickOn("#payloadButtonCancel");
+        verifyThat("#Ether-Raw-load", hasText("dummy"));
+        clickOn("#Ether-Raw-load");
+        verifyThat("#textText", hasText("dummy"));
+        clickOn("#textText");
+        push(SPACE,A,B,C);
+        clickOn("#payloadButtonSave");
+        interrupt();
+        verifyThat("#Ether-Raw-load", hasText("dummy abc"));
+    }
+
+    @Test
     public void should_build_tcpip_stack() {
         addLayer("Internet Protocol Version 4");
         verifyThat("#Ether-IP-version", hasText("4"));
