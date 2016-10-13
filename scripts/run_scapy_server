@@ -6,28 +6,32 @@
 REPO=https://github.com/hedjuo/trex-core.git
 TARGET=/tmp
 
-[ -z "$PYTHON" ] && PYTHON=python
-
 if [ -e $TARGET/trex-core ]; then
     cd $TARGET/trex-core
     git reset --hard > /dev/null
     git pull
 else
-    git clone --depth=1 $REPO $TARGET/trex-core
+    git clone -q --depth=1 $REPO $TARGET/trex-core
 fi
 
 cd $TARGET/trex-core/scripts/automation/trex_control_plane/stl/services/scapy_server
 
+if [ ! -f /etc/ethertypes ]; then
+    echo "ERROR: No /etc/ethertypes found. Run the following command to install"
+    echo "sudo wget -O /etc/ethertypes http://www.secdev.org/projects/scapy/files/ethertypes"
+fi
+
 if [ "Darwin" = `uname` ]; then
     echo "Patching trex scapy server for Mac's native zmq"
     sed -i bak '/pyzmq.*arch-dep/d' $TARGET/trex-core/scripts/automation/trex_control_plane/stl/trex_stl_lib/trex_stl_ext.py
-    if [ ! -f /etc/ethertypes ]; then
-        echo "ERROR: No /etc/ethertypes found. Run the following command to install"
-        echo "sudo wget -O /etc/ethertypes http://www.secdev.org/projects/scapy/files/ethertypes"
-    fi
+fi
+
+if [ -n "$DOWNLOAD_ONLY" ]; then
+    exit 0
 fi
 
 echo "Running scapy server"
+[ -z "$PYTHON" ] && PYTHON=python
 echo "$PYTHON scapy_zmq_server.py $@"
 exec $PYTHON scapy_zmq_server.py $@
 

@@ -3,7 +3,7 @@
 # test script for continuous integration
 
 echo "Downloading scapy server, w/o running"
-PYTHON=true ./scripts/run_scapy_server > /dev/null
+DOWNLOAD_ONLY=true ./scripts/run_scapy_server
 
 start-stop-daemon --start --quiet --pidfile /var/run/scapy-server.pid -b --exec $PWD/scripts/run_scapy_server
 
