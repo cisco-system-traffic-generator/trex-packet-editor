@@ -1,44 +1,44 @@
-Packet editor
-Requires TRex scapy server
+# TRex Packet editor [![Build Status](https://travis-ci.org/kisel/trex-packet-editor-gui.svg?branch=master)](https://travis-ci.org/kisel/trex-packet-editor-gui)
 
-### Build
-    ./gradlew build
+Network packed editor GUI for TRex.
 
-### Run
+### Quickstart
+    # Run scapy server
+    ./scripts/run_scapy_server &
+    
+    # Run all tests, including headless UI tests (optional) 
+    ./gradlew -Pheadless test intTest uiTest
+    
+    # Run application
     ./gradlew run
 
-### Run Test with scapy server
-    ./gradlew cleanTest test intTest
-    open ./build/reports/tests/index.html
+### Run integration and UI tests
+make sure the Scapy server is started. see `./scripts/run_scapy_server` helper script
+you can also specify external server with an environment variable `export SCAPY_SERVER=localhost:4507`
 
-### Run UI tests
-    ./gradlew uiTest
+    ./gradlew intTest uiTest
+    # or run tests in headless mode
+    ./gradlew -Pheadless intTest uiTest
+    # to see test reports:
+    # open ./build/reports/tests/index.html
 
-### Run UI tests(headless)
-    ./gradlew -Pheadless uiTest
 
-### External Scapy server
-By default, UI connects to localhost:4507 scapy server
-```
-#set SCAPY_SERVER env variable to use external server. default value is
-SCAPY_SERVER='localhost:4507'
-```
+### Howto
 
-### Running scapy_server from trex-core
-`./scripts/run_scapy_server -v --scapy-port 4507`
+##### Build standalone jar file
+this builds standalone jar file for UI. scapy_service is not included.
+jar is located in **./build/libs/TRexPacketCraftingTool.jar**
 
-##### Run scapy_server with python
+    ./gradlew jar
+
+##### Run scapy_server with python3
 `PYTHON=python3 ./scripts/run_scapy_server -v --scapy-port 4507`
 
-### Enable Debug logging for packed editor UI
+##### Enable Debug logging for packed editor UI
 ```
 cat <<ENDL > logging.properties
 handlers= java.util.logging.ConsoleHandler
 .level= DEBUG
 ENDL
 ```
-
-### Build standalone jar file
-    # builds standalone ./build/libs/TRexPacketCraftingTool.jar
-    ./gradlew jar
 
