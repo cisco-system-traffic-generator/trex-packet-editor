@@ -91,6 +91,7 @@ public class ProtocolField extends FlowPane {
         }
 
         Label label = new Label(labelText);
+        label.setId(view.getUniqueIdFor(combinedField));
 
         String cssClassName = hasDefaultValue() ? "field-value-default" : "field-value-set";
         if (combinedField.getMeta().getType() == BYTES) {
@@ -153,6 +154,7 @@ public class ProtocolField extends FlowPane {
     
     private Control createEnumField() {
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
+        combo.setId(view.getUniqueIdFor(combinedField));
         combo.setEditable(true);
         combo.getStyleClass().addAll("control");
         List<ComboBoxItem> items = getComboBoxItems();

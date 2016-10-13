@@ -227,7 +227,7 @@ public class FieldEditorView {
         return row;
     }
 
-    private String getUniqueIdFor(CombinedField field) {
+    public String getUniqueIdFor(CombinedField field) {
         List<String> fullpath = new ArrayList<>(field.getProtocol().getPath());
         fullpath.add(field.getMeta().getId());
         return fullpath.stream().collect(Collectors.joining("-"));
@@ -269,7 +269,6 @@ public class FieldEditorView {
         return rows;
     }
 
-        label.setId(getUniqueIdFor(field));
 
     private Node createTCPOptionRow(TCPOptionsData tcpOption) {
         // TODO: reuse code
@@ -308,6 +307,7 @@ public class FieldEditorView {
         row.getStyleClass().addAll("field-row");
 
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
+        combo.setId(getUniqueIdFor(field));
         combo.getStyleClass().addAll("control");
         
         List<ComboBoxItem> items = bitFlagMetadata.getValues().entrySet().stream()
@@ -341,5 +341,4 @@ public class FieldEditorView {
         row.getChildren().addAll(titlePane, valuePane);
         return row;
     }
-        combo.setId(getUniqueIdFor(field));
 }
