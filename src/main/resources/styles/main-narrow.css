@@ -265,8 +265,9 @@
 
 /* For payload editor control */
 .payloadhbox {
-    /*-fx-min-height: 30px;
-    -fx-pref-height: 30px;*/
+    -fx-min-height: -1;
+    -fx-pref-height: -1;
+    -fx-max-height: 400px;
     -fx-min-width: 300px;
     -fx-pref-width: 300px;
     -fx-spacing: 7px;

@@ -332,19 +332,4 @@ public class ProtocolField extends FlowPane {
         return isValid;
     }
 
-    private void injectOnChangeHandlerPayload(PayloadEditor payload) {
-        payload.setOnAction((event) -> {
-            PayloadEditor.PayloadType type = payload.getType();
-            switch (type) {
-                case TEXT:
-                    String text = payload.getText();
-                    // TODO
-                    logger.info("\n\tText field: \n\t\t" + text + "\n");
-                    break;
-                default:
-                    // TODO
-                    logger.info("\n\tNot yet implemented\n");
-            }
-        });
-    }
 }

@@ -11,14 +11,12 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
-
-import static javafx.application.Platform.runLater;
 
 public class PayloadEditor extends VBox {
     static org.slf4j.Logger logger = LoggerFactory.getLogger(TRexPacketCraftingTool.class);
@@ -26,13 +24,11 @@ public class PayloadEditor extends VBox {
     @FXML private VBox root;
     @FXML private HBox payloadEditorHboxChoice;
     @FXML private HBox payloadEditorHboxValue;
-
-    // Choice
-    @FXML
-    private ChoiceBox<String> payloadChoiceType;
-
-    @FXML private Button payloadButtonGo;
     @FXML private GridPane payloadEditorGrid;
+
+    // Choice and save button
+    @FXML private ChoiceBox<String> payloadChoiceType;
+    @FXML private Button payloadButtonSave;
 
     // Payload from text
     @FXML private TextArea textText;
@@ -98,6 +94,30 @@ public class PayloadEditor extends VBox {
     private PayloadType type = PayloadType.UNKNOWN;
     private EditorMode mode = EditorMode.UNKNOWN;
 
+    private EventHandler<ActionEvent> handlerActionSaveInternal = new EventHandler<ActionEvent>() {
+        public void handle(ActionEvent event) {
+            // First call our code
+            if (type == PayloadType.FILE) {
+                File file = new File(textFilename.getText());
+
+                if (file.exists() && file.canRead()) {
+                    try {
+                        if (isTextFile(file.getAbsolutePath())) {
+                            setText(new String(Files.readAllBytes(file.toPath())));
+                        }
+                    } catch (IOException e) {
+                        logger.error(e.getMessage());
+                    }
+                }
+            }
+
+            // Then call their code
+            if (handlerActionSaveExternal != null) {
+                handlerActionSaveExternal.handle(event);
+            }
+        }};
+    private EventHandler<ActionEvent> handlerActionSaveExternal;
+
     public PayloadEditor(Injector injector) {
         FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
 
@@ -116,7 +136,7 @@ public class PayloadEditor extends VBox {
             if (index >= 0) {
                 payloadEditorHboxValue.setVisible(true);
                 payloadEditorHboxValue.setManaged(true);
-                runLater(() -> gridSetVisible(payloadEditorGrid, index));
+                gridSetVisible(payloadEditorGrid, index);
                 setType(int2type(index));
                 setMode(EditorMode.EDIT);
             }
@@ -125,7 +145,28 @@ public class PayloadEditor extends VBox {
                 setMode(EditorMode.READ);
             }
         });
-        setMode(EditorMode.EDIT);
+
+        payloadButtonSave.setOnAction(handlerActionSaveInternal);
+
+        textFilenameButton.setOnAction((event) -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Select payload text file");
+            File file = fileChooser.showOpenDialog(this.getScene().getWindow());
+            if (file != null) {
+                textFilename.setText(file.getAbsolutePath());
+            }
+        });
+
+        filePatternButton.setOnAction((event) -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Select payload pattern file");
+            File file = fileChooser.showOpenDialog(this.getScene().getWindow());
+            if (file != null) {
+                filePatternFilename.setText(file.getAbsolutePath());
+            }
+        });
+
+        setMode(EditorMode.UNKNOWN);
     }
 
     public EditorMode getMode() {
@@ -207,14 +248,13 @@ public class PayloadEditor extends VBox {
     }
 
     public final void setOnAction(EventHandler<ActionEvent> value) {
-        payloadButtonGo.setOnAction(value);
+        payloadButtonSave.setOnAction(handlerActionSaveInternal);
+        handlerActionSaveExternal = value;
     }
 
     public void select(int index) {
-        runLater(() -> {
-            gridSetVisible(payloadEditorGrid, index);
-            getSelectionModel().select(index);
-        });
+        gridSetVisible(payloadEditorGrid, index);
+        getSelectionModel().select(index);
     }
 
     private void gridSetVisible(GridPane grid, int index) {
@@ -226,13 +266,6 @@ public class PayloadEditor extends VBox {
             Node node = grid.getChildren().get(index);
             node.setVisible(true);
             node.setManaged(true);
-
-            double width = node.getLayoutBounds().getWidth();
-            double height = node.getLayoutBounds().getHeight();
-            Pane parentpane = (Pane) grid.getParent();
-            parentpane.setMinSize(width, height);
-            parentpane.setPrefSize(width, height);
-            parentpane.setMaxSize(width, height);
         }
     }
 
