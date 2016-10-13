@@ -103,7 +103,7 @@ public class FieldEditorView {
         TitledPane pane = new TitledPane();
         pane.setText("Append layer");
         pane.getStyleClass().add("append-protocol");
-        HBox controls = new HBox();
+        HBox controls = new HBox(10);
         pane.setContent(controls);
 
         List<ProtocolMetadata> protocols = controller.getAvailbleProtocolsToAdd();
