@@ -191,7 +191,7 @@ public class TestPacketEditorUIBase extends ApplicationTest {
 
     void selectProtoType(String proto) {
         clickOn("#Ether-type");
-        clickOn("#Ether-type");
+        clickOn("#Ether-type .arrow-button");
         //push(CONTROL, DOWN);
         clickOn(proto);
     }

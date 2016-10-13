@@ -1,5 +1,6 @@
 package com.xored.packeteditor;
 
+import javafx.scene.control.Label;
 import org.junit.Test;
 import static javafx.scene.input.KeyCode.*;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -8,12 +9,20 @@ import static org.testfx.util.NodeQueryUtils.hasText;
 public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
+    public void should_create_new_document() {
+        newDocument();
+    }
+
+    @Test
     public void should_build_tcpip_stack() {
         newDocument();
-        selectProtoType("IPv4");
         addLayer("Internet Protocol Version 4");
         verifyThat("#Ether-IP-version", hasText("4"));
-        recalculateAutoValues();
+        verifyThat("#Ether-type", hasText("IPv4 (2048)"));
+        verifyThat("#Ether-type", (Label t) -> t.getText().contains("IPv4"));
+        selectProtoType("IPv4");
+        push(ENTER); // TODO: remove me once extra enter is not required
+        verifyThat("#Ether-type", (Label t) -> t.getStyleClass().contains("field-value-set"));
     }
 
     @Test

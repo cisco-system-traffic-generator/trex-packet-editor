@@ -269,6 +269,8 @@ public class FieldEditorView {
         return rows;
     }
 
+        label.setId(getUniqueIdFor(field));
+
     private Node createTCPOptionRow(TCPOptionsData tcpOption) {
         // TODO: reuse code
         BorderPane titlePane = new BorderPane();
@@ -339,4 +341,5 @@ public class FieldEditorView {
         row.getChildren().addAll(titlePane, valuePane);
         return row;
     }
+        combo.setId(getUniqueIdFor(field));
 }
