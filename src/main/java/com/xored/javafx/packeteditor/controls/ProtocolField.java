@@ -31,7 +31,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.*;
+import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.BYTES;
+import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.ENUM;
 
 public class ProtocolField extends FlowPane {
 
@@ -133,20 +134,18 @@ public class ProtocolField extends FlowPane {
             pe.setText(combinedField.getScapyDisplayValue());
         }
 
-        pe.setOnKeyReleased(e -> {
-            if (e.getCode().equals(KeyCode.ESCAPE)) {
-                //pe.setText(combinedField.getScapyFieldData().getValue().getAsString());
-                if (combinedField.getValue() instanceof JsonPrimitive) {
-                    pe.setText(combinedField.getValue().getAsString());
-                } else {
-                    pe.setText(combinedField.getScapyDisplayValue());
-                }
-                pe.setMode(PayloadEditor.EditorMode.READ);
-                this.showLabel();
-            }
-        });
-        pe.setOnAction((event) -> {
+        pe.setOnActionSave((event) -> {
             commitChanges(pe);
+        });
+
+        pe.setOnActionCancel(e -> {
+            //pe.setText(combinedField.getScapyFieldData().getValue().getAsString());
+            if (combinedField.getValue() instanceof JsonPrimitive) {
+                pe.setText(combinedField.getValue().getAsString());
+            } else {
+                pe.setText(combinedField.getScapyDisplayValue());
+            }
+            this.showLabel();
         });
 
         return  pe;

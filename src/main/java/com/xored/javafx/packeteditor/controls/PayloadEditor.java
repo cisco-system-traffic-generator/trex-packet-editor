@@ -29,6 +29,7 @@ public class PayloadEditor extends VBox {
     // Choice and save button
     @FXML private ComboBox<String> payloadChoiceType;
     @FXML private Button payloadButtonSave;
+    @FXML private Button payloadButtonCancel;
 
     // Payload from text
     @FXML private TextArea textText;
@@ -142,7 +143,6 @@ public class PayloadEditor extends VBox {
             }
             else {
                 setType(PayloadType.UNKNOWN);
-                setMode(EditorMode.READ);
             }
         });
 
@@ -177,10 +177,7 @@ public class PayloadEditor extends VBox {
         this.mode = mode;
         switch (mode) {
             case READ:
-                payloadEditorHboxChoice.setVisible(false);
-                payloadEditorHboxChoice.setManaged(false);
-                payloadEditorHboxValue.setVisible(false);
-                payloadEditorHboxValue.setManaged(false);
+                logger.debug("READ mode for payload editor is disabled now");
                 break;
             case EDIT:
                 payloadEditorHboxChoice.setVisible(true);
@@ -193,6 +190,9 @@ public class PayloadEditor extends VBox {
                     payloadEditorHboxValue.setVisible(false);
                     payloadEditorHboxValue.setManaged(false);
                 }
+                break;
+            case UNKNOWN:
+                logger.debug("Set UNKNOWN payload editor mode");
                 break;
             default:
                 logger.error("Unknown payload editor mode");
@@ -227,7 +227,7 @@ public class PayloadEditor extends VBox {
             getSelectionModel().select(null);
             payloadEditorHboxValue.setVisible(false);
             payloadEditorHboxValue.setManaged(false);
-            setMode(EditorMode.READ);
+            logger.warn("Set UNKNOWN type for payload");
         }
     }
 
@@ -248,8 +248,16 @@ public class PayloadEditor extends VBox {
     }
 
     public final void setOnAction(EventHandler<ActionEvent> value) {
+        setOnActionSave(value);
+    }
+
+    public final void setOnActionSave(EventHandler<ActionEvent> value) {
         payloadButtonSave.setOnAction(handlerActionSaveInternal);
         handlerActionSaveExternal = value;
+    }
+
+    public final void setOnActionCancel(EventHandler<ActionEvent> value) {
+        payloadButtonCancel.setOnAction(value);
     }
 
     public void select(int index) {

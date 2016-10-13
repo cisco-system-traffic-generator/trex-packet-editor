@@ -29,7 +29,14 @@
             </ComboBox>
             <Button fx:id="payloadButtonSave"
                     mnemonicParsing="false"
+                    HBox.hgrow="ALWAYS"
                     text="Save"
+                    styleClass="payloadbutton">
+            </Button>
+            <Button fx:id="payloadButtonCancel"
+                    mnemonicParsing="false"
+                    HBox.hgrow="ALWAYS"
+                    text="Cancel"
                     styleClass="payloadbutton">
             </Button>
 

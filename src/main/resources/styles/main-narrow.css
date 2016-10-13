@@ -1,3 +1,16 @@
+/*CSS Property	Values	Default	Comments
+-fx-font	<font>	inherit	shorthand property for font-size, font-family, font-weight and font-style
+-fx-font-family	<font-family>	inherit
+-fx-font-size	<font-size>	inherit
+-fx-font-style	<font-style>	inherit
+-fx-font-weight	<font-weight>	inherit*/
+
+* {
+    -fx-font-family: monospace;
+    -fx-font-size: 12;
+    -fx-smooth: true;
+}
+
 .fieldeditortoppane {
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
@@ -289,8 +302,8 @@
 .payloadbutton {
     -fx-min-height: 30px;
     -fx-pref-height: 30px;
-    -fx-min-width: 100px;
-    -fx-pref-width: 100px;
+    -fx-min-width: 5em;
+    -fx-pref-width: 5em;
 }
 
 .payloadlabel {
@@ -319,6 +332,7 @@
 }
 
 .payloadeditorlabel {
+    -fx-font-family: inherit;
     -fx-pref-height: 200px;
     -fx-min-height: 200px;
     -fx-pref-width: 300px;
@@ -330,6 +344,7 @@
 .titled-pane .button,
 .titled-pane .text-field,
 .titled-pane .choice-box,
+.titled-pane .combo-box,
 .titled-pane .list-cell {
     -fx-padding: 1px;
     -fx-pref-height: 1.51em;
@@ -338,7 +353,8 @@
 }
 
 /* Restore after narrowing */
-.payloadvbox .choice-box .label {
+.payloadvbox .choice-box .label,
+.payloadvbox .combo-box .label{
     -fx-padding: 1px 7.3px 1px 7.3px;
 }
 
