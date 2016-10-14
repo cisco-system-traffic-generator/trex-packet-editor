@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.BITMASK;
 import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.BYTES;
 import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.ENUM;
 
@@ -89,6 +90,8 @@ public class ProtocolField extends FlowPane {
             }
         } else if (hasDefaultValue() && combinedField.getMeta().isAuto()) {
             labelText = String.format("%s (auto-calculated)", labelText);
+        } else if (BITMASK.equals(combinedField.getMeta().getType())) {
+            labelText = combinedField.getValue().getAsString();
         }
 
         Label label = new Label(labelText);
@@ -155,7 +158,7 @@ public class ProtocolField extends FlowPane {
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.setId(view.getUniqueIdFor(combinedField));
         combo.setEditable(true);
-        combo.getStyleClass().addAll("control");
+        combo.getStyleClass().addAll("control", "enum-control");
         List<ComboBoxItem> items = getComboBoxItems();
 
         ComboBoxItem defaultValue = items.stream().filter(item ->
@@ -299,6 +302,10 @@ public class ProtocolField extends FlowPane {
     }
 
     private boolean hasChanged(TextField textField) {
+        if (BITMASK.equals(combinedField.getMeta().getType())) {
+            Integer newValue = Integer.valueOf(textField.getText());
+            return !newValue.equals(combinedField.getValue().getAsInt());
+        }
         return !textField.getText().equals(combinedField.getDisplayValue());
     }
 

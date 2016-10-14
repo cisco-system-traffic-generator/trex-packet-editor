@@ -378,4 +378,17 @@
     -fx-ellipsis-string: ".....";
 }
 
+.bitflag  {
+    -fx-background-color: transparent, transparent, transparent, transparent;
+    -fx-background-radius: 0, 0, 0, 0;
+    -fx-padding: 0;
+}
+
+.bitflag .arrow-button .arrow {
+    visibility: false;
+}
+.bitflag > .list-cell .text {
+    -fx-fill: grey;
+}
+
 

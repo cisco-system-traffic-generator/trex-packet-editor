@@ -245,25 +245,21 @@ public class FieldEditorView {
         titlePane.setLeft(getFieldLabel(field));
         titlePane.getStyleClass().add("title-pane");
 
-        if(BITMASK.equals(type)) {
-            row.getChildren().add(titlePane);
-            rows.add(row);
-            field.getMeta().getBits().stream().forEach(bitFlagMetadata -> rows.add(this.createBitFlagRow(field, bitFlagMetadata)));
-        } else {
+        ProtocolField fieldControl = injector.getInstance(ProtocolField.class);
+        fieldControl.init(field);
 
-            ProtocolField fieldControl = injector.getInstance(ProtocolField.class);
-            fieldControl.init(field);
-            
-            BorderPane valuePane = new BorderPane();
-            valuePane.setCenter(fieldControl);
-            row.getChildren().addAll(titlePane, valuePane);
-            rows.add(row);
-            // TODO: remove this crutch :)
-            if(TCP_OPTIONS.equals(type) && field.getScapyFieldData() != null) {
-                TCPOptionsData.fromFieldData(field.getScapyFieldData()).stream().forEach(fd ->
-                        rows.add(createTCPOptionRow(fd))
-                );
-            }
+        BorderPane valuePane = new BorderPane();
+        valuePane.setCenter(fieldControl);
+        row.getChildren().addAll(titlePane, valuePane);
+        rows.add(row);
+        if(BITMASK.equals(type)) {
+            field.getMeta().getBits().stream().forEach(bitFlagMetadata -> rows.add(this.createBitFlagRow(field, bitFlagMetadata)));
+        }
+        // TODO: remove this crutch :)
+        if(TCP_OPTIONS.equals(type) && field.getScapyFieldData() != null) {
+            TCPOptionsData.fromFieldData(field.getScapyFieldData()).stream().forEach(fd ->
+                            rows.add(createTCPOptionRow(fd))
+            );
         }
 
         return rows;
@@ -308,7 +304,7 @@ public class FieldEditorView {
 
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.setId(getUniqueIdFor(field));
-        combo.getStyleClass().addAll("control");
+        combo.getStyleClass().addAll("control", "bitflag");
         
         List<ComboBoxItem> items = bitFlagMetadata.getValues().entrySet().stream()
                 .map(entry -> new ComboBoxItem(entry.getKey(), entry.getValue()))
