@@ -9,10 +9,7 @@ import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,10 +40,8 @@ class LocalFileMetadataService {
     }
 
     public void loadMeta() throws IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File metadataFile = new File(classLoader.getResource("protocols/protocols.json").getFile());
-        BufferedReader br = new BufferedReader(new FileReader(metadataFile));
-        List<JsonObject> metadata = Arrays.asList(gson.fromJson(br, JsonObject[].class));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/protocols/protocols.json")));
+        List<JsonObject> metadata = Arrays.asList(gson.fromJson(reader, JsonObject[].class));
         metadata.stream().forEach((entry) -> {
             List<FieldMetadata> fieldsMeta = new ArrayList<>();
             for (JsonElement jsonElement : entry.get("fields").getAsJsonArray()) {
