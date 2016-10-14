@@ -214,17 +214,25 @@ public class FieldEditorView {
         return row;
     }
 
-    private Node buildIndentedFieldLabel(String info, String name) {
+    private Node buildIndentedFieldLabel(String info, String name, Boolean isBitFlag) {
         HBox row = new HBox();
         Label lblInfo = new Label(info);
         Label lblName = new Label(name);
 
         lblInfo.getStyleClass().add("field-label-info");
-        lblName.getStyleClass().add("field-label-name");
+        if (isBitFlag) {
+            lblName.getStyleClass().add("bitflag-label-name");
+        } else {
+            lblName.getStyleClass().add("field-label-name");
+        }
         lblName.getStyleClass().add("indented");
         row.getChildren().add(lblInfo);
         row.getChildren().add(lblName);
         return row;
+    }
+
+    private Node buildIndentedFieldLabel(String info, String name) {
+        return buildIndentedFieldLabel(info, name, false);
     }
 
     public String getUniqueIdFor(CombinedField field) {
@@ -296,7 +304,7 @@ public class FieldEditorView {
         String flagName = bitFlagMetadata.getName();
         int flagMask = bitFlagMetadata.getMask();
 
-        titlePane.setLeft(buildIndentedFieldLabel(maskToString(flagMask), flagName));
+        titlePane.setLeft(buildIndentedFieldLabel(maskToString(flagMask), flagName, true));
         titlePane.getStyleClass().add("title-pane");
 
         HBox row = new HBox();

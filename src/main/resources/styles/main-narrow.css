@@ -263,6 +263,10 @@
 .field-label-name .indented {
     -fx-text-fill: grey;
 }
+.bitflag-label-name .indented {
+    -fx-text-fill: grey;
+    -fx-padding: 0,0,0,10;
+}
 
 .field-value-default {
     -fx-text-fill: grey;
