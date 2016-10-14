@@ -276,11 +276,11 @@ public class ProtocolField extends FlowPane {
     }
 
     private void clearFieldValue() {
-        controller.getModel().editField(combinedField, ReconstructField.resetValue(combinedField.getMeta().getId()));
+        setModelValue(ReconstructField.resetValue(combinedField.getId()), null);
     }
 
     private void randomizeFieldValue() {
-        controller.getModel().editField(combinedField, ReconstructField.randomizeValue(combinedField.getMeta().getId()));
+        setModelValue(ReconstructField.randomizeValue(combinedField.getId()), null);
     }
 
     private ContextMenu getContextMenu() {
@@ -332,19 +332,11 @@ public class ProtocolField extends FlowPane {
             logger.warn("Ignored input on {}", combinedField.getId());
             return;
         }
-
-        try {
-            controller.getModel().editField(combinedField, newVal);
-        } catch (Exception e) {
-            logger.warn("Failed to build packet with new value of {}", combinedField.getId());
-            // TODO: implement validator and/or message box/popup
-            combo.getStyleClass().add("field-error");
-            //view.setHasInvalidInput(true);
-        }
+        setModelValue(newVal, combo);
     }
 
     private void commitChanges(TextField textField) {
-        controller.getModel().editField(combinedField, ReconstructField.setHumanValue(combinedField.getId(), textField.getText()));
+        setModelValue(ReconstructField.setHumanValue(combinedField.getId(), textField.getText()), textField);
     }
 
     private void commitChanges(PayloadEditor payloadEditor) {
@@ -352,11 +344,24 @@ public class ProtocolField extends FlowPane {
 
         if (type == PayloadEditor.PayloadType.TEXT
                 || type == PayloadEditor.PayloadType.TEXT_PATTERN) {
-            controller.getModel().editField(combinedField, ReconstructField.setHumanValue(combinedField.getId(), payloadEditor.getText()));
+            setModelValue(ReconstructField.setHumanValue(combinedField.getId(), payloadEditor.getText()), null);
         }
         else {
             byte[] data = payloadEditor.getData();
-            controller.getModel().editField(combinedField, ReconstructField.setValue(combinedField.getId(), data));
+            setModelValue(ReconstructField.setValue(combinedField.getId(), data), null);
+        }
+    }
+
+    private void setModelValue(ReconstructField modify, Node valueNode) {
+        try {
+            controller.getModel().editField(combinedField, modify);
+        } catch (Exception e) {
+            logger.warn("Failed to build packet with new value of {}", combinedField.getId());
+            // TODO: implement validator and/or message box/popup
+            if (valueNode != null) {
+                valueNode.getStyleClass().add("field-error");
+            }
+            //view.setHasInvalidInput(true);
         }
     }
 
