@@ -24,7 +24,6 @@ public class FieldValue {
         UNDEFINED, // empty field value
         RANDOM, // random field value
         MACHINE, // machine bytes for field
-        HUMAN, // human value
         EXPRESSION, // python expression
         BYTES, // bytes array
         OBJECT, // object as is

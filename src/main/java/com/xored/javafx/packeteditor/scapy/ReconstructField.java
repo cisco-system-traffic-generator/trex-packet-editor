@@ -34,7 +34,7 @@ public class ReconstructField {
 
     /** set human-value(hvalue) and let Scapy_server to guess the value type and convert from string */
     public static ReconstructField setHumanValue(String fieldId, String hvalue) {
-        return new ReconstructField(fieldId, FieldValue.create(FieldValue.ObjectType.HUMAN, "hvalue", hvalue));
+        return setValue(fieldId, hvalue); // no special object. scapy-server should guess value type
     }
 
     /** set field value */
