@@ -2,10 +2,12 @@ package com.xored.javafx.packeteditor.controllers;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.metatdata.PacketTemplate;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -13,6 +15,7 @@ import javafx.scene.control.MenuItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -55,7 +58,7 @@ public class MenuController implements Initializable {
     
     @FXML
     private void handleAddProtocolAction(ActionEvent actionEvent) {
-        List<ProtocolMetadata> items = controller.getAvailbleProtocolsToAdd();
+        List<ProtocolMetadata> items = getModel().getAvailableProtocolsToAdd(false);
 
         dialog.getItems().clear();
         dialog.getItems().addAll(items);
@@ -71,17 +74,20 @@ public class MenuController implements Initializable {
         
         Optional<ProtocolMetadata> result = dialog.showAndWait();
         if(result.isPresent()) {
-            controller.addProtocol(result.get());
+            getModel().addProtocol(result.get());
         }
-    }
-    @FXML
-    public void handleDeleteProtocolAction(ActionEvent actionEvent) {
-        controller.removeLast();
     }
 
     @FXML
+    public void handleDeleteProtocolAction(ActionEvent actionEvent) {
+        getModel().removeLast();
+    }
+
+    private FieldEditorModel getModel() { return controller.getModel(); }
+
+    @FXML
     public void handleNewDocument(ActionEvent actionEvent) {
-        controller.newPacket();
+        getModel().newPacket();
     }
 
     @FXML
@@ -96,26 +102,26 @@ public class MenuController implements Initializable {
 
     @FXML
     public void handleRecalculateValues(ActionEvent actionEvent) {
-        controller.recalculateAutoValues();
+        getModel().clearAutoFields();
     }
 
     @FXML
     public void handleUndo(ActionEvent actionEvent) {
-        controller.undo();
+        getModel().undo();
     }
 
     @FXML
-    public void handleRedo(ActionEvent actionEvent) {
-        controller.redo();
+    public void handleRedo(ActionEvent actionEvent){
+        getModel().redo();
     }
 
     @FXML
     public void handleModeBinary(ActionEvent actionEvent) {
-        controller.getModel().setBinaryMode(true);
+        getModel().setBinaryMode(true);
     }
 
     @FXML
     public void handleModeAbstract(ActionEvent actionEvent) {
-        controller.getModel().setBinaryMode(false);
+        getModel().setBinaryMode(false);
     }
 }

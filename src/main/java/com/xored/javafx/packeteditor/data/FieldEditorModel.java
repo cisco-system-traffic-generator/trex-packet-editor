@@ -306,4 +306,8 @@ public class FieldEditorModel {
         clearHistory();
     }
 
+    public void clearAutoFields() {
+
+    }
+
 }

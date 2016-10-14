@@ -107,7 +107,7 @@ public class FieldEditorView {
         HBox controls = new HBox(10);
         pane.setContent(controls);
 
-        List<ProtocolMetadata> protocols = controller.getAvailbleProtocolsToAdd();
+        List<ProtocolMetadata> protocols = controller.getModel().getAvailableProtocolsToAdd(false);
         if (protocols.isEmpty()) {
             pane.setExpanded(false);
         }

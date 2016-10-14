@@ -61,14 +61,6 @@ public class FieldEditorController implements Initializable {
         return metadataService;
     }
     
-    public void addProtocol(ProtocolMetadata protocolMetadata) {
-        model.addProtocol(protocolMetadata);
-    }
-    
-    public List<ProtocolMetadata> getAvailbleProtocolsToAdd() {
-        return model.getAvailableProtocolsToAdd(false);
-    }
-    
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         packetController.init();
@@ -93,10 +85,6 @@ public class FieldEditorController implements Initializable {
         Platform.runLater(()-> scrollBar.setValue(scrollBarValue));
     }
 
-    public void removeLast() {
-        model.removeLast();
-    }
-
     public void showLoadDialog() {
         initFileChooser();
         fileChooser.setTitle(resourceBundle.getString("OPEN_DIALOG_TITLE"));
@@ -105,7 +93,7 @@ public class FieldEditorController implements Initializable {
         try {
             if (openFile != null) {
                 if (openFile.getName().endsWith(DocumentFile.FILE_EXTENSION)) {
-                    model.loadDocumentFromFile(openFile, false);
+                    model.loadDocumentFromFile(openFile);
                 } else {
                     loadPcapFile(openFile);
                 }
@@ -126,15 +114,6 @@ public class FieldEditorController implements Initializable {
     public void writeToPcapFile(File file) {
         try {
             writeToPcapFile(file, model.getPkt(), false);
-        } catch (Exception e) {
-            // Something is wrong, must not be here
-            logger.error(e.getMessage());
-        }
-    }
-
-    public void writeToPcapFile(File file, PacketData pkt) {
-        try {
-            writeToPcapFile(file, pkt, false);
         } catch (Exception e) {
             // Something is wrong, must not be here
             logger.error(e.getMessage());
@@ -192,7 +171,7 @@ public class FieldEditorController implements Initializable {
                 if (outFile.getName().endsWith(DocumentFile.FILE_EXTENSION)) {
                     model.saveDocumentToFile(outFile);
                 } else {
-                    writeToPcapFile(outFile, model.getPkt());
+                    writeToPcapFile(outFile);
                 }
             } catch (Exception e) {
                 showError("Failed to save file", e);
@@ -213,17 +192,5 @@ public class FieldEditorController implements Initializable {
     }
 
     public FieldEditorModel getModel() { return model; }
-
-    public void recalculateAutoValues() {
-        
-    }
-
-    public void undo() {
-        model.undo();
-    }
-
-    public void redo() {
-        model.redo();
-    }
 
 }
