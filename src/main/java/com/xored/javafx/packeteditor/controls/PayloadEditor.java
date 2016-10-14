@@ -94,6 +94,23 @@ public class PayloadEditor extends VBox {
         public String human() { return human; }
     }
 
+    private enum DataType {
+        UNKNOWN (-1, "UNKNOWN"),
+        TEXT    (0, "TEXT"),
+        BINARY  (1, "BINARY");
+
+        private final int    type;
+        private final String human;
+
+        DataType(int type, String human) {
+            this.type = type;
+            this.human = human;
+        }
+
+        public int    type()  { return type; }
+        public String human() { return human; }
+    }
+
     static private Random rand = new Random();
 
     public static void randomBytes(boolean ascii, byte[] bytes) {
@@ -124,25 +141,19 @@ public class PayloadEditor extends VBox {
             itsok = true;
         }
         else if (type == PayloadType.FILE) {
-            itsok = file2text();
+            itsok = file2data();
         }
         else if (type == PayloadType.TEXT_PATTERN) {
             itsok = textpattern2text();
         }
         else if (type == PayloadType.FILE_PATTERN) {
-            itsok = filepattern2text();
+            itsok = filepattern2data();
         }
         else if (type == PayloadType.RANDOM_ASCII) {
-            itsok = generateRandomBytes(true);
-            if (itsok) {
-                setText(new String(data));
-            }
+            itsok = randombytes2data(true);
         }
         else if (type == PayloadType.RANDOM_NON_ASCII) {
-            itsok = generateRandomBytes(false);
-            if (itsok) {
-                setText(new String(data));
-            }
+            itsok = randombytes2data(false);
         }
 
         if (itsok) {
@@ -250,6 +261,15 @@ public class PayloadEditor extends VBox {
         setType(PayloadType.TEXT);
     }
 
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
+    }
+
     public PayloadType getType() {
         return type;
     }
@@ -325,16 +345,24 @@ public class PayloadEditor extends VBox {
         return res1 && res2;
     }
 
-    public static boolean isTextArray(byte[] array) throws IOException {
-        InputStream in = new ByteArrayInputStream(array);
-        boolean res2 = isTextStream(in);
-        in.close();
-        return res2;
+    public static DataType getDataType(byte[] array) {
+        try {
+            InputStream in = new ByteArrayInputStream(array);
+            boolean res2 = isTextStream(in);
+            in.close();
+            if (res2) {
+                return DataType.TEXT;
+            }
+            return DataType.BINARY;
+        }
+        catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        return DataType.UNKNOWN;
     }
 
     public static boolean isTextStream(InputStream in) throws IOException {
         int size = in.available();
-        if(size > (1024 * 64)) size = 1024 * 64;
         byte[] data = new byte[size];
         in.read(data);
 
@@ -343,9 +371,9 @@ public class PayloadEditor extends VBox {
 
         for (int i = 0; i < data.length; i++) {
             byte b = data[i];
-            if( b < 0x09 ) return true;
 
-            if( b == 0x09 || b == 0x0A || b == 0x0C || b == 0x0D ) ascii++;
+            if( b < 0x09 ) return false;
+            else if( b == 0x09 || b == 0x0A || b == 0x0C || b == 0x0D ) ascii++;
             else if( b >= 0x20  &&  b <= 0x7E ) ascii++;
             else other++;
         }
@@ -380,15 +408,22 @@ public class PayloadEditor extends VBox {
         return PayloadType.UNKNOWN;
     }
 
-    private boolean file2text() {
+    private boolean file2data() {
         File file = new File(textFilename.getText());
 
         if (file.exists() && file.canRead()) {
             try {
-                if (isTextFile(file.getAbsolutePath())) {
-                    setText(new String(Files.readAllBytes(file.toPath())));
+                data = Files.readAllBytes(file.toPath());
+                DataType datatype = getDataType(data);
+
+                if (datatype == DataType.TEXT) {
+                    setText(new String(data));
                     return true;
                 }
+                else if (datatype == DataType.BINARY) {
+                    return true;
+                }
+                logger.error("UNKNOWN file type");
             } catch (IOException e) {
                 logger.error(e.getMessage());
             }
@@ -416,7 +451,6 @@ public class PayloadEditor extends VBox {
         }
 
         if (size > 0) {
-            if (size > 64*1024) size = 64*1024;
             String pattern = textPatternText.getText();
             if (pattern.length() > 0) {
                 String text = new String("");
@@ -436,15 +470,13 @@ public class PayloadEditor extends VBox {
         return false;
     }
 
-    private boolean filepattern2text() {
+    private boolean filepattern2data() {
         File file = new File(filePatternFilename.getText());
-        String pattern = null;
+        byte[] datapattern = null;
 
         if (file.exists() && file.canRead()) {
             try {
-                if (isTextFile(file.getAbsolutePath())) {
-                    pattern = new String(Files.readAllBytes(file.toPath()));
-                }
+                datapattern = Files.readAllBytes(file.toPath());
             } catch (IOException e) {
                 logger.error(e.getMessage());
                 return false;
@@ -471,16 +503,30 @@ public class PayloadEditor extends VBox {
         }
 
         if (size > 0) {
-            if (size > 64*1024) size = 64*1024;
-            if (pattern.length() > 0) {
-                String text = new String("");
+            if (datapattern.length > 0) {
+                DataType patterntype = getDataType(datapattern);
 
-                while (text.length() < size) {
-                    text = text.concat(pattern);
+                if (patterntype == DataType.TEXT) {
+                    String text = new String("");
+                    String pattern = new String(datapattern);
+
+                    while (text.length() < size) {
+                        text = text.concat(pattern);
+                    }
+                    text = text.substring(0, size - 1);
+                    setText(text);
+                    return true;
                 }
-                text = text.substring(0, size - 1);
-                setText(text);
-                return true;
+                else if (patterntype == DataType.BINARY) {
+                    data = new byte[size];
+
+                    for (int j = 0; j < data.length; ) {
+                        System.arraycopy(datapattern, 0, data, j, Integer.min(datapattern.length, data.length - j));
+                        j += Integer.min(datapattern.length, data.length - j);
+                    }
+                    return true;
+                }
+                logger.error("UNKNOWN file type");
             } else {
                 logger.error("Pattern must be greater than zero");
             }
@@ -490,7 +536,7 @@ public class PayloadEditor extends VBox {
         return false;
     }
 
-    private boolean generateRandomBytes(boolean ascii) {
+    private boolean randombytes2data(boolean ascii) {
         String ssize = null;
 
         if (ascii) ssize = randomAsciiSize.getText();
@@ -511,7 +557,6 @@ public class PayloadEditor extends VBox {
         }
 
         if (size > 0) {
-            if (size > 64*1024) size = 64*1024;
             data = new byte[size];
             randomBytes(ascii, data);
             return true;

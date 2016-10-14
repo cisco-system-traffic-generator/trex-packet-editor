@@ -348,7 +348,16 @@ public class ProtocolField extends FlowPane {
     }
 
     private void commitChanges(PayloadEditor payloadEditor) {
-        controller.getModel().editField(combinedField, ReconstructField.setHumanValue(combinedField.getId(), payloadEditor.getText()));
+        PayloadEditor.PayloadType type = payloadEditor.getType();
+
+        if (type == PayloadEditor.PayloadType.TEXT
+                || type == PayloadEditor.PayloadType.TEXT_PATTERN) {
+            controller.getModel().editField(combinedField, ReconstructField.setHumanValue(combinedField.getId(), payloadEditor.getText()));
+        }
+        else {
+            byte[] data = payloadEditor.getData();
+            controller.getModel().editField(combinedField, ReconstructField.setValue(combinedField.getId(), data));
+        }
     }
 
     private boolean isValid() {
