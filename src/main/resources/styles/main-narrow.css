@@ -354,6 +354,7 @@
     -fx-pref-height: 1.51em;
     -fx-min-height: 1.51em;
     -fx-max-height: 1.51em;
+    -fx-background-radius: 0px, 0px, 0px, 0px;
 }
 
 .titled-pane .choice-box,
@@ -363,16 +364,14 @@
     -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;*/
     -fx-background-color: #ececec, #ececec, #f4f4f4, #ececec;
     -fx-background-insets: 0 0 0 0, 0, 0, 0;
-    -fx-background-radius: 0px, 0px, 0px, 0px;
 }
 
 
 .titled-pane .text-field {
-    -fx-border-insets: 0px;
+    /*-fx-border-insets: 0px;
     -fx-border-style: solid;
+    -fx-background-color: red, white, #f4f4f4, white;*/
     -fx-border-width: 0px;
-    -fx-background-color: red, white, #f4f4f4, white;
-    -fx-background-radius: 0px, 0px, 0px, 0px;
 }
 
 /* Restore after narrowing */
