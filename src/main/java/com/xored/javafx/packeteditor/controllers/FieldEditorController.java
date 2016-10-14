@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
+import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.scapy.PacketData;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
@@ -92,51 +93,35 @@ public class FieldEditorController implements Initializable {
         Platform.runLater(()-> scrollBar.setValue(scrollBarValue));
     }
 
-    public void clearLayers() {
-        model.deleteAllProtocols();
-    }
-
     public void removeLast() {
         model.removeLast();
     }
 
     public void showLoadDialog() {
-        fileChooser.setTitle(resourceBundle.getString("OPEN_DIALOG_TITLE"));
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Pcap Files", "*.pcap", "*.cap"),
-                new FileChooser.ExtensionFilter("All Files", "*.*"));
         initFileChooser();
-        File pcapfile = fileChooser.showOpenDialog(fieldEditorPane.getScene().getWindow());
-        if (pcapfile != null) {
-            loadPcapFile(pcapfile);
-        }
-    }
+        fileChooser.setTitle(resourceBundle.getString("OPEN_DIALOG_TITLE"));
+        File openFile = fileChooser.showOpenDialog(fieldEditorPane.getScene().getWindow());
 
-    public void loadPcapFile(File pcapfile) {
         try {
-            loadPcapFile(pcapfile, false);
-        } catch (Exception e) {
-            // Something is wrong, must not be here
-            logger.error(e.getMessage());
-        }
-    }
-
-    public void loadPcapFile(File pcapfile, boolean wantexception) throws IOException {
-        try {
-            byte[] bytes = Files.toByteArray(pcapfile);
-            model.setCurrentFile(pcapfile);
+            if (openFile != null) {
+                if (openFile.getName().endsWith(DocumentFile.FILE_EXTENSION)) {
+                    model.loadDocumentFromFile(openFile, false);
+                } else {
+                    loadPcapFile(openFile);
+                }
+            }
             refreshTitle();
-            model.setPktAndReload(packetController.read_pcap_packet(bytes), true);
         } catch (Exception e) {
-            if (wantexception) {
-                throw e;
-            }
-            else {
-                showError(resourceBundle.getString("LOAD_PCAP_ERROR"), e);
-            }
+            showError(resourceBundle.getString("LOAD_ERROR"), e);
         }
     }
 
+    public void loadPcapFile(File pcapfile) throws IOException {
+        byte[] bytes = Files.toByteArray(pcapfile);
+        model.setCurrentFile(pcapfile);
+        refreshTitle();
+        model.setPktAndReload(packetController.read_pcap_packet(bytes), true);
+    }
 
     public void writeToPcapFile(File file) {
         try {
@@ -169,7 +154,7 @@ public class FieldEditorController implements Initializable {
                 throw e;
             }
             else {
-                showError(resourceBundle.getString("SAVE_PCAP_ERROR"), e);
+                showError(resourceBundle.getString("SAVE_ERROR"), e);
             }
         }
     }
@@ -184,6 +169,13 @@ public class FieldEditorController implements Initializable {
     }
 
     public void initFileChooser() {
+        String docExt = "*"+DocumentFile.FILE_EXTENSION;
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("TRex Packet editor Files", docExt, "*.pcap", "*.cap"),
+                new FileChooser.ExtensionFilter("Packet Editor Files", docExt),
+                new FileChooser.ExtensionFilter("Pcap Files", "*.pcap", "*.cap"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"));
+
         File file = model.getCurrentFile();
         if (file != null) {
             fileChooser.setInitialDirectory(file.getParentFile());
@@ -192,17 +184,18 @@ public class FieldEditorController implements Initializable {
     }
 
     public void showSaveDialog() {
-        fileChooser.setTitle(resourceBundle.getString("SAVE_DIALOG_TITLE"));
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Pcap Files", "*.pcap", "*.cap"),
-                new FileChooser.ExtensionFilter("All Files", "*.*"));
         initFileChooser();
-        java.io.File pcapfile = fileChooser.showSaveDialog(fieldEditorPane.getScene().getWindow());
-        if (pcapfile != null) {
+        fileChooser.setTitle(resourceBundle.getString("SAVE_DIALOG_TITLE"));
+        java.io.File outFile = fileChooser.showSaveDialog(fieldEditorPane.getScene().getWindow());
+        if (outFile != null) {
             try {
-                writeToPcapFile(pcapfile, model.getPkt());
+                if (outFile.getName().endsWith(DocumentFile.FILE_EXTENSION)) {
+                    model.saveDocumentToFile(outFile);
+                } else {
+                    writeToPcapFile(outFile, model.getPkt());
+                }
             } catch (Exception e) {
-                showError("Failed to save pcap file", e);
+                showError("Failed to save file", e);
             }
         }
     }

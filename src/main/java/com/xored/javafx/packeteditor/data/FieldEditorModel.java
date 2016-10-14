@@ -1,10 +1,12 @@
 package com.xored.javafx.packeteditor.data;
 
 import com.google.common.eventbus.EventBus;
+import com.google.gson.JsonElement;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.data.user.Document;
+import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
@@ -15,16 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class FieldEditorModel {
     private Logger logger = LoggerFactory.getLogger(FieldEditorModel.class);
-
-    /**
-     * Current packet representation in ScapyService format
-     */
-    PacketData packet = new PacketData();
 
     @Inject
     EventBus eventBus;
@@ -46,11 +44,16 @@ public class FieldEditorModel {
     /** abstract user model. contains field values */
     Document userModel = new Document();
 
-    boolean binaryMode = false;
-    File currentFile;
+    /**
+     * Current packet representation in ScapyService format
+     */
+    PacketData packet = new PacketData();
 
     /** model, produced using userModel and information from Scapy. user for building UI structure */
     CombinedProtocolModel model = new CombinedProtocolModel();
+
+    /** compatibility flag. to be removed later */
+    boolean binaryMode = false;
 
     public void deleteAllProtocols() {
         userModel.clear();
@@ -136,15 +139,27 @@ public class FieldEditorModel {
     public void setPktAndReload(PacketData pkt, Boolean loadUserModel) {
         beforeContentReplace(this.packet);
         this.packet = pkt;
-        reload(loadUserModel);
-    }
 
-    public void reload (Boolean loadUserModel) {
         if(loadUserModel) {
             importUserModelFromScapy(packet);
         }
         binary.setBytes(packet.getPacketBytes());
         fireUpdateViewEvent();
+    }
+
+    public void saveDocumentToFile(File outFile) throws IOException {
+        DocumentFile.saveToFile(userModel, outFile);
+    }
+
+    public void loadTemplate(DocumentFile outFile) {
+        userModel = DocumentFile.fromPOJO(outFile, metadataService);
+        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+    }
+
+    public void loadDocumentFromFile(File outFile) throws IOException {
+        userModel = DocumentFile.loadFromFile(outFile, metadataService);
+        userModel.setCurrentFile(outFile);
+        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
     }
 
     private void importUserModelFromScapy(PacketData packet) {
@@ -283,11 +298,11 @@ public class FieldEditorModel {
     }
 
     public File getCurrentFile() {
-        return currentFile;
+        return userModel.getCurrentFile();
     }
 
     public void setCurrentFile(File currentFile) {
-        this.currentFile = currentFile;
+        this.userModel.setCurrentFile(currentFile);
         clearHistory();
     }
 

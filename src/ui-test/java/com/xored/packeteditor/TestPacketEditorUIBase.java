@@ -161,7 +161,7 @@ public class TestPacketEditorUIBase extends ApplicationTest {
                     else {
                         file = new File(resources.getFile() + filename);
                     }
-                    editorController.loadPcapFile(file, true);
+                    editorController.loadPcapFile(file);
                 } catch (Exception e) {
                     error[0] = e.getMessage();
                 }

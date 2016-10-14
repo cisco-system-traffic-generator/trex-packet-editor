@@ -1,14 +1,12 @@
 package com.xored.javafx.packeteditor.data.user;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldValue;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.scapy.ReconstructProtocol;
 
+import java.io.File;
 import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -16,7 +14,28 @@ import java.util.stream.Collectors;
 public class Document {
     
     private Stack<UserProtocol> protocols = new Stack<>();
-    
+
+    private DocumentMetadata metadata = new DocumentMetadata();
+
+    File currentFile;
+
+    public DocumentMetadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(DocumentMetadata metadata) {
+        this.metadata = metadata;
+    }
+
+    public File getCurrentFile() {
+        return currentFile;
+    }
+
+    public void setCurrentFile(File currentFile) {
+        this.currentFile = currentFile;
+    }
+
+
     public void addProtocol(ProtocolMetadata metadata) {
         List<String> currentPath = protocols.stream().map(UserProtocol::getId).collect(Collectors.toList());
         currentPath.add(metadata.getId());
@@ -74,7 +93,7 @@ public class Document {
        ).collect(Collectors.toList());
    }
 
-    public JsonElement asJson() {
+    private JsonElement asJson() {
         JsonArray json = new JsonArray();
         protocols.stream().forEach(protocol -> {
             JsonObject jsonProtocol = new JsonObject();

@@ -60,6 +60,7 @@ public class FieldEditorView {
         this.fieldEditorPane = parentPane;
     }
 
+
     public TitledPane buildProtocolPane(CombinedProtocol protocol) {
 
         TitledPane gridTitlePane = new TitledPane();
