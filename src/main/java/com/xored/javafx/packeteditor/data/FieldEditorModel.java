@@ -130,6 +130,7 @@ public class FieldEditorModel {
         } else {
             model = CombinedProtocolModel.fromUserModel(metadataService, userModel, packet.getProtocols());
         }
+        logger.debug("Rebuilding UI model");
         eventBus.post(new RebuildViewEvent(model));
     }
 
@@ -212,7 +213,6 @@ public class FieldEditorModel {
         }
         //pkt = newPkt;
         setPktAndReload(newPkt);
-        fireUpdateViewEvent();
     }
 
     /** sets text value */
