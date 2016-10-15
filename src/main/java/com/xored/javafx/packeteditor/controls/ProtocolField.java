@@ -53,7 +53,8 @@ public class ProtocolField extends FlowPane {
     Label label;
 
     Boolean isValid = true;
-    
+    boolean textChanged = false; // for text field onLostFocus
+
     @Inject
     @Named("resources")
     ResourceBundle resourceBundle;
@@ -71,6 +72,7 @@ public class ProtocolField extends FlowPane {
     private void showControl() {
         getChildren().clear();
         getChildren().add(editableControl);
+        textChanged = false;
         editableControl.requestFocus();
     }
 
@@ -235,11 +237,14 @@ public class ProtocolField extends FlowPane {
 
         tf.setContextMenu(getContextMenu());
         createValidator(tf);
-                
+
+        tf.textProperty().addListener((observable, oldValue, newValue) -> {
+            textChanged = true;
+        });
         tf.focusedProperty().addListener((observable, oldValue, newValue) -> {
             // On lost focus
             if (!newValue) {
-                if(hasChanged(tf)) {
+                if(textChanged) {
                     if (isValid()) {
                         commitChanges(tf);
                     } else {
@@ -301,14 +306,6 @@ public class ProtocolField extends FlowPane {
         return !controller.getModel().isBinaryMode() && !combinedField.hasUserValue();
     }
 
-    private boolean hasChanged(TextField textField) {
-        if (BITMASK.equals(combinedField.getMeta().getType())) {
-            Integer newValue = Integer.valueOf(textField.getText());
-            return !newValue.equals(combinedField.getValue().getAsInt());
-        }
-        return !textField.getText().equals(combinedField.getDisplayValue());
-    }
-
     private void commitChanges(ComboBox combo) {
         List<ComboBoxItem> items = getComboBoxItems();
         Object sel = combo.getSelectionModel().getSelectedItem(); // yes, it can be string
@@ -336,6 +333,7 @@ public class ProtocolField extends FlowPane {
     }
 
     private void commitChanges(TextField textField) {
+        textChanged = false;
         setModelValue(ReconstructField.setHumanValue(combinedField.getId(), textField.getText()), textField);
     }
 
@@ -354,6 +352,7 @@ public class ProtocolField extends FlowPane {
 
     private void setModelValue(ReconstructField modify, Node valueNode) {
         try {
+            logger.info("Committing changes to {}", view.getUniqueIdFor(combinedField));
             controller.getModel().editField(combinedField, modify);
         } catch (Exception e) {
             logger.warn("Failed to build packet with new value of {}", combinedField.getId());
