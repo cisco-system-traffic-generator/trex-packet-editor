@@ -27,6 +27,7 @@ public class FieldMetadata {
         NUMBER,
         ENUM,
         BYTES, // used for payload. can be displayed as text if possible(printable ascii)
+        EXPRESSION, // STRING value - python code to generate scapy value
         BITMASK,
         METAFIELD, // TODO: support this for complex fields like a TCP_OPTIONS, IP_OPTIONS and replace it
         TCP_OPTIONS, // TODO: remove me

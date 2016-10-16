@@ -20,7 +20,7 @@ public class FieldValue {
      * and python expressions.
      * STRING, NUMBER are JSON primitives, they are specified directly in JSON
      * */
-    enum ObjectType {
+    public enum ObjectType {
         UNDEFINED, // empty field value
         RANDOM, // random field value
         MACHINE, // machine bytes for field

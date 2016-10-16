@@ -11,6 +11,7 @@ import com.xored.javafx.packeteditor.data.FieldRules;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
+import com.xored.javafx.packeteditor.scapy.FieldValue;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.view.ComboBoxItem;
 import com.xored.javafx.packeteditor.view.FieldEditorView;
@@ -32,9 +33,7 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.BITMASK;
-import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.BYTES;
-import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.ENUM;
+import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.*;
 
 public class ProtocolField extends FlowPane {
 
@@ -126,6 +125,8 @@ public class ProtocolField extends FlowPane {
             case BYTES:
                 fieldControl = createPayloadField();
                 break;
+            case STRING:
+            case EXPRESSION:
             default:
                 fieldControl = createTextField();
         }
@@ -238,8 +239,8 @@ public class ProtocolField extends FlowPane {
         tf.setId(view.getUniqueIdFor(combinedField));
         tf.rightProperty().get().setOnMouseReleased(event -> clearFieldValue());
 
-        if (combinedField.getValue() instanceof JsonPrimitive) {
-            tf.setText(combinedField.getValue().getAsString());
+        if (combinedField.getValue() instanceof JsonPrimitive || isExpressionField()) {
+            tf.setText(combinedField.getDisplayValue());
         }
 
         focusControl = (v) -> {
@@ -343,9 +344,19 @@ public class ProtocolField extends FlowPane {
         setModelValue(newVal, combo);
     }
 
+    private boolean isExpressionField() {
+        FieldData fd = combinedField.getScapyFieldData();
+        return FieldMetadata.FieldType.EXPRESSION.equals(combinedField.getMeta().getType()) ||
+                fd != null && FieldValue.ObjectType.EXPRESSION.equals(fd.getObjectValueType());
+
+    }
     private void commitChanges(TextField textField) {
         textChanged = false;
-        setModelValue(ReconstructField.setHumanValue(combinedField.getId(), textField.getText()), textField);
+        if (isExpressionField()) {
+            setModelValue(ReconstructField.setExpressionValue(combinedField.getId(), textField.getText()), textField);
+        } else {
+            setModelValue(ReconstructField.setHumanValue(combinedField.getId(), textField.getText()), textField);
+        }
     }
 
     private void commitChanges(PayloadEditor payloadEditor) {
