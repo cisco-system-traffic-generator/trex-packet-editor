@@ -97,8 +97,6 @@ public class ProtocolField extends FlowPane {
             }
         } else if (hasDefaultValue() && combinedField.getMeta().isAuto()) {
             labelText = String.format("%s (auto-calculated)", labelText);
-        } else if (BITMASK.equals(combinedField.getMeta().getType())) {
-            labelText = combinedField.getValue().getAsString();
         }
 
         Label label = new Label(labelText);
@@ -112,10 +110,8 @@ public class ProtocolField extends FlowPane {
         label.getStyleClass().add(cssClassName);
         
         label.setOnMouseClicked(e -> {
-            if (!view.hasInvalidInput()) {
-                showControl();
-                controller.selectField(combinedField);
-            }
+            showControl();
+            controller.selectField(combinedField);
         });
         return label;
     }
@@ -239,6 +235,7 @@ public class ProtocolField extends FlowPane {
     
     private TextField createTextField() {
         CustomTextField tf = (CustomTextField) TextFields.createClearableTextField();
+        tf.setId(view.getUniqueIdFor(combinedField));
         tf.rightProperty().get().setOnMouseReleased(event -> clearFieldValue());
 
         if (combinedField.getValue() instanceof JsonPrimitive) {
@@ -291,7 +288,6 @@ public class ProtocolField extends FlowPane {
         validationSupport.registerValidator(tf, createTextFieldValidator(combinedField.getMeta()));
         validationSupport.invalidProperty().addListener((observable, oldValue, newValue) -> {
             isValid = !newValue;
-            view.setHasInvalidInput(newValue);
         });
     }
 
@@ -375,7 +371,6 @@ public class ProtocolField extends FlowPane {
             if (valueNode != null) {
                 valueNode.getStyleClass().add("field-error");
             }
-            //view.setHasInvalidInput(true);
         }
     }
 

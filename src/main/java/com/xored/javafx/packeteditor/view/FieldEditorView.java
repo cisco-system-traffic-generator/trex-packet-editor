@@ -46,16 +46,6 @@ public class FieldEditorView {
     @Inject
     Injector injector;
 
-    Boolean hasInvalidInput = false;
-
-    public Boolean hasInvalidInput() {
-        return hasInvalidInput;
-    }
-
-    public void setHasInvalidInput(Boolean hasInvalidInput) {
-        this.hasInvalidInput = hasInvalidInput;
-    }
-
     public void setParentPane(StackPane parentPane) {
         this.fieldEditorPane = parentPane;
     }

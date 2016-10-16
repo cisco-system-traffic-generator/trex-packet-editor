@@ -33,6 +33,19 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     }
 
     @Test
+    public void should_change_ether_type_and_back() {
+        newDocument();
+        addLayer("Internet Protocol Version 4");
+        setFieldText("#Ether-type", "LOOP");
+        setFieldText("#Ether-IP-src", "127.0.1.2");
+        verifyThat("#Ether-type", (Label t) -> t.getText().contains("LOOP")); // default value for Ether
+        verifyUserModelFieldSet("#Ether-type");
+        verifyUserModelFieldSet("#Ether-IP-src");
+        setFieldText("#Ether-type", "IPv4");
+        verifyUserModelFieldSet("#Ether-type");
+    }
+
+    @Test
     public void should_build_tcpip_stack() {
         addLayer("Internet Protocol Version 4");
         verifyThat("#Ether-IP-version", hasText("4"));
@@ -44,15 +57,15 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
     public void should_set_enum_value_as_text() {
-        setComboFieldText("#Ether-type", "0x800"); // IPv4
+        setFieldText("#Ether-type", "0x800"); // IPv4
         verifyThat("#Ether-type", (Label t) -> t.getText().contains("IPv4"));
         verifyThat("#Ether-type", this::fieldLabelIsSet);
 
-        setComboFieldText("#Ether-type", ""); // clear and set default
+        setFieldText("#Ether-type", ""); // clear and set default
         verifyThat("#Ether-type", (Label t) -> t.getText().contains("LOOP")); // default value for Ether
         verifyThat("#Ether-type", (Label t) -> !fieldLabelIsSet(t));
 
-        setComboFieldText("#Ether-type", "0x86DD"); // IPv6
+        setFieldText("#Ether-type", "0x86DD"); // IPv6
         verifyThat("#Ether-type", (Label t) -> t.getText().contains("IPv6"));
         verifyThat("#Ether-type", this::fieldLabelIsSet);
     }

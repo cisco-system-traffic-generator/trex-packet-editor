@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,6 +24,7 @@ import java.util.function.Consumer;
 
 import static javafx.scene.input.KeyCode.*;
 import static org.junit.Assert.fail;
+import static org.testfx.api.FxAssert.verifyThat;
 
 /**
  * Base class for UI tests. supports headless testing
@@ -62,12 +64,22 @@ public class TestPacketEditorUIBase extends ApplicationTest {
         return label.getStyleClass().contains("field-value-set");
     }
 
-    public void setComboFieldText(String query, String val) {
+    public void setFieldText(String query, String val) {
         clickOn(query); // click on label
-        setComboBoxText(query, val);
-        push(ENTER);
+        with(query, (Node node)->{
+            if (node instanceof ComboBox) {
+                ((ComboBox)node).getEditor().setText(val);
+            } else {
+                ((TextField)node).setText(val);
+            }
+            clickOn(node);
+            push(ENTER);
+        });
     }
 
+    public void verifyUserModelFieldSet(String query) {
+        verifyThat(query, this::fieldLabelIsSet);
+    }
 
     /**
      * Runs the specified {@link Runnable} on the
