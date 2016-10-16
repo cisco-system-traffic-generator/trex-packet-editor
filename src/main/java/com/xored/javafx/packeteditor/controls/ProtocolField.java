@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.BITMASK;
@@ -55,6 +56,10 @@ public class ProtocolField extends FlowPane {
     Boolean isValid = true;
     boolean textChanged = false; // for text field onLostFocus
 
+    Consumer<Void> focusControl = (v) -> {
+        editableControl.requestFocus();
+    };
+
     @Inject
     @Named("resources")
     ResourceBundle resourceBundle;
@@ -73,7 +78,7 @@ public class ProtocolField extends FlowPane {
         getChildren().clear();
         getChildren().add(editableControl);
         textChanged = false;
-        editableControl.requestFocus();
+        focusControl.accept(null);
     }
 
     private void showLabel() {
@@ -163,6 +168,11 @@ public class ProtocolField extends FlowPane {
         combo.getStyleClass().addAll("control", "enum-control");
         List<ComboBoxItem> items = getComboBoxItems();
 
+
+        focusControl = (v) -> {
+            combo.getEditor().requestFocus();
+            combo.getEditor().selectAll();
+        };
         ComboBoxItem defaultValue = items.stream().filter(item ->
                         item.equalsTo(combinedField.getValue())
         ).findFirst().orElse(null);
@@ -234,6 +244,11 @@ public class ProtocolField extends FlowPane {
         if (combinedField.getValue() instanceof JsonPrimitive) {
             tf.setText(combinedField.getValue().getAsString());
         }
+
+        focusControl = (v) -> {
+            tf.requestFocus();
+            tf.selectAll();
+        };
 
         tf.setContextMenu(getContextMenu());
         createValidator(tf);
