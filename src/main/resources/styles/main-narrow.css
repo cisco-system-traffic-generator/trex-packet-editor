@@ -357,6 +357,15 @@
     -fx-background-radius: 0px, 0px, 0px, 0px;
 }
 
+.titled-pane .text-field,
+.titled-pane .choice-box,
+.titled-pane .combo-box,
+.titled-pane .list-cell {
+    -fx-min-width: 13em;
+    -fx-pref-width: -1; /*-fx-min-width;*/
+    -fx-max-width: -1; /*-fx-min-width;*/
+}
+
 .titled-pane .choice-box,
 .titled-pane .combo-box
  {
@@ -372,6 +381,7 @@
     -fx-border-style: solid;
     -fx-background-color: red, white, #f4f4f4, white;*/
     -fx-border-width: 0px;
+    -fx-padding: 1px 1px 1px 3px;
 }
 
 /* Restore after narrowing */
