@@ -71,20 +71,6 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     }
 
     @Test
-    public void should_have_load_pcap_button() {
-        clickOn("File");
-        clickOn("Load pcap file");
-        push(ESCAPE);
-    }
-
-    @Test
-    public void should_have_save_pcap_button() {
-        clickOn("File");
-        clickOn("Save to pcap file");
-        push(ESCAPE);
-    }
-
-    @Test
     public void load_pcap_file() {
         loadPcapFile("http.pcap");
         verifyThat("#Ether-IP-version", hasText("4"));
