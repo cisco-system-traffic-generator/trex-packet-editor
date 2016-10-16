@@ -127,6 +127,8 @@ public class FieldEditorController implements Initializable {
             model.setCurrentFile(pcapfile);
             refreshTitle();
             model.setPktAndReload(packetController.read_pcap_packet(bytes), true);
+            // Set window width to scene width
+            fieldEditorPane.getScene().getWindow().sizeToScene();
         } catch (Exception e) {
             if (wantexception) {
                 throw e;
@@ -217,6 +219,8 @@ public class FieldEditorController implements Initializable {
 
     public void newPacket() {
         model.newPacket();
+        // Set window width to scene width
+        fieldEditorPane.getScene().getWindow().sizeToScene();
     }
 
     public FieldEditorModel getModel() { return model; }
