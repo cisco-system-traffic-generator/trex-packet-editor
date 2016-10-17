@@ -110,8 +110,6 @@
 
 .titled-pane .title {
     -fx-background-color: #f4f4f4;
-    -fx-pref-height: 30px;
-    -fx-font-family: Verdana;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-font-style: normal;
