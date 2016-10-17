@@ -116,6 +116,7 @@ public class FieldEditorView {
         TextFields.bindAutoCompletion(cb.getEditor(), protoIds);
 
         Button addBtn = new Button();
+        addBtn.setId("append-protocol-button");
         addBtn.setText("Add");
         addBtn.setOnAction(e->{
             Object sel = cb.getSelectionModel().getSelectedItem();

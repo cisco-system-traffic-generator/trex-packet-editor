@@ -135,6 +135,10 @@
     -fx-min-width: 25em;
 }
 
+#append-protocol-button {
+    -fx-min-width: 5em;
+}
+
 .append-protocol .title {
     -fx-background-color: WHITE;
     -fx-color: WHITE;
