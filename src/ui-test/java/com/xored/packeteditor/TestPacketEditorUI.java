@@ -1,6 +1,8 @@
 package com.xored.packeteditor;
 
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import org.junit.Test;
 
 import static javafx.scene.input.KeyCode.*;
@@ -30,6 +32,47 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         clickOn("#payloadButtonSave");
         interrupt();
         verifyThat("#Ether-Raw-load", hasText("dummy abc"));
+    }
+
+    @Test
+    public void should_cancel_field_editing_with_ESC() {
+        newDocument();
+        clickOn("#Ether-src");
+        push(ESCAPE);
+        verifyUserModelFieldUnset("#Ether-src");
+
+        clickOn("#Ether-src");
+        write("00:11:22:33:44:55:66");
+        push(ESCAPE);
+        verifyUserModelFieldUnset("#Ether-src");
+    }
+
+    @Test
+    public void should_set_field_text_with_enter() {
+        newDocument();
+        clickOn("#Ether-src");
+        write("00:11:22:33:44:55");
+        push(ENTER);
+        verifyUserModelFieldSet("#Ether-src");
+        verifyThat("#Ether-src", hasText("00:11:22:33:44:55"));
+    }
+
+    @Test
+    public void should_not_set_incorrect_field_value() {
+        newDocument();
+        clickOn("#Ether-src");
+        write("00:11:22:33:44:55:66"); // too long
+        push(ENTER); // try to commit -> fails
+        push(ESCAPE); // back to field view
+        verifyUserModelFieldUnset("#Ether-src");
+    }
+
+    @Test
+    public void should_select_all_field_content_on_field_click() {
+        final int mac_text_length = 17;
+        newDocument();
+        clickOn("#Ether-src");
+        verifyThat("#Ether-src", (TextField tf) -> tf.getSelectedText().length() == mac_text_length);
     }
 
     @Test

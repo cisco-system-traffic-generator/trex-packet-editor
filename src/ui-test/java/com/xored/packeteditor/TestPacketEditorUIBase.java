@@ -81,6 +81,10 @@ public class TestPacketEditorUIBase extends ApplicationTest {
         verifyThat(query, this::fieldLabelIsSet);
     }
 
+    public void verifyUserModelFieldUnset(String query) {
+        verifyThat(query, (Label l) -> !fieldLabelIsSet(l));
+    }
+
     /**
      * Runs the specified {@link Runnable} on the
      * JavaFX application thread and waits for completion.

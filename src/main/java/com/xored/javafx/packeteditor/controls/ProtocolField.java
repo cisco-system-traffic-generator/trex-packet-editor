@@ -277,6 +277,7 @@ public class ProtocolField extends FlowPane {
             }
             if (e.getCode().equals(KeyCode.ESCAPE)) {
                 tf.setText(combinedField.getScapyDisplayValue());
+                textChanged = false;
                 this.showLabel();
             }
         });
