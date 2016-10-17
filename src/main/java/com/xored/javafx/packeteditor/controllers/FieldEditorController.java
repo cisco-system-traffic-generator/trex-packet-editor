@@ -108,9 +108,9 @@ public class FieldEditorController implements Initializable {
         byte[] bytes = Files.toByteArray(pcapfile);
         model.setCurrentFile(pcapfile);
         refreshTitle();
-        model.setPktAndReload(packetController.read_pcap_packet(bytes), true);
-            // Set window width to scene width
-            fieldEditorPane.getScene().getWindow().sizeToScene();
+        model.loadDocumentFromPcapData(packetController.read_pcap_packet(bytes));
+        // Set window width to scene width
+        fieldEditorPane.getScene().getWindow().sizeToScene();
     }
 
     public void writeToPcapFile(File file) {

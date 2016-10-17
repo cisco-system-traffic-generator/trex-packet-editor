@@ -7,6 +7,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.junit.Assert;
 import org.junit.Before;
@@ -253,6 +254,19 @@ public class TestPacketEditorUIBase extends ApplicationTest {
     void newDocument() {
         clickOn("File");
         clickOn("New Document");
+        //push(SHORTCUT, KeyCode.N);
+    }
+
+    void undo() {
+        clickOn("Edit");
+        clickOn("Undo");
+        //push(SHORTCUT, KeyCode.Z);
+    }
+
+    void redo() {
+        clickOn("Edit");
+        clickOn("Redo");
+        //push(SHORTCUT, KeyCode.R);
     }
 
 }

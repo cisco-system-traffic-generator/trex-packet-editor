@@ -35,6 +35,39 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     }
 
     @Test
+    public void should_do_undo_redo() {
+        setFieldText("#Ether-src", "00:11:22:33:44:55");
+        verifyUserModelFieldSet("#Ether-src");
+
+        setFieldText("#Ether-src", "00:11:22:33:44:99");
+        verifyThat("#Ether-src", hasText("00:11:22:33:44:99"));
+
+        undo();
+        verifyUserModelFieldSet("#Ether-src");
+        verifyThat("#Ether-src", hasText("00:11:22:33:44:55"));
+
+        undo(); // undo all changes
+        verifyUserModelFieldUnset("#Ether-src");
+
+        redo();
+        verifyUserModelFieldSet("#Ether-src");
+        verifyThat("#Ether-src", hasText("00:11:22:33:44:55"));
+
+        redo();
+        verifyUserModelFieldSet("#Ether-src");
+        verifyThat("#Ether-src", hasText("00:11:22:33:44:99"));
+
+        redo(); // That's the extra redo. it should not do anything and should not crash view
+        verifyUserModelFieldSet("#Ether-src");
+        verifyThat("#Ether-src", hasText("00:11:22:33:44:99"));
+
+        undo();
+        undo(); // back to the initial state
+        undo(); // extra undo. does nothing
+        verifyUserModelFieldUnset("#Ether-src");
+    }
+
+    @Test
     public void should_cancel_field_editing_with_ESC() {
         newDocument();
         clickOn("#Ether-src");

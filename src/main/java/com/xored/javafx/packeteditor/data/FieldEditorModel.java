@@ -13,6 +13,7 @@ import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.*;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 import com.xored.javafx.packeteditor.service.PacketDataService;
+import com.xored.javafx.packeteditor.service.PacketUndoController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,11 +37,6 @@ public class FieldEditorModel {
     @Inject
     IMetadataService metadataService;
 
-    Stack<PacketData> undoRecords = new Stack<>();
-    Stack<PacketData> redoRecords = new Stack<>();
-    Stack<PacketData> undoingFrom;
-    Stack<PacketData> undoingTo;
-
     /** abstract user model. contains field values */
     Document userModel = new Document();
 
@@ -51,6 +47,13 @@ public class FieldEditorModel {
 
     /** model, produced using userModel and information from Scapy. user for building UI structure */
     CombinedProtocolModel model = new CombinedProtocolModel();
+
+    public class DocState {
+        public DocumentFile userModel;
+        public PacketData packet;
+    }
+
+    PacketUndoController<DocState> undoController = new PacketUndoController<>(this::loadUndoState);
 
     /** compatibility flag. to be removed later */
     boolean binaryMode = false;
@@ -113,7 +116,7 @@ public class FieldEditorModel {
     }
     
     public void removeLast() {
-        undoRecords.push(packet);
+        beforeContentReplace();
         if (isBinaryMode()) {
             setPktAndReload(packetDataService.removeLastProtocol(packet));
         } else {
@@ -125,6 +128,7 @@ public class FieldEditorModel {
     }
 
     private void fireUpdateViewEvent() {
+        binary.setBytes(packet.getPacketBytes());
         if (isBinaryMode()) {
             model = CombinedProtocolModel.fromScapyData(metadataService, userModel, packet.getProtocols());
         } else {
@@ -134,17 +138,8 @@ public class FieldEditorModel {
         eventBus.post(new RebuildViewEvent(model));
     }
 
-    public void setPktAndReload(PacketData pkt) {
-        setPktAndReload(pkt, false);
-    }
-    public void setPktAndReload(PacketData pkt, Boolean loadUserModel) {
-        beforeContentReplace(this.packet);
+    private void setPktAndReload(PacketData pkt) {
         this.packet = pkt;
-
-        if(loadUserModel) {
-            importUserModelFromScapy(packet);
-        }
-        binary.setBytes(packet.getPacketBytes());
         fireUpdateViewEvent();
     }
 
@@ -155,6 +150,13 @@ public class FieldEditorModel {
     public void loadTemplate(DocumentFile outFile) {
         userModel = DocumentFile.fromPOJO(outFile, metadataService);
         setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+    }
+
+    public void loadDocumentFromPcapData(PacketData pkt) {
+        beforeContentReplace();
+        this.packet = pkt;
+        importUserModelFromScapy(packet);
+        fireUpdateViewEvent();
     }
 
     public void loadDocumentFromFile(File outFile) throws IOException {
@@ -178,6 +180,7 @@ public class FieldEditorModel {
     }
     
     public void editField(CombinedField field, ReconstructField newValue) {
+        beforeContentReplace();
         assert(field.getMeta().getId() == newValue.id);
 
         List<String> protoPath = field.getProtocol().getPath();
@@ -243,49 +246,6 @@ public class FieldEditorModel {
         binary.setSelected(absoluteOffset, len);
     }
 
-    /** should be called when modification is done */
-    public void beforeContentReplace(PacketData oldPkt) {
-        if (undoingFrom == null) {
-            // new user change
-            undoRecords.push(oldPkt);
-            redoRecords.clear();
-        } else if (undoingFrom != null) {
-            // undoing or redoing
-            undoingTo.push(oldPkt);
-        }
-    }
-
-    void doUndo(Stack<PacketData> from, Stack<PacketData> to) {
-        if (from.empty()) {
-            logger.debug("Nothing to undo/redo");
-            return;
-        }
-        try {
-            undoingFrom = from;
-            undoingTo = to;
-            setPktAndReload(from.pop());
-        } catch (Exception e) {
-            logger.error("undo/redo failed", e);
-        } finally {
-            undoingFrom = null;
-            undoingTo = null;
-        }
-        
-    }
-
-    public void undo() {
-        doUndo(undoRecords, redoRecords);
-    }
-
-    public void redo() {
-        doUndo(redoRecords, undoRecords);
-    }
-
-    private void clearHistory() {
-        undoRecords.clear();
-        redoRecords.clear();
-    }
-
     public PacketData getPkt() {
         return packet;
     }
@@ -308,6 +268,34 @@ public class FieldEditorModel {
 
     public void clearAutoFields() {
 
+    }
+
+    public void undo() {
+        undoController.undo();
+    }
+
+    public void redo() {
+        undoController.redo();
+    }
+
+    private void clearHistory() {
+        undoController.clearHistory();
+    }
+
+    /** should be called before changing data in this class. it writes UNDO records */
+    private void beforeContentReplace() {
+        DocState ds = new DocState();
+        ds.packet = packet;
+        ds.userModel = DocumentFile.toPOJO(userModel);
+        undoController.beforeContentReplace(ds);
+    }
+
+    /** called by undoController to restore state from undo records */
+    private void loadUndoState(DocState docState) {
+        beforeContentReplace(); // save data for reverse undo/redo while processing undo/redo
+        packet = docState.packet;
+        userModel = DocumentFile.fromPOJO(docState.userModel, metadataService);
+        fireUpdateViewEvent();
     }
 
 }
