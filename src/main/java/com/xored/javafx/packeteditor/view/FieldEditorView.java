@@ -102,6 +102,7 @@ public class FieldEditorView {
             pane.setExpanded(false);
         }
         ComboBox<ProtocolMetadata> cb = new ComboBox<>();
+        cb.setId("append-layer-combobox");
         cb.getStyleClass().add("layer-type-selector");
         cb.setEditable(true);
         cb.getItems().addAll(protocols);
@@ -135,7 +136,6 @@ public class FieldEditorView {
 
         controls.getChildren().add(cb);
         controls.getChildren().add(addBtn);
-        HBox.setHgrow(cb, Priority.ALWAYS);
         return pane;
     }
 

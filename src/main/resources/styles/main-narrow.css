@@ -131,6 +131,10 @@
     -fx-font-stretch: normal;
 }
 
+#append-layer-combobox {
+    -fx-min-width: 25em;
+}
+
 .append-protocol .title {
     -fx-background-color: WHITE;
     -fx-color: WHITE;
@@ -361,7 +365,7 @@
 .titled-pane .choice-box,
 .titled-pane .combo-box,
 .titled-pane .list-cell {
-    -fx-min-width: 13em;
+    -fx-min-width: 15em;
     -fx-pref-width: -1; /*-fx-min-width;*/
     -fx-max-width: -1; /*-fx-min-width;*/
 }
