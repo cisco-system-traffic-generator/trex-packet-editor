@@ -6,9 +6,9 @@
 -fx-font-weight	<font-weight>	inherit*/
 
 * {
-    -fx-font-family: monospace;
+    -fx-font-family: 'Menlo', 'Lucida Console', 'Courier', monospace;
     -fx-font-size: 12;
-    -fx-smooth: true;
+    -fx-smooth: false;
 }
 
 .fieldeditortoppane {
