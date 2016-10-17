@@ -1,25 +1,25 @@
 package com.xored.javafx.packeteditor.scapy;
 
 import com.google.gson.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zeromq.ZMQ;
 
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.zeromq.ZMQ;
-
 /** binding to scapy server */
 public class ScapyServerClient {
+    public static final int ZMQ_THREADS = 1;
     static Logger logger = LoggerFactory.getLogger(ScapyServerClient.class);
 
     final Base64.Encoder base64Encoder = Base64.getEncoder();
     final Base64.Decoder base64Decoder = Base64.getDecoder();
     final Gson gson = new Gson();
 
-    ZMQ.Context context;
-    ZMQ.Socket session;
+    ZMQ.Context zmqContext;
+    ZMQ.Socket zmqSocket;
     String version_handler;
     int last_id = 0;
 
@@ -39,39 +39,49 @@ public class ScapyServerClient {
 
     public void open(String url) {
         close();
-        context = ZMQ.context(1);
-        session = context.socket(ZMQ.REQ);
+        zmqContext = ZMQ.context(ZMQ_THREADS);
+        zmqSocket = zmqContext.socket(ZMQ.REQ);
         logger.info("connecting to scapy_server at {}", url);
-        session.connect(url);
+        zmqSocket.connect(url);
 
+        version_handler = getVersionHandler();
+    }
+
+    private JsonArray getVersion() {
         JsonElement result = request("get_version", null);
         if (result == null) {
             logger.error("get_version returned null");
             throw new ScapyException("Failed to get Scapy version");
         }
-        // version: "1.01"
-        logger.info("Scapy version is {}", result.getAsJsonObject().get("version").getAsString());
 
-        JsonArray vers = new JsonArray();
-        vers.add("1");
-        vers.add("01");
-        result = request("get_version_handler", vers);
-        if (result == null) {
+        String versionString = result.getAsJsonObject().get("version").getAsString();
+        logger.info("Scapy version is {}", versionString);
+
+        JsonArray version = new JsonArray();
+
+        Arrays.stream(versionString.split("\\."))
+              .forEach(version::add);
+        return version;
+    }
+    
+    private String getVersionHandler() {
+        JsonElement versionHandler = request("get_version_handler", getVersion());
+        if (versionHandler == null) {
             logger.error("get_version returned null");
             throw new ScapyException("Failed to get version handler");
         }
-        version_handler = result.getAsString();
+        return versionHandler.getAsString();
     }
-
+    
     public void close() {
-        if (session != null) {
-            session.close();
-            session = null;
+        if (zmqSocket != null) {
+            zmqSocket.close();
+            zmqSocket = null;
         }
 
-        if (context != null) {
-            context.term();
-            context = null;
+        if (zmqContext != null) {
+            zmqContext.term();
+            zmqContext = null;
         }
     }
 
@@ -85,9 +95,9 @@ public class ScapyServerClient {
         String request_json = gson.toJson(reqs);
         logger.debug(" sending: {}", request_json);
 
-        session.send(request_json.getBytes(), 0);
+        zmqSocket.send(request_json.getBytes(), 0);
 
-        byte[] response_bytes = session.recv(0);
+        byte[] response_bytes = zmqSocket.recv(0);
         if (response_bytes == null) {
             logger.info("Received null response");
             throw new NullPointerException();
