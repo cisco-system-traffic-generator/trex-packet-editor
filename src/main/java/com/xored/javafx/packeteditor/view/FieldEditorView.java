@@ -303,7 +303,7 @@ public class FieldEditorView {
 
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.setId(getUniqueIdFor(field));
-        combo.getStyleClass().addAll("control", "bitflag");
+        combo.getStyleClass().setAll("control", "bitflag");
         
         List<ComboBoxItem> items = bitFlagMetadata.getValues().entrySet().stream()
                 .map(entry -> new ComboBoxItem(entry.getKey(), entry.getValue()))

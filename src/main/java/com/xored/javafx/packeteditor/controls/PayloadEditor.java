@@ -1,5 +1,9 @@
 package com.xored.javafx.packeteditor.controls;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.inject.Injector;
 import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import javafx.beans.property.StringProperty;
@@ -18,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.util.Base64;
 import java.util.Random;
 
 public class PayloadEditor extends VBox {
@@ -127,6 +132,7 @@ public class PayloadEditor extends VBox {
     private PayloadType type = PayloadType.UNKNOWN;
     private EditorMode  mode = EditorMode.UNKNOWN;
     private byte[]      data;
+    private File        file;
 
     private ChangeListener<String> onlyNumberListener = (observable, oldValue, newValue) -> {
         if (!newValue.matches("\\d*"))
@@ -204,7 +210,7 @@ public class PayloadEditor extends VBox {
         filePatternButton.setOnAction((event) -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Select payload pattern file");
-            File file = fileChooser.showOpenDialog(this.getScene().getWindow());
+            file = fileChooser.showOpenDialog(this.getScene().getWindow());
             if (file != null) {
                 filePatternFilename.setText(file.getAbsolutePath());
             }
@@ -246,6 +252,42 @@ public class PayloadEditor extends VBox {
             default:
                 logger.error("Unknown payload editor mode");
         }
+    }
+
+    public JsonElement getJson() {
+        JsonArray json = new JsonArray();
+
+        JsonObject jsonobject = new JsonObject();
+        jsonobject.add("type", new JsonPrimitive(type.human()));
+
+        if (type == PayloadType.TEXT) {
+            jsonobject.add("text", new JsonPrimitive(getText()));
+        }
+        else if (type == PayloadType.FILE) {
+            jsonobject.add("file", new JsonPrimitive(file.getAbsolutePath()));
+        }
+        else if (type == PayloadType.TEXT_PATTERN) {
+            jsonobject.add("text_pattern", new JsonPrimitive(textPatternText.getText()));
+            jsonobject.add("size", new JsonPrimitive(textPatternSize.getText()));
+        }
+        else if (type == PayloadType.FILE_PATTERN) {
+            jsonobject.add("file_pattern", new JsonPrimitive(file.getAbsolutePath()));
+            jsonobject.add("size", new JsonPrimitive(filePatternSize.getText()));
+        }
+        else if (type == PayloadType.RANDOM_ASCII) {
+            jsonobject.add("size", new JsonPrimitive(randomAsciiSize.getText()));
+            String data_base64 = Base64.getEncoder().encodeToString(data);
+            jsonobject.add("data_base64", new JsonPrimitive(data_base64));
+        }
+        else if (type == PayloadType.RANDOM_NON_ASCII) {
+            jsonobject.add("size", new JsonPrimitive(randomNonAsciiSize.getText()));
+            String data_base64 = Base64.getEncoder().encodeToString(data);
+            jsonobject.add("data_base64", new JsonPrimitive(data_base64));
+        }
+
+        json.add(jsonobject);
+
+        return json;
     }
 
     public String getText() {

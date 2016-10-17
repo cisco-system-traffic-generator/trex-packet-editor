@@ -307,7 +307,7 @@
     -fx-min-height: 30px;
     -fx-pref-height: 30px;
     -fx-min-width: 5em;
-    -fx-pref-width: 5em;
+    -fx-pref-width: -1;
 }
 
 .payloadlabel {
@@ -366,6 +366,19 @@
     -fx-max-width: -1; /*-fx-min-width;*/
 }
 
+.titled-pane .layer-type-selector {
+    -fx-min-width: 15em;
+    -fx-pref-width: -1; /*-fx-min-width;*/
+    -fx-max-width: 15em; /*-fx-min-width;*/
+}
+
+ProtocolField,
+.titled-pane .label {
+    -fx-min-width: 4.4em;
+    -fx-pref-width: 28.8em; /*-fx-min-width;*/
+    -fx-max-width: 28.8em; /*-fx-min-width;*/
+}
+
 .titled-pane .choice-box,
 .titled-pane .combo-box
  {
@@ -391,10 +404,10 @@
 }
 
 /* Restore after narrowing */
-#payloadEditorHboxLabel .label {
-    -fx-pref-height: 10em;
-    -fx-min-height: 10em;
-    -fx-max-height: 10em;
+#payloadEditorHboxValue .label {
+    -fx-min-width: 1em;
+    -fx-pref-width: -1;
+    -fx-max-width: -1;
 }
 
 .field-value-default-raw,
@@ -411,7 +424,6 @@
 }
 
 .bitflag  {
-    -fx-background-color: transparent, transparent, transparent, transparent;
     -fx-background-radius: 0, 0, 0, 0;
     -fx-padding: 0;
 }
@@ -419,8 +431,11 @@
 .bitflag .arrow-button .arrow {
     visibility: false;
 }
+.bitflag,
+.bitflag > .list-cell,
 .bitflag > .list-cell .text {
-    -fx-fill: grey;
+    /*-fx-fill: grey;*/
+    -fx-background-color: white white white white; /*transparent, transparent, transparent, transparent;*/
 }
 
 
