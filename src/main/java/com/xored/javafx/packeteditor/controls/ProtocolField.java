@@ -189,6 +189,18 @@ public class ProtocolField extends FlowPane {
 
         TextFields.bindAutoCompletion(combo.getEditor(), items.stream().map(ComboBoxItem::toString).collect(Collectors.toList()));
 
+        combo.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            // On lost focus
+            if (!newValue) {
+                if(comboChanged) {
+                    commitChanges(combo);
+                }
+                else {
+                    showLabel();
+                }
+            }
+        });
+
         // Update the flag when the index was changed
         combo.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov, final Number oldvalue, final Number newvalue) {
