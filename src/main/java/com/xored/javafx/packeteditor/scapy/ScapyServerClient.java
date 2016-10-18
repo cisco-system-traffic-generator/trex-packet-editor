@@ -1,6 +1,8 @@
 package com.xored.javafx.packeteditor.scapy;
 
 import com.google.gson.*;
+import com.google.inject.Inject;
+import com.xored.javafx.packeteditor.service.ConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
@@ -23,6 +25,11 @@ public class ScapyServerClient {
     String version_handler;
     int last_id = 0;
 
+    @Inject
+    ConfigurationService configurationService;
+    
+    private boolean lastRequestFailed = false;
+
     static class Request {
         final String jsonrpc = "2.0";
         String id;
@@ -37,10 +44,11 @@ public class ScapyServerClient {
         JsonObject error;
     }
 
-    public void open(String url) {
-        close();
+    public void connect(String url) {
+        
         zmqContext = ZMQ.context(ZMQ_THREADS);
-        zmqSocket = zmqContext.socket(ZMQ.REQ);
+        zmqSocket = createSocket();
+        zmqSocket.setReceiveTimeOut(configurationService.getReceiveTimeout());
         logger.info("connecting to scapy_server at {}", url);
         zmqSocket.connect(url);
 
@@ -72,25 +80,39 @@ public class ScapyServerClient {
         }
         return versionHandler.getAsString();
     }
-    
-    public void close() {
+
+    private void reconnect() {
+        closeConnection();
+        lastRequestFailed = false;
+        connect(configurationService.getConnectionUrl());
+    }
+
+    public void closeConnection() {
+        logger.info("Closing ZMQ Socket. from thread: {}", Thread.currentThread().getName());
         if (zmqSocket != null) {
+            zmqSocket.disconnect(configurationService.getConnectionUrl());
             zmqSocket.close();
             zmqSocket = null;
         }
 
+        logger.info("Terminating ZMQ Context.");
         if (zmqContext != null) {
             zmqContext.term();
             zmqContext = null;
         }
+        logger.info("Connection closed.");
     }
 
     /** makes request to Scapy server, returns Scapy server result */
-    public JsonElement request(String method, JsonElement params) {
+    public JsonElement request(String method, JsonElement payload) {
+        if(lastRequestFailed) {
+            reconnect();
+            payload = rebuildPayload(payload);
+        }
         Request reqs = new Request();
         reqs.id = Integer.toString(++last_id);
         reqs.method = method;
-        reqs.params = params;
+        reqs.params = payload;
 
         String request_json = gson.toJson(reqs);
         logger.debug(" sending: {}", request_json);
@@ -99,8 +121,10 @@ public class ScapyServerClient {
 
         byte[] response_bytes = zmqSocket.recv(0);
         if (response_bytes == null) {
-            logger.info("Received null response");
-            throw new NullPointerException();
+            lastRequestFailed = true;
+            logger.info("Received null response. Request method: '{}'. Errno: '{}'", zmqSocket.base().errno());
+            String message = "Unable to receive response for " + method;
+            throw new ConnectionException(message);
         }
 
         String response_json = new String(response_bytes, java.nio.charset.StandardCharsets.UTF_8);
@@ -120,6 +144,18 @@ public class ScapyServerClient {
         }
 
         return resp.result;
+    }
+
+    private JsonArray rebuildPayload(JsonElement payload) {
+        JsonArray parameters = ((JsonArray) payload).get(1).getAsJsonArray();
+        JsonArray newPayload = new JsonArray();
+        newPayload.add(version_handler);
+        newPayload.add(parameters);
+        return newPayload;
+    }
+
+    private ZMQ.Socket createSocket() {
+        return zmqContext.socket(ZMQ.REQ);
     }
 
     /** builds packet from JSON definition using scapy */

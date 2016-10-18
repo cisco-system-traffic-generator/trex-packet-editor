@@ -1,10 +1,13 @@
 package com.xored.packeteditor;
 
 import com.google.gson.*;
+import com.google.inject.Injector;
+import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import com.xored.javafx.packeteditor.scapy.*;
 import java.util.Arrays;
 import java.util.List;
 
+import com.xored.javafx.packeteditor.service.ConfigurationService;
 import org.junit.*;
 import org.junit.rules.Timeout;
 
@@ -16,6 +19,8 @@ public class TestScapyClient {
             ? ("tcp://" + System.getenv("SCAPY_SERVER"))
             : "tcp://localhost:4507";
 
+    Injector injector = new TRexPacketCraftingTool().getInjector();
+    
     ScapyServerClient scapy;
 
     @Rule
@@ -24,13 +29,13 @@ public class TestScapyClient {
 
     @Before
     public void init() {
-        scapy = new ScapyServerClient();
-        scapy.open(server_url);
+        scapy = injector.getInstance(ScapyServerClient.class);
+        scapy.connect(server_url);
     }
 
     @After
     public void cleanup() {
-        scapy.close();
+        scapy.closeConnection();
     }
 
     @Test

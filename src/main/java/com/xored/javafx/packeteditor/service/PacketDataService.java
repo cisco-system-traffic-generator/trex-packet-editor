@@ -1,8 +1,5 @@
 package com.xored.javafx.packeteditor.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.scapy.*;
 import org.slf4j.Logger;
@@ -20,8 +17,11 @@ public class PacketDataService {
     @Inject
     ScapyServerClient scapy;
 
+    @Inject
+    ConfigurationService configurationService;
+    
     public void init() {
-        scapy.open("tcp://localhost:4507");
+        scapy.connect(configurationService.getConnectionUrl());
     }
 
     public PacketData buildPacket(List<ReconstructProtocol> pktStructure) {
