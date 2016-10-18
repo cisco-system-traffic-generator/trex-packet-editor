@@ -15,11 +15,9 @@ import com.xored.javafx.packeteditor.scapy.FieldValue;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.view.ComboBoxItem;
 import com.xored.javafx.packeteditor.view.FieldEditorView;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.FlowPane;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.CustomTextField;
@@ -59,7 +57,7 @@ public class ProtocolField extends FlowPane {
     Boolean isValid = true;
     boolean textChanged = false; // for text field onLostFocus
     boolean comboChanged = false; // for text field onLostFocus
-    AutoCompletionBinding<String> stringAutoCompletionBinding;
+    AutoCompletionBinding<String> comboAutoCompleter;
 
     Consumer<Void> focusControl = (v) -> {
         editableControl.requestFocus();
@@ -163,7 +161,7 @@ public class ProtocolField extends FlowPane {
 
         return  pe;
     }
-    
+
     private Control createEnumField() {
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.setId(view.getUniqueIdFor(combinedField));
@@ -189,101 +187,65 @@ public class ProtocolField extends FlowPane {
             combo.setValue(defaultValue);
         }
 
-/*
-        stringAutoCompletionBinding.setOnAutoCompleted((e) -> {
-            String s = e.getCompletion();
-            logger.info("----" + s);
-        });
-*/
-
-        combo.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent t) {
-                combo.hide();
-                if (stringAutoCompletionBinding == null){
-                    stringAutoCompletionBinding = TextFields.bindAutoCompletion(combo.getEditor(),
-                            items.stream().map(ComboBoxItem::toString).collect(Collectors.toList()));
-                }
-            }
-        });
-
-        combo.getEditor().setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent t) {
-                combo.hide();
-                if (stringAutoCompletionBinding == null){
-                    stringAutoCompletionBinding = TextFields.bindAutoCompletion(combo.getEditor(),
-                            items.stream().map(ComboBoxItem::toString).collect(Collectors.toList()));
-                }
-            }
-        });
-
         combo.focusedProperty().addListener((observable, oldValue, newValue) -> {
             // On lost focus
             if (!newValue) {
-                if (stringAutoCompletionBinding != null) {
-                    stringAutoCompletionBinding.dispose();
-                    stringAutoCompletionBinding = null;
+                if (comboAutoCompleter!=null) {
+                    comboAutoCompleter.dispose();
+                    comboAutoCompleter = null;
                 }
                 if(comboChanged) {
                     commitChanges(combo);
                 }
                 else {
-                    comboChanged = false;
                     showLabel();
                 }
             }
-        });
-
-
-        combo.getEditor().focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                combo.hide();
-                if (stringAutoCompletionBinding == null){
-                    stringAutoCompletionBinding = TextFields.bindAutoCompletion(combo.getEditor(),
+            else {
+                if (comboAutoCompleter == null) {
+                    comboAutoCompleter = TextFields.bindAutoCompletion(combo.getEditor(),
                             items.stream().map(ComboBoxItem::toString).collect(Collectors.toList()));
                 }
-
-            }
-            else {
-                combo.show();
-                if (stringAutoCompletionBinding != null) {
-                    stringAutoCompletionBinding.dispose();
-                    stringAutoCompletionBinding = null;
-                }
             }
         });
 
+        combo.setOnHidden((e) -> {
+            if (comboAutoCompleter == null) {
+                comboAutoCompleter = TextFields.bindAutoCompletion(combo.getEditor(),
+                        items.stream().map(ComboBoxItem::toString).collect(Collectors.toList()));
+            }
+        });
 
-/*
+        combo.setOnShown((e) -> {
+            if (comboAutoCompleter!=null) {
+                comboAutoCompleter.dispose();
+                comboAutoCompleter = null;
+            }
+        });
+
         combo.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             comboChanged = true;
-            combo.hide();
         });
 
         // Update the flag when the index was changed
-        combo.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<? extends Number> ov, final Number oldvalue, final Number newvalue) {
-                if (oldvalue.intValue() != newvalue.intValue()) {
-                    comboChanged = true;
-                }
-            }
+        combo.getSelectionModel().selectedIndexProperty().addListener((ov, oldvalue, newvalue) -> {
+            comboChanged = true;
         });
-*/
+
 
         combo.setOnKeyReleased(e -> {
             if (e.getCode().equals(KeyCode.ESCAPE)) {
-                if (stringAutoCompletionBinding != null) {
-                    stringAutoCompletionBinding.dispose();
-                    stringAutoCompletionBinding = null;
+                if (comboAutoCompleter!=null) {
+                    comboAutoCompleter.dispose();
+                    comboAutoCompleter = null;
                 }
                 comboChanged = false;
                 showLabel();
             }
             else if (e.getCode().equals(KeyCode.ENTER)) {
-                if (stringAutoCompletionBinding != null) {
-                    stringAutoCompletionBinding.dispose();
-                    stringAutoCompletionBinding = null;
+                if (comboAutoCompleter!=null) {
+                    comboAutoCompleter.dispose();
+                    comboAutoCompleter = null;
                 }
                 comboChanged = true;
                 commitChanges(combo);
