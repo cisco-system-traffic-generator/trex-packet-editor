@@ -437,6 +437,7 @@ public class ProtocolField extends FlowPane {
         } catch (Exception e) {
             logger.warn("Failed to build packet with new value of {}", combinedField.getId());
             // TODO: implement validator and/or message box/popup
+            controller.showConnectionErrorDialog();
             if (valueNode != null) {
                 valueNode.getStyleClass().add("field-error");
             }
