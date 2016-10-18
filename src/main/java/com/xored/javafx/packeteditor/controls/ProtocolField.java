@@ -201,6 +201,10 @@ public class ProtocolField extends FlowPane {
             }
         });
 
+        combo.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            comboChanged = true;
+        });
+
         // Update the flag when the index was changed
         combo.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov, final Number oldvalue, final Number newvalue) {
