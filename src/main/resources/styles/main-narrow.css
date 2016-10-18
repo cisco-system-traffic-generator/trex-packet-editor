@@ -90,6 +90,10 @@
     -fx-fit-to-height: true;
 }
 
+.begroup Text {
+    -fx-font-family: monospace;
+}
+
 .protocolgrid {
     -fx-background-color: #ffffff;
     -fx-border-width: 0px;
