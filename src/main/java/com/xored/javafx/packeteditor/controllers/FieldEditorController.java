@@ -7,19 +7,15 @@ import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
-import com.xored.javafx.packeteditor.scapy.PacketData;
-import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
-import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
+import com.xored.javafx.packeteditor.scapy.PacketData;
 import com.xored.javafx.packeteditor.service.IMetadataService;
+import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.view.FieldEditorView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -29,8 +25,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
+
+import static javafx.scene.control.Alert.AlertType.ERROR;
 
 public class FieldEditorController implements Initializable {
 
@@ -63,9 +60,28 @@ public class FieldEditorController implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        packetController.init();
         view.setParentPane(fieldEditorPane);
-        Platform.runLater(()-> newPacket());
+        try {
+            packetController.init();
+        } catch(Exception e) {
+            showConnectionErrorDialog();
+            logger.error("Scapy server unavailable during init phase. Critical error. Exiting now.");
+            System.exit(0);
+        }
+        Platform.runLater(this::newPacket);
+    }
+
+    public void showConnectionErrorDialog() {
+        Alert alert = new Alert(ERROR);
+        alert.setTitle("Connection error");
+        alert.setHeaderText(null);
+        alert.setContentText("Check network status and try again.");
+
+        ButtonType reconnectBtn = new ButtonType("OK");
+
+        alert.getButtonTypes().setAll(reconnectBtn);
+
+        alert.showAndWait();
     }
 
     public void refreshTitle() {
