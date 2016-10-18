@@ -15,6 +15,8 @@ import com.xored.javafx.packeteditor.scapy.FieldValue;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.view.ComboBoxItem;
 import com.xored.javafx.packeteditor.view.FieldEditorView;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -33,7 +35,8 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.*;
+import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.BYTES;
+import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.ENUM;
 
 public class ProtocolField extends FlowPane {
 
@@ -54,6 +57,7 @@ public class ProtocolField extends FlowPane {
 
     Boolean isValid = true;
     boolean textChanged = false; // for text field onLostFocus
+    boolean comboChanged = false; // for text field onLostFocus
 
     Consumer<Void> focusControl = (v) -> {
         editableControl.requestFocus();
@@ -185,7 +189,14 @@ public class ProtocolField extends FlowPane {
 
         TextFields.bindAutoCompletion(combo.getEditor(), items.stream().map(ComboBoxItem::toString).collect(Collectors.toList()));
 
-        combo.setOnAction((event) -> commitChanges(combo));
+        // Update the flag when the index was changed
+        combo.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov, final Number oldvalue, final Number newvalue) {
+                if (oldvalue.intValue() != newvalue.intValue()) {
+                    comboChanged = true;
+                }
+            }
+        });
 
         combo.setOnKeyReleased(e -> {
             if (e.getCode().equals(KeyCode.ESCAPE)) {
@@ -193,6 +204,9 @@ public class ProtocolField extends FlowPane {
                 combo.setValue(createDefaultCBItem(combinedField));
                 label.setText(combinedField.getScapyDisplayValue());
                 getChildren().add(label);
+            }
+            else if (e.getCode().equals(KeyCode.ENTER)) {
+                commitChanges(combo);
             }
         });
         return combo;
