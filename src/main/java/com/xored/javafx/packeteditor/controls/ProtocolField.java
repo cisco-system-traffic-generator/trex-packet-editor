@@ -15,11 +15,11 @@ import com.xored.javafx.packeteditor.scapy.FieldValue;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.view.ComboBoxItem;
 import com.xored.javafx.packeteditor.view.FieldEditorView;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.FlowPane;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.CustomTextField;
@@ -59,6 +59,7 @@ public class ProtocolField extends FlowPane {
     Boolean isValid = true;
     boolean textChanged = false; // for text field onLostFocus
     boolean comboChanged = false; // for text field onLostFocus
+    AutoCompletionBinding<String> stringAutoCompletionBinding;
 
     Consumer<Void> focusControl = (v) -> {
         editableControl.requestFocus();
@@ -188,12 +189,42 @@ public class ProtocolField extends FlowPane {
             combo.setValue(defaultValue);
         }
 
-        AutoCompletionBinding<String> stringAutoCompletionBinding = TextFields.bindAutoCompletion(combo.getEditor(), items.stream().map(ComboBoxItem::toString).collect(Collectors.toList()));
+/*
+        stringAutoCompletionBinding.setOnAutoCompleted((e) -> {
+            String s = e.getCompletion();
+            logger.info("----" + s);
+        });
+*/
+
+        combo.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent t) {
+                combo.hide();
+                if (stringAutoCompletionBinding == null){
+                    stringAutoCompletionBinding = TextFields.bindAutoCompletion(combo.getEditor(),
+                            items.stream().map(ComboBoxItem::toString).collect(Collectors.toList()));
+                }
+            }
+        });
+
+        combo.getEditor().setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent t) {
+                combo.hide();
+                if (stringAutoCompletionBinding == null){
+                    stringAutoCompletionBinding = TextFields.bindAutoCompletion(combo.getEditor(),
+                            items.stream().map(ComboBoxItem::toString).collect(Collectors.toList()));
+                }
+            }
+        });
 
         combo.focusedProperty().addListener((observable, oldValue, newValue) -> {
             // On lost focus
             if (!newValue) {
-                stringAutoCompletionBinding.dispose();
+                if (stringAutoCompletionBinding != null) {
+                    stringAutoCompletionBinding.dispose();
+                    stringAutoCompletionBinding = null;
+                }
                 if(comboChanged) {
                     commitChanges(combo);
                 }
@@ -204,8 +235,30 @@ public class ProtocolField extends FlowPane {
             }
         });
 
+
+        combo.getEditor().focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                combo.hide();
+                if (stringAutoCompletionBinding == null){
+                    stringAutoCompletionBinding = TextFields.bindAutoCompletion(combo.getEditor(),
+                            items.stream().map(ComboBoxItem::toString).collect(Collectors.toList()));
+                }
+
+            }
+            else {
+                combo.show();
+                if (stringAutoCompletionBinding != null) {
+                    stringAutoCompletionBinding.dispose();
+                    stringAutoCompletionBinding = null;
+                }
+            }
+        });
+
+
+/*
         combo.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             comboChanged = true;
+            combo.hide();
         });
 
         // Update the flag when the index was changed
@@ -216,19 +269,27 @@ public class ProtocolField extends FlowPane {
                 }
             }
         });
+*/
 
         combo.setOnKeyReleased(e -> {
             if (e.getCode().equals(KeyCode.ESCAPE)) {
-                stringAutoCompletionBinding.dispose();
+                if (stringAutoCompletionBinding != null) {
+                    stringAutoCompletionBinding.dispose();
+                    stringAutoCompletionBinding = null;
+                }
                 comboChanged = false;
                 showLabel();
             }
             else if (e.getCode().equals(KeyCode.ENTER)) {
-                stringAutoCompletionBinding.dispose();
+                if (stringAutoCompletionBinding != null) {
+                    stringAutoCompletionBinding.dispose();
+                    stringAutoCompletionBinding = null;
+                }
                 comboChanged = true;
                 commitChanges(combo);
             }
         });
+
         return combo;
     }
 
