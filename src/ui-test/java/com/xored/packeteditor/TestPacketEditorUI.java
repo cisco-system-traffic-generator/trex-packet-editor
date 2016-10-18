@@ -1,6 +1,5 @@
 package com.xored.packeteditor;
 
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import org.junit.Test;
@@ -14,6 +13,36 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     @Test
     public void should_create_new_document() {
         newDocument();
+    }
+
+    @Test
+    public void should_save_textfield_values() {
+        newDocument();
+        verifyUserModelFieldDefault("#Ether-src");
+        clickOn("#Ether-src");
+        push(ESCAPE);
+        verifyUserModelFieldDefault("#Ether-src");
+        clickOn("#Ether-src");
+        push(ENTER);
+        verifyUserModelFieldSet("#Ether-src");
+    }
+
+    @Test
+    public void should_save_enumfield_values() {
+        newDocument();
+        verifyUserModelFieldDefault("#Ether-type");
+        clickOn("#Ether-type");
+        clickOn("#Ether-type");
+        push(ESCAPE);
+        verifyUserModelFieldDefault("#Ether-type");
+        clickOn("#Ether-type");
+        doubleClickOn("#Ether-type");
+        push(SHIFT,L);
+        push(SHIFT,O);
+        push(SHIFT,O);
+        push(SHIFT,P);
+        push(ENTER);
+        verifyUserModelFieldSet("#Ether-type");
     }
 
     @Test

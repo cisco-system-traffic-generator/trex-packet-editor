@@ -21,6 +21,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.FlowPane;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.CustomTextField;
 import org.controlsfx.control.textfield.TextFields;
 import org.controlsfx.validation.Severity;
@@ -187,15 +188,17 @@ public class ProtocolField extends FlowPane {
             combo.setValue(defaultValue);
         }
 
-        TextFields.bindAutoCompletion(combo.getEditor(), items.stream().map(ComboBoxItem::toString).collect(Collectors.toList()));
+        AutoCompletionBinding<String> stringAutoCompletionBinding = TextFields.bindAutoCompletion(combo.getEditor(), items.stream().map(ComboBoxItem::toString).collect(Collectors.toList()));
 
         combo.focusedProperty().addListener((observable, oldValue, newValue) -> {
             // On lost focus
             if (!newValue) {
+                stringAutoCompletionBinding.dispose();
                 if(comboChanged) {
                     commitChanges(combo);
                 }
                 else {
+                    comboChanged = false;
                     showLabel();
                 }
             }
@@ -216,12 +219,13 @@ public class ProtocolField extends FlowPane {
 
         combo.setOnKeyReleased(e -> {
             if (e.getCode().equals(KeyCode.ESCAPE)) {
-                getChildren().clear();
-                combo.setValue(createDefaultCBItem(combinedField));
-                label.setText(combinedField.getScapyDisplayValue());
-                getChildren().add(label);
+                stringAutoCompletionBinding.dispose();
+                comboChanged = false;
+                showLabel();
             }
             else if (e.getCode().equals(KeyCode.ENTER)) {
+                stringAutoCompletionBinding.dispose();
+                comboChanged = true;
                 commitChanges(combo);
             }
         });

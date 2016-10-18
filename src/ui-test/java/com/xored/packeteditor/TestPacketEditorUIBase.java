@@ -7,7 +7,6 @@ import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.function.Consumer;
 
-import static javafx.scene.input.KeyCode.*;
+import static javafx.scene.input.KeyCode.ENTER;
 import static org.junit.Assert.fail;
 import static org.testfx.api.FxAssert.verifyThat;
 
@@ -65,6 +64,11 @@ public class TestPacketEditorUIBase extends ApplicationTest {
         return label.getStyleClass().contains("field-value-set");
     }
 
+    /** label contains a default value */
+    public boolean fieldLabelIsDefault(Label label) {
+        return label.getStyleClass().contains("field-value-default");
+    }
+
     public void setFieldText(String query, String val) {
         clickOn(query); // click on label
         with(query, (Node node)->{
@@ -80,6 +84,10 @@ public class TestPacketEditorUIBase extends ApplicationTest {
 
     public void verifyUserModelFieldSet(String query) {
         verifyThat(query, this::fieldLabelIsSet);
+    }
+
+    public void verifyUserModelFieldDefault(String query) {
+        verifyThat(query, this::fieldLabelIsDefault);
     }
 
     public void verifyUserModelFieldUnset(String query) {
