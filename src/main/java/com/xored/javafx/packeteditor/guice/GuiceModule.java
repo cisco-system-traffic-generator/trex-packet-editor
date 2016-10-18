@@ -9,16 +9,19 @@ import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.IBinaryData;
-import com.xored.javafx.packeteditor.service.MetadataService;
-import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.guice.provider.FXMLLoaderProvider;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
+import com.xored.javafx.packeteditor.service.ConfigurationService;
 import com.xored.javafx.packeteditor.service.IMetadataService;
+import com.xored.javafx.packeteditor.service.MetadataService;
+import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.view.FieldEditorView;
 import javafx.fxml.FXMLLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 public class GuiceModule extends AbstractModule {
@@ -28,6 +31,7 @@ public class GuiceModule extends AbstractModule {
     protected void configure() {
         bind(FXMLLoader.class).toProvider(FXMLLoaderProvider.class);
         bind(IBinaryData.class).to(BinaryData.class).in(Singleton.class);
+        bind(ConfigurationService.class).in(Singleton.class);
         bind(ScapyServerClient.class).in(Singleton.class);
         bind(PacketDataService.class).in(Singleton.class);
         bind(FieldEditorModel.class).in(Singleton.class);
@@ -39,6 +43,17 @@ public class GuiceModule extends AbstractModule {
         bind(ResourceBundle.class)
                 .annotatedWith(Names.named("resources"))
                 .toInstance(ResourceBundle.getBundle(TRexPacketCraftingTool.class.getName()));
+        
+        Names.bindProperties(binder(), loadProperties());
     }
 
+    private Properties loadProperties() {
+        Properties properties = new Properties();
+        try {
+            properties.load(ScapyServerClient.class.getResourceAsStream("scapy_config.properties"));
+        } catch (IOException e) {
+            logger.error("Unable to load config file. Due to: {}", e);
+        }
+        return properties;
+    }
 }
