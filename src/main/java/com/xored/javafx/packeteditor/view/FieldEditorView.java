@@ -18,6 +18,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,8 @@ public class FieldEditorView {
 
     @Inject
     Injector injector;
+
+    AutoCompletionBinding<String> protoAutoCompleter;
 
     public void setParentPane(StackPane parentPane) {
         this.fieldEditorPane = parentPane;
@@ -113,7 +116,20 @@ public class FieldEditorView {
                 .sorted()
                 .collect(Collectors.toList());
 
-        TextFields.bindAutoCompletion(cb.getEditor(), protoIds);
+        protoAutoCompleter = TextFields.bindAutoCompletion(cb.getEditor(), protoIds);
+        cb.setOnHidden((e) -> {
+            if (protoAutoCompleter == null) {
+                protoAutoCompleter = TextFields.bindAutoCompletion(cb.getEditor(), protoIds);
+            }
+        });
+
+        cb.setOnShown((e) -> {
+            if (protoAutoCompleter!=null) {
+                protoAutoCompleter.dispose();
+                protoAutoCompleter = null;
+            }
+        });
+
 
         Button addBtn = new Button();
         addBtn.setId("append-protocol-button");
