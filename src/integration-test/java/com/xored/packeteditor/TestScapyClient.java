@@ -7,7 +7,6 @@ import com.xored.javafx.packeteditor.scapy.*;
 import java.util.Arrays;
 import java.util.List;
 
-import com.xored.javafx.packeteditor.service.ConfigurationService;
 import org.junit.*;
 import org.junit.rules.Timeout;
 
@@ -19,9 +18,9 @@ public class TestScapyClient {
             ? ("tcp://" + System.getenv("SCAPY_SERVER"))
             : "tcp://localhost:4507";
 
-    Injector injector = new TRexPacketCraftingTool().getInjector();
+    private Injector injector = new TRexPacketCraftingTool().getInjector();
     
-    ScapyServerClient scapy;
+    private ScapyServerClient scapy;
 
     @Rule
     public Timeout globalTimeout = Timeout.seconds(10);
