@@ -3,9 +3,9 @@ package com.xored.javafx.packeteditor.controllers;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
+import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
 import com.xored.javafx.packeteditor.service.IMetadataService;
-import javafx.application.Platform;
 import javafx.fxml.Initializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +32,9 @@ public class AppController implements Initializable {
     @Inject
     private ConfigurationService configurationService;
     
+    @Inject
+    private ScapyServerClient scapyServerClient;
+    
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         metadataService.initialize();
@@ -46,7 +49,7 @@ public class AppController implements Initializable {
                 System.exit(0);
                 break;
             case EMBEDDED:
-                Platform.exit();
+                scapyServerClient.closeConnection();
         }
     }
 }
