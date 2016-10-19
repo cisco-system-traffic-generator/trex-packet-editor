@@ -37,6 +37,9 @@ public class MenuController implements Initializable {
     @Named("resources")
     ResourceBundle resourceBundle;
 
+    @Inject
+    AppController appController;
+    
     private ChoiceDialog<ProtocolMetadata> dialog = new ChoiceDialog<>();
 
     @Override
@@ -52,8 +55,7 @@ public class MenuController implements Initializable {
 
     @FXML
     private void handleCloseAction() {
-        logger.info("Closing application");
-        System.exit(0);
+        appController.shutDown();
     }
     
     @FXML

@@ -10,6 +10,13 @@ public class ConfigurationService {
     private String scapyDefaultConnUrl;
     
     private Integer receiveTimeout;
+    
+    private ApplicationMode applicationMode;
+    
+    public enum ApplicationMode {
+        STANDALONE,
+        EMBEDDED
+    }
 
     @Inject
     public ConfigurationService(@Named("SCAPY_DEFAULT_CONN_URL") String scapyDefaultConnUrl,
@@ -28,5 +35,13 @@ public class ConfigurationService {
 
     public Integer getReceiveTimeout() {
         return receiveTimeout;
+    }
+
+    public ApplicationMode getApplicationMode() {
+        return applicationMode;
+    }
+
+    public void setApplicationMode(ApplicationMode applicationMode) {
+        this.applicationMode = applicationMode;
     }
 }

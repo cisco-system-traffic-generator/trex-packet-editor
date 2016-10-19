@@ -5,6 +5,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
+import com.xored.javafx.packeteditor.controllers.AppController;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
@@ -37,6 +38,7 @@ public class GuiceModule extends AbstractModule {
         bind(FieldEditorModel.class).in(Singleton.class);
         bind(EventBus.class).in(Singleton.class);
         bind(FieldEditorController.class).in(Singleton.class);
+        bind(AppController.class).in(Singleton.class);
         bind(FieldEditorView.class).in(Singleton.class);
         bind(IMetadataService.class).to(MetadataService.class).in(Singleton.class);
 
