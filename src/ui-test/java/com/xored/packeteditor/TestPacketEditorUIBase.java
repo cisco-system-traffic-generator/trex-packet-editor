@@ -4,9 +4,7 @@ import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import javafx.application.Platform;
 import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.junit.Assert;
 import org.junit.Before;
@@ -242,9 +240,9 @@ public class TestPacketEditorUIBase extends ApplicationTest {
     void addLayer(String layerType) {
         //clickOn("Action");
         //clickOn("Add Protocol");
-        clickOn(".layer-type-selector .arrow-button");
+        clickOn(".protocol-type-selector .arrow-button");
         clickOn(layerType);
-        clickOn("Add");
+        clickOn("#append-protocol-button");
     }
 
     void selectProtoType(String proto) {
@@ -275,6 +273,10 @@ public class TestPacketEditorUIBase extends ApplicationTest {
         clickOn("Edit");
         clickOn("Redo");
         //push(SHORTCUT, KeyCode.R);
+    }
+
+    void scrollFieldsDown() {
+        with("#fieldEditorScrollPane", (ScrollPane sp) -> sp.setVvalue(sp.getVmax()) );
     }
 
 }

@@ -133,20 +133,23 @@
     -fx-font-stretch: normal;
 }
 
-#append-layer-combobox {
+#append-protocol-combobox {
     -fx-min-width: 25em;
 }
 
-#append-protocol-button {
-    -fx-min-width: 5em;
-}
-
 .append-protocol .title {
-    -fx-background-color: WHITE;
     -fx-color: WHITE;
     -fx-font-weight: normal;
-    -fx-font-style: italic;
 }
+
+.append-protocol .content {
+    -fx-background-color: WHITE;
+}
+
+#append-protocol-button {
+    -fx-padding: 0 1em, 0 1em;
+}
+
 
 .ignored-field {
     -fx-text-fill: grey;
@@ -376,7 +379,7 @@
     -fx-max-width: -1; /*-fx-min-width;*/
 }
 
-.titled-pane .layer-type-selector {
+.titled-pane .protocol-type-selector {
     -fx-min-width: 15em;
     -fx-pref-width: -1; /*-fx-min-width;*/
     -fx-max-width: 15em; /*-fx-min-width;*/

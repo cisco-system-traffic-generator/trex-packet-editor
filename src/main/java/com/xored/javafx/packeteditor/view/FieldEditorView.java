@@ -16,6 +16,7 @@ import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.*;
@@ -95,7 +97,7 @@ public class FieldEditorView {
 
     public TitledPane buildAppendProtocolPane() {
         TitledPane pane = new TitledPane();
-        pane.setText("Append layer");
+        pane.setText("Append new layer");
         pane.getStyleClass().add("append-protocol");
         HBox controls = new HBox(10);
         pane.setContent(controls);
@@ -105,8 +107,8 @@ public class FieldEditorView {
             pane.setExpanded(false);
         }
         ComboBox<ProtocolMetadata> cb = new ComboBox<>();
-        cb.setId("append-layer-combobox");
-        cb.getStyleClass().add("layer-type-selector");
+        cb.setId("append-protocol-combobox");
+        cb.getStyleClass().add("protocol-type-selector");
         cb.setEditable(true);
         cb.getItems().addAll(protocols);
 
@@ -130,11 +132,11 @@ public class FieldEditorView {
             }
         });
 
-
         Button addBtn = new Button();
         addBtn.setId("append-protocol-button");
-        addBtn.setText("Add");
-        addBtn.setOnAction(e->{
+        addBtn.setText("Append layer");
+
+        Consumer<Object> onAppendLayer = (o) -> {
             Object sel = cb.getSelectionModel().getSelectedItem();
             if (sel instanceof ProtocolMetadata) {
                 controller.getModel().addProtocol((ProtocolMetadata)sel);
@@ -149,7 +151,15 @@ public class FieldEditorView {
                     controller.getModel().addProtocol(selText);
                 }
             }
+        };
+
+        cb.setOnKeyReleased( e -> {
+            if (e.getCode().equals(KeyCode.ENTER)) {
+                onAppendLayer.accept(null);
+            }
         });
+
+        addBtn.setOnAction( e-> onAppendLayer.accept(null) );
 
         controls.getChildren().add(cb);
         controls.getChildren().add(addBtn);

@@ -161,6 +161,22 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     }
 
     @Test
+    public void should_build_tcpip_stack_with_enter_or_btn() {
+        setComboBoxText("#append-protocol-combobox", "IP");
+        clickOn("#append-protocol-combobox .text-input");
+        push(ENTER);
+
+        scrollFieldsDown();
+
+        setComboBoxText("#append-protocol-combobox", "TCP");
+        clickOn("#append-protocol-button");
+
+
+        clickOn("#append-protocol-combobox .arrow");
+        clickOn("Raw");
+    }
+
+    @Test
     public void should_set_enum_value_as_text() {
         setFieldText("#Ether-type", "0x800"); // IPv4
         verifyThat("#Ether-type", (Label t) -> t.getText().contains("IPv4"));
