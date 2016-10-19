@@ -38,12 +38,14 @@ public class BinaryEditorController implements Initializable, Observer {
     private Text[] lineNums;
     private Text[] lineHex;
     private Rectangle[] selRect = new Rectangle[3];
+    private Rectangle[] selRectHex = new Rectangle[3];
     private Rectangle editingRect = new Rectangle();
 
     double xOffset = 10;
     double yOffset = 20;
     double numLineLength = 45;
     double byteLength = 15;
+    double byteLengthHex = 7.224375;  // 9.6325 for font-size=16; 7.224375 for font-size=12
     double bytePad = 5;
     double byteWordPad = 15;
 
@@ -87,6 +89,13 @@ public class BinaryEditorController implements Initializable, Observer {
 
             beGroup.getChildren().add(selRect[i]);
         }
+        for (int i = 0; i < selRectHex.length; i++) {
+            selRectHex[i] = new Rectangle();
+            selRectHex[i].setFill(Color.AQUAMARINE);
+            selRectHex[i].setTranslateZ(0);
+
+            beGroup.getChildren().add(selRectHex[i]);
+        }
 
         beGroup.getChildren().add(editingRect);
         for (int i = 0; i < h; i++) {
@@ -97,7 +106,6 @@ public class BinaryEditorController implements Initializable, Observer {
             lineNums[i].setTranslateX(xOffset);
             lineNums[i].setTranslateY(yOffset * (i+1));
             lineNums[i].setFont(Font.font("monospace"));
-
 
             lineHex[i].setTranslateX(numLineLength + xOffset + w * byteLength + w * bytePad + (w/4 - 1) * byteWordPad + xOffset);
             lineHex[i].setTranslateY(yOffset * (i+1));
@@ -248,7 +256,18 @@ public class BinaryEditorController implements Initializable, Observer {
                 selRect[i].setHeight(0);
             }
 
-        } else if (endRow == startRow + 1) {
+            selRectHex[0].setTranslateX(lineHex[startRow].getTranslateX() + startColumn * byteLengthHex);
+            selRectHex[0].setWidth((endColumn - startColumn + 1) * byteLengthHex);
+            selRectHex[0].setHeight(yOffset);
+            selRectHex[0].setTranslateY(startRow * yOffset + 5);
+
+            for (int i = 1; i < 3; i++) {
+                selRectHex[i].setWidth(0);
+                selRectHex[i].setHeight(0);
+            }
+
+        }
+        else if (endRow == startRow + 1) {
             selRect[0].setTranslateX(startX);
             selRect[0].setWidth(lineEndX - startX + byteLength);
             selRect[0].setHeight(yOffset);
@@ -261,7 +280,21 @@ public class BinaryEditorController implements Initializable, Observer {
 
             selRect[2].setWidth(0);
             selRect[2].setHeight(0);
-        } else {
+
+            selRectHex[0].setTranslateX(lineHex[startRow].getTranslateX() + startColumn * byteLengthHex);
+            selRectHex[0].setWidth((16 - startColumn) * byteLengthHex);
+            selRectHex[0].setHeight(yOffset);
+            selRectHex[0].setTranslateY(startRow * yOffset + 5);
+
+            selRectHex[1].setTranslateX(lineHex[endRow].getTranslateX());
+            selRectHex[1].setWidth((endColumn + 1) * byteLengthHex);
+            selRectHex[1].setHeight(yOffset);
+            selRectHex[1].setTranslateY(endRow * yOffset + 5);
+
+            selRectHex[2].setWidth(0);
+            selRectHex[2].setHeight(0);
+        }
+        else {
             selRect[0].setTranslateX(startX);
             selRect[0].setWidth(lineEndX - startX + byteLength);
             selRect[0].setHeight(yOffset);
@@ -276,6 +309,21 @@ public class BinaryEditorController implements Initializable, Observer {
             selRect[2].setWidth(lineEndX - lineStartX + byteLength);
             selRect[2].setHeight(yOffset * (endRow - startRow - 1));
             selRect[2].setTranslateY((startRow + 1) * yOffset + 5);
+
+            selRectHex[0].setTranslateX(lineHex[startRow].getTranslateX() + startColumn * byteLengthHex);
+            selRectHex[0].setWidth((16 - startColumn) * byteLengthHex);
+            selRectHex[0].setHeight(yOffset);
+            selRectHex[0].setTranslateY(startRow * yOffset + 5);
+
+            selRectHex[1].setTranslateX(lineHex[endRow].getTranslateX());
+            selRectHex[1].setWidth((endColumn + 1) * byteLengthHex);
+            selRectHex[1].setHeight(yOffset);
+            selRectHex[1].setTranslateY(endRow * yOffset + 5);
+
+            selRectHex[2].setTranslateX(lineHex[startRow + 1].getTranslateX());
+            selRectHex[2].setWidth(16 * byteLengthHex);
+            selRectHex[2].setHeight(yOffset * (endRow - startRow - 1));
+            selRectHex[2].setTranslateY((startRow + 1) * yOffset + 5);
         }
     }
 
