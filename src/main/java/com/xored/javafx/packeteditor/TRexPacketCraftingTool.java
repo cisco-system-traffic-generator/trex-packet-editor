@@ -13,6 +13,8 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 import static com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode.EMBEDDED;
 import static com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode.STANDALONE;
 
@@ -51,12 +53,20 @@ public class TRexPacketCraftingTool extends Application {
         log.debug("Running app");
         FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
         fxmlLoader.setLocation(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/app.fxml"));
+
         Parent parent = fxmlLoader.load();
 
         AppController appController = injector.getInstance(AppController.class);
         appController.setMainStage(stage);
         Scene scene = new Scene(parent);
-        scene.getStylesheets().add(ClassLoader.getSystemResource("styles/main-narrow.css").toExternalForm());
+
+        if (System.getenv("DEBUG") == null) {
+            scene.getStylesheets().add(ClassLoader.getSystemResource("styles/main-narrow.css").toExternalForm());
+        } else {
+            // use css from source file to utilize JavaFX css auto-reload
+            String cssSource = "file://" + new File("src/main/resources/styles/main-narrow.css").getAbsolutePath();
+            scene.getStylesheets().add(cssSource);
+        }
         
         stage.setScene(scene);
         stage.setTitle("Packet Crafting Tool");
