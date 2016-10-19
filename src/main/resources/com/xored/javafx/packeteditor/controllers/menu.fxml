@@ -29,7 +29,7 @@
                   <MenuItem mnemonicParsing="false" onAction="#handleRecalculateValues" text="Recalculate auto-values" />
                </items>
             </Menu>
-            <Menu mnemonicParsing="false" text="Mode">
+            <Menu fx:id="debugMenu" mnemonicParsing="false" text="Debug" visible="false">
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#handleModeBinary" text="Switch to binary mode" />
                   <MenuItem mnemonicParsing="false" onAction="#handleModeAbstract" text="Switch to abstract mode" />

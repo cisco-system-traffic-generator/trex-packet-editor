@@ -39,6 +39,9 @@ public class MenuController implements Initializable {
     @FXML
     Menu newTemplateMenu;
 
+    @FXML
+    Menu debugMenu;
+
     @Inject
     @Named("resources")
     ResourceBundle resourceBundle;
@@ -57,12 +60,15 @@ public class MenuController implements Initializable {
             });
             newTemplateMenu.getItems().add(menuItem);
         });
-        
+
         if(EMBEDDED.equals(appController.getApplicationMode())) {
             Optional<MenuItem> optional = fileMenu.getItems().stream().filter(menuItem -> EXIT_MENU_ITEM.equals(menuItem.getId())).findFirst();
             if (optional.isPresent()) {
                 optional.get().setVisible(false);
             }
+        }
+        if (System.getenv("DEBUG") != null) {
+            debugMenu.setVisible(true);
         }
     }
 
