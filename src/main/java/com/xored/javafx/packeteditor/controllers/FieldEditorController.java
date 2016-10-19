@@ -95,10 +95,9 @@ public class FieldEditorController implements Initializable {
 
     @Subscribe
     public void handleRebuildViewEvent(RebuildViewEvent event) {
-        ScrollBar scrollBar = (ScrollBar) fieldEditorScrollPane.lookup(".scroll-bar:vertical");
-        double scrollBarValue = scrollBar.getValue();
+        double val = fieldEditorScrollPane.getVvalue();
         view.rebuild(event.getModel());
-        Platform.runLater(()-> scrollBar.setValue(scrollBarValue));
+        Platform.runLater(()-> fieldEditorScrollPane.setVvalue(val));
     }
 
     public void showLoadDialog() {
