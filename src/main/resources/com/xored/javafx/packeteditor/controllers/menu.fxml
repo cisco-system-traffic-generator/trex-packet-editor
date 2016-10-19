@@ -7,13 +7,13 @@
    <children>
       <MenuBar fx:id="applicationMenu">
          <menus>
-            <Menu mnemonicParsing="false" text="File">
+            <Menu mnemonicParsing="false" text="File" fx:id="fileMenu">
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#handleNewDocument" text="New Document" accelerator="Shortcut+N"/>
                   <Menu fx:id="newTemplateMenu" mnemonicParsing="false" text="New Template" accelerator="Shortcut+T"/>
                   <MenuItem mnemonicParsing="false" onAction="#handleOpenAction" text="Open file" accelerator="Shortcut+O"/>
                   <MenuItem mnemonicParsing="false" onAction="#handleSaveAction" text="Save file" accelerator="Shortcut+S"/>
-                  <MenuItem mnemonicParsing="false" onAction="#handleCloseAction" text="Exit" accelerator="Shortcut+Q"/>
+                  <MenuItem fx:id="exit" mnemonicParsing="false" onAction="#handleCloseAction" text="Exit" accelerator="Shortcut+Q"/>
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Edit">

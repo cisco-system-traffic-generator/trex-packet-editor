@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
+import com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 import javafx.fxml.Initializable;
 import javafx.stage.Stage;
@@ -68,5 +69,9 @@ public class AppController implements Initializable {
                         WindowEvent.WINDOW_CLOSE_REQUEST
                 )
         );
+    }
+    
+    public ApplicationMode getApplicationMode() {
+        return configurationService.getApplicationMode();
     }
 }

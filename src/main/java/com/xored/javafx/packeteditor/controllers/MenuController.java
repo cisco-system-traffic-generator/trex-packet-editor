@@ -20,8 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import static com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode.EMBEDDED;
+
 public class MenuController implements Initializable {
 
+    public static final String EXIT_MENU_ITEM = "exit";
     private Logger logger= LoggerFactory.getLogger(MenuController.class);
     
     @Inject
@@ -30,6 +33,9 @@ public class MenuController implements Initializable {
     @FXML
     MenuBar applicationMenu;
 
+    @FXML
+    Menu fileMenu;
+    
     @FXML
     Menu newTemplateMenu;
 
@@ -51,6 +57,13 @@ public class MenuController implements Initializable {
             });
             newTemplateMenu.getItems().add(menuItem);
         });
+        
+        if(EMBEDDED.equals(appController.getApplicationMode())) {
+            Optional<MenuItem> optional = fileMenu.getItems().stream().filter(menuItem -> EXIT_MENU_ITEM.equals(menuItem.getId())).findFirst();
+            if (optional.isPresent()) {
+                optional.get().setVisible(false);
+            }
+        }
     }
 
     @FXML
