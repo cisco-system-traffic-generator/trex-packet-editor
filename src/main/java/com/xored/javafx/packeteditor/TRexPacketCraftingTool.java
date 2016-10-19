@@ -52,13 +52,17 @@ public class TRexPacketCraftingTool extends Application {
         FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
         fxmlLoader.setLocation(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/app.fxml"));
         Parent parent = fxmlLoader.load();
+
+        AppController appController = injector.getInstance(AppController.class);
+        appController.setMainStage(stage);
         Scene scene = new Scene(parent);
         scene.getStylesheets().add(ClassLoader.getSystemResource("styles/main-narrow.css").toExternalForm());
+        
         stage.setScene(scene);
         stage.setTitle("Packet Crafting Tool");
         stage.show();
         stage.setOnCloseRequest(e -> {
-            injector.getInstance(AppController.class).shutDown();
+            appController.terminate();
         });
     }
 }

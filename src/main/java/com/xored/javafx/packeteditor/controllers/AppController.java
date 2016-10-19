@@ -7,6 +7,8 @@ import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 import javafx.fxml.Initializable;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +37,8 @@ public class AppController implements Initializable {
     @Inject
     private ScapyServerClient scapyServerClient;
     
+    private Stage mainStage;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         metadataService.initialize();
@@ -42,7 +46,7 @@ public class AppController implements Initializable {
         eventBus.register(model);
     }
     
-    public void shutDown() {
+    public void terminate() {
         logger.info("Closing application");
         switch (configurationService.getApplicationMode()) {
             case STANDALONE:
@@ -51,5 +55,18 @@ public class AppController implements Initializable {
             case EMBEDDED:
                 scapyServerClient.closeConnection();
         }
+    }
+
+    public void setMainStage(Stage mainStage) {
+        this.mainStage = mainStage;
+    }
+
+    public void shutDown() {
+        mainStage.fireEvent(
+                new WindowEvent(
+                        mainStage,
+                        WindowEvent.WINDOW_CLOSE_REQUEST
+                )
+        );
     }
 }
