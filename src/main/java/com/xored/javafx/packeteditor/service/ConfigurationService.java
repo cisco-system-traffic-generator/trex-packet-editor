@@ -5,11 +5,13 @@ import com.google.inject.name.Named;
 
 public class ConfigurationService {
     
-    private String scapyConnUrl;
+    private String connectionUrl;
     
     private String scapyDefaultConnUrl;
     
     private Integer receiveTimeout;
+
+    private String connectionPort;
     
     private ApplicationMode applicationMode;
     
@@ -20,17 +22,23 @@ public class ConfigurationService {
 
     @Inject
     public ConfigurationService(@Named("SCAPY_DEFAULT_CONN_URL") String scapyDefaultConnUrl,
-                                @Named("SCAPY_RECEIVE_TIMEOUT") String defaultRecieveTimeout) {
+                                @Named("SCAPY_RECEIVE_TIMEOUT") String defaultRecieveTimeout,
+                                @Named("SCAPY_CONNECTION_PORT") String defaultConnectionPort) {
         this.receiveTimeout = Integer.valueOf(defaultRecieveTimeout);
         this.scapyDefaultConnUrl = scapyDefaultConnUrl;
+        this.connectionPort = defaultConnectionPort;
     }
     
     public String getConnectionUrl() {
-        return scapyConnUrl == null ? scapyDefaultConnUrl : scapyConnUrl;
+        return connectionUrl == null ? scapyDefaultConnUrl : connectionUrl + ":" + connectionPort;
     }
 
-    public void setScapyConnUrl(String scapyCornnUrl) {
-        this.scapyConnUrl = scapyConnUrl;
+    public void setConnectionUrl(String scapyCornnUrl) {
+        this.connectionUrl = connectionUrl;
+    }
+
+    public void setConnectionPort(String connectionPort) {
+        this.connectionPort = connectionPort;
     }
 
     public Integer getReceiveTimeout() {

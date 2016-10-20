@@ -43,8 +43,12 @@ public class TRexPacketCraftingTool extends Application {
         doStart(stage, false);
     }
     
+    public ConfigurationService getConfigurationService() {
+        return injector.getInstance(ConfigurationService.class);
+    }
+    
     private void doStart(Stage stage, boolean isStandalone) throws Exception{
-        ConfigurationService configurationService = injector.getInstance(ConfigurationService.class);
+        ConfigurationService configurationService = getConfigurationService();
         ConfigurationService.ApplicationMode appMode;
         if (isStandalone) {
             appMode = STANDALONE;
