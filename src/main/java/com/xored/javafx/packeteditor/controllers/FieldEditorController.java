@@ -16,6 +16,7 @@ import com.xored.javafx.packeteditor.view.FieldEditorView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
@@ -87,10 +88,22 @@ public class FieldEditorController implements Initializable {
     public void handleRebuildViewEvent(RebuildViewEvent event) {
         double val = fieldEditorScrollPane.getVvalue();
 
+        // Workaround for flickering and saving Vscroll:
+        // 1) take snapshot of top stackpane
+        // 2) create image view with paddings
+        // 3) add this image view to stackpane
+        //
+        // This image view hides scrollpane which is rebuilt
+        // Then call view rebuild
+        // And last, we set Vscroll and remove image view
         WritableImage snapImage = fieldEditorTopPane.snapshot(new SnapshotParameters(), null);
         ImageView snapView = new ImageView();
         snapView.setImage(snapImage);
-        snapView.setViewport(new javafx.geometry.Rectangle2D(25, 25, snapImage.getWidth() - 50, snapImage.getHeight() - 50));
+        Insets insets = fieldEditorTopPane.getPadding();
+        snapView.setViewport(new javafx.geometry.Rectangle2D(insets.getLeft(),
+                insets.getTop(),
+                snapImage.getWidth() - insets.getLeft() - insets.getRight(),
+                snapImage.getHeight() - insets.getTop() - insets.getBottom()));
         fieldEditorTopPane.getChildren().add(snapView);
 
         // Save scroll position workaround: runLater inside runLater inside runLater :)
