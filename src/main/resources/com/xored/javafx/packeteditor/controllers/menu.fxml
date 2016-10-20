@@ -24,7 +24,6 @@
             </Menu>
             <Menu mnemonicParsing="false" text="Action">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#handleAddProtocolAction" text="Add Protocol" />
                   <MenuItem mnemonicParsing="false" onAction="#handleDeleteProtocolAction" text="Delete" accelerator="Shortcut+D"/>
                   <MenuItem mnemonicParsing="false" onAction="#handleRecalculateValues" text="Recalculate auto-values" />
                </items>

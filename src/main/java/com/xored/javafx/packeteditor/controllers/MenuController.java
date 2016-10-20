@@ -4,11 +4,9 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.metatdata.PacketTemplate;
-import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -16,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
-import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -49,8 +46,6 @@ public class MenuController implements Initializable {
     @Inject
     AppController appController;
     
-    private ChoiceDialog<ProtocolMetadata> dialog = new ChoiceDialog<>();
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         PacketTemplate.loadTemplates().forEach(templateFile -> {
@@ -75,28 +70,6 @@ public class MenuController implements Initializable {
     @FXML
     private void handleCloseAction() {
         appController.shutDown();
-    }
-    
-    @FXML
-    private void handleAddProtocolAction(ActionEvent actionEvent) {
-        List<ProtocolMetadata> items = getModel().getAvailableProtocolsToAdd(false);
-
-        dialog.getItems().clear();
-        dialog.getItems().addAll(items);
-        if(!items.isEmpty()) {
-            dialog.setSelectedItem(items.get(0));
-        }
-        
-        dialog.setTitle(resourceBundle.getString("ADD_LAYER"));
-        dialog.setContentText(resourceBundle.getString("SELECT_PROTOCOL"));
-        
-        // TODO: Add proper protocol icon to dialog
-        // dialog.setGraphic(new ImageView(this.getClass().getResource("protocol-image.png").toString()));
-        
-        Optional<ProtocolMetadata> result = dialog.showAndWait();
-        if(result.isPresent()) {
-            getModel().addProtocol(result.get());
-        }
     }
 
     @FXML
