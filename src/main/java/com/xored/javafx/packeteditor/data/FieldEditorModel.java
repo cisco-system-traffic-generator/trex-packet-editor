@@ -1,7 +1,6 @@
 package com.xored.javafx.packeteditor.data;
 
 import com.google.common.eventbus.EventBus;
-import com.google.gson.JsonElement;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
