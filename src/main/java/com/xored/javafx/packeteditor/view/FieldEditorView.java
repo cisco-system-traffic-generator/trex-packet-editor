@@ -9,10 +9,12 @@ import com.xored.javafx.packeteditor.controls.ProtocolField;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
+import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
+import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -85,10 +87,27 @@ public class FieldEditorView {
             ij[1]++;
         });
         String title = protocol.getMeta().getName();
-        if (protocol.getUserProtocol() != null && protocol.getScapyProtocol() == null) {
-            title = title + "(as Raw payload)";
+        UserProtocol userProtocol = protocol.getUserProtocol();
+        ProtocolData protocolData = protocol.getScapyProtocol();
+        String subtype = null;
+        if (userProtocol != null && protocolData == null) {
+            subtype = "as Payload";
             gridTitlePane.getStyleClass().add("invalid-protocol");
+        } else if (userProtocol != null && protocolData != null && protocolData.isInvalidStructure()) {
+            if (protocolData.getRealId() == null) {
+                subtype = "as Payload";
+            } else {
+                subtype = "as " + protocolData.getRealId();
+            }
+            gridTitlePane.getStyleClass().add("invalid-protocol");
+        } else if (userProtocol != null && protocolData != null && protocolData.protocolRealIdDifferent() ) {
+            subtype = "as " + protocolData.getRealId();
         }
+
+        if (subtype != null) {
+            title = title + " " + subtype;
+        }
+
         gridTitlePane.setText(title);
         gridTitlePane.setContent(grid);
 

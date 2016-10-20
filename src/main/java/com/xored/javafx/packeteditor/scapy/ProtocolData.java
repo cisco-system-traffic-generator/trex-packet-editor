@@ -8,6 +8,8 @@ import java.util.List;
  */
 public class ProtocolData {
     public String id; // classId
+    public String real_id; // classId of a class, which will be shown after serialization
+    public Boolean valid_structure; // False if scapy_server detected incorrect structure
     public String name; // protocol name
     public Number offset;
 
@@ -25,5 +27,14 @@ public class ProtocolData {
     public List<FieldData> getFields() {
         return fields;
     }
+
+    /** return classId obtained after deserialization from binary */
+    public String getRealId() { return real_id; }
+
+    /** scapy class has been changed/specialized */
+    public boolean protocolRealIdDifferent() { return (real_id != null) && !real_id.equals(id); }
+
+    /** true if scapy server detected wrong structure */
+    public boolean isInvalidStructure() { return valid_structure != null && valid_structure == false; }
 
 }
