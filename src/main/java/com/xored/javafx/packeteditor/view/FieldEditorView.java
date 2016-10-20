@@ -40,8 +40,6 @@ public class FieldEditorView {
 
     private StackPane fieldEditorPane;
     
-    private VBox protocolsPane = new VBox();
-    
     private Logger logger = LoggerFactory.getLogger(FieldEditorView.class);
 
     @Inject
@@ -187,13 +185,14 @@ public class FieldEditorView {
 
     public void rebuild(CombinedProtocolModel model) {
         try {
-            fieldEditorPane.getChildren().clear();
-            protocolsPane.getChildren().clear();
+            VBox protocolsPane = new VBox();
+
             model.getProtocolStack().stream().forEach(proto ->
-                protocolsPane.getChildren().add(buildProtocolPane(proto))
+                    protocolsPane.getChildren().add(buildProtocolPane(proto))
             );
             protocolsPane.getChildren().add(buildAppendProtocolPane());
-            fieldEditorPane.getChildren().add(protocolsPane);
+
+            fieldEditorPane.getChildren().setAll(protocolsPane);
         } catch(Exception e) {
             logger.error("Error occurred during rebuilding view. Error {}", e);
         }
