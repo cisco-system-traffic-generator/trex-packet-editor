@@ -36,19 +36,25 @@ public class TRexPacketCraftingTool extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        doStart(primaryStage, true);
+        doStart(primaryStage, true, null, null);
     }
     
-    public void startAsEmbedded(Stage stage) throws Exception {
-        doStart(stage, false);
+    public void startAsEmbedded(Stage stage, String ip, String port) throws Exception {
+        doStart(stage, false, ip, port);
     }
     
     public ConfigurationService getConfigurationService() {
         return injector.getInstance(ConfigurationService.class);
     }
     
-    private void doStart(Stage stage, boolean isStandalone) throws Exception{
+    private void doStart(Stage stage, boolean isStandalone, String ip, String port) throws Exception{
         ConfigurationService configurationService = getConfigurationService();
+        
+        if (ip != null && port != null) {
+            configurationService.setConnectionPort(port);
+            configurationService.setConnectionIP(ip);
+        }
+        
         ConfigurationService.ApplicationMode appMode;
         if (isStandalone) {
             appMode = STANDALONE;

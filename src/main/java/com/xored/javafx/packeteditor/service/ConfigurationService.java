@@ -5,7 +5,9 @@ import com.google.inject.name.Named;
 
 public class ConfigurationService {
     
-    private String connectionUrl;
+    private String ip;
+    
+    private String protocol;
     
     private String scapyDefaultConnUrl;
     
@@ -23,18 +25,20 @@ public class ConfigurationService {
     @Inject
     public ConfigurationService(@Named("SCAPY_DEFAULT_CONN_URL") String scapyDefaultConnUrl,
                                 @Named("SCAPY_RECEIVE_TIMEOUT") String defaultRecieveTimeout,
-                                @Named("SCAPY_CONNECTION_PORT") String defaultConnectionPort) {
+                                @Named("SCAPY_CONNECTION_PORT") String defaultConnectionPort,
+                                @Named("SCAPY_CONNECTION_PROTOCOL") String defaultConnectionProtocol) {
         this.receiveTimeout = Integer.valueOf(defaultRecieveTimeout);
         this.scapyDefaultConnUrl = scapyDefaultConnUrl;
         this.connectionPort = defaultConnectionPort;
+        this.protocol = defaultConnectionProtocol;
     }
     
     public String getConnectionUrl() {
-        return connectionUrl == null ? scapyDefaultConnUrl : connectionUrl + ":" + connectionPort;
+        return ip == null ? scapyDefaultConnUrl : protocol + "://" + ip + ":" + connectionPort;
     }
 
-    public void setConnectionUrl(String scapyCornnUrl) {
-        this.connectionUrl = connectionUrl;
+    public void setConnectionIP(String ip) {
+        this.ip = ip;
     }
 
     public void setConnectionPort(String connectionPort) {
