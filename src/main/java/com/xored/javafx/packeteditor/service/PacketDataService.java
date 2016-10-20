@@ -16,11 +16,8 @@ public class PacketDataService {
 
     @Inject
     ScapyServerClient scapy;
-
-    @Inject
-    ConfigurationService configurationService;
     
-    public void init() {
+    public void init(ConfigurationService configurationService) {
         scapy.connect(configurationService.getConnectionUrl());
     }
 

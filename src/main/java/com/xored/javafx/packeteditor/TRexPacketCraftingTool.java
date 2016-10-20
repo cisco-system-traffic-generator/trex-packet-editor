@@ -4,7 +4,10 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.xored.javafx.packeteditor.controllers.AppController;
 import com.xored.javafx.packeteditor.guice.GuiceModule;
+import com.xored.javafx.packeteditor.scapy.ConnectionException;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
+import com.xored.javafx.packeteditor.service.PacketDataService;
+import com.xored.javafx.packeteditor.view.ConnectionErrorDialog;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -49,6 +52,20 @@ public class TRexPacketCraftingTool extends Application {
             appMode = EMBEDDED;
         }
         configurationService.setApplicationMode(appMode);
+
+        try {
+            initPacketDataService(configurationService);
+        } catch (ConnectionException e) {
+            if (STANDALONE.equals(appMode)) {
+                log.error("Scapy server is unavailable. Critical error. Exiting now.");
+                shutdown();
+            } else {
+                return;
+            }
+        }
+        
+        AppController appController = injector.getInstance(AppController.class);
+        appController.setMainStage(stage);
         
         log.debug("Running app");
         FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
@@ -56,8 +73,6 @@ public class TRexPacketCraftingTool extends Application {
 
         Parent parent = fxmlLoader.load();
 
-        AppController appController = injector.getInstance(AppController.class);
-        appController.setMainStage(stage);
         Scene scene = new Scene(parent);
 
         if (System.getenv("DEBUG") == null) {
@@ -74,5 +89,16 @@ public class TRexPacketCraftingTool extends Application {
         stage.setOnCloseRequest(e -> {
             appController.terminate();
         });
+    }
+
+    private void shutdown() {
+        ConnectionErrorDialog dialog = new ConnectionErrorDialog();
+        dialog.showAndWait();
+        System.exit(0);
+    }
+
+    private void initPacketDataService(ConfigurationService configurationService) throws ConnectionException {
+        PacketDataService packetDataService = injector.getInstance(PacketDataService.class);
+        packetDataService.init(configurationService);
     }
 }
