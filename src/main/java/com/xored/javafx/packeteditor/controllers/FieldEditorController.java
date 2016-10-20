@@ -16,12 +16,18 @@ import com.xored.javafx.packeteditor.view.FieldEditorView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -30,8 +36,9 @@ import java.util.ResourceBundle;
 public class FieldEditorController implements Initializable {
 
     static Logger logger = LoggerFactory.getLogger(FieldEditorController.class);
-    
-    @FXML private StackPane fieldEditorPane;
+
+    @FXML private StackPane  fieldEditorTopPane;
+    @FXML private StackPane  fieldEditorPane;
     @FXML private ScrollPane fieldEditorScrollPane;
 
     @Inject
@@ -79,13 +86,20 @@ public class FieldEditorController implements Initializable {
     @Subscribe
     public void handleRebuildViewEvent(RebuildViewEvent event) {
         double val = fieldEditorScrollPane.getVvalue();
-        view.rebuild(event.getModel());
+
+        WritableImage snapImage = fieldEditorTopPane.snapshot(new SnapshotParameters(), null);
+        ImageView snapView = new ImageView();
+        snapView.setImage(snapImage);
+        snapView.setViewport(new javafx.geometry.Rectangle2D(25, 25, snapImage.getWidth() - 50, snapImage.getHeight() - 50));
+        fieldEditorTopPane.getChildren().add(snapView);
 
         // Save scroll position workaround: runLater inside runLater inside runLater :)
         Platform.runLater(()-> {
+            view.rebuild(event.getModel());
             Platform.runLater(() -> {
                 Platform.runLater(() -> {
                     fieldEditorScrollPane.setVvalue(val);
+                    fieldEditorTopPane.getChildren().remove(snapView);
                 });
             });
         });
