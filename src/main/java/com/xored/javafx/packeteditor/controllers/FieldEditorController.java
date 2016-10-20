@@ -16,16 +16,12 @@ import com.xored.javafx.packeteditor.view.FieldEditorView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -84,7 +80,15 @@ public class FieldEditorController implements Initializable {
     public void handleRebuildViewEvent(RebuildViewEvent event) {
         double val = fieldEditorScrollPane.getVvalue();
         view.rebuild(event.getModel());
-        Platform.runLater(()-> fieldEditorScrollPane.setVvalue(val));
+
+        // Save scroll position workaround: runLater inside runLater inside runLater :)
+        Platform.runLater(()-> {
+            Platform.runLater(() -> {
+                Platform.runLater(() -> {
+                    fieldEditorScrollPane.setVvalue(val);
+                });
+            });
+        });
     }
 
     public void showLoadDialog() {
