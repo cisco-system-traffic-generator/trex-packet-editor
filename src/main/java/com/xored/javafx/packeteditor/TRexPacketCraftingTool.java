@@ -54,7 +54,8 @@ public class TRexPacketCraftingTool extends Application {
         configurationService.setApplicationMode(appMode);
 
         try {
-            initPacketDataService(configurationService);
+            PacketDataService packetDataService = injector.getInstance(PacketDataService.class);
+            packetDataService.init();
         } catch (ConnectionException e) {
             if (STANDALONE.equals(appMode)) {
                 log.error("Scapy server is unavailable. Critical error. Exiting now.");
@@ -95,10 +96,5 @@ public class TRexPacketCraftingTool extends Application {
         ConnectionErrorDialog dialog = new ConnectionErrorDialog();
         dialog.showAndWait();
         System.exit(0);
-    }
-
-    private void initPacketDataService(ConfigurationService configurationService) throws ConnectionException {
-        PacketDataService packetDataService = injector.getInstance(PacketDataService.class);
-        packetDataService.init(configurationService);
     }
 }

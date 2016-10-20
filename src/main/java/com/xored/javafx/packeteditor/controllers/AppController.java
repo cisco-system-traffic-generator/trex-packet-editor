@@ -3,10 +3,10 @@ package com.xored.javafx.packeteditor.controllers;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
-import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
 import com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode;
 import com.xored.javafx.packeteditor.service.IMetadataService;
+import com.xored.javafx.packeteditor.service.PacketDataService;
 import javafx.fxml.Initializable;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -36,7 +36,7 @@ public class AppController implements Initializable {
     private ConfigurationService configurationService;
     
     @Inject
-    private ScapyServerClient scapyServerClient;
+    private PacketDataService packetDataService;
     
     private Stage mainStage;
 
@@ -54,7 +54,7 @@ public class AppController implements Initializable {
                 System.exit(0);
                 break;
             case EMBEDDED:
-                scapyServerClient.closeConnection();
+                packetDataService.closeConnection();
         }
     }
 

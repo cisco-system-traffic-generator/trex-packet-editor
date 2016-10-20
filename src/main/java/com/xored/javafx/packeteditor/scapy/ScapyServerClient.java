@@ -44,13 +44,16 @@ public class ScapyServerClient {
         JsonObject error;
     }
 
-    public void connect(String url) {
+    public void connect() {
         
         zmqContext = ZMQ.context(ZMQ_THREADS);
         zmqSocket = createSocket();
         zmqSocket.setReceiveTimeOut(configurationService.getReceiveTimeout());
-        logger.info("connecting to scapy_server at {}", url);
-        zmqSocket.connect(url);
+        
+        String connectionUrl = configurationService.getConnectionUrl();
+        
+        logger.info("connecting to scapy_server at {}", connectionUrl);
+        zmqSocket.connect(connectionUrl);
 
         version_handler = getVersionHandler();
     }
@@ -84,7 +87,7 @@ public class ScapyServerClient {
     private void reconnect() {
         closeConnection();
         lastRequestFailed = false;
-        connect(configurationService.getConnectionUrl());
+        connect();
     }
 
     public void closeConnection() {

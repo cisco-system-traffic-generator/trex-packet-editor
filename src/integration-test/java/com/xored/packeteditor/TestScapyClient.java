@@ -29,7 +29,7 @@ public class TestScapyClient {
     @Before
     public void init() {
         scapy = injector.getInstance(ScapyServerClient.class);
-        scapy.connect(server_url);
+        scapy.connect();
     }
 
     @After

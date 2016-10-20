@@ -17,8 +17,8 @@ public class PacketDataService {
     @Inject
     ScapyServerClient scapy;
     
-    public void init(ConfigurationService configurationService) {
-        scapy.connect(configurationService.getConnectionUrl());
+    public void init() {
+        scapy.connect();
     }
 
     public PacketData buildPacket(List<ReconstructProtocol> pktStructure) {
@@ -82,5 +82,9 @@ public class PacketDataService {
 
     public PacketData read_pcap_packet(byte[] binaryData) {
         return scapy.read_pcap_packet(binaryData);
+    }
+
+    public void closeConnection() {
+        scapy.closeConnection();
     }
 }
