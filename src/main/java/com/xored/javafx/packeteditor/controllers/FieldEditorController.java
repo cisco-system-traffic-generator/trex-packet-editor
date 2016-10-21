@@ -106,9 +106,11 @@ public class FieldEditorController implements Initializable {
                 snapImage.getHeight() - insets.getTop() - insets.getBottom()));
         fieldEditorTopPane.getChildren().add(snapView);
 
-        // Save scroll position workaround: runLater inside runLater inside runLater :)
         Platform.runLater(()-> {
+            // Rebuild content
             view.rebuild(event.getModel());
+
+            // Save scroll position workaround: runLater inside runLater :)
             Platform.runLater(() -> {
                 Platform.runLater(() -> {
                     fieldEditorScrollPane.setVvalue(val);

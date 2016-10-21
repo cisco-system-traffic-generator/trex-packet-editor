@@ -16,6 +16,7 @@ import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -49,7 +50,7 @@ public class FieldEditorView {
     @Inject
     Injector injector;
 
-    AutoCompletionBinding<String> protoAutoCompleter;
+    private AutoCompletionBinding<String> protoAutoCompleter;
 
     public void setParentPane(StackPane parentPane) {
         this.fieldEditorPane = parentPane;
@@ -57,7 +58,6 @@ public class FieldEditorView {
 
 
     public TitledPane buildProtocolPane(CombinedProtocol protocol) {
-
         TitledPane gridTitlePane = new TitledPane();
         
         GridPane grid = new GridPane();
