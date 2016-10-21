@@ -25,6 +25,10 @@ you can also specify external server with an environment variable `export SCAPY_
 
 ### Howto
 
+##### Install to the local Maven repository
+
+    ./gradlew install
+
 ##### Build standalone jar file
 this builds standalone jar file for UI. scapy_service is not included.
 jar is located in **./build/libs/TRexPacketCraftingTool.jar**

@@ -1,13 +1,19 @@
 apply plugin: 'java'
+apply plugin: 'maven'
 apply plugin: 'application'
+
+group = 'com.xored'
+version = '1.00-SNAPSHOT'
+
+description = """TRex Scapy Packet Editor GUI Application"""
+
 sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-if (!hasProperty('mainClass')) {
-    ext.mainClass = 'com.xored.javafx.packeteditor.TRexPacketCraftingTool'
-}
 mainClassName='com.xored.javafx.packeteditor.TRexPacketCraftingTool'
-
+if (!hasProperty('mainClass')) {
+    ext.mainClass = mainClassName
+}
 
 repositories {
     mavenCentral()
@@ -40,6 +46,7 @@ test {
 }
 
 task intTest(type: Test) {
+    description 'Runs Scapy Server integration testing'
     outputs.upToDateWhen { false }
     testClassesDir = sourceSets.intTest.output.classesDir
     classpath = sourceSets.intTest.runtimeClasspath
@@ -51,6 +58,7 @@ task intTest(type: Test) {
 }
 
 task uiTest(type: Test) {
+    description 'Runs UI testing(E2E)'
     outputs.upToDateWhen { false }
     testClassesDir = sourceSets.uiTest.output.classesDir
     classpath = sourceSets.uiTest.runtimeClasspath
@@ -94,7 +102,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'com.xored.javafx.packeteditor.TRexPacketCraftingTool'
+        attributes 'Main-Class': mainClassName
     }
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }
