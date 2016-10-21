@@ -4,7 +4,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.xored.javafx.packeteditor.controllers.AppController;
 import com.xored.javafx.packeteditor.guice.GuiceModule;
-import com.xored.javafx.packeteditor.scapy.ConnectionException;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.view.ConnectionErrorDialog;
@@ -64,11 +63,11 @@ public class TRexPacketCraftingTool extends Application {
         configurationService.setApplicationMode(appMode);
 
         try {
-            PacketDataService packetDataService = injector.getInstance(PacketDataService.class);
-            packetDataService.init();
-        } catch (ConnectionException e) {
+            // First call to instantiate and init PacketDataService.
+            injector.getInstance(PacketDataService.class);
+        } catch (Exception e) {
+            log.error("Scapy server is unavailable. Critical error. Exiting now.");
             if (STANDALONE.equals(appMode)) {
-                log.error("Scapy server is unavailable. Critical error. Exiting now.");
                 shutdown();
             } else {
                 return;
