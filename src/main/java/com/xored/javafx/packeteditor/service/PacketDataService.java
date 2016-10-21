@@ -13,18 +13,13 @@ import static com.xored.javafx.packeteditor.scapy.ScapyUtils.createReconstructPk
 
 public class PacketDataService {
     static Logger logger = LoggerFactory.getLogger(PacketDataService.class);
-
-    private static boolean initialized = false;
     
     @Inject
     ScapyServerClient scapy;
     
     @Inject
     public void init() {
-        if (!initialized) {
-            scapy.connect();
-            initialized = true;
-        }
+        scapy.connect();
     }
 
     public PacketData buildPacket(List<ReconstructProtocol> pktStructure) {
