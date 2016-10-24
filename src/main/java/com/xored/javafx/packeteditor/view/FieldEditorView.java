@@ -58,6 +58,8 @@ public class FieldEditorView {
 
     public TitledPane buildProtocolPane(CombinedProtocol protocol) {
         TitledPane gridTitlePane = new TitledPane();
+        String protocolPathId = protocol.getPath().stream().collect(Collectors.joining("-"));
+        gridTitlePane.setId(protocolPathId + "-pane");
         
         GridPane grid = new GridPane();
         grid.getStyleClass().add("protocolgrid");
@@ -108,7 +110,12 @@ public class FieldEditorView {
         gridTitlePane.setText(title);
         gridTitlePane.setContent(grid);
 
-        userProtocol.setTitledPane(gridTitlePane);
+        if (userProtocol != null) {
+            gridTitlePane.setExpanded(!userProtocol.isCollapsed());
+            gridTitlePane.expandedProperty().addListener(val->
+                    userProtocol.setCollapsed(!gridTitlePane.isExpanded())
+            );
+        }
 
         return gridTitlePane;
     }
@@ -118,6 +125,7 @@ public class FieldEditorView {
         pane.setText("Append new layer");
         pane.getStyleClass().add("append-protocol");
         HBox controls = new HBox(10);
+        pane.setId("append-protocol-pane");
         pane.setContent(controls);
 
         List<ProtocolMetadata> protocols = controller.getModel().getAvailableProtocolsToAdd(false);

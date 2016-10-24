@@ -2,7 +2,6 @@ package com.xored.javafx.packeteditor.data.user;
 
 
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
-import javafx.scene.control.TitledPane;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -10,12 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Serializable protocol data of user document model
+ * */
 public class UserProtocol {
     private ProtocolMetadata meta;
     private List<String> path = new ArrayList<>();
     private Map<String, UserField> fieldMap = new LinkedHashMap<>();
-    private TitledPane titledPane = null;
-    
+    boolean collapsed = false;
+
     public UserProtocol(ProtocolMetadata meta, List<String> path) {
         this.meta = meta;
         this.path.addAll(path);
@@ -56,11 +58,13 @@ public class UserProtocol {
         createField(fieldId);
     }
 
-    public TitledPane getTitledPane() {
-        return titledPane;
+    public boolean isCollapsed() {
+        return collapsed;
     }
 
-    public void setTitledPane(TitledPane titledPane) {
-        this.titledPane = titledPane;
+    public void setCollapsed(boolean collapsed) {
+        this.collapsed = collapsed;
     }
+
 }
+

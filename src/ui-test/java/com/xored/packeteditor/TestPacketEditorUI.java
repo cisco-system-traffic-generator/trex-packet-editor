@@ -2,6 +2,7 @@ package com.xored.packeteditor;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 import org.junit.Test;
 
 import static javafx.scene.input.KeyCode.*;
@@ -13,6 +14,9 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     @Test
     public void should_create_new_document() {
         newDocument();
+        verifyThat("#Ether-pane", (TitledPane pane) -> pane.isExpanded() == true );
+        verifyThat("#append-protocol-pane", (TitledPane pane) -> pane.isExpanded() == true );
+        verifyUserModelFieldDefault("#Ether-src");
     }
 
     @Test

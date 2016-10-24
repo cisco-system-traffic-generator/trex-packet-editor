@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+/** Defines a document with user model of a packet
+ * this model can be incorrect by user requirement
+ */
 public class Document {
     
     private Stack<UserProtocol> protocols = new Stack<>();

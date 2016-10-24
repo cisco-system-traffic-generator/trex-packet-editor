@@ -98,41 +98,4 @@ public class CombinedProtocolModel {
         }
         return res;
     }
-
-    public boolean[] getProtocolsExpanded() {
-        int count[] = {getProtocolStack().size(), 0};
-        boolean expanded[] = new boolean[count[0]];
-        getProtocolStack().stream().forEach(proto -> {
-            UserProtocol userProtocol = proto.getUserProtocol();
-            TitledPane pane = userProtocol.getTitledPane();
-            if (count[1] < count[0]) {
-                if (pane != null) {
-                    expanded[count[1]++] = pane.isExpanded();
-                } else {
-                    expanded[count[1]++] = true;
-                }
-            }
-        });
-        return expanded;
-    }
-
-    public void setProtocolsExpanded(boolean expanded[]) {
-        int count[] = new int[2];
-        count[0] = Math.min(expanded.length, getProtocolStack().size());
-        count[1] = 0;
-        getProtocolStack().stream().forEach(proto -> {
-            UserProtocol userProtocol = proto.getUserProtocol();
-            TitledPane pane = userProtocol.getTitledPane();
-            if (pane != null && count[1] < count[0]) {
-                userProtocol.getTitledPane().setExpanded(expanded[count[1]++]);
-            }
-        });
-    }
-
-    public void setProtocolExpanded(boolean expanded) {
-        getProtocolStack().stream().forEach(proto -> {
-            UserProtocol userProtocol = proto.getUserProtocol();
-            userProtocol.getTitledPane().setExpanded(expanded);
-        });
-    }
 }

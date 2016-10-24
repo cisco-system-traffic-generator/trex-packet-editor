@@ -146,6 +146,13 @@ public class FieldEditorModel {
         DocumentFile.saveToFile(userModel, outFile);
     }
 
+    private void replaceUserModel(Document userModel) {
+        this.userModel = userModel;
+
+    }
+        userModel = DocumentFile.fromPOJO(userModelFile);outFile, metadataService);
+        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+    }
     public void loadTemplate(DocumentFile outFile) {
         userModel = DocumentFile.fromPOJO(outFile, metadataService);
         setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
@@ -158,6 +165,7 @@ public class FieldEditorModel {
         fireUpdateViewEvent();
     }
 
+    public void loadDocumentFromFile(File outFile) throws IOException {
     public void loadDocumentFromFile(File outFile) throws IOException {
         userModel = DocumentFile.loadFromFile(outFile, metadataService);
         userModel.setCurrentFile(outFile);

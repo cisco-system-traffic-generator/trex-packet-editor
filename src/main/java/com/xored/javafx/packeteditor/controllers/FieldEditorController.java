@@ -126,14 +126,8 @@ public class FieldEditorController implements Initializable {
         view.rebuild(event.getModel());
         CombinedProtocolModel combomodel = event.getModel();
 
-        // Save protocols titledpanes states
-        boolean expanded[] = combomodel.getProtocolsExpanded();
-
         // Rebuild content
         view.rebuild(combomodel);
-
-        // Try to restore collapsed/expanded states
-        combomodel.setProtocolsExpanded(expanded);
 
         Platform.runLater(()-> {
             // Save scroll position workaround: runLater inside runLater :)
