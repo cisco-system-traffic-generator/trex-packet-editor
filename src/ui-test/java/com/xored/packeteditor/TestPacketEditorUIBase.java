@@ -239,6 +239,12 @@ public class TestPacketEditorUIBase extends ApplicationTest {
         clickOn("#append-protocol-button");
     }
 
+    void addLayerForce(String layerType) {
+        setComboBoxText(".protocol-type-selector", layerType);
+        clickOn(".protocol-type-selector");
+        clickOn("#append-protocol-button");
+    }
+
     void selectProtoType(String proto) {
         clickOn("#Ether-type");
         clickOn("#Ether-type .arrow-button");

@@ -142,6 +142,32 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     }
 
     @Test
+    public void should_create_nested_ether() {
+        // Ether()/Ether() is converted to Dot3()/Ether()
+        addLayerForce("Ether");
+        verifyThat("#Ether-type", (Label t) -> t.getText().contains("0x1")); // type for Dot3 is interpreted as 0x1 by scapy
+        verifyThat("#Ether-Ether-type", (Label t) -> t.getText().contains("LOOP")); // default value for Ether
+    }
+
+    @Test
+    public void should_append_and_edit_abstract_protocols() {
+        addLayer("Raw");
+        addLayerForce("Ether");
+        addLayerForce("IP");
+
+        setFieldText("#Ether-type", "LOOP");
+        verifyThat("#Ether-type", (Label t) -> t.getText().contains("LOOP")); // default value for Ether
+
+        setFieldText("#Ether-type", "LOOP");
+        verifyThat("#Ether-Raw-Ether-type", (Label t) -> t.getText().contains("IPv4"));
+        setFieldText("#Ether-Raw-Ether-type", "IPv6");
+        verifyThat("#Ether-Raw-Ether-type", (Label t) -> t.getText().contains("IPv6"));
+        verifyUserModelFieldSet("#Ether-type");
+        verifyUserModelFieldSet("#Ether-Raw-Ether-type");
+
+    }
+
+    @Test
     public void should_build_tcpip_stack() {
         addLayer("Internet Protocol Version 4");
         verifyThat("#Ether-IP-version", hasText("4"));
