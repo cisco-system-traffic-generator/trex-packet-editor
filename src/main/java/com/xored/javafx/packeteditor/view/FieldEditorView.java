@@ -16,7 +16,6 @@ import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -381,5 +380,11 @@ public class FieldEditorView {
         valuePane.setLeft(combo);
         row.getChildren().addAll(titlePane, valuePane);
         return row;
+    }
+
+    public void displayConnectionError() {
+        BorderPane errorPane = new BorderPane();
+        errorPane.setCenter(new Label("Unable to connect to Scapy server."));
+        fieldEditorPane.getChildren().add(errorPane);
     }
 }
