@@ -122,19 +122,20 @@ public class FieldEditorController implements Initializable {
                 snapImage.getWidth() - insets.getLeft() - insets.getRight(),
                 snapImage.getHeight() - insets.getTop() - insets.getBottom()));
         fieldEditorTopPane.getChildren().add(snapView);
+        // Rebuild content
+        view.rebuild(event.getModel());
+        CombinedProtocolModel combomodel = event.getModel();
+
+        // Save protocols titledpanes states
+        boolean expanded[] = combomodel.getProtocolsExpanded();
+
+        // Rebuild content
+        view.rebuild(combomodel);
+
+        // Try to restore collapsed/expanded states
+        combomodel.setProtocolsExpanded(expanded);
 
         Platform.runLater(()-> {
-            CombinedProtocolModel combomodel = event.getModel();
-
-            // Save protocols titledpanes states
-            boolean expanded[] = combomodel.getProtocolsExpanded();
-
-            // Rebuild content
-            view.rebuild(combomodel);
-
-            // Try to restore collapsed/expanded states
-            combomodel.setProtocolsExpanded(expanded);
-
             // Save scroll position workaround: runLater inside runLater :)
             Platform.runLater(() -> {
                 Platform.runLater(() -> {
