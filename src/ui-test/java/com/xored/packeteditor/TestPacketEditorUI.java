@@ -17,7 +17,6 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
     public void should_save_textfield_values() {
-        newDocument();
         verifyUserModelFieldDefault("#Ether-src");
         clickOn("#Ether-src");
         push(ESCAPE);
@@ -29,7 +28,6 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
     public void should_save_enumfield_values() {
-        newDocument();
         verifyUserModelFieldDefault("#Ether-type");
         clickOn("#Ether-type");
         clickOn("#Ether-type");
@@ -47,7 +45,6 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
     public void should_build_payload() {
-        newDocument();
         addLayer("Raw");
         verifyThat("#Ether-Raw-load", hasText("dummy"));
         clickOn("#Ether-Raw-load");
@@ -97,7 +94,6 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
     public void should_cancel_field_editing_with_ESC() {
-        newDocument();
         clickOn("#Ether-src");
         push(ESCAPE);
         verifyUserModelFieldUnset("#Ether-src");
@@ -110,7 +106,6 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
     public void should_set_field_text_with_enter() {
-        newDocument();
         clickOn("#Ether-src");
         write("00:11:22:33:44:55");
         push(ENTER);
@@ -120,7 +115,6 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
     public void should_not_set_incorrect_field_value() {
-        newDocument();
         clickOn("#Ether-src");
         write("00:11:22:33:44:55:66"); // too long
         push(ENTER); // try to commit -> fails
@@ -131,14 +125,12 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     @Test
     public void should_select_all_field_content_on_field_click() {
         final int mac_text_length = 17;
-        newDocument();
         clickOn("#Ether-src");
         verifyThat("#Ether-src", (TextField tf) -> tf.getSelectedText().length() == mac_text_length);
     }
 
     @Test
     public void should_change_ether_type_and_back() {
-        newDocument();
         addLayer("Internet Protocol Version 4");
         setFieldText("#Ether-type", "LOOP");
         setFieldText("#Ether-IP-src", "127.0.1.2");
