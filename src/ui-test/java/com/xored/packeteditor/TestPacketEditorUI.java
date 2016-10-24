@@ -12,11 +12,22 @@ import static org.testfx.util.NodeQueryUtils.hasText;
 public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
-    public void should_create_new_document() {
+    public void should_preserve_collapse_state() {
         newDocument();
+        verifyUserModelFieldDefault("#Ether-src");
+
         verifyThat("#Ether-pane", (TitledPane pane) -> pane.isExpanded() == true );
         verifyThat("#append-protocol-pane", (TitledPane pane) -> pane.isExpanded() == true );
-        verifyUserModelFieldDefault("#Ether-src");
+
+        clickOn("#Ether-pane .title .arrow-button"); // collapse Ether pane
+
+        verifyThat("#Ether-pane", (TitledPane pane) -> pane.isExpanded() == false );
+
+        addLayer("Internet Protocol Version 4");
+        // Ether should remain collapsed
+        verifyThat("#Ether-pane", (TitledPane pane) -> pane.isExpanded() == false );
+        // But newly added layer should be expanded
+        verifyThat("#Ether-IP-pane", (TitledPane pane) -> pane.isExpanded() == true );
     }
 
     @Test
@@ -213,8 +224,12 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     }
 
     @Test
-    public void load_pcap_file() {
+    public void load_pcap_file_collapse() {
         loadPcapFile("http.pcap");
+        // when file loaded from pcap we collapse all protcols
+        verifyThat("#Ether-pane", (TitledPane pane) -> pane.isExpanded() == false );
+        verifyThat("#Ether-IP-pane", (TitledPane pane) -> pane.isExpanded() == false );
+        verifyThat("#Ether-IP-TCP-pane", (TitledPane pane) -> pane.isExpanded() == false);
         verifyThat("#Ether-IP-version", hasText("4"));
         verifyThat("#Ether-IP-TCP-seq", hasText("951057939"));
     }

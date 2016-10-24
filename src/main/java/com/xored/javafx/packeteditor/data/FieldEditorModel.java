@@ -146,16 +146,15 @@ public class FieldEditorModel {
         DocumentFile.saveToFile(userModel, outFile);
     }
 
-    private void replaceUserModel(Document userModel) {
+    /** replace current new user model document with a different(from file/json/template) */
+    private void setNewUserModel(Document userModel) {
         this.userModel = userModel;
+        userModel.getProtocolStack().forEach(protocol -> protocol.setCollapsed(true));
+        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+    }
 
-    }
-        userModel = DocumentFile.fromPOJO(userModelFile);outFile, metadataService);
-        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
-    }
     public void loadTemplate(DocumentFile outFile) {
-        userModel = DocumentFile.fromPOJO(outFile, metadataService);
-        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+        setNewUserModel(DocumentFile.fromPOJO(outFile, metadataService));
     }
 
     public void loadDocumentFromPcapData(PacketData pkt) {
@@ -166,10 +165,9 @@ public class FieldEditorModel {
     }
 
     public void loadDocumentFromFile(File outFile) throws IOException {
-    public void loadDocumentFromFile(File outFile) throws IOException {
-        userModel = DocumentFile.loadFromFile(outFile, metadataService);
-        userModel.setCurrentFile(outFile);
-        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+        Document newUserModel = DocumentFile.loadFromFile(outFile, metadataService);
+        newUserModel.setCurrentFile(outFile);
+        setNewUserModel(newUserModel);
     }
 
     private void importUserModelFromScapy(PacketData packet) {
@@ -178,6 +176,7 @@ public class FieldEditorModel {
         packet.getProtocols().forEach(protocolData -> {
             userModel.addProtocol(metadataService.getProtocolMetadataById(protocolData.id));
             UserProtocol userProtocol = userModel.getProtocolStack().peek();
+            userProtocol.setCollapsed(true);
             protocolData.getFields().forEach(fieldData -> {
                 if (fieldData.isPrimitive()) {
                     userProtocol.addField(fieldData.id, fieldData.hvalue);
