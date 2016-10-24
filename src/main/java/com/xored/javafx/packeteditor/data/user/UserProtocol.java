@@ -2,6 +2,7 @@ package com.xored.javafx.packeteditor.data.user;
 
 
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
+import javafx.scene.control.TitledPane;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -13,6 +14,7 @@ public class UserProtocol {
     private ProtocolMetadata meta;
     private List<String> path = new ArrayList<>();
     private Map<String, UserField> fieldMap = new LinkedHashMap<>();
+    private TitledPane titledPane = null;
     
     public UserProtocol(ProtocolMetadata meta, List<String> path) {
         this.meta = meta;
@@ -52,5 +54,13 @@ public class UserProtocol {
     public void deleteField(String fieldId) {
         fieldMap.remove(fieldId);
         createField(fieldId);
+    }
+
+    public TitledPane getTitledPane() {
+        return titledPane;
+    }
+
+    public void setTitledPane(TitledPane titledPane) {
+        this.titledPane = titledPane;
     }
 }

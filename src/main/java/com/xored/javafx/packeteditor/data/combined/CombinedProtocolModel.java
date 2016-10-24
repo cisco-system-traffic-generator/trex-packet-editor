@@ -1,15 +1,13 @@
 package com.xored.javafx.packeteditor.data.combined;
 
 import com.xored.javafx.packeteditor.data.user.Document;
-import com.xored.javafx.packeteditor.data.user.UserField;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
-import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.service.IMetadataService;
+import javafx.scene.control.TitledPane;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -101,4 +99,40 @@ public class CombinedProtocolModel {
         return res;
     }
 
+    public boolean[] getProtocolsExpanded() {
+        int count[] = {getProtocolStack().size(), 0};
+        boolean expanded[] = new boolean[count[0]];
+        getProtocolStack().stream().forEach(proto -> {
+            UserProtocol userProtocol = proto.getUserProtocol();
+            TitledPane pane = userProtocol.getTitledPane();
+            if (count[1] < count[0]) {
+                if (pane != null) {
+                    expanded[count[1]++] = pane.isExpanded();
+                } else {
+                    expanded[count[1]++] = true;
+                }
+            }
+        });
+        return expanded;
+    }
+
+    public void setProtocolsExpanded(boolean expanded[]) {
+        int count[] = new int[2];
+        count[0] = Math.min(expanded.length, getProtocolStack().size());
+        count[1] = 0;
+        getProtocolStack().stream().forEach(proto -> {
+            UserProtocol userProtocol = proto.getUserProtocol();
+            TitledPane pane = userProtocol.getTitledPane();
+            if (pane != null && count[1] < count[0]) {
+                userProtocol.getTitledPane().setExpanded(expanded[count[1]++]);
+            }
+        });
+    }
+
+    public void setProtocolExpanded(boolean expanded) {
+        getProtocolStack().stream().forEach(proto -> {
+            UserProtocol userProtocol = proto.getUserProtocol();
+            userProtocol.getTitledPane().setExpanded(expanded);
+        });
+    }
 }

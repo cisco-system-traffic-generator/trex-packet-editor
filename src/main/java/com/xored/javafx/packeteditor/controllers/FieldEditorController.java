@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
+import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.scapy.PacketData;
@@ -123,8 +124,16 @@ public class FieldEditorController implements Initializable {
         fieldEditorTopPane.getChildren().add(snapView);
 
         Platform.runLater(()-> {
+            CombinedProtocolModel combomodel = event.getModel();
+
+            // Save protocols titledpanes states
+            boolean expanded[] = combomodel.getProtocolsExpanded();
+
             // Rebuild content
-            view.rebuild(event.getModel());
+            view.rebuild(combomodel);
+
+            // Try to restore collapsed/expanded states
+            combomodel.setProtocolsExpanded(expanded);
 
             // Save scroll position workaround: runLater inside runLater :)
             Platform.runLater(() -> {

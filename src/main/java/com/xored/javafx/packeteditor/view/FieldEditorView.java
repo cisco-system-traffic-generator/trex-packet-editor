@@ -108,6 +108,8 @@ public class FieldEditorView {
         gridTitlePane.setText(title);
         gridTitlePane.setContent(grid);
 
+        userProtocol.setTitledPane(gridTitlePane);
+
         return gridTitlePane;
     }
 
@@ -186,9 +188,9 @@ public class FieldEditorView {
         try {
             VBox protocolsPane = new VBox();
 
-            model.getProtocolStack().stream().forEach(proto ->
-                    protocolsPane.getChildren().add(buildProtocolPane(proto))
-            );
+            model.getProtocolStack().stream().forEach(proto -> {
+                protocolsPane.getChildren().add(buildProtocolPane(proto));
+            });
             protocolsPane.getChildren().add(buildAppendProtocolPane());
 
             fieldEditorPane.getChildren().setAll(protocolsPane);
