@@ -17,9 +17,15 @@ public class PacketDataService {
     @Inject
     ScapyServerClient scapy;
     
+    private boolean initialized = false;
+
     @Inject
     public void init() {
-        scapy.connect();
+        try {
+            scapy.connect();
+            initialized = true;
+        } catch (ConnectionException ignored) {
+        }
     }
 
     public PacketData buildPacket(List<ReconstructProtocol> pktStructure) {
@@ -87,5 +93,9 @@ public class PacketDataService {
 
     public void closeConnection() {
         scapy.closeConnection();
+    }
+
+    public boolean isInitialized() {
+        return initialized;
     }
 }
