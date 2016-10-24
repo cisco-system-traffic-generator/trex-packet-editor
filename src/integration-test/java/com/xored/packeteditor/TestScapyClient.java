@@ -1,8 +1,10 @@
 package com.xored.packeteditor;
 
 import com.google.gson.*;
+import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
+import com.xored.javafx.packeteditor.guice.GuiceModule;
 import com.xored.javafx.packeteditor.scapy.*;
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +20,7 @@ public class TestScapyClient {
             ? ("tcp://" + System.getenv("SCAPY_SERVER"))
             : "tcp://localhost:4507";
 
-    private Injector injector = new TRexPacketCraftingTool().getInjector();
+    private static Injector injector = Guice.createInjector(new GuiceModule());
     
     private ScapyServerClient scapy;
 
