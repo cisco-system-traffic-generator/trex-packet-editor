@@ -1,6 +1,7 @@
 package com.xored.packeteditor;
 
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.guice.GuiceModule;
@@ -37,6 +38,7 @@ public class TestPacketEditorUIBase extends ApplicationTest {
     static org.slf4j.Logger logger = LoggerFactory.getLogger(TRexPacketCraftingTool.class);
 
     static boolean isHeadless() { return Boolean.getBoolean("headless"); }
+    static Injector testInjector = Guice.createInjector(new GuiceModule());
 
     static {
         if (isHeadless()) {
@@ -127,24 +129,20 @@ public class TestPacketEditorUIBase extends ApplicationTest {
 
         doneLatch.await();
 
-
-        // TODO: javafx is still working with events, so some fields can't be accessed
-        // this is dumb waiting for javafx fills the  fields
-        Thread.sleep(2000);
     }
 
-    public void runAndWait2(Runnable action) throws InterruptedException, ExecutionException {
-        FutureTask<Void> task = new FutureTask<>(action, null);
-        Platform.runLater(task);
-        task.get();
-
-        // TODO: javafx is still working with events, so some fields can't be accessed
-        // this is dumb waiting for javafx fills the  fields
-        sleep(2000);
+    TRexPacketCraftingTool getTrexApp() {
+        return TRexPacketCraftingTool.getInstance(testInjector);
     }
 
-    TRexPacketCraftingTool trex = new TRexPacketCraftingTool(Guice.createInjector(new GuiceModule()));
-    FieldEditorController editorController = trex.getInjector().getInstance(FieldEditorController.class);
+    Injector getInjector() {
+        return getTrexApp().getInjector(); // should be already initialized with injector(see testInjector)
+    }
+
+    FieldEditorController getEditorController() {
+        return getInjector().getInstance(FieldEditorController.class);
+    }
+
     URL resources;
     {
         try {
@@ -157,23 +155,10 @@ public class TestPacketEditorUIBase extends ApplicationTest {
     @Override
     public void start(Stage stage) {
         try {
-            ScapyServerClient scapy;
-            scapy = trex.getInjector().getInstance(ScapyServerClient.class);
-            scapy.connect();
-            trex.start(stage);
+            getTrexApp().start(stage);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
-    }
-
-    public void printNodesId() {
-        NodeQuery query2 = lookup((Node t) -> {
-            if (t.getId()!=null) {
-                logger.debug("'" + t.getId() + "'");
-                return true;
-            }
-            return false;
-        });
     }
 
     void loadPcapFile(String filename) {
@@ -183,7 +168,7 @@ public class TestPacketEditorUIBase extends ApplicationTest {
     void loadPcapFileEx(String filename, boolean mustfail) {
         final String[] error = {null};
         try {
-            Assert.assertNotNull(editorController);
+            Assert.assertNotNull(getEditorController());
             runAndWait(() -> {
                 try {
                     File file;
@@ -193,7 +178,7 @@ public class TestPacketEditorUIBase extends ApplicationTest {
                     else {
                         file = new File(resources.getFile() + filename);
                     }
-                    editorController.loadPcapFile(file);
+                    getEditorController().loadPcapFile(file);
                 } catch (Exception e) {
                     error[0] = e.getMessage();
                 }
@@ -218,7 +203,7 @@ public class TestPacketEditorUIBase extends ApplicationTest {
     void savePcapFileEx(String filename, boolean mustfail) {
         final String[] error = {null};
         try {
-            Assert.assertNotNull(editorController);
+            Assert.assertNotNull(getEditorController());
             runAndWait(() -> {
                 try {
                     File file;
@@ -228,7 +213,7 @@ public class TestPacketEditorUIBase extends ApplicationTest {
                     else {
                         file = new File(resources.getFile() + filename);
                     }
-                    editorController.writeToPcapFile(file, true);
+                    getEditorController().writeToPcapFile(file, true);
                 } catch (Exception e) {
                     error[0] = e.getMessage();
                 }
