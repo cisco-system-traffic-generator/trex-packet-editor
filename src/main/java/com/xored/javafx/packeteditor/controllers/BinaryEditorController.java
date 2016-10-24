@@ -68,10 +68,10 @@ public class BinaryEditorController implements Initializable, Observer {
         ChangeListener<Number> sizeListener = new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov,
                                 Number old_val, Number new_val) {
-                Rectangle clip = new Rectangle(0
-                        , 0
-                        , beGroupScrollPane.getLayoutBounds().getWidth()
-                        , beGroupScrollPane.getLayoutBounds().getHeight());
+                Rectangle clip = new Rectangle(beGroupScrollPane.getLayoutBounds().getWidth() - 1
+                        , beGroupScrollPane.getLayoutBounds().getHeight() - 1);
+                clip.setLayoutX(0);
+                clip.setLayoutY(0);
                 beGroupScrollPane.setClip(clip);
             }
         };

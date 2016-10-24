@@ -8,14 +8,11 @@ import com.xored.javafx.packeteditor.service.ConfigurationService;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.view.ConnectionErrorDialog;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,29 +105,6 @@ public class TRexPacketCraftingTool extends Application {
         stage.setOnCloseRequest(e -> {
             appController.terminate();
         });
-
-
-        // The sample of the zero padding - just double click on scene
-        if (System.getenv("DEBUG") != null) {
-            fieldEditorSplitPane = (SplitPane) scene.lookup("#fieldEditorSplitPane");
-            fieldEditorSplitPane.getScene().addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent event) {
-                    if (event.getClickCount() == 2
-                            && event.getButton() == MouseButton.PRIMARY) {
-                        if (app_padding == null) {
-                            app_padding = fieldEditorSplitPane.getPadding();
-                        }
-                        Insets curr = fieldEditorSplitPane.getPadding();
-                        if (curr.getLeft() > 0) {
-                            fieldEditorSplitPane.setPadding(new Insets(0));
-                        } else {
-                            fieldEditorSplitPane.setPadding(app_padding);
-                        }
-                    }
-                }
-            });
-        }
     }
 
     private void shutdown() {
