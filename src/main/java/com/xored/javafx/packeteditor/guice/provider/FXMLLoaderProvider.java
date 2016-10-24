@@ -12,9 +12,7 @@ public class FXMLLoaderProvider implements Provider<FXMLLoader> {
     @Override
     public FXMLLoader get() {
         FXMLLoader loader = new FXMLLoader();
-        loader.setControllerFactory(p -> {
-            return injector.getInstance(p);
-        });
+        loader.setControllerFactory(injector::getInstance);
         return loader;
     }
 
