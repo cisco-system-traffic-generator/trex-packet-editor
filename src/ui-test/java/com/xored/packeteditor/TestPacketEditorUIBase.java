@@ -1,7 +1,9 @@
 package com.xored.packeteditor;
 
+import com.google.inject.Guice;
 import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
+import com.xored.javafx.packeteditor.guice.GuiceModule;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -141,7 +143,7 @@ public class TestPacketEditorUIBase extends ApplicationTest {
         sleep(2000);
     }
 
-    TRexPacketCraftingTool trex = new TRexPacketCraftingTool();
+    TRexPacketCraftingTool trex = new TRexPacketCraftingTool(Guice.createInjector(new GuiceModule()));
     FieldEditorController editorController = trex.getInjector().getInstance(FieldEditorController.class);
     URL resources;
     {

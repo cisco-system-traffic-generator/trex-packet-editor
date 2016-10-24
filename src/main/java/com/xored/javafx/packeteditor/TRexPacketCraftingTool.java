@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.xored.javafx.packeteditor.controllers.AppController;
 import com.xored.javafx.packeteditor.guice.GuiceModule;
+import com.xored.javafx.packeteditor.scapy.ConnectionException;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.view.ConnectionErrorDialog;
@@ -18,29 +19,61 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 
 import static com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode.EMBEDDED;
 import static com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode.STANDALONE;
 
 public class TRexPacketCraftingTool extends Application {
+    
+    private static TRexPacketCraftingTool instance = null;
+
     static Logger log = LoggerFactory.getLogger(TRexPacketCraftingTool.class);
+    private Injector injector;
+    private Parent parent;
+    private SplitPane fieldEditorSplitPane;
+    private Insets app_padding;
+
+    public TRexPacketCraftingTool() {
+        super();
+    }
+    public TRexPacketCraftingTool(Injector injector) {
+        this.injector = injector;
+    }
 
     public static void main(String[] args) {
         TRexPacketCraftingTool.launch(args);
     }
 
-    private Injector injector = Guice.createInjector(new GuiceModule());
-
     public Injector getInjector() {
         return injector;
     }
 
+    public void initialize() throws ConnectionException {
+        injector.getInstance(PacketDataService.class);
+        injector.getInstance(AppController.class);
+        log.debug("Running app");
+        FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
+        fxmlLoader.setLocation(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/app.fxml"));
+        try {
+            parent = fxmlLoader.load();
+        } catch (IOException e) {
+            log.error("Unable to load app.fxml");
+        }
+    }
 
-    private SplitPane fieldEditorSplitPane;
-    private Insets app_padding;
-
+    public static TRexPacketCraftingTool getInstance(Injector injector) {
+        if (instance == null) {
+            instance = new TRexPacketCraftingTool(injector);
+            
+            instance.initialize();
+        }
+        return instance;
+    }
+    
     @Override
     public void start(Stage primaryStage) throws Exception {
+        injector = Guice.createInjector(new GuiceModule());
         doStart(primaryStage, true, null, null);
     }
     
@@ -54,12 +87,12 @@ public class TRexPacketCraftingTool extends Application {
     
     private void doStart(Stage stage, boolean isStandalone, String ip, String port) throws Exception{
         ConfigurationService configurationService = getConfigurationService();
-        
+
         if (ip != null && port != null) {
             configurationService.setConnectionPort(port);
             configurationService.setConnectionIP(ip);
         }
-        
+
         ConfigurationService.ApplicationMode appMode;
         if (isStandalone) {
             appMode = STANDALONE;
@@ -67,28 +100,15 @@ public class TRexPacketCraftingTool extends Application {
             appMode = EMBEDDED;
         }
         configurationService.setApplicationMode(appMode);
-
         try {
-            // First call to instantiate and init PacketDataService.
-            injector.getInstance(PacketDataService.class);
+            initialize();
         } catch (Exception e) {
-            log.error("Scapy server is unavailable. Critical error. Exiting now.");
-            if (STANDALONE.equals(appMode)) {
-                shutdown();
-            } else {
-                return;
-            }
+            // it's possible to not have a connection to Scapy server.
         }
-        
+
         AppController appController = injector.getInstance(AppController.class);
         appController.setMainStage(stage);
         
-        log.debug("Running app");
-        FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
-        fxmlLoader.setLocation(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/app.fxml"));
-
-        Parent parent = fxmlLoader.load();
-
         Scene scene = new Scene(parent);
 
         if (System.getenv("DEBUG") == null) {
@@ -111,5 +131,9 @@ public class TRexPacketCraftingTool extends Application {
         ConnectionErrorDialog dialog = new ConnectionErrorDialog();
         dialog.showAndWait();
         System.exit(0);
+    }
+
+    public void setInjector(Injector injector) {
+        this.injector = injector;
     }
 }
