@@ -45,14 +45,17 @@ public class BinaryEditorController implements Initializable, Observer {
     private Rectangle[] selRectHex = new Rectangle[3];
     private Rectangle editingRect = new Rectangle();
 
-    double yPadding = 0;
-    double xOffset = 10;
-    double yOffset = 20;
-    double numLineLength = 45;
-    double byteLength = 15;
-    double byteLengthHex = 7.224375;  // 9.6325 for font-size=16; 7.224375 for font-size=12
-    double bytePad = 5;
-    double byteWordPad = 15;
+    final int maxByteColumns = 16;
+    final int maxByteRows = 64; // higher values may require display optimizations
+
+    final double yPadding = 0;
+    final double xOffset = 10;
+    final double yOffset = 20;
+    final double numLineLength = 45;
+    final double byteLength = 15;
+    final double byteLengthHex = 7.224375;  // 9.6325 for font-size=16; 7.224375 for font-size=12
+    final double bytePad = 5;
+    final double byteWordPad = 15;
 
     int idxEditing = -1;
     int editingStep = 0;
@@ -77,10 +80,16 @@ public class BinaryEditorController implements Initializable, Observer {
         beGroupScrollPane.heightProperty().addListener(sizeListener);
     }
 
+    private int getDisplayedBytesLength() {
+        int maxBytesToDisplay =  maxByteRows * maxByteColumns;
+        return Math.min(binaryData.getLength(), maxBytesToDisplay);
+    }
+
     private void reloadAll() {
-        int len = binaryData.getLength();
-        final int w = 16;
-        final int h = len/w + ((0 < len % w) ? 1 : 0);
+        int displayedBytesLen = getDisplayedBytesLength();
+
+        final int w = maxByteColumns;
+        final int h = displayedBytesLen /w + ((0 < displayedBytesLen % w) ? 1 : 0);
 
         texts = new Text[h][];
         lineNums = new Text[h];
@@ -106,7 +115,7 @@ public class BinaryEditorController implements Initializable, Observer {
         for (int i = 0; i < h; i++) {
             texts[i] = new Text[w];
             lineNums[i] = new Text(String.format("%04X", i * w) + ':');
-            lineHex[i] = new Text(convertHexToString(binaryData.getBytes(i * w, Math.min(w, len - i * w))));
+            lineHex[i] = new Text(convertHexToString(binaryData.getBytes(i * w, Math.min(w, displayedBytesLen - i * w))));
 
             lineNums[i].setTranslateX(xOffset);
             lineNums[i].setTranslateY(yOffset * (i+1) + yPadding);
@@ -118,7 +127,7 @@ public class BinaryEditorController implements Initializable, Observer {
 
             beGroup.getChildren().addAll(lineNums[i], lineHex[i]);
 
-            for (int j = 0; j < w && (i * w + j < len); j++) {
+            for (int j = 0; j < w && (i * w + j < displayedBytesLen); j++) {
                 final int f_i = i;
                 final int f_j = j;
                 final int idx = i * w + j;
@@ -153,6 +162,10 @@ public class BinaryEditorController implements Initializable, Observer {
             }
         }
 
+        if (displayedBytesLen < binaryData.getLength()) {
+            logger.info("payload is too large to display");
+        }
+
         if (isEditingAllowed()) {
             beGroup.setOnKeyPressed((KeyEvent ke) -> {
                 if (-1 != idxEditing) {
@@ -168,7 +181,7 @@ public class BinaryEditorController implements Initializable, Observer {
                         b |= val << (1 - editingStep) * 4;
                         binaryData.setByte(idxEditing, (byte) b);
                         byte[] newBytes = binaryData.getBytes(0, binaryData.getLength());
-                        packetController.reconstructPacketFromBinary(newBytes);
+                        model.editPacketBytes(newBytes);
 
                         int i = idxEditing / texts[0].length;
                         int j = idxEditing % texts[0].length;
@@ -232,8 +245,12 @@ public class BinaryEditorController implements Initializable, Observer {
     }
 
     private void updateSelection() {
-        int startIdx = binaryData.getSelOffset();
-        int endIdx = startIdx + Math.max(0, binaryData.getSelLength() - 1);
+        int startByteIdx = binaryData.getSelOffset();
+        int endByteIdx = startByteIdx + Math.max(0, binaryData.getSelLength() - 1);
+        int lastDispByte = Math.max(0, getDisplayedBytesLength() - 1);
+
+        int startIdx = Math.min(startByteIdx, lastDispByte);
+        int endIdx = Math.min(endByteIdx, lastDispByte);
 
         int startRow = getByteCellRow(startIdx);
         int endRow = getByteCellRow(endIdx);
