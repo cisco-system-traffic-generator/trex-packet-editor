@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.inject.Injector;
-import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
@@ -18,6 +17,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
@@ -26,7 +26,7 @@ import java.util.Base64;
 import java.util.Random;
 
 public class PayloadEditor extends VBox {
-    static org.slf4j.Logger logger = LoggerFactory.getLogger(TRexPacketCraftingTool.class);
+    static Logger logger = LoggerFactory.getLogger(PayloadEditor.class);
 
     @FXML private VBox root;
     @FXML private HBox payloadEditorHboxChoice;
