@@ -16,7 +16,11 @@ public class ConfigurationService {
     private String connectionPort;
     
     private ApplicationMode applicationMode;
-    
+
+    public boolean isStandaloneMode() {
+        return ApplicationMode.STANDALONE.equals(applicationMode);
+    }
+
     public enum ApplicationMode {
         STANDALONE,
         EMBEDDED
