@@ -125,6 +125,7 @@
     -fx-font-style: normal;
     -fx-font-stretch: normal;
     -fx-color: #4b4b4b;
+    -fx-padding: 1.7 10.5 1.7 10.5;
 }
 
 .invalid-protocol .title {
@@ -483,4 +484,3 @@ ProtocolField,
     -fx-border-color: null;
     -fx-padding: 10px;
 }
-
