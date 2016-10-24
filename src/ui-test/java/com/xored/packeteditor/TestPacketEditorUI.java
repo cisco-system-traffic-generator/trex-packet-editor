@@ -49,7 +49,6 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     public void should_build_payload() {
         newDocument();
         addLayer("Raw");
-        addLayer("Raw");
         verifyThat("#Ether-Raw-load", hasText("dummy"));
         clickOn("#Ether-Raw-load");
         clickOn("#payloadButtonCancel");

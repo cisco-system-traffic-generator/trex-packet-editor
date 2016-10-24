@@ -9,6 +9,8 @@
     -fx-font-family: 'Menlo', 'Lucida Console', 'Courier', monospace;
     -fx-font-size: 12;
     /*-fx-smooth: false;*/
+    button-background: #32b4ea;
+    button-text-fill: #FFFFFF;
 }
 
 .fieldeditortoppane {
@@ -17,18 +19,19 @@
     -fx-border-insets: 0px;
     -fx-border-style: solid;
     -fx-border-width: 0px;
-    -fx-padding: 25 25 25 25;
+    -fx-padding: 0 0 0 0;
+    /*-fx-padding: 25 25 0 25;*/
     -fx-alignment: center;
     -fx-background-color: #ffffff;
 }
 
 #fieldEditorPane {
-    -fx-border-radius: 1px;
+    -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
     -fx-border-insets: 0px;
     -fx-border-style: solid;
     -fx-border-width: 1px;
-    -fx-padding: 25 25 25 25;
+    -fx-padding: 0 0 0 0;
     -fx-alignment: center;
     -fx-background-color: #ffffff;
 }
@@ -49,13 +52,16 @@
     -fx-fit-to-width: true;
     -fx-fit-to-height: true;
     -fx-pannable: false;
-    -fx-hbar-policy: as-needed; //	[ never | always | as-needed ]	1
-    -fx-vbar-policy: as-needed; //	[ never | always | as-needed ]	1
+    -fx-hbar-policy: as-needed; /* [ never | always | as-needed ]*/
+    -fx-vbar-policy: as-needed; /* [ never | always | as-needed ]*/
 }
 
 .begrouptoppane {
-    -fx-padding: 25 25 25 25;
+    -fx-padding: 0 0 0 0;
+    /*-fx-padding: 0 25 25 25;*/
     -fx-background-color: #f4f4f4; //#ececec;
+    -fx-min-height: 8.88em;
+    -fx-pref-height: -fx-min-height;
 }
 
 .begroupscrollpane {
@@ -64,21 +70,21 @@
     -fx-border-color: #d8d8d8;
     -fx-border-insets: 0px;
     -fx-border-style: solid;
-    -fx-border-width: 0px;
+    -fx-border-width: 1px;
     -fx-padding: 0 0 0 0;
     -fx-alignment: center;
     -fx-fit-to-width: true;
     -fx-fit-to-height: true;
     -fx-pannable: false;
-    -fx-hbar-policy: as-needed; //	[ never | always | as-needed ]	1
-    -fx-vbar-policy: as-needed; //	[ never | always | as-needed ]	1
+    -fx-hbar-policy: as-needed; /*[ never | always | as-needed ]	*/
+    -fx-vbar-policy: as-needed; /*[ never | always | as-needed ]	*/
 }
 
 .begroupstackpane {
     -fx-background-color: #ffffff;
-    -fx-border-radius: 1px;
+    -fx-border-radius: 0px;
     -fx-border-style: solid;
-    -fx-border-width: 1px;
+    -fx-border-width: 0px;
     -fx-border-color: #d8d8d8;
     -fx-font-family: PTMono;
     -fx-font-size: 14px;
@@ -101,11 +107,11 @@
 }
 
 .titled-pane {
-    -fx-border-radius: 1px;
+    -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
     -fx-border-insets: 0px;
     -fx-border-style: solid;
-    -fx-border-width: 1px;
+    -fx-border-width: 0px;
 }
 
 .titled-pane .content {
@@ -119,6 +125,7 @@
     -fx-font-style: normal;
     -fx-font-stretch: normal;
     -fx-color: #4b4b4b;
+    -fx-padding: 1.7 10.5 1.7 10.5;
 }
 
 .invalid-protocol .title {
@@ -148,8 +155,8 @@
 
 #append-protocol-button {
     -fx-padding: 0 1em, 0 1em;
-    -fx-background-color: #32b4ea;
-    -fx-text-fill: #FFFFFF;
+    -fx-background-color: button-background;
+    -fx-text-fill: button-text-fill;
     -fx-border-radius: 3px;
 }
 
@@ -324,6 +331,8 @@
     -fx-pref-height: 30px;
     -fx-min-width: 5em;
     -fx-pref-width: -1;
+    -fx-background-color: button-background;
+    -fx-text-fill: button-text-fill;
 }
 
 .payloadlabel {
@@ -454,4 +463,24 @@ ProtocolField,
     -fx-background-color: white white white white; /*transparent, transparent, transparent, transparent;*/
 }
 
+.split-pane {
+    -fx-padding: 0px;
+    -fx-padding: 25 25 25 25;
+}
 
+.split-pane > .split-pane-divider {
+    -fx-padding: 0 1px 0 1px;
+}
+
+.split-pane *.split-pane-divider {
+    -fx-background-color: null;
+    -fx-border-color: null;
+    -fx-padding: 0px;
+}
+
+.split-pane *.vertical-grabber,
+.split-pane *.horizontal-grabber {
+    -fx-background-color: null;
+    -fx-border-color: null;
+    -fx-padding: 10px;
+}

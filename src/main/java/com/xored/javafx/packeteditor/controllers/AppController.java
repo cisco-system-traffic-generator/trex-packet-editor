@@ -37,7 +37,7 @@ public class AppController implements Initializable {
     
     @Inject
     private PacketDataService packetDataService;
-    
+
     private Stage mainStage;
 
     @Override
