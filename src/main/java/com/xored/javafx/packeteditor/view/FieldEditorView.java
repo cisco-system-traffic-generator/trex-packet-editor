@@ -223,6 +223,7 @@ public class FieldEditorView {
         lblInfo.setOnMouseClicked(e -> controller.selectField(field));
         lblName.setOnMouseClicked(e -> controller.selectField(field));
         lblName.setTooltip(new Tooltip(field.getMeta().getId()));
+        lblName.setId(getUniqueIdFor(field) + "-label");
 
         if (scapyData != null && scapyData.isIgnored()) {
             lblInfo.getStyleClass().add("ignored-field");

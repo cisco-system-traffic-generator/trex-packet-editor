@@ -213,6 +213,13 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     }
 
     @Test
+    public void should_support_large_payload() {
+        loadPcapFile("payload_64k.pcap");
+        verifyThat("#Ether-IP-version", hasText("4"));
+        verifyThat("#Ether-IP-TCP-Raw-load", t -> t != null);
+    }
+
+    @Test
     public void load_and_save_pcap_file_neg() {
         loadPcapFile("http.pcap");
         savePcapFileEx("/http-2.pcap", true);
