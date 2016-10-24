@@ -231,6 +231,11 @@ public class FieldEditorModel {
         }
     }
 
+    /** packet bytes were changed with the binary editor */
+    public void editPacketBytes(byte[] newBytes) {
+        importUserModelFromScapy(packetDataService.reconstructPacketFromBinary(newBytes));
+    }
+
     public void setSelected(CombinedField field) {
         int absoluteOffset = 0;
         int len = 0;

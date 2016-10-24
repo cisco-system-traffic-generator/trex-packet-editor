@@ -1,12 +1,11 @@
 package com.xored.javafx.packeteditor.controllers;
 
 import com.xored.javafx.packeteditor.data.BinaryData;
+import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.IBinaryData;
 import com.xored.javafx.packeteditor.scapy.ScapyUtils;
-import com.xored.javafx.packeteditor.service.PacketDataService;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
@@ -18,6 +17,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.net.URL;
@@ -26,11 +27,14 @@ import java.util.Observer;
 import java.util.ResourceBundle;
 
 public class BinaryEditorController implements Initializable, Observer {
+    private Logger logger = LoggerFactory.getLogger(BinaryEditorController.class);
+
     @FXML private Group beGroup;
     @FXML private ScrollPane beGroupScrollPane;
     @Inject private IBinaryData binaryData;
+
     @Inject
-    PacketDataService packetController;
+    FieldEditorModel model;
 
     boolean updating = false;
 
@@ -133,66 +137,62 @@ public class BinaryEditorController implements Initializable, Observer {
 
                 texts[i][j] = text;
 
-                text.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent mouseEvent) {
+                if (isEditingAllowed()) {
+                    text.setOnMouseClicked( (MouseEvent mouseEvent) -> {
                         if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
                             if(mouseEvent.getClickCount() == 2){
                                 startEditing(idx);
                                 beGroup.requestFocus();
                             }
                         }
-                    }
-                });
-
-                text.setOnKeyPressed((KeyEvent ke) -> {
-                    System.out.println("123");
-                });
-
+                    });
+                }
 
                 beGroup.getChildren().add(text);
                 beGroup.setFocusTraversable(true);
             }
         }
 
-        beGroup.setOnKeyPressed((KeyEvent ke) -> {
-            if (-1 != idxEditing) {
-                try {
-                    Integer val = Integer.parseInt(ke.getText(), 16);
+        if (isEditingAllowed()) {
+            beGroup.setOnKeyPressed((KeyEvent ke) -> {
+                if (-1 != idxEditing) {
+                    try {
+                        Integer val = Integer.parseInt(ke.getText(), 16);
 
-                    int b = binaryData.getByte(idxEditing);
-                    if (0 == editingStep) {
-                        b &= 0x0FFFF0F;
-                    } else {
-                        b &= 0x0FFFFF0;
+                        int b = binaryData.getByte(idxEditing);
+                        if (0 == editingStep) {
+                            b &= 0x0FFFF0F;
+                        } else {
+                            b &= 0x0FFFFF0;
+                        }
+                        b |= val << (1 - editingStep) * 4;
+                        binaryData.setByte(idxEditing, (byte) b);
+                        byte[] newBytes = binaryData.getBytes(0, binaryData.getLength());
+                        packetController.reconstructPacketFromBinary(newBytes);
+
+                        int i = idxEditing / texts[0].length;
+                        int j = idxEditing % texts[0].length;
+
+                        updating = true;
+                        //String.format("%02X", b).getChars(0, 2, symbols, 0);
+                        texts[i][j].setText(String.format("%02X", (byte) b));
+                        lineHex[i].setText(convertHexToString(binaryData.getBytes(i * texts[i].length, texts[i].length)));
+                        updating = false;
+
+
+                        editingStep++;
+                        if (editingStep == 2) {
+                            editingStep = 0;
+                            idxEditing = -1;
+                            editingRect.setWidth(0);
+                            editingRect.setHeight(0);
+                        }
+                    } catch (Exception e) {
+                        logger.error("binary editor error", e);
                     }
-                    b |= val << (1 - editingStep) * 4;
-                    binaryData.setByte(idxEditing, (byte)b);
-                    byte[] newBytes = binaryData.getBytes(0, binaryData.getLength());
-                    packetController.reconstructPacketFromBinary(newBytes);
-
-                    int i = idxEditing / texts[0].length;
-                    int j = idxEditing % texts[0].length;
-
-                    updating = true;
-                    //String.format("%02X", b).getChars(0, 2, symbols, 0);
-                    texts[i][j].setText( String.format("%02X", (byte)b));
-                    lineHex[i].setText(convertHexToString(binaryData.getBytes(i*texts[i].length,  texts[i].length)));
-                    updating = false;
-
-
-                    editingStep ++;
-                    if (editingStep == 2) {
-                        editingStep = 0;
-                        idxEditing = -1;
-                        editingRect.setWidth(0);
-                        editingRect.setHeight(0);
-                    }
-                } catch (Exception e) {
-                    //slip
                 }
-            }
-        });
+            });
+        }
     }
 
     private String convertHexToString(byte[] hex) {
@@ -356,5 +356,9 @@ public class BinaryEditorController implements Initializable, Observer {
     private double getByteCellX(int idx) {
         int xi = getByteCellColumn(idx);
         return numLineLength + xOffset + xi * bytePad + (xi/4) * byteWordPad + byteLength * xi;
+    }
+
+    private boolean isEditingAllowed() {
+        return model.isBinaryMode();
     }
 }
