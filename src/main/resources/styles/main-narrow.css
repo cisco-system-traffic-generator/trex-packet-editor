@@ -18,7 +18,7 @@
     -fx-border-color: #d8d8d8;
     -fx-border-insets: 0px;
     -fx-border-style: solid;
-    -fx-border-width: 1px;
+    -fx-border-width: 0px;
     -fx-padding: 0 0 0 0;
     -fx-alignment: center;
     -fx-background-color: #ffffff;
@@ -45,7 +45,7 @@
     -fx-border-color: #d8d8d8;
     -fx-border-insets: 0px;
     -fx-border-style: solid;
-    -fx-border-width: 0px;
+    -fx-border-width: 1px;
     -fx-padding: 0 0 0 0;
     -fx-alignment: center;
     -fx-fit-to-width: true;
@@ -473,7 +473,7 @@ ProtocolField,
 .split-pane *.split-pane-divider {
     -fx-background-color: null;
     -fx-border-color: null;
-    -fx-padding: 0px;
+    -fx-padding: 12.50px;
 }
 
 .split-pane *.vertical-grabber,
