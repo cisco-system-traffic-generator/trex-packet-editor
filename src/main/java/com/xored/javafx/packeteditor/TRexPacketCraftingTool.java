@@ -50,8 +50,7 @@ public class TRexPacketCraftingTool extends Application {
     }
 
     public void initialize() throws ConnectionException {
-        injector.getInstance(PacketDataService.class);
-        injector.getInstance(AppController.class);
+        initServices();
         log.debug("Running app");
         FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
         fxmlLoader.setLocation(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/app.fxml"));
@@ -62,10 +61,14 @@ public class TRexPacketCraftingTool extends Application {
         }
     }
 
+    public void initServices() {
+        injector.getInstance(PacketDataService.class);
+        injector.getInstance(AppController.class).initialize(null, null);
+    }
+
     public static TRexPacketCraftingTool getInstance(Injector injector) {
         if (instance == null) {
             instance = new TRexPacketCraftingTool(injector);
-            
             instance.initialize();
         }
         return instance;
