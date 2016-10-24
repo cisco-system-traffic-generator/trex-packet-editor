@@ -2,9 +2,13 @@ package com.xored.packeteditor;
 
 import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
+import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import javafx.application.Platform;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.Assert;
 import org.junit.Before;
@@ -151,6 +155,9 @@ public class TestPacketEditorUIBase extends ApplicationTest {
     @Override
     public void start(Stage stage) {
         try {
+            ScapyServerClient scapy;
+            scapy = trex.getInjector().getInstance(ScapyServerClient.class);
+            scapy.connect();
             trex.start(stage);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
