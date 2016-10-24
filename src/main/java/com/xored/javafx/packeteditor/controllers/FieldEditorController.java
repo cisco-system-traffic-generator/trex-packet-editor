@@ -9,6 +9,7 @@ import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.scapy.PacketData;
+import com.xored.javafx.packeteditor.service.ConfigurationService;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.view.ConnectionErrorDialog;
@@ -24,6 +25,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -54,11 +56,17 @@ public class FieldEditorController implements Initializable {
     @Inject
     FieldEditorView view;
 
+    @Inject
+    ConfigurationService configurationService;
+    
     FileChooser fileChooser = new FileChooser();
 
     @Inject
     @Named("resources")
     private ResourceBundle resourceBundle;
+    
+    @FXML
+    private Text text;
 
     public IMetadataService getMetadataService() {
         return metadataService;
@@ -67,7 +75,13 @@ public class FieldEditorController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         view.setParentPane(fieldEditorPane);
-        Platform.runLater(this::newPacket);
+        if (configurationService.isStandaloneMode()) {
+            if (packetController.isInitialized()) {
+                Platform.runLater(this::newPacket);
+            } else {
+                view.displayConnectionError();
+            }
+        }
     }
 
     public void showConnectionErrorDialog() {
@@ -81,7 +95,9 @@ public class FieldEditorController implements Initializable {
             title += " - " + model.getCurrentFile().getAbsolutePath();
         }
 
-        ((Stage)fieldEditorPane.getScene().getWindow()).setTitle(title);
+        if (configurationService.isStandaloneMode()) {
+            ((Stage)fieldEditorPane.getScene().getWindow()).setTitle(title);
+        }
     }
 
     @Subscribe
@@ -145,7 +161,11 @@ public class FieldEditorController implements Initializable {
         refreshTitle();
         model.loadDocumentFromPcapData(packetController.read_pcap_packet(bytes));
         // Set window width to scene width
-        fieldEditorPane.getScene().getWindow().sizeToScene();
+        fitSizeToScene();
+    }
+
+    public void loadPcapBinary(byte[] bytes) throws IOException {
+        model.loadDocumentFromPcapData(packetController.reconstructPacketFromBinary(bytes));
     }
 
     public void writeToPcapFile(File file) {
@@ -227,9 +247,15 @@ public class FieldEditorController implements Initializable {
     public void newPacket() {
         model.newPacket();
         // Set window width to scene width
-        fieldEditorPane.getScene().getWindow().sizeToScene();
+        fitSizeToScene();
     }
 
     public FieldEditorModel getModel() { return model; }
+
+    private void fitSizeToScene() {
+        if (configurationService.isStandaloneMode()) {
+            fieldEditorPane.getScene().getWindow().sizeToScene();
+        }
+    }
 
 }
