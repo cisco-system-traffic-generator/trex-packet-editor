@@ -1,6 +1,7 @@
 package com.xored.javafx.packeteditor.data;
 
 import com.google.common.eventbus.EventBus;
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
@@ -20,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.xored.javafx.packeteditor.data.user.DocumentFile.toPOJO;
 
 public class FieldEditorModel {
     private Logger logger = LoggerFactory.getLogger(FieldEditorModel.class);
@@ -164,6 +167,11 @@ public class FieldEditorModel {
         fireUpdateViewEvent();
     }
 
+    public void loadDocumentFromJSON(String json) {
+        Document newUserModel = DocumentFile.loadFromJSON(json, metadataService);
+        setNewUserModel(newUserModel);
+    }
+    
     public void loadDocumentFromFile(File outFile) throws IOException {
         Document newUserModel = DocumentFile.loadFromFile(outFile, metadataService);
         newUserModel.setCurrentFile(outFile);
@@ -297,7 +305,7 @@ public class FieldEditorModel {
     private void beforeContentReplace() {
         DocState ds = new DocState();
         ds.packet = packet;
-        ds.userModel = DocumentFile.toPOJO(userModel);
+        ds.userModel = toPOJO(userModel);
         undoController.beforeContentReplace(ds);
     }
 
@@ -309,4 +317,7 @@ public class FieldEditorModel {
         fireUpdateViewEvent();
     }
 
+    public String asJSON() {
+        return new Gson().toJson(toPOJO(userModel));
+    }
 }

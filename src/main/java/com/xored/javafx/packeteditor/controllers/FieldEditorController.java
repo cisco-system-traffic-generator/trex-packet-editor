@@ -262,4 +262,7 @@ public class FieldEditorController implements Initializable {
         }
     }
 
+    public void loadUserModel(String userModelJSON) {
+        model.loadDocumentFromJSON(userModelJSON);
+    }
 }

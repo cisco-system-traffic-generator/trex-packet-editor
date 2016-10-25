@@ -71,6 +71,11 @@ public class DocumentFile {
         Files.write(outFile.toPath(), new Gson().toJson(toPOJO(doc)).getBytes());
     }
 
+    public static Document loadFromJSON(String json, IMetadataService metadataService) {
+        DocumentFile doc = new Gson().fromJson(json, DocumentFile.class);
+        return fromPOJO(doc, metadataService);
+    }
+
     public static Document loadFromFile(File jsonFile, IMetadataService metadataService) throws IOException {
         DocumentFile doc = new Gson().fromJson(Files.newBufferedReader(jsonFile.toPath()), DocumentFile.class);
         return fromPOJO(doc, metadataService);

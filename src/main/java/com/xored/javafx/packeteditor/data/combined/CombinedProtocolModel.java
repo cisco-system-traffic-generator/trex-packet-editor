@@ -5,7 +5,6 @@ import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.service.IMetadataService;
-import javafx.scene.control.TitledPane;
 
 import java.util.ArrayList;
 import java.util.Iterator;
