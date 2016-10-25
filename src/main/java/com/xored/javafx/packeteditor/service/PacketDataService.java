@@ -22,7 +22,9 @@ public class PacketDataService {
     @Inject
     public void init() {
         try {
-            scapy.connect();
+            if (!scapy.isConnected()) {
+                scapy.connect();
+            }
             initialized = true;
         } catch (ConnectionException ignored) {
         }

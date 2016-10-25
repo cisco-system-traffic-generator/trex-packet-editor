@@ -29,6 +29,10 @@ public class ScapyServerClient {
     ConfigurationService configurationService;
     
     private boolean lastRequestFailed = false;
+    
+    private boolean isConnected;
+    
+    private String connectionUrl;
 
     static class Request {
         final String jsonrpc = "2.0";
@@ -45,17 +49,25 @@ public class ScapyServerClient {
     }
 
     public void connect() {
+        connect(configurationService.getConnectionUrl(), configurationService.getConnectionPort(), configurationService.getReceiveTimeout());
+    }
+    public void connect(String host, String port, Integer timeout) {
         
         zmqContext = ZMQ.context(ZMQ_THREADS);
         zmqSocket = createSocket();
-        zmqSocket.setReceiveTimeOut(configurationService.getReceiveTimeout());
+        zmqSocket.setReceiveTimeOut(timeout);
         
-        String connectionUrl = configurationService.getConnectionUrl();
+        connectionUrl = host + ":" + port;
         
         logger.info("connecting to scapy_server at {}", connectionUrl);
         zmqSocket.connect(connectionUrl);
 
         version_handler = getVersionHandler();
+        isConnected = true;
+    }
+    
+    public boolean isConnected() {
+        return isConnected;
     }
 
     private JsonArray getVersion() {
@@ -93,7 +105,7 @@ public class ScapyServerClient {
     public void closeConnection() {
         logger.info("Closing ZMQ Socket. from thread: {}", Thread.currentThread().getName());
         if (zmqSocket != null) {
-            zmqSocket.disconnect(configurationService.getConnectionUrl());
+            zmqSocket.disconnect(connectionUrl);
             zmqSocket.close();
             zmqSocket = null;
         }
@@ -103,7 +115,7 @@ public class ScapyServerClient {
             zmqContext.term();
             zmqContext = null;
         }
-        logger.info("Connection closed.");
+        logger.info("Connection to Scapy server closed.");
     }
 
     /** makes request to Scapy server, returns Scapy server result */

@@ -49,6 +49,10 @@ public class ConfigurationService {
         this.connectionPort = connectionPort;
     }
 
+    public String getConnectionPort() {
+        return connectionPort;
+    }
+
     public Integer getReceiveTimeout() {
         return receiveTimeout;
     }
