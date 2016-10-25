@@ -49,15 +49,15 @@ public class ScapyServerClient {
     }
 
     public void connect() {
-        connect(configurationService.getConnectionHost(), configurationService.getConnectionPort(), configurationService.getReceiveTimeout());
+        connect(configurationService.getConnectionUrl(), configurationService.getReceiveTimeout());
     }
-    public void connect(String host, String port, Integer timeout) {
+    public void connect(String scapyUrl, Integer timeout) {
         
         zmqContext = ZMQ.context(ZMQ_THREADS);
         zmqSocket = createSocket();
         zmqSocket.setReceiveTimeOut(timeout);
         
-        connectionUrl = host + ":" + port;
+        connectionUrl = scapyUrl;
         
         logger.info("connecting to scapy_server at {}", connectionUrl);
         zmqSocket.connect(connectionUrl);
