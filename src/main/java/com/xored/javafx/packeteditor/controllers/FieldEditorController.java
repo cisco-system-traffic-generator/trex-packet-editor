@@ -6,7 +6,6 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
-import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.scapy.PacketData;
@@ -77,7 +76,7 @@ public class FieldEditorController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         view.setParentPane(fieldEditorPane);
         if (packetController.isInitialized()) {
-            this.newPacket();
+            Platform.runLater(this::newPacket);
         } else {
             view.displayConnectionError();
         }
@@ -122,11 +121,7 @@ public class FieldEditorController implements Initializable {
         fieldEditorTopPane.getChildren().add(snapView);
         // Rebuild content
         view.rebuild(event.getModel());
-        CombinedProtocolModel combomodel = event.getModel();
-
-        // Rebuild content
-        view.rebuild(combomodel);
-
+        
         Platform.runLater(()-> {
             // Save scroll position workaround: runLater inside runLater :)
             Platform.runLater(() -> {
