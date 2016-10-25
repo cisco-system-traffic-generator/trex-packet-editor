@@ -5,11 +5,9 @@ import com.google.inject.name.Named;
 
 public class ConfigurationService {
     
-    private String ip;
+    private String host;
     
     private String protocol;
-    
-    private String scapyDefaultConnUrl;
     
     private Integer receiveTimeout;
 
@@ -27,26 +25,39 @@ public class ConfigurationService {
     }
 
     @Inject
-    public ConfigurationService(@Named("SCAPY_DEFAULT_CONN_URL") String scapyDefaultConnUrl,
+    public ConfigurationService(@Named("SCAPY_CONNECTION_HOST") String defaultConnectionHost,
                                 @Named("SCAPY_RECEIVE_TIMEOUT") String defaultRecieveTimeout,
                                 @Named("SCAPY_CONNECTION_PORT") String defaultConnectionPort,
                                 @Named("SCAPY_CONNECTION_PROTOCOL") String defaultConnectionProtocol) {
         this.receiveTimeout = Integer.valueOf(defaultRecieveTimeout);
-        this.scapyDefaultConnUrl = scapyDefaultConnUrl;
+        this.host = defaultConnectionHost;
         this.connectionPort = defaultConnectionPort;
         this.protocol = defaultConnectionProtocol;
+        String scapyServerEnv = System.getenv("SCAPY_SERVER");
+        if (scapyServerEnv != null && scapyServerEnv.contains(":")) {
+            String[] parts = scapyServerEnv.split(":");
+            host = parts[0];
+            connectionPort = parts[1];
+        }
     }
     
     public String getConnectionUrl() {
-        return ip == null ? scapyDefaultConnUrl : protocol + "://" + ip + ":" + connectionPort;
+        return protocol + "://" + host + ":" + connectionPort;
     }
 
+    /** deprecated, use setConnectionHost */
     public void setConnectionIP(String ip) {
-        this.ip = ip;
+        this.host = ip;
     }
+
+    public void setConnectionHost(String host) { this.host = host; }
 
     public void setConnectionPort(String connectionPort) {
         this.connectionPort = connectionPort;
+    }
+
+    public String getConnectionHost() {
+        return host;
     }
 
     public String getConnectionPort() {

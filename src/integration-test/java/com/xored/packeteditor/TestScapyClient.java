@@ -3,7 +3,6 @@ package com.xored.packeteditor;
 import com.google.gson.*;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import com.xored.javafx.packeteditor.guice.GuiceModule;
 import com.xored.javafx.packeteditor.scapy.*;
 import java.util.Arrays;
@@ -16,10 +15,6 @@ import org.junit.rules.Timeout;
 import static org.junit.Assert.*;
 
 public class TestScapyClient {
-    final String server_url = System.getenv("SCAPY_SERVER") != null
-            ? ("tcp://" + System.getenv("SCAPY_SERVER"))
-            : "tcp://localhost:4507";
-
     private static Injector injector = Guice.createInjector(new GuiceModule());
     
     private ScapyServerClient scapy;

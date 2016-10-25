@@ -49,7 +49,7 @@ public class ScapyServerClient {
     }
 
     public void connect() {
-        connect(configurationService.getConnectionUrl(), configurationService.getConnectionPort(), configurationService.getReceiveTimeout());
+        connect(configurationService.getConnectionHost(), configurationService.getConnectionPort(), configurationService.getReceiveTimeout());
     }
     public void connect(String host, String port, Integer timeout) {
         
