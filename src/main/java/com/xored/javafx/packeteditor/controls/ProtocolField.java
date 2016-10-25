@@ -10,6 +10,7 @@ import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.data.FieldRules;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
+import com.xored.javafx.packeteditor.scapy.ConnectionException;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.FieldValue;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
@@ -436,8 +437,11 @@ public class ProtocolField extends FlowPane {
             controller.getModel().editField(combinedField, modify);
         } catch (Exception e) {
             logger.warn("Failed to build packet with new value of {}", combinedField.getId());
-            // TODO: implement validator and/or message box/popup
-            controller.showConnectionErrorDialog();
+            if (e instanceof ConnectionException) {
+                controller.showConnectionErrorDialog();
+                logger.error("Connection exception occurred");
+            }
+            // TODO: implement validator and/or message box/popup            
             if (valueNode != null) {
                 valueNode.getStyleClass().add("field-error");
             }
