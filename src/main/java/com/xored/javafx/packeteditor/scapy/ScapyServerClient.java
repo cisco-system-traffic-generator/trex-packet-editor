@@ -1,7 +1,9 @@
 package com.xored.javafx.packeteditor.scapy;
 
+import com.google.common.eventbus.EventBus;
 import com.google.gson.*;
 import com.google.inject.Inject;
+import com.xored.javafx.packeteditor.events.ScapyClientConnectedEvent;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,9 @@ public class ScapyServerClient {
 
     @Inject
     ConfigurationService configurationService;
+    
+    @Inject
+    EventBus eventBus;
     
     private boolean lastRequestFailed = false;
     
@@ -64,6 +69,8 @@ public class ScapyServerClient {
 
         version_handler = getVersionHandler();
         isConnected = true;
+        
+        eventBus.post(new ScapyClientConnectedEvent());
     }
     
     public boolean isConnected() {

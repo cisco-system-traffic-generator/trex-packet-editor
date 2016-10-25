@@ -1,6 +1,8 @@
 package com.xored.javafx.packeteditor.service;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+import com.xored.javafx.packeteditor.events.ScapyClientConnectedEvent;
 import com.xored.javafx.packeteditor.scapy.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,17 +21,11 @@ public class PacketDataService {
     
     private boolean initialized = false;
 
-    @Inject
-    public void init() {
-        try {
-            if (!scapy.isConnected()) {
-                scapy.connect();
-            }
-            initialized = true;
-        } catch (ConnectionException ignored) {
-        }
+    @Subscribe
+    public void handleScapyConnectedEvent(ScapyClientConnectedEvent event) {
+        initialized = true;
     }
-
+    
     public PacketData buildPacket(List<ReconstructProtocol> pktStructure) {
         return scapy.build_pkt(pktStructure);
     }

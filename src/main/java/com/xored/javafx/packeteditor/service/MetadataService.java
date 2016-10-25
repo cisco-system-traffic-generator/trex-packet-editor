@@ -1,9 +1,11 @@
 package com.xored.javafx.packeteditor.service;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.FieldRules;
+import com.xored.javafx.packeteditor.events.ScapyClientConnectedEvent;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
@@ -29,6 +31,11 @@ public class MetadataService implements IMetadataService {
     Map<String, List<String>> payload_classes_cache = new HashMap<>();
 
     public void initialize() {
+        // TODO: delete me once protocols json moved to scapy server.
+    }
+    
+    @Subscribe
+    public void handleScapyConnectedEvent(ScapyClientConnectedEvent event) {
         loadProtocolDefinitions();
     }
 

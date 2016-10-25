@@ -5,6 +5,7 @@ import com.google.inject.Injector;
 import com.xored.javafx.packeteditor.controllers.AppController;
 import com.xored.javafx.packeteditor.guice.GuiceModule;
 import com.xored.javafx.packeteditor.scapy.ConnectionException;
+import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.view.ConnectionErrorDialog;
@@ -50,7 +51,9 @@ public class TRexPacketCraftingTool extends Application {
     }
 
     public void initialize() throws ConnectionException {
-        initServices();
+        initAppController();
+        injector.getInstance(PacketDataService.class);
+        injector.getInstance(ScapyServerClient.class).connect();
         log.debug("Running app");
         FXMLLoader fxmlLoader = injector.getInstance(FXMLLoader.class);
         fxmlLoader.setLocation(ClassLoader.getSystemResource("com/xored/javafx/packeteditor/controllers/app.fxml"));
@@ -61,9 +64,8 @@ public class TRexPacketCraftingTool extends Application {
         }
     }
 
-    public void initServices() {
-        injector.getInstance(PacketDataService.class);
-        injector.getInstance(AppController.class).initialize(null, null);
+    public void initAppController() {
+        injector.getInstance(AppController.class);
     }
 
     public static TRexPacketCraftingTool getInstance(Injector injector) {

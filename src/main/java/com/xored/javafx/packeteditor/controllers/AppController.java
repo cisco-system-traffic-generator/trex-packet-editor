@@ -7,16 +7,12 @@ import com.xored.javafx.packeteditor.service.ConfigurationService;
 import com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 import com.xored.javafx.packeteditor.service.PacketDataService;
-import javafx.fxml.Initializable;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-
-public class AppController implements Initializable {
+public class AppController {
 
     private Logger logger= LoggerFactory.getLogger(AppController.class);
 
@@ -40,9 +36,10 @@ public class AppController implements Initializable {
 
     private Stage mainStage;
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        metadataService.initialize();
+    @Inject
+    public void initEventBus() {
+        eventBus.register(packetDataService);
+        eventBus.register(metadataService);
         eventBus.register(editorController);
         eventBus.register(model);
     }
