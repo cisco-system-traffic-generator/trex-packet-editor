@@ -15,4 +15,6 @@ public interface IBinaryData {
     void setSelected(int offset, int length);
     int getSelOffset();
     int getSelLength();
+
+    void clear();
 }

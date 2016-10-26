@@ -406,4 +406,9 @@ public class FieldEditorView {
         
         fieldEditorPane.getChildren().add(emptyPacketPane);
     }
+
+    public void reset() {
+        fieldEditorPane.getChildren().clear();
+        showEmptyPacketContent();
+    }
 }

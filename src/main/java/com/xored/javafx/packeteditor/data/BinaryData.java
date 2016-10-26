@@ -19,6 +19,11 @@ public class BinaryData extends Observable implements IBinaryData {
     private int selLength;
 
     @Override
+    public void clear() {
+        setBytes(new byte[0]);
+    }
+    
+    @Override
     public void setBytes(byte[] payload) {
         selOffset = 0;
         selLength = 0;

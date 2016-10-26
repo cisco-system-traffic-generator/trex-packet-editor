@@ -50,6 +50,12 @@ public class FieldEditorModel {
     /** model, produced using userModel and information from Scapy. user for building UI structure */
     CombinedProtocolModel model = new CombinedProtocolModel();
 
+    public void reset() {
+        packet = new PacketData();
+        binary.clear();
+        deleteAllProtocols();
+    }
+
     public class DocState {
         public DocumentFile userModel;
         public PacketData packet;
