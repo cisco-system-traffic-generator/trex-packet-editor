@@ -35,7 +35,7 @@ public class UserProtocol {
     public UserField getField(String fieldId) {
         return fieldMap.get(fieldId);
     }
-    
+
     public String getId() {
         return meta.getId();
     }
@@ -52,7 +52,7 @@ public class UserProtocol {
         fieldMap.put(fieldId, field);
         return field;
     }
-    
+
     public void deleteField(String fieldId) {
         fieldMap.remove(fieldId);
         createField(fieldId);

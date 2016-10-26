@@ -171,7 +171,7 @@ public class FieldEditorModel {
         Document newUserModel = DocumentFile.loadFromJSON(json, metadataService);
         setNewUserModel(newUserModel);
     }
-    
+
     public void loadDocumentFromFile(File outFile) throws IOException {
         Document newUserModel = DocumentFile.loadFromFile(outFile, metadataService);
         newUserModel.setCurrentFile(outFile);

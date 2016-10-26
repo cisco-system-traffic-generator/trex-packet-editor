@@ -5,7 +5,7 @@
 -fx-font-style	<font-style>	inherit
 -fx-font-weight	<font-weight>	inherit*/
 
-* {
+#pcapEditorTopPane * {
     -fx-font-family: 'Menlo', 'Lucida Console', 'Courier', monospace;
     -fx-font-size: 12;
     /*-fx-smooth: false; Commented as there is a problem on Linux with "-fx-smooth: true;"*/
@@ -13,7 +13,7 @@
     button-text-fill: #FFFFFF;
 }
 
-.fieldeditortoppane {
+#pcapEditorTopPane .fieldeditortoppane {
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
     -fx-border-insets: 0px;
@@ -24,7 +24,7 @@
     -fx-background-color: #ffffff;
 }
 
-#fieldEditorPane {
+#pcapEditorTopPane #fieldEditorPane {
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
     -fx-border-insets: 0px;
@@ -35,11 +35,11 @@
     -fx-background-color: #ffffff;
 }
 
-#fieldEditorTopPane {
+#pcapEditorTopPane #fieldEditorTopPane {
     -fx-background-color: #f4f4f4; //#ececec;
 }
 
-.fieldeditorscrollpane {
+#pcapEditorTopPane .fieldeditorscrollpane {
     -fx-background-color: #f4f4f4; //#ececec;
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
@@ -55,7 +55,7 @@
     -fx-vbar-policy: as-needed; /* [ never | always | as-needed ]*/
 }
 
-.begrouptoppane {
+#pcapEditorTopPane .begrouptoppane {
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
     -fx-border-insets: 0px;
@@ -67,7 +67,7 @@
     -fx-pref-height: -fx-min-height;
 }
 
-.begroupscrollpane {
+#pcapEditorTopPane .begroupscrollpane {
     -fx-background-color: #f4f4f4; //#ececec;
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
@@ -83,7 +83,7 @@
     -fx-vbar-policy: as-needed; /*[ never | always | as-needed ]	*/
 }
 
-.begroupstackpane {
+#pcapEditorTopPane .begroupstackpane {
     -fx-background-color: #ffffff;
     -fx-border-radius: 0px;
     -fx-border-style: solid;
@@ -99,17 +99,17 @@
     -fx-fit-to-height: true;
 }
 
-.begroup Text {
+#pcapEditorTopPane .begroup Text {
     -fx-font-family: monospace;
 }
 
-.protocolgrid {
+#pcapEditorTopPane .protocolgrid {
     -fx-background-color: #ffffff;
     -fx-border-width: 0px;
     -fx-padding: 1.99px;                 /* narrowing */
 }
 
-.titled-pane {
+#pcapEditorTopPane .titled-pane {
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
     -fx-border-insets: 0px;
@@ -117,11 +117,11 @@
     -fx-border-width: 0px;
 }
 
-.titled-pane .content {
+#pcapEditorTopPane .titled-pane .content {
     -fx-border-width: 0px;
 }
 
-.titled-pane .title {
+#pcapEditorTopPane .titled-pane .title {
     -fx-background-color: #f4f4f4;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
@@ -131,11 +131,11 @@
     -fx-padding: 1.7 10.5 1.7 10.5;
 }
 
-.invalid-protocol .title {
+#pcapEditorTopPane .invalid-protocol .title {
     -fx-background-color: #dbbaba;
 }
 
-.titled-pane .arrow-button {
+#pcapEditorTopPane .titled-pane .arrow-button {
     -fx-font-family: System;
     -fx-font-size: 14px;
     -fx-font-weight: normal;
@@ -143,20 +143,20 @@
     -fx-font-stretch: normal;
 }
 
-#append-protocol-combobox {
+#pcapEditorTopPane #append-protocol-combobox {
     -fx-min-width: 25em;
 }
 
-.append-protocol .title {
+#pcapEditorTopPane .append-protocol .title {
     -fx-color: WHITE;
     -fx-font-weight: normal;
 }
 
-.append-protocol .content {
+#pcapEditorTopPane .append-protocol .content {
     -fx-background-color: WHITE;
 }
 
-#append-protocol-button {
+#pcapEditorTopPane #append-protocol-button {
     -fx-padding: 0 1em, 0 1em;
     -fx-background-color: button-background;
     -fx-text-fill: button-text-fill;
@@ -164,11 +164,11 @@
 }
 
 
-.ignored-field {
+#pcapEditorTopPane .ignored-field {
     -fx-text-fill: grey;
 }
 
-.stackpane {
+#pcapEditorTopPane .stackpane {
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
     -fx-border-insets: 0px;
@@ -178,7 +178,7 @@
     -fx-alignment: center;
 }
 
-.binary-field {
+#pcapEditorTopPane .binary-field {
     -fx-text-box-border: transparent;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
@@ -186,37 +186,37 @@
     -fx-background-radius: 10;
 }
 
-.binary-field.selected {
+#pcapEditorTopPane .binary-field.selected {
     -fx-background-color: #33adff;
 }
 
-.protocol-row {
+#pcapEditorTopPane .protocol-row {
     -fx-background-color: #f4f4f4;
     -fx-pref-height: 30px;
     -fx-padding: 8 0 7 0px;
 }
 
-.field-row {
+#pcapEditorTopPane .field-row {
     -fx-background-color: #ffffff;
     -fx-padding: 0 0 0 40px;              /* narrowing */
     -fx-fill-height: true;
     -fx-fill-width: true;
 }
 
-.field-row-raw {
+#pcapEditorTopPane .field-row-raw {
     -fx-background-color: #ffffff;
     -fx-pref-height: 220px;
     -fx-padding: 0 0 1 40px;
 }
 
-.field-row-raw-head {
+#pcapEditorTopPane .field-row-raw-head {
     -fx-background-color: #ffffff;
     -fx-pref-height: 50px;
     -fx-min-height: 50px;
     -fx-padding: 2 0 1 40px;
 }
 
-.field-row-raw-value {
+#pcapEditorTopPane .field-row-raw-value {
     -fx-pref-width: 340px;
     -fx-pref-height: 220px;
     -fx-min-width: 340px;
@@ -229,85 +229,86 @@
     -fx-padding: 0 0 0 0;
 }
 
-.field-row-raw-button {
+#pcapEditorTopPane .field-row-raw-button {
     -fx-padding: 5 5 5 5;
 }
 
-.protocol-name {
+#pcapEditorTopPane .protocol-name {
     -fx-fill: #000000;
     -fx-font-style: oblique;
     -fx-font-size: 14px;
 }
 
-.control {
+#pcapEditorTopPane .control {
     -fx-pref-width: 180px;
 }
 
-.hyperlink .text{
+#pcapEditorTopPane .hyperlink .text{
     -fx-underline: false;
 }
 
-.text-area {
+#pcapEditorTopPane .text-area {
     -fx-pref-width: 360px;
     -fx-pref-height: 200px;
 }
 
-.title-pane {
+#pcapEditorTopPane .title-pane {
     -fx-fit-to-height: true;
     -fx-min-width: 30em;
     -fx-pref-width: -fx-min-width;
     -fx-max-width: -fx-min-width;
 }
 
-.field-row.value-pane {
+#pcapEditorTopPane .field-row.value-pane {
     -fx-fit-to-height: true;
 }
 
-.editable-label:editable {
+#pcapEditorTopPane .editable-label:editable {
     -fx-background-color: #33adff;
 }
 
 /*
-.scroll-pane > .viewport {
+#pcapEditorTopPane .scroll-pane > .viewport {
     -fx-background-color: transparent;
 }
 
-.scroll-pane {
+#pcapEditorTopPane .scroll-pane {
     -fx-background-color: white;
 }
 */
 
-.field-label-info {
+#pcapEditorTopPane .field-label-info {
     -fx-pref-width: 150px;
     -fx-font-family: Monospaced;
 }
 
-.field-label-name {
+#pcapEditorTopPane .field-label-name {
     -fx-pref-width: 250px;
 }
 
-.field-label-name .indented {
+#pcapEditorTopPane .field-label-name .indented {
     -fx-text-fill: grey;
 }
-.bitflag-label-name .indented {
+
+#pcapEditorTopPane .bitflag-label-name .indented {
     -fx-text-fill: grey;
     -fx-padding: 0,0,0,10;
 }
 
-.field-value-default {
+#pcapEditorTopPane .field-value-default {
     -fx-text-fill: grey;
 }
 
-.field-value-set {
+#pcapEditorTopPane .field-value-set {
     -fx-text-fill: blue;
 }
 
-.field-error {
+#pcapEditorTopPane .field-error {
     -fx-focus-color: red;
 }
 
 /* For payload editor control */
-.payloadhbox {
+#pcapEditorTopPane .payloadhbox {
     -fx-min-height: -1;
     -fx-pref-height: -1;
     -fx-max-height: 400px;
@@ -317,19 +318,19 @@
     -fx-padding: 0px 0px 2px 0px;
 }
 
-.payloadvbox {
+#pcapEditorTopPane .payloadvbox {
     -fx-spacing: 7px;
     -fx-padding: 0px 0px 2px 0px;
 }
 
-.payloadchoice {
+#pcapEditorTopPane .payloadchoice {
     -fx-min-height: 10px;
     -fx-pref-height: 30px;
     -fx-pref-width: 150px;
     -fx-min-width: 150px;
 }
 
-.payloadbutton {
+#pcapEditorTopPane .payloadbutton {
     -fx-min-height: 30px;
     -fx-pref-height: 30px;
     -fx-min-width: 5em;
@@ -338,32 +339,32 @@
     -fx-text-fill: button-text-fill;
 }
 
-.payloadlabel {
+#pcapEditorTopPane .payloadlabel {
     -fx-min-height: 30px;
     -fx-pref-height: 30px;
     -fx-min-width: 100px;
     -fx-pref-width: 100px;
 }
 
-.payloadeditorgrid {
+#pcapEditorTopPane .payloadeditorgrid {
     /*-fx-min-height: -Infinity;
     -fx-max-height: -Infinity;
     -fx-max-width: -Infinity;*/
 }
 
-.payloadeditortextarea {
+#pcapEditorTopPane .payloadeditortextarea {
     -fx-pref-height: 200px;
     -fx-min-height: 200px;
     -fx-pref-width: 300px;
     -fx-min-width: 300px;
 }
 
-.payloadeditortextfield {
+#pcapEditorTopPane .payloadeditortextfield {
     -fx-pref-width: 300px;
     -fx-min-width: 100px;
 }
 
-.payloadeditorlabel {
+#pcapEditorTopPane .payloadeditorlabel {
     -fx-font-family: inherit;
     -fx-pref-height: 200px;
     -fx-min-height: 200px;
@@ -372,12 +373,12 @@
 }
 
 /* Narrowing */
-.titled-pane .label,
-.titled-pane .button,
-.titled-pane .text-field,
-.titled-pane .choice-box,
-.titled-pane .combo-box,
-.titled-pane .list-cell {
+#pcapEditorTopPane .titled-pane .label,
+#pcapEditorTopPane .titled-pane .button,
+#pcapEditorTopPane .titled-pane .text-field,
+#pcapEditorTopPane .titled-pane .choice-box,
+#pcapEditorTopPane .titled-pane .combo-box,
+#pcapEditorTopPane .titled-pane .list-cell {
     -fx-padding: 1px 1px 1px 1px;
     -fx-pref-height: 1.51em;
     -fx-min-height: 1.51em;
@@ -385,30 +386,30 @@
     -fx-background-radius: 0px, 0px, 0px, 0px;
 }
 
-.titled-pane .text-field,
-.titled-pane .choice-box,
-.titled-pane .combo-box,
-.titled-pane .list-cell {
+#pcapEditorTopPane .titled-pane .text-field,
+#pcapEditorTopPane .titled-pane .choice-box,
+#pcapEditorTopPane .titled-pane .combo-box,
+#pcapEditorTopPane .titled-pane .list-cell {
     -fx-min-width: 15em;
     -fx-pref-width: -1; /*-fx-min-width;*/
     -fx-max-width: -1; /*-fx-min-width;*/
 }
 
-.titled-pane .protocol-type-selector {
+#pcapEditorTopPane .titled-pane .protocol-type-selector {
     -fx-min-width: 15em;
     -fx-pref-width: -1; /*-fx-min-width;*/
     -fx-max-width: 15em; /*-fx-min-width;*/
 }
 
-ProtocolField,
-.titled-pane .label {
+#pcapEditorTopPane ProtocolField,
+#pcapEditorTopPane .titled-pane .label {
     -fx-min-width: 4.4em;
     -fx-pref-width: 28.8em; /*-fx-min-width;*/
     -fx-max-width: 28.8em; /*-fx-min-width;*/
 }
 
-.titled-pane .choice-box,
-.titled-pane .combo-box
+#pcapEditorTopPane .titled-pane .choice-box,
+#pcapEditorTopPane .titled-pane .combo-box
  {
     /* modena.css:
     -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;*/
@@ -417,7 +418,7 @@ ProtocolField,
 }
 
 
-.titled-pane .text-field {
+#pcapEditorTopPane .titled-pane .text-field {
     /*-fx-border-insets: 0px;
     -fx-border-style: solid;
     -fx-background-color: red, white, #f4f4f4, white;*/
@@ -426,20 +427,20 @@ ProtocolField,
 }
 
 /* Restore after narrowing */
-.payloadvbox .choice-box .label,
-.payloadvbox .combo-box .label{
+#pcapEditorTopPane .payloadvbox .choice-box .label,
+#pcapEditorTopPane .payloadvbox .combo-box .label{
     -fx-padding: 1px 7.3px 1px 7.3px;
 }
 
 /* Restore after narrowing */
-#payloadEditorHboxValue .label {
+#pcapEditorTopPane #payloadEditorHboxValue .label {
     -fx-min-width: 1em;
     -fx-pref-width: -1;
     -fx-max-width: -1;
 }
 
-.field-value-default-raw,
-.field-value-set-raw {
+#pcapEditorTopPane .field-value-default-raw,
+#pcapEditorTopPane .field-value-set-raw {
     -fx-min-height: 10em;
     -fx-pref-height: -fx-min-height;
     -fx-max-height: -fx-min-height;
@@ -451,38 +452,38 @@ ProtocolField,
     -fx-ellipsis-string: ".....";
 }
 
-.bitflag  {
+#pcapEditorTopPane .bitflag  {
     -fx-background-radius: 0, 0, 0, 0;
     -fx-padding: 0;
 }
 
-.bitflag .arrow-button .arrow {
+#pcapEditorTopPane .bitflag .arrow-button .arrow {
     visibility: false;
 }
-.bitflag,
-.bitflag > .list-cell,
-.bitflag > .list-cell .text {
+#pcapEditorTopPane .bitflag,
+#pcapEditorTopPane .bitflag > .list-cell,
+#pcapEditorTopPane .bitflag > .list-cell .text {
     /*-fx-fill: grey;*/
     -fx-background-color: white white white white; /*transparent, transparent, transparent, transparent;*/
 }
 
-.split-pane {
+#pcapEditorTopPane .split-pane {
     -fx-padding: 0px;
     -fx-padding: 25 25 25 25; /* the toppest pane */
 }
 
-.split-pane > .split-pane-divider {
+#pcapEditorTopPane .split-pane > .split-pane-divider {
     -fx-padding: 0 1px 0 1px;
 }
 
-.split-pane *.split-pane-divider {
+#pcapEditorTopPane .split-pane *.split-pane-divider {
     -fx-background-color: null;
     -fx-border-color: null;
     -fx-padding: 12.50px;
 }
 
-.split-pane *.vertical-grabber,
-.split-pane *.horizontal-grabber {
+#pcapEditorTopPane .split-pane *.vertical-grabber,
+#pcapEditorTopPane .split-pane *.horizontal-grabber {
     -fx-background-color: null;
     -fx-border-color: null;
     -fx-padding: 10px;
