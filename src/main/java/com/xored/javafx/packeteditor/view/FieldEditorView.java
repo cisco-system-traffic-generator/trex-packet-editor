@@ -397,4 +397,13 @@ public class FieldEditorView {
         errorPane.setCenter(new Label("Unable to connect to Scapy server."));
         fieldEditorPane.getChildren().add(errorPane);
     }
+
+    public void showEmptyPacketContent() {
+        BorderPane emptyPacketPane = new BorderPane();
+        emptyPacketPane.setCenter(new Label("Empty packet. Please click to add default protocol."));
+        
+        emptyPacketPane.setOnMouseClicked((event) -> controller.newPacket());
+        
+        fieldEditorPane.getChildren().add(emptyPacketPane);
+    }
 }

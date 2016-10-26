@@ -25,7 +25,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -65,9 +64,6 @@ public class FieldEditorController implements Initializable {
     @Named("resources")
     private ResourceBundle resourceBundle;
     
-    @FXML
-    private Text text;
-
     public IMetadataService getMetadataService() {
         return metadataService;
     }
@@ -76,7 +72,11 @@ public class FieldEditorController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         view.setParentPane(fieldEditorPane);
         if (packetController.isInitialized()) {
-            Platform.runLater(this::newPacket);
+            if (configurationService.isStandaloneMode()) {
+                Platform.runLater(this::newPacket);
+            } else {
+                view.showEmptyPacketContent();
+            }
         } else {
             view.displayConnectionError();
         }
