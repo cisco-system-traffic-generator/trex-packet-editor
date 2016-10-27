@@ -60,11 +60,16 @@ public class FieldEditorView {
 
         // Try to set right font
         String cssfilename = "main-font-monospace.css";
-        for (String font : javafx.scene.text.Font.getFontNames()) {
+        for (String font : javafx.scene.text.Font.getFamilies()) {
             if (font.equals("Menlo")) {
                 cssfilename = "main-font-menlo.css";
                 break;
-            } else if (font.equals("Courier New")) {
+            }
+            else if (font.equals("Consolas")) {
+                cssfilename = "main-font-consolas.css";
+                break;
+            }
+            else if (font.equals("Courier New")) {
                 cssfilename = "main-font-courier-new.css";
                 break;
             }
