@@ -164,18 +164,32 @@ public class FieldEditorView {
 
         Consumer<Object> onAppendLayer = (o) -> {
             Object sel = cb.getSelectionModel().getSelectedItem();
-            if (sel instanceof ProtocolMetadata) {
-                controller.getModel().addProtocol((ProtocolMetadata)sel);
-            } else if (sel instanceof String) {
-                String selText = (String)sel;
-                ProtocolMetadata meta = protocols.stream().filter(
-                        m -> m.getId().equals(selText) || m.getName().equals(selText)
-                ).findFirst().orElse(null);
-                if (meta != null) {
-                    controller.getModel().addProtocol(meta);
-                } else {
-                    controller.getModel().addProtocol(selText);
+            try {
+                if (sel instanceof ProtocolMetadata) {
+                    controller.getModel().addProtocol((ProtocolMetadata)sel);
+                } else if (sel instanceof String) {
+                    String selText = (String)sel;
+                    ProtocolMetadata meta = protocols.stream().filter(
+                            m -> m.getId().equals(selText) || m.getName().equals(selText)
+                    ).findFirst().orElse(null);
+                    if (meta != null) {
+                        controller.getModel().addProtocol(meta);
+                    } else {
+                        controller.getModel().addProtocol(selText);
+                    }
                 }
+            } catch(Exception e) {
+                String selectedProtocolName = "unknown";
+                if (sel instanceof ProtocolMetadata) {
+                    selectedProtocolName = ((ProtocolMetadata)sel).getName();
+                } else if (sel instanceof String) {
+                    selectedProtocolName = (String) sel;
+                }
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText("Unable to add \""+ selectedProtocolName +"\" protocol.");
+                alert.initOwner(fieldEditorPane.getScene().getWindow());
+                
+                alert.showAndWait();
             }
         };
 

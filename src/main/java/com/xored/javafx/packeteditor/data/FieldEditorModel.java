@@ -87,11 +87,17 @@ public class FieldEditorModel {
 
     public void addProtocol(ProtocolMetadata meta) {
         if (meta != null) {
-            userModel.addProtocol(meta);
-            if (isBinaryMode()) {
-                setPktAndReload(packetDataService.appendProtocol(packet, meta.getId()));
-            } else {
-                setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+            try{
+                userModel.addProtocol(meta);
+                if (isBinaryMode()) {
+                    setPktAndReload(packetDataService.appendProtocol(packet, meta.getId()));
+                } else {
+                    setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+                }
+            } catch(Exception e) {
+                logger.error("Unable to add protocol due to: {}", e);
+                userModel.getProtocolStack().pop();
+                throw e;
             }
             logger.info("UserProtocol {} added.", meta.getName());
         }
