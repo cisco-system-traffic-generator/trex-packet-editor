@@ -1,8 +1,10 @@
 package com.xored.javafx.packeteditor.controllers;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
+import com.xored.javafx.packeteditor.events.ProtocolExpandCollapseEvent;
 import com.xored.javafx.packeteditor.metatdata.PacketTemplate;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -26,6 +28,9 @@ public class MenuController implements Initializable {
     
     @Inject
     FieldEditorController controller;
+
+    @Inject
+    private EventBus eventBus;
 
     @FXML
     MenuBar applicationMenu;
@@ -117,5 +122,13 @@ public class MenuController implements Initializable {
     @FXML
     public void handleModeAbstract(ActionEvent actionEvent) {
         getModel().setBinaryMode(false);
+    }
+
+    public void handleExpandAll(ActionEvent actionEvent) {
+        eventBus.post(new ProtocolExpandCollapseEvent(true));
+    }
+
+    public void handleCollapseAll(ActionEvent actionEvent) {
+        eventBus.post(new ProtocolExpandCollapseEvent(false));
     }
 }

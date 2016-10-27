@@ -24,6 +24,8 @@
             </Menu>
             <Menu mnemonicParsing="false" text="Action">
                <items>
+                  <MenuItem mnemonicParsing="false" onAction="#handleExpandAll" text="Expand all"/>
+                  <MenuItem mnemonicParsing="false" onAction="#handleCollapseAll" text="Collapse all"/>
                   <MenuItem mnemonicParsing="false" onAction="#handleDeleteProtocolAction" text="Delete layer" accelerator="Shortcut+D"/>
                   <MenuItem mnemonicParsing="false" visible="false" onAction="#handleRecalculateValues" text="Recalculate auto-values" />
                </items>

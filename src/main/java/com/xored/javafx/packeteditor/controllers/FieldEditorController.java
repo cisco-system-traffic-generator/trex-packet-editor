@@ -7,6 +7,7 @@ import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
+import com.xored.javafx.packeteditor.events.ProtocolExpandCollapseEvent;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.scapy.PacketData;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
@@ -97,6 +98,13 @@ public class FieldEditorController implements Initializable {
         if (configurationService.isStandaloneMode()) {
             ((Stage)fieldEditorPane.getScene().getWindow()).setTitle(title);
         }
+    }
+
+    @Subscribe
+    public void handleProtocolExpandCollapseEvent(ProtocolExpandCollapseEvent event) {
+        view.getProtocolTitledPanes().stream().filter(titledPane -> titledPane.isCollapsible()).forEach(titledPane ->
+            titledPane.setExpanded(event.expandState())
+        );
     }
 
     @Subscribe

@@ -57,6 +57,12 @@ public class FieldEditorView {
 
     private AutoCompletionBinding<String> protoAutoCompleter;
 
+    public List<TitledPane> getProtocolTitledPanes() {
+        return protocolTitledPanes;
+    }
+
+    private List<TitledPane> protocolTitledPanes = new ArrayList<>();
+
     static private int oddIndex = 0;
 
     public static void initCss(Scene scene) {
@@ -263,14 +269,17 @@ public class FieldEditorView {
 
     public void rebuild(CombinedProtocolModel model) {
         try {
-            VBox protocolsPane = new VBox();
+            protocolTitledPanes = new ArrayList<>();
 
             model.getProtocolStack().stream().forEach(proto -> {
-                protocolsPane.getChildren().add(buildProtocolPane(proto));
+                protocolTitledPanes.add(buildProtocolPane(proto));
             });
-            protocolsPane.getChildren().add(buildAppendProtocolPane());
 
-            fieldEditorPane.getChildren().setAll(protocolsPane);
+            VBox protocolsPaneVbox = new VBox();
+
+            protocolsPaneVbox.getChildren().setAll(protocolTitledPanes);
+            protocolsPaneVbox.getChildren().add(buildAppendProtocolPane());
+            fieldEditorPane.getChildren().setAll(protocolsPaneVbox);
         } catch(Exception e) {
             logger.error("Error occurred during rebuilding view. Error {}", e);
         }
