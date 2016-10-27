@@ -179,8 +179,9 @@ public class FieldEditorModel {
         fireUpdateViewEvent();
     }
 
-    public void loadDocumentFromJSON(String json) {
-        Document newUserModel = DocumentFile.loadFromJSON(json, metadataService);
+    public void loadDocumentFromJSON(String jsonBase64) {
+        String userModelJSON = new String(Base64.getDecoder().decode(jsonBase64.getBytes()));
+        Document newUserModel = DocumentFile.loadFromJSON(userModelJSON, metadataService);
         setNewUserModel(newUserModel);
     }
 
@@ -336,7 +337,7 @@ public class FieldEditorModel {
         fireUpdateViewEvent();
     }
 
-    public String asJSON() {
-        return new Gson().toJson(toPOJO(userModel));
+    public String serialize() {
+        return Base64.getEncoder().encodeToString(new Gson().toJson(toPOJO(userModel)).getBytes());
     }
 }
