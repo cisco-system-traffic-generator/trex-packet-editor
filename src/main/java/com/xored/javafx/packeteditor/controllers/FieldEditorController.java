@@ -37,6 +37,7 @@ import java.util.ResourceBundle;
 
 public class FieldEditorController implements Initializable {
 
+    public static final int PCAP_MAX_FILESIZE = 1048576;
     static Logger logger = LoggerFactory.getLogger(FieldEditorController.class);
 
     @FXML private StackPane  fieldEditorTopPane;
@@ -140,7 +141,11 @@ public class FieldEditorController implements Initializable {
 
         try {
             if (openFile != null) {
-                if (openFile.getName().endsWith(DocumentFile.FILE_EXTENSION)) {
+                if (openFile.getName().endsWith(".pcap")
+                    && openFile.length() > PCAP_MAX_FILESIZE) {
+                    showError("Pcap file size should be less than 1MB");
+                    return;
+                } else if (openFile.getName().endsWith(DocumentFile.FILE_EXTENSION)) {
                     model.loadDocumentFromFile(openFile);
                 } else {
                     loadPcapFile(openFile);
@@ -192,12 +197,18 @@ public class FieldEditorController implements Initializable {
         }
     }
 
-    void showError(String title, Exception e) {
+    public void showError(String title) {
+        showError(title, null);
+    }
+
+    public void showError(String title, Exception e) {
         logger.error("{}: {}", title, e);
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText(title);
         alert.initOwner(fieldEditorPane.getScene().getWindow());
-        alert.getDialogPane().setExpandableContent(new ScrollPane(new TextArea(title + ": " + e.getMessage())));
+        if (e != null ) {
+            alert.getDialogPane().setExpandableContent(new ScrollPane(new TextArea(title + ": " + e.getMessage())));
+        }
         alert.showAndWait();
     }
 
