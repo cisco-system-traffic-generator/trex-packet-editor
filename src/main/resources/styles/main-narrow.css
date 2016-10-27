@@ -148,6 +148,10 @@
     -fx-font-weight: normal;
 }
 
+#append-protocol-pane {
+    -fx-padding: 10px 0 0 0;
+}
+
 #pcapEditorTopPane .append-protocol .content {
     -fx-background-color: WHITE;
 }
