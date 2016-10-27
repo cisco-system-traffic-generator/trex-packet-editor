@@ -6,6 +6,7 @@ import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.controls.ProtocolField;
+import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
@@ -16,6 +17,8 @@ import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -90,6 +93,13 @@ public class FieldEditorView {
         this.fieldEditorPane = parentPane;
     }
 
+    private MenuItem addMenuItem(ContextMenu ctxMenu, String text, EventHandler<ActionEvent> action) {
+        MenuItem menuItem = new MenuItem();
+        menuItem.setText(text);
+        menuItem.setOnAction(action);
+        ctxMenu.getItems().add(menuItem);
+        return menuItem;
+    }
 
     public TitledPane buildProtocolPane(CombinedProtocol protocol) {
         TitledPane gridTitlePane = new TitledPane();
@@ -152,14 +162,14 @@ public class FieldEditorView {
                     userProtocol.setCollapsed(!gridTitlePane.isExpanded())
             );
 
-            ContextMenu layerCtxMenu = new ContextMenu();
-            MenuItem menuDeleteLayer = new MenuItem();
-            menuDeleteLayer.setText("Delete layer");
-            menuDeleteLayer.setOnAction(e -> {
-                controller.getModel().removeLayer(userProtocol);
-            });
-            layerCtxMenu.getItems().add(menuDeleteLayer);
-            gridTitlePane.setContextMenu(layerCtxMenu);
+            FieldEditorModel model = controller.getModel();
+            if (!model.isBinaryMode() && model.getUserModel().getProtocolStack().indexOf(userProtocol) > 0) {
+                ContextMenu layerCtxMenu = new ContextMenu();
+                addMenuItem(layerCtxMenu, "Move Layer Up", e -> model.moveLayerUp(userProtocol));
+                addMenuItem(layerCtxMenu, "Move Layer Down", e -> model.moveLayerDown(userProtocol));
+                addMenuItem(layerCtxMenu, "Delete layer", e -> model.removeLayer(userProtocol));
+                gridTitlePane.setContextMenu(layerCtxMenu);
+            }
         }
 
         return gridTitlePane;

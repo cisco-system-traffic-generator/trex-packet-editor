@@ -192,13 +192,37 @@ public class FieldEditorModel {
     }
 
     public void removeLayer(UserProtocol protocol) {
-        int idx = userModel.getProtocolStack().indexOf(protocol);
+        Stack<UserProtocol>  protocolStack = userModel.getProtocolStack();
+        int idx = protocolStack.indexOf(protocol);
         if (idx > 0 && !isBinaryMode()) { // can't remove 1st layer
             beforeContentReplace();
-            userModel.getProtocolStack().remove(idx);
+            protocolStack.remove(idx);
             setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
         }
     }
+
+    public void moveLayerUp(UserProtocol protocol) {
+        Stack<UserProtocol>  protocolStack = userModel.getProtocolStack();
+        int idx = protocolStack.indexOf(protocol);
+        if (idx > 1 && !isBinaryMode()) { // can't remove 1st layer
+            beforeContentReplace();
+            protocolStack.remove(idx);
+            protocolStack.insertElementAt(protocol, idx - 1);
+            setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+        }
+    }
+
+    public void moveLayerDown(UserProtocol protocol) {
+        Stack<UserProtocol>  protocolStack = userModel.getProtocolStack();
+        int idx = protocolStack.indexOf(protocol);
+        if (idx > 0 && !isBinaryMode() && idx + 1 < protocolStack.size()) { // can't remove 1st layer
+            beforeContentReplace();
+            protocolStack.remove(idx);
+            protocolStack.insertElementAt(protocol, idx + 1);
+            setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+        }
+    }
+
     private void importUserModelFromScapy(PacketData packet) {
         userModel.clear();
 
@@ -343,6 +367,10 @@ public class FieldEditorModel {
         packet = docState.packet;
         userModel = DocumentFile.fromPOJO(docState.userModel, metadataService);
         fireUpdateViewEvent();
+    }
+
+    public Document getUserModel() {
+        return userModel;
     }
 
     public String serialize() {
