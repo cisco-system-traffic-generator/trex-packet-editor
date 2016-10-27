@@ -31,6 +31,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -58,24 +59,21 @@ public class FieldEditorView {
     public static void initCss(Scene scene) {
         scene.getStylesheets().add(ClassLoader.getSystemResource("styles/modena-packet-editor.css").toExternalForm());
 
-        // Try to set right font
-        String cssfilename = "main-font-monospace.css";
-        for (String font : javafx.scene.text.Font.getFamilies()) {
-            if (font.equals("Menlo")) {
-                cssfilename = "main-font-menlo.css";
-                break;
-            }
-            else if (font.equals("Consolas")) {
-                cssfilename = "main-font-consolas.css";
-                break;
-            }
-            else if (font.equals("Courier New")) {
-                cssfilename = "main-font-courier-new.css";
-                break;
-            }
+        Set<String> fontFamilies = javafx.scene.text.Font.getFamilies().stream().collect(Collectors.toSet());
+
+        // Try choose best available fonts with a fallback
+        String fontsCssFile;
+        if (fontFamilies.contains("Menlo")) {
+            fontsCssFile = "main-font-menlo.css";
+        } else if (fontFamilies.contains("Consolas")) {
+            fontsCssFile = "main-font-consolas.css";
+        } else if (fontFamilies.contains("Courier New")) {
+            fontsCssFile = "main-font-courier-new.css";
+        } else {
+            fontsCssFile = "main-font-monospace.css";
         }
-        ;
-        scene.getStylesheets().add(ClassLoader.getSystemResource("styles/" + cssfilename).toExternalForm());
+
+        scene.getStylesheets().add(ClassLoader.getSystemResource("styles/" + fontsCssFile).toExternalForm());
 
         if (System.getenv("DEBUG") == null) {
             scene.getStylesheets().add(ClassLoader.getSystemResource("styles/main-narrow.css").toExternalForm());
