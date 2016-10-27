@@ -11,10 +11,8 @@ import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.view.ConnectionErrorDialog;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.SplitPane;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +30,6 @@ public class TRexPacketCraftingTool extends Application {
     static Logger log = LoggerFactory.getLogger(TRexPacketCraftingTool.class);
     private Injector injector;
     private Parent parent;
-    private SplitPane fieldEditorSplitPane;
-    private Insets app_padding;
 
     public TRexPacketCraftingTool() {
         super();
