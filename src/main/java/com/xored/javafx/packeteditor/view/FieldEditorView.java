@@ -266,12 +266,12 @@ public class FieldEditorView {
             int protocolOffset = field.getProtocol().getScapyProtocol().offset.intValue();
             int len = scapyData.getLength();
             int begin = protocolOffset + scapyData.getOffset();
-            int end = begin + len;
+            int end = begin + Math.max(len - 1, 0);
 
             if (len > 0) {
-                lblInfo.setText(String.format("%04d-%04d [%04d]", begin, end, len));
+                lblInfo.setText(String.format("%04X-%04X [%04d]", begin, end, len));
             } else {
-                lblInfo.setText(String.format("%04d-%04d [bits]", begin, end));
+                lblInfo.setText(String.format("%04X-%04X [bits]", begin, end));
             }
         } else {
             lblInfo.setText("meta-field");
