@@ -271,9 +271,9 @@ public class FieldEditorView {
             int end = begin + Math.max(len - 1, 0);
 
             if (len > 0) {
-                lblInfo.setText(String.format("%04X-%04X [%04d]", begin, end, len));
+                lblInfo.setText(String.format("%04x-%04x [%04d]", begin, end, len));
             } else {
-                lblInfo.setText(String.format("%04X-%04X [bits]", begin, end));
+                lblInfo.setText(String.format("%04x-%04x [bits]", begin, end));
             }
         } else {
             lblInfo.setText("meta-field");
