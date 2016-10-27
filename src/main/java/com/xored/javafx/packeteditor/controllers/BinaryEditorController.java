@@ -114,7 +114,7 @@ public class BinaryEditorController implements Initializable, Observer {
         beGroup.getChildren().add(editingRect);
         for (int i = 0; i < h; i++) {
             texts[i] = new Text[w];
-            lineNums[i] = new Text(String.format("%04X", i * w) + ':');
+            lineNums[i] = new Text(String.format("%04x", i * w) + ':');
             lineHex[i] = new Text(convertHexToString(binaryData.getBytes(i * w, Math.min(w, displayedBytesLen - i * w))));
 
             lineNums[i].setTranslateX(xOffset);
