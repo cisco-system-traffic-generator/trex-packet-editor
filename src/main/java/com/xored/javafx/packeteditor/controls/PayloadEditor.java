@@ -500,7 +500,7 @@ public class PayloadEditor extends VBox {
                 while (text.length() < size) {
                     text = text.concat(pattern);
                 }
-                text = text.substring(0, size - 1);
+                text = text.substring(0, size);
                 setText(text);
                 return true;
             } else {
@@ -555,7 +555,7 @@ public class PayloadEditor extends VBox {
                     while (text.length() < size) {
                         text = text.concat(pattern);
                     }
-                    text = text.substring(0, size - 1);
+                    text = text.substring(0, size);
                     setText(text);
                     return true;
                 }
