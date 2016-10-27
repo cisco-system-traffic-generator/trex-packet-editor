@@ -19,6 +19,7 @@ import com.xored.javafx.packeteditor.view.FieldEditorView;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.FlowPane;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.CustomTextField;
@@ -114,9 +115,14 @@ public class ProtocolField extends FlowPane {
         label.getStyleClass().add(cssClassName);
         
         label.setOnMouseClicked(e -> {
-            showControl();
-            controller.selectField(combinedField);
+            if (!MouseButton.SECONDARY.equals(e.getButton())) {
+                showControl();
+                controller.selectField(combinedField);
+            }
         });
+
+        label.setContextMenu(getContextMenu());
+
         return label;
     }
 
