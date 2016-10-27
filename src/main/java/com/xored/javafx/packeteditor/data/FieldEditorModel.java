@@ -234,12 +234,19 @@ public class FieldEditorModel {
         }
 
         PacketData newPkt;
-        if (isBinaryMode()) {
-            newPkt = packetDataService.reconstructPacketField(packet, field.getProtocol().getPath(), newValue);
-        } else {
-            newPkt = packetDataService.buildPacket(userModel.buildScapyModel());
-            //newPkt = packetDataService.reconstructPacketFromBinary(newPkt.getBinaryData());
+        
+        try {
+            if (isBinaryMode()) {
+                newPkt = packetDataService.reconstructPacketField(packet, field.getProtocol().getPath(), newValue);
+            } else {
+                newPkt = packetDataService.buildPacket(userModel.buildScapyModel());
+            }
+        } catch (Exception e) {
+            logger.error("Fail to update field {} with new value: {} due to: \"{}\"", field.getId(), newValue.value, e.getMessage());
+            userModel.revertLastChanges();
+            throw e;
         }
+        
         //pkt = newPkt;
         setPktAndReload(newPkt);
     }
