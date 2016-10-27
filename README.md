@@ -46,3 +46,7 @@ handlers= java.util.logging.ConsoleHandler
 ENDL
 ```
 
+##### Remove logging library from jar
+
+    gradle -Prelease jar
+
