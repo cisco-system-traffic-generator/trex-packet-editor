@@ -445,9 +445,8 @@ public class FieldEditorView {
     }
 
     public void displayConnectionError() {
-        BorderPane errorPane = new BorderPane();
-        errorPane.setCenter(new Label("Unable to connect to Scapy server."));
-        fieldEditorPane.getChildren().add(errorPane);
+        ConnectionErrorDialog dialog = new ConnectionErrorDialog();
+        dialog.showAndWait();
     }
 
     public void showEmptyPacketContent() {

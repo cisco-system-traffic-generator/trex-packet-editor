@@ -22,6 +22,10 @@ public class Document {
 
     File currentFile;
 
+    private UserField lastModifiedField;
+    
+    private JsonElement valueBeforeModification;
+    
     public DocumentMetadata getMetadata() {
         return metadata;
     }
@@ -59,6 +63,8 @@ public class Document {
         if (field == null) {
             field = protocol.createField(fieldId);
         }
+        lastModifiedField = field;
+        valueBeforeModification = field.getValue();
         field.setValue(value);
     }
 
@@ -115,5 +121,13 @@ public class Document {
         JsonArray arr = new JsonArray();
         arr.add(json);
         return json;
+    }
+
+    public void revertLastChanges() {
+        if (lastModifiedField != null) {
+            lastModifiedField.setValue(valueBeforeModification);
+        }
+        lastModifiedField = null;
+        valueBeforeModification = null;
     }
 }
