@@ -5,10 +5,9 @@
 -fx-font-style	<font-style>	inherit
 -fx-font-weight	<font-weight>	inherit*/
 
+
 #pcapEditorTopPane * {
-    -fx-font-family: 'Courier New';
-    -fx-font-size: 14px;
-    /*-fx-smooth: false; Commented as there is a problem on Linux with "-fx-smooth: true;"*/
+    /* -fx-smooth: false; Commented as there is a problem on Linux with "-fx-smooth: *;" */
     button-background: #32b4ea;
     button-text-fill: #FFFFFF;
 }

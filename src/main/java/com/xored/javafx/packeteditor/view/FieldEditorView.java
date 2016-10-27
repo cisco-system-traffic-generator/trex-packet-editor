@@ -17,6 +17,7 @@ import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
@@ -26,6 +27,7 @@ import org.controlsfx.control.textfield.TextFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -52,6 +54,32 @@ public class FieldEditorView {
     private AutoCompletionBinding<String> protoAutoCompleter;
 
     static private int oddIndex = 0;
+
+    public static void initCss(Scene scene) {
+        scene.getStylesheets().add(ClassLoader.getSystemResource("styles/modena-packet-editor.css").toExternalForm());
+
+        // Try to set right font
+        String cssfilename = "main-font-monospace.css";
+        for (String font : javafx.scene.text.Font.getFontNames()) {
+            if (font.equals("Menlo")) {
+                cssfilename = "main-font-menlo.css";
+                break;
+            } else if (font.equals("Courier New")) {
+                cssfilename = "main-font-courier-new.css";
+                break;
+            }
+        }
+        ;
+        scene.getStylesheets().add(ClassLoader.getSystemResource("styles/" + cssfilename).toExternalForm());
+
+        if (System.getenv("DEBUG") == null) {
+            scene.getStylesheets().add(ClassLoader.getSystemResource("styles/main-narrow.css").toExternalForm());
+        } else {
+            // use css from source file to utilize JavaFX css auto-reload
+            String cssSource = "file://" + new File("src/main/resources/styles/main-narrow.css").getAbsolutePath();
+            scene.getStylesheets().add(cssSource);
+        }
+    }
 
     public void setParentPane(StackPane parentPane) {
         this.fieldEditorPane = parentPane;

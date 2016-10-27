@@ -9,6 +9,7 @@ import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.view.ConnectionErrorDialog;
+import com.xored.javafx.packeteditor.view.FieldEditorView;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -19,7 +20,6 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 
 import static com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode.EMBEDDED;
@@ -116,13 +116,7 @@ public class TRexPacketCraftingTool extends Application {
         
         Scene scene = new Scene(parent);
 
-        if (System.getenv("DEBUG") == null) {
-            scene.getStylesheets().add(ClassLoader.getSystemResource("styles/main-narrow.css").toExternalForm());
-        } else {
-            // use css from source file to utilize JavaFX css auto-reload
-            String cssSource = "file://" + new File("src/main/resources/styles/main-narrow.css").getAbsolutePath();
-            scene.getStylesheets().add(cssSource);
-        }
+        FieldEditorView.initCss(scene);
 
         stage.setScene(scene);
         stage.setTitle("Packet Crafting Tool");
