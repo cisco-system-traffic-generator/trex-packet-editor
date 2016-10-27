@@ -117,7 +117,7 @@
 }
 
 #pcapEditorTopPane .titled-pane .title {
-    -fx-background-color: #f4f4f4;
+    -fx-background-color: #e2e2e2; /* #f4f4f4; */
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-font-style: normal;
@@ -196,6 +196,31 @@
     -fx-padding: 0 0 0 40px;              /* narrowing */
     -fx-fill-height: true;
     -fx-fill-width: true;
+    -fx-pref-width: 10000px;
+}
+
+#pcapEditorTopPane .field-row-even {
+    -fx-background-color: #ffffff;
+    -fx-padding: 0 0 0 40px;              /* narrowing */
+    -fx-fill-height: true;
+    -fx-fill-width: true;
+    -fx-pref-width: 10000px;
+}
+
+#pcapEditorTopPane .field-row-odd {
+    -fx-background-color: #f6f6f6;
+    -fx-padding: 0 0 0 40px;              /* narrowing */
+    -fx-fill-height: true;
+    -fx-fill-width: true;
+    -fx-pref-width: 10000px;
+}
+
+#pcapEditorTopPane .field-row-flags {
+    -fx-background-color: #ffffff;
+    -fx-padding: 0 0 0 40px;              /* narrowing */
+    -fx-fill-height: true;
+    -fx-fill-width: true;
+    -fx-pref-width: 10000px;
 }
 
 #pcapEditorTopPane .field-row-raw {
@@ -394,11 +419,16 @@
     -fx-max-width: 15em; /*-fx-min-width;*/
 }
 
-#pcapEditorTopPane ProtocolField,
+#pcapEditorTopPane ProtocolField {
+    -fx-min-width: 4.4em;
+    -fx-pref-width: 28.8em;
+    -fx-max-width: 28.8em;
+}
+
 #pcapEditorTopPane .titled-pane .label {
     -fx-min-width: 4.4em;
-    -fx-pref-width: 28.8em; /*-fx-min-width;*/
-    -fx-max-width: 28.8em; /*-fx-min-width;*/
+    -fx-pref-width: 28.8em;
+    -fx-max-width: 28.8em;
 }
 
 #pcapEditorTopPane .titled-pane .choice-box,

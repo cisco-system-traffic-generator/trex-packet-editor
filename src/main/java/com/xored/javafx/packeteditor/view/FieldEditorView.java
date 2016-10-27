@@ -51,6 +51,8 @@ public class FieldEditorView {
 
     private AutoCompletionBinding<String> protoAutoCompleter;
 
+    static private int oddIndex = 0;
+
     public void setParentPane(StackPane parentPane) {
         this.fieldEditorPane = parentPane;
     }
@@ -60,12 +62,13 @@ public class FieldEditorView {
         TitledPane gridTitlePane = new TitledPane();
         String protocolPathId = protocol.getPath().stream().collect(Collectors.joining("-"));
         gridTitlePane.setId(protocolPathId + "-pane");
-        
+
         GridPane grid = new GridPane();
         grid.getStyleClass().add("protocolgrid");
 
         final int[] ij = {0, 0}; // col, row
 
+        oddIndex = 0;
         protocol.getFields().stream().forEach(field -> {
             FieldMetadata meta = field.getMeta();
             FieldMetadata.FieldType type = meta.getType();
@@ -307,7 +310,13 @@ public class FieldEditorView {
         FieldMetadata.FieldType type = meta.getType();
 
         HBox row = new HBox();
-        row.getStyleClass().addAll("field-row");
+
+        String even = "-even";
+        if (!BYTES.equals(type) && oddIndex % 2 != 0) {
+            even = "-odd";
+        }
+        row.getStyleClass().addAll("field-row" + even);
+        oddIndex++;
 
         BorderPane titlePane = new BorderPane();
         titlePane.setLeft(getFieldLabel(field));
@@ -368,7 +377,8 @@ public class FieldEditorView {
         titlePane.getStyleClass().add("title-pane");
 
         HBox row = new HBox();
-        row.getStyleClass().addAll("field-row");
+        row.getStyleClass().addAll("field-row-flags");
+        if (oddIndex %2 == 0) oddIndex++;
 
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.setId(getUniqueIdFor(field));
