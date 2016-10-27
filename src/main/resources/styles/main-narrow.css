@@ -116,6 +116,8 @@
 }
 
 #pcapEditorTopPane .titled-pane .title {
+    -fx-background-radius: 0px;
+    -fx-border-radius: 0px;
     -fx-background-color: #e2e2e2; /* #f4f4f4; */
     -fx-font-size: 14px;
     -fx-font-weight: bold;
