@@ -103,8 +103,11 @@ public class TRexPacketCraftingTool extends Application {
         configurationService.setApplicationMode(appMode);
         try {
             initialize();
-        } catch (Exception e) {
-            // it's possible to not have a connection to Scapy server.
+        } catch (ConnectionException e) {
+            log.error("Unable to connect to Scapy server. Critical issue. Exit application.");
+            ConnectionErrorDialog dialog = new ConnectionErrorDialog();
+            dialog.showAndWait();
+            System.exit(0);
         }
 
         AppController appController = injector.getInstance(AppController.class);
@@ -126,12 +129,6 @@ public class TRexPacketCraftingTool extends Application {
         stage.setOnCloseRequest(e -> {
             appController.terminate();
         });
-    }
-
-    private void shutdown() {
-        ConnectionErrorDialog dialog = new ConnectionErrorDialog();
-        dialog.showAndWait();
-        System.exit(0);
     }
 
     public void setInjector(Injector injector) {

@@ -11,7 +11,7 @@ public class ConnectionErrorDialog extends Alert{
 
         this.setTitle("Connection error");
         this.setHeaderText(null);
-        this.setContentText("Check network status and try again.");
+        this.setContentText("Unable to connect to Scapy sever. Check network status and try again.");
 
         ButtonType reconnectBtn = new ButtonType("OK");
 
