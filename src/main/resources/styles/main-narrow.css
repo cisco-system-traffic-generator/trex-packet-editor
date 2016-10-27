@@ -6,8 +6,8 @@
 -fx-font-weight	<font-weight>	inherit*/
 
 #pcapEditorTopPane * {
-    -fx-font-family: 'Menlo', 'Lucida Console', 'Courier', monospace;
-    -fx-font-size: 12;
+    -fx-font-family: 'Courier New';
+    -fx-font-size: 14px;
     /*-fx-smooth: false; Commented as there is a problem on Linux with "-fx-smooth: true;"*/
     button-background: #32b4ea;
     button-text-fill: #FFFFFF;
@@ -89,7 +89,6 @@
     -fx-border-style: solid;
     -fx-border-width: 0px;
     -fx-border-color: #d8d8d8;
-    -fx-font-family: PTMono;
     -fx-font-size: 14px;
     -fx-font-weight: normal;
     -fx-font-style: normal;
@@ -97,10 +96,6 @@
     -fx-color: #4b4b4b;
     -fx-fit-to-width: true;
     -fx-fit-to-height: true;
-}
-
-#pcapEditorTopPane .begroup Text {
-    -fx-font-family: monospace;
 }
 
 #pcapEditorTopPane .protocolgrid {
@@ -279,7 +274,6 @@
 
 #pcapEditorTopPane .field-label-info {
     -fx-pref-width: 150px;
-    -fx-font-family: Monospaced;
 }
 
 #pcapEditorTopPane .field-label-name {
@@ -365,7 +359,6 @@
 }
 
 #pcapEditorTopPane .payloadeditorlabel {
-    -fx-font-family: inherit;
     -fx-pref-height: 200px;
     -fx-min-height: 200px;
     -fx-pref-width: 300px;
