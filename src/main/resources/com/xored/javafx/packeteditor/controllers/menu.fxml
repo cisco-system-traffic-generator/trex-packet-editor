@@ -9,7 +9,7 @@
          <menus>
             <Menu mnemonicParsing="false" text="File" fx:id="fileMenu">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#handleNewDocument" text="New Document" accelerator="Shortcut+N"/>
+                  <MenuItem mnemonicParsing="false" onAction="#handleNewDocument" text="New" accelerator="Shortcut+N"/>
                   <Menu fx:id="newTemplateMenu" mnemonicParsing="false" text="New Template" accelerator="Shortcut+T"/>
                   <MenuItem mnemonicParsing="false" onAction="#handleOpenAction" text="Open file" accelerator="Shortcut+O"/>
                   <MenuItem mnemonicParsing="false" onAction="#handleSaveAction" text="Save file" accelerator="Shortcut+S"/>
@@ -24,8 +24,8 @@
             </Menu>
             <Menu mnemonicParsing="false" text="Action">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#handleDeleteProtocolAction" text="Delete" accelerator="Shortcut+D"/>
-                  <MenuItem mnemonicParsing="false" onAction="#handleRecalculateValues" text="Recalculate auto-values" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleDeleteProtocolAction" text="Delete layer" accelerator="Shortcut+D"/>
+                  <MenuItem mnemonicParsing="false" visible="false" onAction="#handleRecalculateValues" text="Recalculate auto-values" />
                </items>
             </Menu>
             <Menu fx:id="debugMenu" mnemonicParsing="false" text="Debug" visible="false">

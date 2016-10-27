@@ -259,7 +259,7 @@ public class TestPacketEditorUIBase extends ApplicationTest {
 
     void newDocument() {
         clickOn("File");
-        clickOn("New Document");
+        clickOn("New");
         //push(SHORTCUT, KeyCode.N);
     }
 
