@@ -191,6 +191,14 @@ public class FieldEditorModel {
         setNewUserModel(newUserModel);
     }
 
+    public void removeLayer(UserProtocol protocol) {
+        int idx = userModel.getProtocolStack().indexOf(protocol);
+        if (idx > 0 && !isBinaryMode()) { // can't remove 1st layer
+            beforeContentReplace();
+            userModel.getProtocolStack().remove(idx);
+            setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+        }
+    }
     private void importUserModelFromScapy(PacketData packet) {
         userModel.clear();
 

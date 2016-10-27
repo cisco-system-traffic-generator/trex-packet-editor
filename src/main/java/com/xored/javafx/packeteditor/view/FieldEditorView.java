@@ -151,6 +151,15 @@ public class FieldEditorView {
             gridTitlePane.expandedProperty().addListener(val->
                     userProtocol.setCollapsed(!gridTitlePane.isExpanded())
             );
+
+            ContextMenu layerCtxMenu = new ContextMenu();
+            MenuItem menuDeleteLayer = new MenuItem();
+            menuDeleteLayer.setText("Delete layer");
+            menuDeleteLayer.setOnAction(e -> {
+                controller.getModel().removeLayer(userProtocol);
+            });
+            layerCtxMenu.getItems().add(menuDeleteLayer);
+            gridTitlePane.setContextMenu(layerCtxMenu);
         }
 
         return gridTitlePane;
