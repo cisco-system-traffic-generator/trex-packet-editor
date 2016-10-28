@@ -134,7 +134,7 @@ public class FieldEditorModel {
         if (isBinaryMode()) {
             setPktAndReload(packetDataService.removeLastProtocol(packet));
         } else {
-            if (!userModel.getProtocolStack().isEmpty()) {
+            if (userModel.getProtocolStack().size() > 1) {
                 userModel.getProtocolStack().pop();
                 setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
             }
