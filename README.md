@@ -2,6 +2,8 @@
 
 Network packed editor GUI for TRex.
 
+![](https://raw.githubusercontent.com/kisel/trex-packet-editor-gui/master/docs/trex-packet-editor-main-dlg.png)
+
 ### Quickstart
     # Run scapy server
     ./scripts/run_scapy_server &
