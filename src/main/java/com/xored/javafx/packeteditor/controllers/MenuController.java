@@ -39,8 +39,8 @@ public class MenuController implements Initializable {
     @FXML
     Menu debugMenu;
 
-    @FXML
-    Button exitBtn;
+//    @FXML
+//    Button exitBtn;
 
     @FXML
     Button binaryModeOnBtn;
@@ -63,7 +63,7 @@ public class MenuController implements Initializable {
             newTemplateMenu.getItems().add(menuItem);
         });
 
-        exitBtn.setVisible(true);
+//        exitBtn.setVisible(true);
         if (System.getenv("DEBUG") != null) {
             debugMenu.setVisible(true);
             binaryModeOnBtn.setVisible(true);
