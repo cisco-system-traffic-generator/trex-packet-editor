@@ -88,6 +88,7 @@ public class FieldEditorModel {
     public void addProtocol(ProtocolMetadata meta) {
         if (meta != null) {
             try{
+                beforeContentReplace();
                 userModel.addProtocol(meta);
                 if (isBinaryMode()) {
                     setPktAndReload(packetDataService.appendProtocol(packet, meta.getId()));
@@ -95,6 +96,7 @@ public class FieldEditorModel {
                     setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
                 }
             } catch(Exception e) {
+                undo();
                 logger.error("Unable to add protocol due to: {}", e);
                 userModel.getProtocolStack().pop();
                 throw e;
@@ -322,10 +324,10 @@ public class FieldEditorModel {
     }
 
     public void newPacket() {
-        clearHistory();
         userModel.clear();
         packet = new PacketData();
         addProtocol("Ether");
+        clearHistory();
     }
 
     public File getCurrentFile() {
