@@ -3,6 +3,7 @@ package com.xored.javafx.packeteditor;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.xored.javafx.packeteditor.controllers.AppController;
+import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.guice.GuiceModule;
 import com.xored.javafx.packeteditor.scapy.ConnectionException;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
@@ -20,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import static com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode.EMBEDDED;
 import static com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode.STANDALONE;
 
 public class TRexPacketCraftingTool extends Application {
@@ -73,34 +73,11 @@ public class TRexPacketCraftingTool extends Application {
     }
     
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage stage) throws Exception {
         injector = Guice.createInjector(new GuiceModule());
-        doStart(primaryStage, true, null, null);
-    }
-    
-    public void startAsEmbedded(Stage stage, String ip, String port) throws Exception {
-        doStart(stage, false, ip, port);
-    }
-    
-    public ConfigurationService getConfigurationService() {
-        return injector.getInstance(ConfigurationService.class);
-    }
-    
-    private void doStart(Stage stage, boolean isStandalone, String ip, String port) throws Exception{
         ConfigurationService configurationService = getConfigurationService();
 
-        if (ip != null && port != null) {
-            configurationService.setConnectionPort(port);
-            configurationService.setConnectionIP(ip);
-        }
-
-        ConfigurationService.ApplicationMode appMode;
-        if (isStandalone) {
-            appMode = STANDALONE;
-        } else {
-            appMode = EMBEDDED;
-        }
-        configurationService.setApplicationMode(appMode);
+        configurationService.setApplicationMode(STANDALONE);
         try {
             initialize();
         } catch (ConnectionException e) {
@@ -112,9 +89,11 @@ public class TRexPacketCraftingTool extends Application {
 
         AppController appController = injector.getInstance(AppController.class);
         appController.setMainStage(stage);
-        
+
         Scene scene = new Scene(parent);
 
+        injector.getInstance(FieldEditorController.class).initAcceleratorsHandler(scene);
+        
         FieldEditorView.initCss(scene);
 
         stage.setScene(scene);
@@ -123,6 +102,14 @@ public class TRexPacketCraftingTool extends Application {
         stage.setOnCloseRequest(e -> {
             appController.terminate();
         });
+    }
+    
+    public ConfigurationService getConfigurationService() {
+        return injector.getInstance(ConfigurationService.class);
+    }
+    
+    private void doStart(Stage stage, boolean isStandalone, String ip, String port) throws Exception{
+        
     }
 
     public void setInjector(Injector injector) {

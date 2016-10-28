@@ -13,7 +13,7 @@ public class ConfigurationService {
 
     private String connectionPort;
     
-    private ApplicationMode applicationMode;
+    private ApplicationMode applicationMode = ApplicationMode.EMBEDDED;
 
     public boolean isStandaloneMode() {
         return ApplicationMode.STANDALONE.equals(applicationMode);

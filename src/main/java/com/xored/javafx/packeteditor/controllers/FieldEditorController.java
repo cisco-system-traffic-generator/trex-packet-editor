@@ -19,12 +19,17 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -59,12 +64,22 @@ public class FieldEditorController implements Initializable {
 
     @Inject
     ConfigurationService configurationService;
+
+    @Inject
+    AppController appController;
     
     FileChooser fileChooser = new FileChooser();
 
     @Inject
     @Named("resources")
     private ResourceBundle resourceBundle;
+    
+    final KeyCombination SHORTCUT_N = new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN);
+    final KeyCombination SHORTCUT_O = new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN);
+    final KeyCombination SHORTCUT_S = new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN);
+    final KeyCombination SHORTCUT_Z = new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN);
+    final KeyCombination SHORTCUT_R = new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN);
+    final KeyCombination SHORTCUT_D = new KeyCodeCombination(KeyCode.D, KeyCombination.SHORTCUT_DOWN);
     
     public IMetadataService getMetadataService() {
         return metadataService;
@@ -84,6 +99,46 @@ public class FieldEditorController implements Initializable {
         }
     }
 
+    public void initAcceleratorsHandler(Scene scene) {
+        scene.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+            if (SHORTCUT_N.match(event)) {
+                // TODO: add check for unsaved changes.
+                newPacket();
+                event.consume();
+            }
+        });
+        scene.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+            if (SHORTCUT_O.match(event)) {
+                showLoadDialog();
+                event.consume();
+            }
+        });
+        scene.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+            if (SHORTCUT_S.match(event)) {
+                showSaveDialog();
+                event.consume();
+            }
+        });
+        scene.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+            if (SHORTCUT_Z.match(event)) {
+                model.undo();
+                event.consume();
+            }
+        });
+        scene.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+            if (SHORTCUT_R.match(event)) {
+                model.redo();
+                event.consume();
+            }
+        });
+        scene.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+            if (SHORTCUT_D.match(event)) {
+                model.removeLast();
+                event.consume();
+            }
+        });
+    }
+    
     public void showConnectionErrorDialog() {
         ConnectionErrorDialog dialog = new ConnectionErrorDialog();
         dialog.showAndWait();

@@ -9,17 +9,12 @@ import com.xored.javafx.packeteditor.metatdata.PacketTemplate;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
-import java.util.Optional;
 import java.util.ResourceBundle;
-
-import static com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode.EMBEDDED;
 
 public class MenuController implements Initializable {
 
@@ -44,6 +39,15 @@ public class MenuController implements Initializable {
     @FXML
     Menu debugMenu;
 
+    @FXML
+    Button exitBtn;
+
+    @FXML
+    Button binaryModeOnBtn;
+
+    @FXML
+    Button abstractModeOnBtn;
+
     @Inject
     @Named("resources")
     ResourceBundle resourceBundle;
@@ -55,20 +59,15 @@ public class MenuController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         PacketTemplate.loadTemplates().forEach(templateFile -> {
             MenuItem menuItem = new MenuItem(templateFile.metadata.caption);
-            menuItem.setOnAction(event -> {
-                controller.getModel().loadTemplate(templateFile);
-            });
+            menuItem.setOnAction(event -> controller.getModel().loadTemplate(templateFile));
             newTemplateMenu.getItems().add(menuItem);
         });
 
-        if(EMBEDDED.equals(appController.getApplicationMode())) {
-            Optional<MenuItem> optional = fileMenu.getItems().stream().filter(menuItem -> EXIT_MENU_ITEM.equals(menuItem.getId())).findFirst();
-            if (optional.isPresent()) {
-                optional.get().setVisible(false);
-            }
-        }
+        exitBtn.setVisible(true);
         if (System.getenv("DEBUG") != null) {
             debugMenu.setVisible(true);
+            binaryModeOnBtn.setVisible(true);
+            abstractModeOnBtn.setVisible(true);
         }
     }
 

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.Image?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="com.xored.javafx.packeteditor.controllers.MenuController">
    <children>
       <MenuBar fx:id="applicationMenu">
@@ -38,5 +39,69 @@
             </Menu>
          </menus>
       </MenuBar>
+      <ToolBar>
+         <items>
+            <Button onAction="#handleNewDocument" >
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0">
+                     <Image url="/icons/new.png" />
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button onAction="#handleOpenAction" >
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0">
+                     <Image url="/icons/load.png" />
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button onAction="#handleSaveAction" >
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0">
+                     <Image url="/icons/save.png" />
+                  </ImageView>
+               </graphic>
+            </Button>
+            <!--<MenuButton fx:id="newTemplateMenuButton">-->
+               <!--<graphic>-->
+                  <!--<ImageView fitHeight="20.0" fitWidth="20.0">-->
+                     <!--<Image url="/icons/import.png" />-->
+                  <!--</ImageView>-->
+               <!--</graphic>-->
+            <!--</MenuButton>-->
+            <Button onAction="#handleUndo" >
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0">
+                     <Image url="/icons/undo.png" />
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button onAction="#handleRedo" >
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0">
+                     <Image url="/icons/redo.png" />
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Separator />
+            <Button onAction="#handleDeleteProtocolAction" >
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0">
+                     <Image url="/icons/delete_layer.png" />
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="exitBtn" onAction="#handleCloseAction" visible="false">
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0">
+                     <Image url="/icons/exit.png" />
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="binaryModeOnBtn" text="Switch to binary mode" onAction="#handleModeBinary" visible="false" />
+            <Button fx:id="abstractModeOnBtn" text="Switch to abstract mode" onAction="#handleModeAbstract" visible="false" />
+            
+         </items>
+      </ToolBar>
    </children>
 </VBox>
