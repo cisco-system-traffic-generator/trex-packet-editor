@@ -226,9 +226,13 @@ public class FieldEditorView {
         Consumer<Object> onAppendLayer = (o) -> {
             Object sel = cb.getSelectionModel().getSelectedItem();
             try {
+                if (sel==null) {
+                    sel = cb.getEditor().getText();
+                }
                 if (sel instanceof ProtocolMetadata) {
                     controller.getModel().addProtocol((ProtocolMetadata)sel);
-                } else if (sel instanceof String) {
+                }
+                else if (sel instanceof String) {
                     String selText = (String)sel;
                     ProtocolMetadata meta = protocols.stream().filter(
                             m -> m.getId().equals(selText) || m.getName().equals(selText)
