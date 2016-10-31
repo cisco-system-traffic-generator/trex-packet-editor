@@ -80,6 +80,7 @@
                   </ImageView>
                </graphic>
             </Button>
+            <Separator />
             <Button focusTraversable="false" onAction="#handleExpandAll">
                <tooltip>
                   <Tooltip text="Expand all" />
