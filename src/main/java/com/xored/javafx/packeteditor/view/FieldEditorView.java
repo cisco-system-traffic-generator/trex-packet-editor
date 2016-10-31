@@ -69,6 +69,16 @@ public class FieldEditorView {
     // Current selected field
     static private HBox selected_row = null;
 
+    static void setSelectedRow(HBox row) {
+        if (selected_row != row) {
+            if (selected_row != null) {
+                selected_row.setStyle("-fx-background-color: -trex-field-row-background;");
+            }
+            selected_row = row;
+            selected_row.setStyle("-fx-background-color: -trex-field-row-background-selected;");
+        }
+    }
+
     public static void initCss(Scene scene) {
         scene.getStylesheets().add(ClassLoader.getSystemResource("styles/modena-packet-editor.css").toExternalForm());
 
@@ -379,15 +389,7 @@ public class FieldEditorView {
         FieldMetadata.FieldType type = meta.getType();
 
         HBox row = new HBox();
-        row.setOnMouseClicked(e -> {
-            if (selected_row!=row) {
-                if (selected_row != null) {
-                    selected_row.setStyle("-fx-background-color: -trex-field-row-background;");
-                }
-                selected_row = row;
-                selected_row.setStyle("-fx-background-color: -trex-field-row-background-selected;");
-            }
-        });
+        row.setOnMouseClicked(e -> setSelectedRow(row));
 
         String even = "-even";
         if (!BYTES.equals(type) && oddIndex % 2 != 0) {
@@ -407,28 +409,33 @@ public class FieldEditorView {
         valuePane.setCenter(fieldControl);
         row.getChildren().addAll(titlePane, valuePane);
         rows.add(row);
+
         if(BITMASK.equals(type)) {
-            field.getMeta().getBits().stream().forEach(bitFlagMetadata -> rows.add(this.createBitFlagRow(field, bitFlagMetadata)));
+            field.getMeta().getBits().stream().forEach(bitFlagMetadata -> {
+                rows.add(this.createBitFlagRow(field, bitFlagMetadata));
+            });
         }
         // TODO: remove this crutch :)
         if(TCP_OPTIONS.equals(type) && field.getScapyFieldData() != null) {
-            TCPOptionsData.fromFieldData(field.getScapyFieldData()).stream().forEach(fd ->
-                            rows.add(createTCPOptionRow(fd))
-            );
+            TCPOptionsData.fromFieldData(field.getScapyFieldData()).stream().forEach(fd -> {
+                rows.add(createTCPOptionRow(field, fd));
+            });
         }
 
         return rows;
     }
 
 
-    private Node createTCPOptionRow(TCPOptionsData tcpOption) {
+    private Node createTCPOptionRow(CombinedField field, TCPOptionsData tcpOption) {
         // TODO: reuse code
         BorderPane titlePane = new BorderPane();
         titlePane.setLeft(buildIndentedFieldLabel("", tcpOption.getName()));
         titlePane.getStyleClass().add("title-pane");
-        HBox row = new HBox();
-        row.getStyleClass().addAll("field-row");
+        titlePane.setOnMouseClicked(e -> controller.selectField(field));
 
+        HBox row = new HBox();
+        row.setOnMouseClicked(e -> setSelectedRow(row));
+        row.getStyleClass().addAll("field-row");
 
         BorderPane valuePane = new BorderPane();
         Text valueCtrl = new Text();
@@ -453,8 +460,10 @@ public class FieldEditorView {
 
         titlePane.setLeft(buildIndentedFieldLabel(maskToString(flagMask), flagName, true));
         titlePane.getStyleClass().add("title-pane");
+        titlePane.setOnMouseClicked(e -> controller.selectField(field));
 
         HBox row = new HBox();
+        row.setOnMouseClicked(e -> setSelectedRow(row));
         row.getStyleClass().addAll("field-row-flags");
         if (oddIndex %2 == 0) oddIndex++;
 
