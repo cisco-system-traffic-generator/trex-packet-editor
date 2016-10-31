@@ -73,7 +73,7 @@
     -fx-border-insets: 0px;
     -fx-border-style: solid;
     -fx-border-width: 0px;
-    -fx-padding: 0px;
+    -fx-padding: 0px 0px 0px 2.99px; /* 2.99px is for equal alignments for binary data and fields */
     -fx-alignment: center;
     -fx-fit-to-width: true;
     -fx-fit-to-height: true;
@@ -95,6 +95,8 @@
     -fx-color: #4b4b4b;
     -fx-fit-to-width: true;
     -fx-fit-to-height: true;
+    -fx-alignment: center-left;
+    -fx-padding: 0 0 0 40;
 }
 
 #pcapEditorTopPane .protocolgrid {
@@ -175,7 +177,7 @@
     -fx-border-style: solid;
     -fx-border-width: 0px;
     -fx-padding: 0 0 0 0;
-    -fx-alignment: center;
+    /*-fx-alignment: center;*/
 }
 
 #pcapEditorTopPane .binary-field {

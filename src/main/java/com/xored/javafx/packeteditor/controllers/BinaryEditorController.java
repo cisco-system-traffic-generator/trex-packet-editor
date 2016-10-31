@@ -49,13 +49,16 @@ public class BinaryEditorController implements Initializable, Observer {
     final int maxByteRows = 64; // higher values may require display optimizations
 
     final double yPadding = 0;
-    final double xOffset = 10;
+    final double xPadding = 0;      // Global padding
+    final double xBytePadding = 50; // Padding for bytes column
+    final double xHexPadding = 55;  // Padding for hex column (latest column)
+    final double xOffset = 0;
     final double yOffset = 20;
-    final double numLineLength = 45;
+    final double numLineLength = 36.12 * 2; // Length of bytes number column
     final double byteLength = 15;
     final double byteLengthHex = 7.224375;  // 9.6325 for font-size=16; 7.224375 for font-size=12
-    final double bytePad = 5;
-    final double byteWordPad = 15;
+    final double byteGap = 5;      // Gap between bytes inside series
+    final double byteWordGap = 25; // Gap between 4-bytes series
 
     int idxEditing = -1;
     int editingStep = 0;
@@ -114,14 +117,14 @@ public class BinaryEditorController implements Initializable, Observer {
         beGroup.getChildren().add(editingRect);
         for (int i = 0; i < h; i++) {
             texts[i] = new Text[w];
-            lineNums[i] = new Text(String.format("%04x", i * w) + ':');
+            lineNums[i] = new Text(String.format("%04x-%04x", i * w, (i + 1) * w - 1) + ':');
             lineHex[i] = new Text(convertHexToString(binaryData.getBytes(i * w, Math.min(w, displayedBytesLen - i * w))));
 
-            lineNums[i].setTranslateX(xOffset);
+            lineNums[i].setTranslateX(xOffset + xPadding);
             lineNums[i].setTranslateY(yOffset * (i+1) + yPadding);
             lineNums[i].setFont(Font.font("monospace"));
 
-            lineHex[i].setTranslateX(numLineLength + xOffset + w * byteLength + w * bytePad + (w/4 - 1) * byteWordPad + xOffset);
+            lineHex[i].setTranslateX(numLineLength + xBytePadding + xOffset + w * byteLength + w * byteGap + (w/4 - 1) * byteWordGap + xOffset + xPadding + xHexPadding);
             lineHex[i].setTranslateY(yOffset * (i+1) + yPadding);
             lineHex[i].setFont(Font.font("monospace"));
 
@@ -138,7 +141,7 @@ public class BinaryEditorController implements Initializable, Observer {
                 text.setText(hexByte);
 
 
-                text.setTranslateX(numLineLength + xOffset + j * bytePad + (j/4) * byteWordPad + byteLength * j);
+                text.setTranslateX(numLineLength + xBytePadding + xOffset + j * byteGap + (j/4) * byteWordGap + byteLength * j + xPadding);
                 text.setTranslateY(yOffset * (i+1) + yPadding);
                 text.setTranslateZ(100);
 
@@ -350,10 +353,10 @@ public class BinaryEditorController implements Initializable, Observer {
         int ty = getByteCellRow(idx);
         int tx = getByteCellColumn(idx);
 
-        double x = getByteCellX(tx) - bytePad/2;
+        double x = getByteCellX(tx) - byteGap /2;
 
         editingRect.setTranslateX(x);
-        editingRect.setWidth(byteLength + bytePad);
+        editingRect.setWidth(byteLength + byteGap);
         editingRect.setHeight(yOffset);
         editingRect.setTranslateY(ty * yOffset + 5 + yPadding);
         editingRect.setTranslateZ(0);
@@ -372,7 +375,7 @@ public class BinaryEditorController implements Initializable, Observer {
 
     private double getByteCellX(int idx) {
         int xi = getByteCellColumn(idx);
-        return numLineLength + xOffset + xi * bytePad + (xi/4) * byteWordPad + byteLength * xi;
+        return numLineLength + xBytePadding + xOffset + xi * byteGap + (xi/4) * byteWordGap + byteLength * xi + xPadding;
     }
 
     private boolean isEditingAllowed() {
