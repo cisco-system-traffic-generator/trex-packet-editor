@@ -276,6 +276,10 @@
     -fx-underline: false;
 }
 
+#pcapEditorTopPane .text {
+    -fx-font-smoothing-type: gray; /*lcd;*/
+}
+
 #pcapEditorTopPane .text-area {
     -fx-pref-width: 360px;
     -fx-pref-height: 200px;
