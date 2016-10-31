@@ -63,7 +63,11 @@ public class FieldEditorView {
 
     private List<TitledPane> protocolTitledPanes = new ArrayList<>();
 
+    // For even/odd background, this is NOT any real field index
     static private int oddIndex = 0;
+
+    // Current selected field
+    static private HBox selected_row = null;
 
     public static void initCss(Scene scene) {
         scene.getStylesheets().add(ClassLoader.getSystemResource("styles/modena-packet-editor.css").toExternalForm());
@@ -375,6 +379,15 @@ public class FieldEditorView {
         FieldMetadata.FieldType type = meta.getType();
 
         HBox row = new HBox();
+        row.setOnMouseClicked(e -> {
+            if (selected_row!=row) {
+                if (selected_row != null) {
+                    selected_row.setStyle("-fx-background-color: -trex-field-row-background;");
+                }
+                selected_row = row;
+                selected_row.setStyle("-fx-background-color: -trex-field-row-background-selected;");
+            }
+        });
 
         String even = "-even";
         if (!BYTES.equals(type) && oddIndex % 2 != 0) {
