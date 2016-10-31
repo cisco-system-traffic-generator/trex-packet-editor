@@ -37,11 +37,11 @@
 }
 
 #pcapEditorTopPane #fieldEditorTopPane {
-    -fx-background-color: #f4f4f4; //#ececec;
+    -fx-background-color: #f4f4f4; /*#ececec;*/
 }
 
 #pcapEditorTopPane .fieldeditorscrollpane {
-    -fx-background-color: #f4f4f4; //#ececec;
+    -fx-background-color: #f4f4f4; /*#ececec;*/
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
     -fx-border-insets: 0px;
@@ -63,13 +63,13 @@
     -fx-border-style: solid;
     -fx-border-width: 1px;
     -fx-padding: 0 0 0 0;
-    -fx-background-color: #f4f4f4; //#ececec;
+    -fx-background-color: #f4f4f4; /*#ececec;*/
     -fx-min-height: 8.88em;
     -fx-pref-height: -fx-min-height;
 }
 
 #pcapEditorTopPane .begroupscrollpane {
-    -fx-background-color: #f4f4f4; //#ececec;
+    -fx-background-color: #f4f4f4; /*#ececec;*/
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
     -fx-border-insets: 0px;
@@ -98,7 +98,7 @@
     -fx-fit-to-width: true;
     -fx-fit-to-height: true;
     -fx-alignment: center-left;
-    -fx-padding: 0 0 0 40;
+    -fx-padding: 0 0 0 0; /*0 0 0 40;*/
 }
 
 #pcapEditorTopPane .protocolgrid {
