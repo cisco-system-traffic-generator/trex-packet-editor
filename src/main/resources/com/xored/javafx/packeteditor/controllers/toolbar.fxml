@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.Image?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="com.xored.javafx.packeteditor.controllers.MenuController">
+   <children>
+      <ToolBar>
+         <items>
+            <Button focusTraversable="false" onAction="#handleNewDocument" >
+               <tooltip>
+                  <Tooltip text="New" />
+               </tooltip>
+               <graphic>
+                  <ImageView fitHeight="16.0" fitWidth="16.0">
+                     <Image url="/icons/new.png" />
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button focusTraversable="false" onAction="#handleOpenAction" >
+               <tooltip>
+                  <Tooltip text="Open" />
+               </tooltip>
+               <graphic>
+                  <ImageView fitHeight="16.0" fitWidth="16.0">
+                     <Image url="/icons/open.png" />
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button focusTraversable="false" onAction="#handleSaveAction" >
+               <tooltip>
+                  <Tooltip text="Save" />
+               </tooltip>
+               <graphic>
+                  <ImageView fitHeight="16.0" fitWidth="16.0">
+                     <Image url="/icons/save.png" />
+                  </ImageView>
+               </graphic>
+            </Button>
+            <MenuButton focusTraversable="false" fx:id="newTemplateMenuButton">
+               <tooltip>
+                  <Tooltip text="Load from template" />
+               </tooltip>
+               <graphic>
+                  <ImageView fitHeight="16.0" fitWidth="16.0">
+                     <Image url="/icons/template.png" />
+                  </ImageView>
+               </graphic>
+            </MenuButton>
+            <Separator />
+            <Button focusTraversable="false" onAction="#handleUndo" >
+               <tooltip>
+                  <Tooltip text="Undo" />
+               </tooltip>
+               <graphic>
+                  <ImageView fitHeight="16.0" fitWidth="16.0">
+                     <Image url="/icons/undo.png" />
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button focusTraversable="false" onAction="#handleRedo" >
+               <tooltip>
+                  <Tooltip text="Redo" />
+               </tooltip>
+               <graphic>
+                  <ImageView fitHeight="16.0" fitWidth="16.0">
+                     <Image url="/icons/redo.png" />
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Separator />
+            <Button focusTraversable="false" onAction="#handleDeleteProtocolAction">
+               <tooltip>
+                  <Tooltip text="Delete last layer" />
+               </tooltip>
+               <graphic>
+                  <ImageView fitHeight="16.0" fitWidth="16.0">
+                     <Image url="/icons/delete.png" />
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="binaryModeOnBtn" text="Switch to binary mode" onAction="#handleModeBinary" visible="false" />
+            <Button fx:id="abstractModeOnBtn" text="Switch to abstract mode" onAction="#handleModeAbstract" visible="false" />
+         </items>
+      </ToolBar>
+   </children>
+</VBox>

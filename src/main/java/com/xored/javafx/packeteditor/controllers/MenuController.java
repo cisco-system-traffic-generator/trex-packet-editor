@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode.STANDALONE;
+
 public class MenuController implements Initializable {
 
     public static final String EXIT_MENU_ITEM = "exit";
@@ -58,7 +60,9 @@ public class MenuController implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        addTemplates(newTemplateMenu.getItems());
+        if (STANDALONE.equals(appController.getApplicationMode())) {
+            addTemplates(newTemplateMenu.getItems());
+        }
         addTemplates(newTemplateMenuButton.getItems());
 
         if (System.getenv("DEBUG") != null) {

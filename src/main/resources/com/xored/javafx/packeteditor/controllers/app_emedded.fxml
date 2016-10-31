@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            prefHeight="650.0"
+            prefWidth="880"
+            fx:controller="com.xored.javafx.packeteditor.controllers.AppController"
+            fx:id="pcapEditorTopPane">
+    <top>
+        <fx:include source="toolbar.fxml"/>
+    </top>
+    <center>
+        <fx:include source="PacketEditor.fxml"/>
+    </center>
+    <left>
+    </left>
+</BorderPane>

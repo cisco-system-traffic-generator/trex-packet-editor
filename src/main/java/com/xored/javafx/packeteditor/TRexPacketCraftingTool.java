@@ -3,7 +3,6 @@ package com.xored.javafx.packeteditor;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.xored.javafx.packeteditor.controllers.AppController;
-import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.guice.GuiceModule;
 import com.xored.javafx.packeteditor.scapy.ConnectionException;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
@@ -91,8 +90,6 @@ public class TRexPacketCraftingTool extends Application {
         appController.setMainStage(stage);
 
         Scene scene = new Scene(parent);
-
-        injector.getInstance(FieldEditorController.class).initAcceleratorsHandler(scene);
         
         FieldEditorView.initCss(scene);
 
