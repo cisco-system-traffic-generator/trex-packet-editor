@@ -113,6 +113,26 @@
                   </ImageView>
                </graphic>
             </Button>
+             <Button focusTraversable="false" onAction="#handleExpandAll">
+                 <tooltip>
+                     <Tooltip text="Expand all" />
+                 </tooltip>
+                 <graphic>
+                     <ImageView fitHeight="16.0" fitWidth="16.0">
+                         <Image url="/icons/expand.png" />
+                     </ImageView>
+                 </graphic>
+             </Button>
+             <Button focusTraversable="false" onAction="#handleCollapseAll">
+                 <tooltip>
+                     <Tooltip text="Collapse all" />
+                 </tooltip>
+                 <graphic>
+                     <ImageView fitHeight="16.0" fitWidth="16.0">
+                         <Image url="/icons/collapse.png" />
+                     </ImageView>
+                 </graphic>
+             </Button>
             <Button fx:id="binaryModeOnBtn" text="Switch to binary mode" onAction="#handleModeBinary" visible="false" />
             <Button fx:id="abstractModeOnBtn" text="Switch to abstract mode" onAction="#handleModeAbstract" visible="false" />
          </items>
