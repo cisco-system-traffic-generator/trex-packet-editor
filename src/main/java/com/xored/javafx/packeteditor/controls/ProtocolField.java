@@ -321,12 +321,8 @@ public class ProtocolField extends FlowPane {
         tf.focusedProperty().addListener((observable, oldValue, newValue) -> {
             // On lost focus
             if (!newValue) {
-                if(textChanged) {
-                    if (isValid()) {
-                        commitChanges(tf);
-                    } else {
-                        tf.requestFocus();
-                    }
+                if(textChanged && isValid()) {
+                    commitChanges(tf);
                 } else {
                     showLabel();
                 }
