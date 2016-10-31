@@ -65,9 +65,6 @@ public class FieldEditorController implements Initializable {
     @Inject
     ConfigurationService configurationService;
 
-    @Inject
-    AppController appController;
-    
     FileChooser fileChooser = new FileChooser();
 
     @Inject

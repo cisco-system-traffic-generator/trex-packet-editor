@@ -6,6 +6,7 @@ import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.events.ProtocolExpandCollapseEvent;
 import com.xored.javafx.packeteditor.metatdata.PacketTemplate;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -35,12 +36,12 @@ public class MenuController implements Initializable {
     
     @FXML
     Menu newTemplateMenu;
+    
+    @FXML
+    MenuButton newTemplateMenuButton;
 
     @FXML
     Menu debugMenu;
-
-//    @FXML
-//    Button exitBtn;
 
     @FXML
     Button binaryModeOnBtn;
@@ -57,18 +58,22 @@ public class MenuController implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        PacketTemplate.loadTemplates().forEach(templateFile -> {
-            MenuItem menuItem = new MenuItem(templateFile.metadata.caption);
-            menuItem.setOnAction(event -> controller.getModel().loadTemplate(templateFile));
-            newTemplateMenu.getItems().add(menuItem);
-        });
+        addTemplates(newTemplateMenu.getItems());
+        addTemplates(newTemplateMenuButton.getItems());
 
-//        exitBtn.setVisible(true);
         if (System.getenv("DEBUG") != null) {
             debugMenu.setVisible(true);
             binaryModeOnBtn.setVisible(true);
             abstractModeOnBtn.setVisible(true);
         }
+    }
+
+    private void addTemplates(ObservableList<MenuItem> menuItems) {
+        PacketTemplate.loadTemplates().forEach(templateFile -> {
+            MenuItem menuItem = new MenuItem(templateFile.metadata.caption);
+            menuItem.setOnAction(event -> controller.getModel().loadTemplate(templateFile));
+            menuItems.add(menuItem);
+        });
     }
 
     @FXML
