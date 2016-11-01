@@ -23,7 +23,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         verifyThat("#Ether-pane", (TitledPane pane) -> pane.isExpanded() == false );
 
-        addLayer("Internet Protocol Version 4");
+        addLayerIPv4();
         // Ether should remain collapsed
         verifyThat("#Ether-pane", (TitledPane pane) -> pane.isExpanded() == false );
         // But newly added layer should be expanded
@@ -146,7 +146,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
     public void should_change_ether_type_and_back() {
-        addLayer("Internet Protocol Version 4");
+        addLayerIPv4();
         setFieldText("#Ether-type", "LOOP");
         setFieldText("#Ether-IP-src", "127.0.1.2");
         verifyThat("#Ether-type", (Label t) -> t.getText().contains("LOOP")); // default value for Ether
@@ -184,7 +184,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
     public void should_build_tcpip_stack() {
-        addLayer("Internet Protocol Version 4");
+        addLayerIPv4();
         verifyThat("#Ether-IP-version", hasText("4"));
         verifyThat("#Ether-type", (Label t) -> t.getText().contains("IPv4"));
         selectProtoType("IPv4");

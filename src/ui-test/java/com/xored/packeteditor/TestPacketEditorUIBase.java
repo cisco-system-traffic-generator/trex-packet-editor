@@ -231,6 +231,10 @@ public class TestPacketEditorUIBase extends ApplicationTest {
         }
     }
 
+    void addLayerIPv4() {
+        addLayerForce("IP");
+    }
+
     void addLayer(String layerType) {
         //clickOn("Action");
         //clickOn("Add Protocol");
