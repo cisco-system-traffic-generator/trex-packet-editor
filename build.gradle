@@ -89,7 +89,7 @@ dependencies {
     compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
 
-    if (project.hasProperty('release') || !project.hasProperty('logger') ) {
+    if (project.hasProperty('release') || !project.hasProperty('packetEditorLogger') ) {
         compile group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.21'
     } else {
         compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.7'
