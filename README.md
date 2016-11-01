@@ -41,6 +41,9 @@ jar is located in **./build/libs/TRexPacketCraftingTool.jar**
 `PYTHON=python3 ./scripts/run_scapy_server -v --scapy-port 4507`
 
 ##### Enable Debug logging for packed editor UI
+enable logging in gradle by specifying -Plogger(`gradle -Plogger <your command>`)
+also you may need to create logging.properties(see sl4j, logback documentation)
+
 ```
 cat <<ENDL > logging.properties
 handlers= java.util.logging.ConsoleHandler
