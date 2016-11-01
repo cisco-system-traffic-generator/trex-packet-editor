@@ -202,11 +202,9 @@ public class FieldEditorView {
         HBox controls = new HBox(10);
         pane.setId("append-protocol-pane");
         pane.setContent(controls);
+        pane.setCollapsible(false);
 
         List<ProtocolMetadata> protocols = controller.getModel().getAvailableProtocolsToAdd(false);
-        if (protocols.isEmpty()) {
-            pane.setExpanded(false);
-        }
         ComboBox<ProtocolMetadata> cb = new ComboBox<>();
         cb.setId("append-protocol-combobox");
         cb.getStyleClass().add("protocol-type-selector");
