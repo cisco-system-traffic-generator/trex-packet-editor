@@ -133,10 +133,12 @@ public class BinaryEditorController implements Initializable, Observer {
             lineNums[i].setTranslateZ(100);
 
             Bounds b = lineNums[i].getBoundsInParent();
-            rect4lineNums.setTranslateX(Math.min(b.getMinX(), rect4lineNums.getY()));
+            rect4lineNums.setTranslateX(Math.min(b.getMinX(), rect4lineNums.getX()));
             rect4lineNums.setTranslateY(Math.min(b.getMinY(), rect4lineNums.getY()));
             rect4lineNums.setWidth(Math.max(b.getMaxX() - rect4lineNums.getX() + xPadding, rect4lineNums.getWidth()));
             rect4lineNums.setHeight(Math.max(b.getMaxY() - rect4lineNums.getY(), rect4lineNums.getHeight()));
+            rect4lineNums.setHeight(Math.max(beGroupScrollPane.getLayoutBounds().getHeight(), rect4lineNums.getHeight()));
+
 
             lineHex[i].setTranslateX(numLineLength + xBytePadding + xOffset + w * byteLength + w * byteGap + (w/4 - 1) * byteWordGap + xOffset + xPadding + xHexPadding);
             lineHex[i].setTranslateY(yOffset * (i+1) + yPadding);

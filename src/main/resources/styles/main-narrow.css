@@ -97,7 +97,7 @@
     -fx-color: #4b4b4b;
     -fx-fit-to-width: true;
     -fx-fit-to-height: true;
-    -fx-alignment: center-left;
+    -fx-alignment: top-left;
     -fx-padding: 0 0 0 0; /*0 0 0 40;*/
 }
 
