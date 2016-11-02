@@ -10,7 +10,9 @@ import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
-import com.xored.javafx.packeteditor.scapy.*;
+import com.xored.javafx.packeteditor.scapy.FieldData;
+import com.xored.javafx.packeteditor.scapy.PacketData;
+import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.service.PacketUndoController;
@@ -110,7 +112,7 @@ public class FieldEditorModel {
         Map<String, ProtocolMetadata>  protocolsMetaMap = metadataService.getProtocols();
 
         if (model.getProtocolStack().isEmpty()) {
-            return Arrays.asList(metadataService.getProtocolMetadataById("Ether"));
+            return Collections.singletonList(metadataService.getProtocolMetadataById("Ether"));
         }
 
         Set<String> suggested_extensions = metadataService.getAllowedPayloadForProtocol(model.getLastProtocolId()).stream().collect(Collectors.toSet());
@@ -120,7 +122,7 @@ public class FieldEditorModel {
                     .sorted((p1, p2) -> p1.getId().compareTo(p2.getId()))
                     .collect(Collectors.partitioningBy(m -> suggested_extensions.contains(m.getId())));
             // stable sort
-            res.addAll(suggested_proto.getOrDefault(true, Arrays.asList()));
+            res.addAll(suggested_proto.getOrDefault(true, Collections.emptyList()));
             //res.addAll(suggested_proto.getOrDefault(false, Arrays.asList()));
         } else {
             res = protocolsMetaMap.values().stream()
@@ -238,6 +240,16 @@ public class FieldEditorModel {
                 }
             });
         });
+    }
+    
+    public void setVmInstructionParameter(FEInstructionParameter instructionParameter, String value) {
+        beforeContentReplace();
+        userModel.setFEInstructionParameter(instructionParameter, value);
+
+        // TODO: rebuild_pkt with new data;
+        PacketData newPkt = packet;
+        
+        setPktAndReload(newPkt);
     }
     
     public void editField(CombinedField field, ReconstructField newValue) {

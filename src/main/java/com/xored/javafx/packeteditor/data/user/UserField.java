@@ -2,11 +2,6 @@ package com.xored.javafx.packeteditor.data.user;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import com.xored.javafx.packeteditor.scapy.PacketData;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class UserField {
     

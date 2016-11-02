@@ -1,11 +1,13 @@
 package com.xored.javafx.packeteditor.data.combined;
 
 import com.google.gson.JsonElement;
+import com.xored.javafx.packeteditor.data.FEInstructionParameter;
 import com.xored.javafx.packeteditor.data.user.UserField;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CombinedField {
     UserField userField;
@@ -57,4 +59,10 @@ public class CombinedField {
         return scapyField;
     }
 
+    public List<FEInstructionParameter> getFEInstructionParameters() {
+
+        return parent.getMeta().getInstructionParametersMeta(getId()).stream()
+                .map(parameterMeta -> new FEInstructionParameter(this, parameterMeta, parent.getUserProtocol().getFieldInstructionParam(getId(), parameterMeta.getId())))
+                .collect(Collectors.toList());
+    }
 }

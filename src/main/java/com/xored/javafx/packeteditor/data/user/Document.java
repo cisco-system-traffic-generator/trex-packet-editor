@@ -1,6 +1,12 @@
 package com.xored.javafx.packeteditor.data.user;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.xored.javafx.packeteditor.data.FEInstructionParameter;
+import com.xored.javafx.packeteditor.data.combined.CombinedField;
+import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldValue;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
@@ -68,6 +74,13 @@ public class Document {
         field.setValue(value);
     }
 
+    public void setFEInstructionParameter(FEInstructionParameter instructionParameter, String value) {
+        CombinedField field = instructionParameter.getCombinedField();
+        FEInstructionParameterMeta instructionParameterMeta = instructionParameter.getMeta();
+        UserProtocol protocol = instructionParameter.getCombinedField().getProtocol().getUserProtocol();
+        protocol.setFieldInstruction(field.getMeta().getId(), instructionParameterMeta.getId(), value);
+    }
+    
     public UserProtocol getProtocolByPath(List<String> path) {
         // TODO: check path
         return protocols.get(path.size() - 1);

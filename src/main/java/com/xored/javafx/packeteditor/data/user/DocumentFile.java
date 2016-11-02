@@ -25,6 +25,7 @@ public class DocumentFile {
         }
     }
     public static class DocumentProtocol {
+        // TODO: support vm instructions
         public String id;
         public List<DocumentField> fields;
 

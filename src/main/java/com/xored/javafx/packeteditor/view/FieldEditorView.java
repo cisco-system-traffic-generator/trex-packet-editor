@@ -5,13 +5,16 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
+import com.xored.javafx.packeteditor.controls.FEInstructionParameterField;
 import com.xored.javafx.packeteditor.controls.ProtocolField;
+import com.xored.javafx.packeteditor.data.FEInstructionParameter;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
+import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
@@ -124,12 +127,14 @@ public class FieldEditorView {
             List<Node> list;
 
             list = buildFieldRow(field);
-
+            
+            boolean hasVMInstructions = !field.getFEInstructionParameters().isEmpty();
             for (Node n : list) {
                 grid.add(n, ij[0]++, ij[1], 1, 1);
                 if (BITMASK.equals(type)
                         || TCP_OPTIONS.equals(type)
-                        || BYTES.equals(type)) {
+                        || BYTES.equals(type)
+                        || hasVMInstructions) {
                     ij[0] = 0;
                     ij[1]++;
                 }
@@ -394,6 +399,9 @@ public class FieldEditorView {
         valuePane.setCenter(fieldControl);
         row.getChildren().addAll(titlePane, valuePane);
         rows.add(row);
+        
+        field.getFEInstructionParameters().stream().forEach(feInstructionParameter -> rows.add(createFEInstructionFieldRow(feInstructionParameter)));
+        
         if(BITMASK.equals(type)) {
             field.getMeta().getBits().stream().forEach(bitFlagMetadata -> rows.add(this.createBitFlagRow(field, bitFlagMetadata)));
         }
@@ -407,6 +415,13 @@ public class FieldEditorView {
         return rows;
     }
 
+    private Node createFEInstructionFieldRow(FEInstructionParameter instructionParameter) {
+        FEInstructionParameterMeta instructionParameterMeta = instructionParameter.getMeta();
+        Node label = buildIndentedFieldLabel("field engine", instructionParameterMeta.getName(), false);
+        FEInstructionParameterField editableField = injector.getInstance(FEInstructionParameterField.class);
+        editableField.init(instructionParameter);
+        return createRow(label, editableField);
+    }
 
     private Node createTCPOptionRow(TCPOptionsData tcpOption) {
         // TODO: reuse code
@@ -434,21 +449,35 @@ public class FieldEditorView {
     }
 
     private Node createBitFlagRow(CombinedField field, BitFlagMetadata bitFlagMetadata) {
-        BorderPane titlePane = new BorderPane();
         String flagName = bitFlagMetadata.getName();
         int flagMask = bitFlagMetadata.getMask();
+        Node label = buildIndentedFieldLabel(maskToString(flagMask), flagName, true);
+        ComboBox<ComboBoxItem> combo = createBitFlagComboBox(field, bitFlagMetadata, flagName, flagMask);
+        
+        return createRow(label, combo);
+    }
 
-        titlePane.setLeft(buildIndentedFieldLabel(maskToString(flagMask), flagName, true));
+    private Node createRow(Node label, Node control) {
+        BorderPane titlePane = new BorderPane();
+        
+        titlePane.setLeft(label);
         titlePane.getStyleClass().add("title-pane");
 
         HBox row = new HBox();
         row.getStyleClass().addAll("field-row-flags");
         if (oddIndex %2 == 0) oddIndex++;
 
+        BorderPane valuePane = new BorderPane();
+        valuePane.setLeft(control);
+        row.getChildren().addAll(titlePane, valuePane);
+        return row;
+    }
+    
+    private ComboBox<ComboBoxItem> createBitFlagComboBox(CombinedField field, BitFlagMetadata bitFlagMetadata, String flagName, int flagMask) {
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.setId(getUniqueIdFor(field));
         combo.getStyleClass().setAll("control", "bitflag");
-        
+
         List<ComboBoxItem> items = bitFlagMetadata.getValues().entrySet().stream()
                 .map(entry -> new ComboBoxItem(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
@@ -466,7 +495,7 @@ public class FieldEditorView {
         }
 
         combo.setValue(defaultValue);
-        
+
         combo.setOnAction((event) -> {
             ComboBoxItem val = combo.getSelectionModel().getSelectedItem();
             int bitFlagMask = bitFlagMetadata.getMask();
@@ -475,10 +504,7 @@ public class FieldEditorView {
             String newVal = String.valueOf(current & ~(bitFlagMask) | selected);
             controller.getModel().editField(field, newVal);
         });
-        BorderPane valuePane = new BorderPane();
-        valuePane.setLeft(combo);
-        row.getChildren().addAll(titlePane, valuePane);
-        return row;
+        return combo;
     }
 
     public void displayConnectionError() {

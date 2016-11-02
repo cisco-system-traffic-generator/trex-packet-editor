@@ -3,10 +3,7 @@ package com.xored.javafx.packeteditor.data.user;
 
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -18,6 +15,8 @@ public class UserProtocol {
     private Map<String, UserField> fieldMap = new LinkedHashMap<>();
     boolean collapsed = false;
 
+    private Map<String, Map<String, String>> fieldInstructions = new HashMap<>();
+    
     public UserProtocol(ProtocolMetadata meta, List<String> path) {
         this.meta = meta;
         this.path.addAll(path);
@@ -66,5 +65,21 @@ public class UserProtocol {
         this.collapsed = collapsed;
     }
 
+    public String getFieldInstructionParam(String fieldId, String paramId) {
+        return fieldInstructions.get(fieldId) != null ? fieldInstructions.get(fieldId).get(paramId) : null;
+    }
+
+    public void setFieldInstruction(String fieldId, String parameter, String value) {
+        Map<String, String> instruction = fieldInstructions.get(fieldId);
+        if (instruction == null) {
+            instruction = new HashMap<>();
+        }
+        instruction.put(parameter, value);
+        fieldInstructions.put(fieldId, instruction);
+    }
+
+    public boolean hasFieldEngineInstructions() {
+        return !fieldInstructions.isEmpty();
+    }
 }
 

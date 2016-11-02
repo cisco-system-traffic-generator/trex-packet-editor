@@ -9,11 +9,14 @@ import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.*;
+import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.BITMASK;
+import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.ENUM;
 
 class LocalFileMetadataService {
 
@@ -97,7 +100,7 @@ class LocalFileMetadataService {
             }
             */
 
-            ProtocolMetadata protocol = new ProtocolMetadata(entry.get("id").getAsString(), entry.get("name").getAsString(), fieldsMeta);
+            ProtocolMetadata protocol = new ProtocolMetadata(entry.get("id").getAsString(), entry.get("name").getAsString(), fieldsMeta, new ArrayList<>(), new ArrayList<>());
             protocols.put(entry.get("id").getAsString(), protocol);
         });
     }

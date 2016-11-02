@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.FieldRules;
 import com.xored.javafx.packeteditor.events.ScapyClientConnectedEvent;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
+import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.*;
@@ -46,14 +47,24 @@ public class MetadataService implements IMetadataService {
     private void loadProtocolDefinitions() {
         localFileMetadataService.initialize();
         try {
+            // Stub shold be removed once scapy server started support get_instruction_parameters_defs
+            List<FEInstructionParameterMeta> feInstructionParameterMetas = scapy.get_instruction_parameters_defs().feInstructionParameters.stream()
+                    .filter(param -> param.id != null)
+                    .map(param -> new FEInstructionParameterMeta(param.type, param.id, param.name, param.defaultValue, param.dict))
+                    .collect(Collectors.toList());
+            
             scapy.get_definitions().protocols.forEach(proto -> {
                 // merge definitions with the hand-crafted file. json has priority over metadata from scapy
                 ProtocolMetadata jsonProtocol = localFileMetadataService.getProtocols().getOrDefault(proto.id, null);
-                protocols.put(proto.id, new ProtocolMetadata(
-                        proto.id,
-                        jsonProtocol != null ? jsonProtocol.getName(): proto.name,
-                        proto.fields.stream().map( field -> buildFieldMetadata(field, jsonProtocol)).collect(Collectors.toList())
-                ));
+                
+                ProtocolMetadata protocolMeta = new ProtocolMetadata(
+                    proto.id,
+                    jsonProtocol != null ? jsonProtocol.getName() : proto.name,
+                    proto.fields.stream().map(field -> buildFieldMetadata(field, jsonProtocol)).collect(Collectors.toList()),
+                    feInstructionParameterMetas,
+                    proto.fieldEngineAwareFields
+                ); 
+                protocols.put(proto.id, protocolMeta);
             });
         } catch (Exception e) {
             logger.error("failed to load protocol defs from scapy: {}", e);
@@ -105,7 +116,7 @@ public class MetadataService implements IMetadataService {
         List<FieldMetadata> fields_metadata = protocol.fields.stream().map(
                 field -> new FieldMetadata(field.id, field.id, FieldMetadata.FieldType.STRING, null, null, false)
         ).collect(Collectors.toList());
-        ProtocolMetadata protocolMetadata = new ProtocolMetadata(protocol.id, protocol.name, fields_metadata);
+        ProtocolMetadata protocolMetadata = new ProtocolMetadata(protocol.id, protocol.name, fields_metadata, new ArrayList<FEInstructionParameterMeta>(), new ArrayList<>());
         protocols.put(protocolMetadata.getId(), protocolMetadata);
         return protocolMetadata;
     }

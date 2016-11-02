@@ -66,17 +66,18 @@ public class CombinedProtocolModel {
     }
 
     private static void createFields(CombinedProtocol protocolObj) {
-        for (FieldMetadata field : protocolObj.getMeta().getFields()) {
-            CombinedField cfield = new CombinedField();
-            cfield.parent = protocolObj;
-            cfield.meta = field;
+        for (FieldMetadata fieldMeta : protocolObj.getMeta().getFields()) {
+            CombinedField field = new CombinedField();
+            
+            field.parent = protocolObj;
+            field.meta = fieldMeta;
             if (protocolObj.scapyProtocol != null) {
-                cfield.scapyField = protocolObj.scapyProtocol.getFieldById(field.getId());
+                field.scapyField = protocolObj.scapyProtocol.getFieldById(fieldMeta.getId());
             }
             if (protocolObj.userProtocol != null) {
-                cfield.userField = protocolObj.userProtocol.getField(field.getId());
+                field.userField = protocolObj.userProtocol.getField(fieldMeta.getId());
             }
-            protocolObj.fields.add(cfield);
+            protocolObj.fields.add(field);
         }
     }
 
