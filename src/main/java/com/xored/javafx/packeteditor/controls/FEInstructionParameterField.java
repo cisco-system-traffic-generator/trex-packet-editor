@@ -29,7 +29,7 @@ public class FEInstructionParameterField extends EditableField {
 
     @Override
     protected String getUniqueViewId() {
-        return view.getUniqueIdFor(feInstructionParameter.getCombinedField()) + "-" + feInstructionParameter.getMeta().getId();
+        return view.getUniqueIdFor(feInstructionParameter.getCombinedField()) + "-" + feInstructionParameter.getId();
     }
 
     @Override
@@ -57,7 +57,9 @@ public class FEInstructionParameterField extends EditableField {
     @Override
     protected void processDefaultAndSetItems(ComboBox<ComboBoxItem> combo, List<ComboBoxItem> items) {
         combo.getItems().addAll(items);
-        Optional<ComboBoxItem> defaultComboBoxItem = items.stream().filter(item -> item.getValue().getAsString().equals(feInstructionParameter.getValue())).findFirst();
+        Optional<ComboBoxItem> defaultComboBoxItem = items.stream()
+                .filter(item -> item.getValue().getAsString().equals(feInstructionParameter.getValue()))
+                .findFirst();
         if (defaultComboBoxItem.isPresent()) {
             combo.setValue(defaultComboBoxItem.get());
         }
@@ -76,10 +78,10 @@ public class FEInstructionParameterField extends EditableField {
     }
 
     private String getInstructionParamValue() {
-        String value = feInstructionParameter.getCombinedField().getProtocol().getUserProtocol().getFieldInstructionParam(feInstructionParameter.getCombinedField().getId(), feInstructionParameter.getId());
+        String value = feInstructionParameter.getValue();
 
         if (value == null) {
-            value = feInstructionParameter.getMeta().getDefaultValue();
+            value = feInstructionParameter.getDefaultValue();
         }
         return value;
     }

@@ -62,7 +62,7 @@ public class CombinedField {
     public List<FEInstructionParameter> getFEInstructionParameters() {
 
         return parent.getMeta().getInstructionParametersMeta(getId()).stream()
-                .map(parameterMeta -> new FEInstructionParameter(this, parameterMeta, parent.getUserProtocol().getFieldInstructionParam(getId(), parameterMeta.getId())))
+                .map(parameterMeta -> new FEInstructionParameter(this, parameterMeta))
                 .collect(Collectors.toList());
     }
 }

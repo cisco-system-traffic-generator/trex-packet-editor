@@ -10,12 +10,9 @@ public class FEInstructionParameter {
     
     private FEInstructionParameterMeta meta;
     
-    private String value;
-
-    public FEInstructionParameter(CombinedField combinedField, FEInstructionParameterMeta meta, String value) {
+    public FEInstructionParameter(CombinedField combinedField, FEInstructionParameterMeta meta) {
         this.combinedField = combinedField;
         this.meta = meta;
-        this.value = value;
     }   
 
     public CombinedField getCombinedField() {
@@ -27,7 +24,7 @@ public class FEInstructionParameter {
     }
 
     public String getValue() {
-        return value;
+        return combinedField.getProtocol().getUserProtocol().getFieldInstructionParam(getFieldId(), getId());
     }
 
     public String getId() {
@@ -36,5 +33,13 @@ public class FEInstructionParameter {
 
     public Type getType() {
         return meta.getType();
+    }
+
+    public String getDefaultValue() {
+        return getMeta().getDefaultValue();
+    }
+
+    public String getFieldId() {
+        return combinedField.getId();
     }
 }
