@@ -71,11 +71,22 @@ public class UserProtocol {
 
     public void setFieldInstruction(String fieldId, String parameter, String value) {
         Map<String, String> instruction = fieldInstructions.get(fieldId);
-        if (instruction == null) {
-            instruction = new HashMap<>();
-        }
         instruction.put(parameter, value);
         fieldInstructions.put(fieldId, instruction);
+    }
+    
+    public void createFieldInstruction(String fieldId) {
+        Map<String, String> instruction = new HashMap<>();
+        meta.getInstructionParametersMeta(fieldId).stream().forEach(parameterMeta -> instruction.put(parameterMeta.getId(), parameterMeta.getDefaultValue()));
+        fieldInstructions.put(fieldId, instruction);
+    }
+    
+    public void deleteFieldInstruction(String fieldId) {
+        fieldInstructions.put(fieldId, Collections.<String, String>emptyMap());
+    }
+    
+    public Map<String, String> getFieldInstruction(String fieldId) {
+        return fieldInstructions.getOrDefault(fieldId, Collections.<String, String>emptyMap());
     }
 }
 

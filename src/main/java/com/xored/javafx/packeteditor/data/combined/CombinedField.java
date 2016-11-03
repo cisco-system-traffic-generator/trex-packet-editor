@@ -61,8 +61,16 @@ public class CombinedField {
 
     public List<FEInstructionParameter> getFEInstructionParameters() {
 
-        return parent.getMeta().getInstructionParametersMeta(getId()).stream()
-                .map(parameterMeta -> new FEInstructionParameter(this, parameterMeta))
+        return parent.getUserProtocol().getFieldInstruction(getId()).entrySet().stream()
+                .map(parameterEntry -> new FEInstructionParameter(this, parent.getMeta().getInstructionParameterMeta(parameterEntry.getKey())))
                 .collect(Collectors.toList());
+    }
+
+    public boolean fieldEngineAllowed() {
+        return parent.getMeta().fieldEnigineAllowed(getId());
+    }
+
+    public boolean fieldEngineEnabled() {
+        return !parent.getUserProtocol().getFieldInstruction(getId()).isEmpty();
     }
 }

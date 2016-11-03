@@ -48,10 +48,9 @@ public class MetadataService implements IMetadataService {
         localFileMetadataService.initialize();
         try {
             // Stub shold be removed once scapy server started support get_instruction_parameters_defs
-            List<FEInstructionParameterMeta> feInstructionParameterMetas = scapy.get_instruction_parameters_defs().feInstructionParameters.stream()
+            Map<String, FEInstructionParameterMeta> feInstructionParameterMetas = scapy.get_instruction_parameters_defs().feInstructionParameters.stream()
                     .filter(param -> param.id != null)
-                    .map(param -> new FEInstructionParameterMeta(param.type, param.id, param.name, param.defaultValue, param.dict))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toMap(param -> param.id, param -> new FEInstructionParameterMeta(param.type, param.id, param.name, param.defaultValue, param.dict)));
             
             scapy.get_definitions().protocols.forEach(proto -> {
                 // merge definitions with the hand-crafted file. json has priority over metadata from scapy
@@ -116,7 +115,7 @@ public class MetadataService implements IMetadataService {
         List<FieldMetadata> fields_metadata = protocol.fields.stream().map(
                 field -> new FieldMetadata(field.id, field.id, FieldMetadata.FieldType.STRING, null, null, false)
         ).collect(Collectors.toList());
-        ProtocolMetadata protocolMetadata = new ProtocolMetadata(protocol.id, protocol.name, fields_metadata, new ArrayList<FEInstructionParameterMeta>(), new ArrayList<>());
+        ProtocolMetadata protocolMetadata = new ProtocolMetadata(protocol.id, protocol.name, fields_metadata, Collections.<String, FEInstructionParameterMeta>emptyMap(), new ArrayList<>());
         protocols.put(protocolMetadata.getId(), protocolMetadata);
         return protocolMetadata;
     }

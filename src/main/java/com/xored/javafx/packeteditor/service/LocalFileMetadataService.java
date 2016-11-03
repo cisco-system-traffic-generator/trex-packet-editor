@@ -4,6 +4,7 @@ package com.xored.javafx.packeteditor.service;
 import com.google.gson.*;
 import com.xored.javafx.packeteditor.data.FieldRules;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
+import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import org.slf4j.Logger;
@@ -100,7 +101,7 @@ class LocalFileMetadataService {
             }
             */
 
-            ProtocolMetadata protocol = new ProtocolMetadata(entry.get("id").getAsString(), entry.get("name").getAsString(), fieldsMeta, new ArrayList<>(), new ArrayList<>());
+            ProtocolMetadata protocol = new ProtocolMetadata(entry.get("id").getAsString(), entry.get("name").getAsString(), fieldsMeta, new HashMap<String, FEInstructionParameterMeta>(), new ArrayList<>());
             protocols.put(entry.get("id").getAsString(), protocol);
         });
     }

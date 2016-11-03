@@ -11,14 +11,14 @@ public class ProtocolMetadata {
     private String name; // protocol name
     private LinkedTreeMap<String, FieldMetadata> fields = new LinkedTreeMap<>();
 
-    private List<FEInstructionParameterMeta> instructionParametersMetas = new ArrayList<>();
+    private Map<String, FEInstructionParameterMeta> instructionParametersMetas = new LinkedHashMap<>();
     private List<String> fieldEngineAwareFields = new ArrayList<>();
     
-    public ProtocolMetadata(String id, String name, List<FieldMetadata> fields, List<FEInstructionParameterMeta> instructionParametersMetas, List<String> fieldEngineAwareFields) {
+    public ProtocolMetadata(String id, String name, List<FieldMetadata> fields, Map<String, FEInstructionParameterMeta> instructionParametersMetas, List<String> fieldEngineAwareFields) {
         this.id = id;
         this.name = name;
         if (instructionParametersMetas != null) {
-            this.instructionParametersMetas.addAll(instructionParametersMetas);
+            this.instructionParametersMetas.putAll(instructionParametersMetas);
         }
         
         if (fieldEngineAwareFields != null) {
@@ -28,17 +28,30 @@ public class ProtocolMetadata {
         for(FieldMetadata fieldMeta : fields) {
            this.fields.put(fieldMeta.getId(), fieldMeta);
         }
+
+        // TODO: remove this stub once scapy_server supported it
+        if (id.equals("Ether")) {
+            this.fieldEngineAwareFields = Arrays.asList("src", "dst");
+        }
     }
 
     public List<FEInstructionParameterMeta> getInstructionParametersMeta(String fieldId) {
         
-        // TODO: remove this stub once scapy_server supported it
-        if (id.equals("Ether")) {
-            fieldEngineAwareFields = Arrays.asList("src", "dst");
+        if (fieldEnigineAllowed(fieldId)) {
+            return instructionParametersMetas.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+        } else {
+            return Collections.<FEInstructionParameterMeta>emptyList();
         }
-        return fieldEngineAwareFields.contains(fieldId) ? instructionParametersMetas : Collections.<FEInstructionParameterMeta>emptyList();
     }
 
+    public boolean fieldEnigineAllowed(String fieldId) {
+        return fieldEngineAwareFields.contains(fieldId);
+    }
+    
+    public FEInstructionParameterMeta getInstructionParameterMeta(String parameterId) {
+        return instructionParametersMetas.get(parameterId);
+    }
+    
     public String getId() {
         return id;
     }

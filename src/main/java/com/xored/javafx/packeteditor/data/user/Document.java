@@ -143,4 +143,12 @@ public class Document {
         lastModifiedField = null;
         valueBeforeModification = null;
     }
+
+    public void createFEFieldInstruction(CombinedField combinedField) {
+        combinedField.getProtocol().getUserProtocol().createFieldInstruction(combinedField.getId());
+    }
+
+    public void deleteFEFieldInstruction(CombinedField combinedField) {
+        combinedField.getProtocol().getUserProtocol().deleteFieldInstruction(combinedField.getId());
+    }
 }

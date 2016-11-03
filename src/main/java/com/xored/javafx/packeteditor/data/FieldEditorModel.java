@@ -58,6 +58,18 @@ public class FieldEditorModel {
         deleteAllProtocols();
     }
 
+    public void addFEParameters(CombinedField combinedField) {
+        beforeContentReplace();
+        userModel.createFEFieldInstruction(combinedField);
+        fireUpdateViewEvent();
+    }
+
+    public void deleteFEParameters(CombinedField combinedField) {
+        beforeContentReplace();
+        userModel.deleteFEFieldInstruction(combinedField);
+        fireUpdateViewEvent();
+    }
+
     public class DocState {
         public DocumentFile userModel;
         public PacketData packet;
