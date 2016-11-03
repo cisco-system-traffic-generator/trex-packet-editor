@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Base64;
-import java.util.Random;
 
 public class PayloadEditor extends VBox {
     static Logger logger = LoggerFactory.getLogger(PayloadEditor.class);
@@ -115,23 +115,14 @@ public class PayloadEditor extends VBox {
         public String human() { return human; }
     }
 
-    static private Random rand = new Random();
-
-    public static void randomBytes(boolean ascii, byte[] bytes) {
-        int mask = 0xFF;
-        if (ascii) mask = 0x7F;
-        for (int i = 0; i < bytes.length; ) {
-            for (int rnd = rand.nextInt(), n = Math.min(bytes.length - i, 4); n-- > 0; rnd >>= 8) {
-                bytes[i++] = (byte) (rnd & mask);
-            }
-        }
-    }
+    static private final int PAYLOAD_MAX_SIZE = 1024 * 1024;
 
     private EventHandler<ActionEvent> handlerActionSaveExternal;
     private PayloadType type = PayloadType.UNKNOWN;
     private EditorMode  mode = EditorMode.UNKNOWN;
     private byte[]      data;
     private File        file;
+    private int         seed = 12345;
 
     private ChangeListener<String> onlyNumberListener = (observable, oldValue, newValue) -> {
         if (!newValue.matches("\\d*"))
@@ -143,22 +134,22 @@ public class PayloadEditor extends VBox {
 
         // First call our code
         if (type == PayloadType.TEXT) {
-            itsok = true;
+            itsok = text_data();
         }
         else if (type == PayloadType.FILE) {
-            itsok = file2data();
+            itsok = file_data();
         }
         else if (type == PayloadType.TEXT_PATTERN) {
-            itsok = textpattern2text();
+            itsok = text_pattern_data();
         }
         else if (type == PayloadType.FILE_PATTERN) {
-            itsok = filepattern2data();
+            itsok = file_pattern_data();
         }
         else if (type == PayloadType.RANDOM_ASCII) {
-            itsok = randombytes2data(true);
+            itsok = random_bytes_data(true);
         }
         else if (type == PayloadType.RANDOM_NON_ASCII) {
-            itsok = randombytes2data(false);
+            itsok = random_bytes_data(false);
         }
 
         if (itsok) {
@@ -187,7 +178,7 @@ public class PayloadEditor extends VBox {
                 payloadEditorHboxValue.setVisible(true);
                 payloadEditorHboxValue.setManaged(true);
                 gridSetVisible(payloadEditorGrid, index);
-                setType(int2type(index));
+                setType(int2type(index)); // index MUST be == PayloadType !
                 setMode(EditorMode.EDIT);
             }
             else {
@@ -257,6 +248,8 @@ public class PayloadEditor extends VBox {
         JsonObject value = new JsonObject();
         value.add("vtype", new JsonPrimitive("BYTES"));
 
+        // We have already verified and got input data
+        // So, just create json object
         if (type == PayloadType.TEXT) {
             String data_base64 = Base64.getEncoder().encodeToString(getText().getBytes());
             value.add("base64", new JsonPrimitive(data_base64));
@@ -271,20 +264,22 @@ public class PayloadEditor extends VBox {
             String data_base64 = Base64.getEncoder().encodeToString(textPatternText.getText().getBytes());
             value.add("template_base64", new JsonPrimitive(data_base64));
         }
-        /*lse if (type == PayloadType.FILE_PATTERN) {
-            jsonobject.add("file_pattern", new JsonPrimitive(file.getAbsolutePath()));
-            jsonobject.add("size", new JsonPrimitive(filePatternSize.getText()));
-        }*/
+        else if (type == PayloadType.FILE_PATTERN) {
+            value.add("generate", new JsonPrimitive("template"));
+            value.add("size", new JsonPrimitive(Integer.parseInt(filePatternSize.getText())));
+            String data_base64 = Base64.getEncoder().encodeToString(data);
+            value.add("template_base64", new JsonPrimitive(data_base64));
+        }
         else if (type == PayloadType.RANDOM_ASCII) {
             value.add("generate", new JsonPrimitive("random_ascii"));
             value.add("size", new JsonPrimitive(Integer.parseInt(randomAsciiSize.getText())));
-            value.add("seed", new JsonPrimitive("12345"));
+            value.add("seed", new JsonPrimitive(seed));
         }
-        /*else if (type == PayloadType.RANDOM_NON_ASCII) {
-            jsonobject.add("size", new JsonPrimitive(randomNonAsciiSize.getText()));
-            String data_base64 = Base64.getEncoder().encodeToString(data);
-            jsonobject.add("data_base64", new JsonPrimitive(data_base64));
-        }*/
+        else if (type == PayloadType.RANDOM_NON_ASCII) {
+            value.add("generate", new JsonPrimitive("random_bytes"));
+            value.add("size", new JsonPrimitive(Integer.parseInt(randomNonAsciiSize.getText())));
+            value.add("seed", new JsonPrimitive(seed));
+        }
         else {
             logger.warn("Not yet implemented");
         }
@@ -294,6 +289,67 @@ public class PayloadEditor extends VBox {
 
 
     public boolean setJson(JsonElement json) {
+        if (!json.isJsonObject()) return false;
+
+        JsonObject o = json.getAsJsonObject();
+        if (!o.has("vtype")) return false;
+        if (!o.get("vtype").getAsString().equals("BYTES")) return false;
+
+        if (o.has("generate")) {
+            String generate = o.get("generate").getAsString();
+            int size = -1, size_total = -1;
+            String template = null;
+            byte[] template_base64 = null;
+
+            if (o.has("size")) {
+                size = o.get("size").getAsInt();
+            }
+            if (o.has("size_total")) {
+                size = o.get("size_total").getAsInt();
+            }
+            if (o.has("seed")) {
+                seed = o.get("seed").getAsInt();
+            }
+            if (o.has("template_base64")) {
+                template_base64 = o.get("template_base64").getAsString().getBytes();
+            }
+
+            if (generate.equals("template")) {
+                if (template_base64 != null) {
+                    template = new String(Base64.getDecoder().decode(template_base64));
+                    if (getDataType(template.getBytes()) == DataType.TEXT) {
+                        setType(PayloadType.TEXT_PATTERN);
+                        textPatternText.setText(template);
+                        textPatternSize.setText(Integer.toString(size));
+                    }
+                    else if (getDataType(template_base64) == DataType.TEXT) {
+                        setType(PayloadType.FILE_PATTERN);
+                        filePatternSize.setText(Integer.toString(size));
+                    }
+                }
+            }
+            else if (generate.equals("random_ascii")) {
+                setType(PayloadType.RANDOM_ASCII);
+                randomAsciiSize.setText(Integer.toString(size));
+            }
+            else if (generate.equals("random_bytes")) {
+                setType(PayloadType.RANDOM_NON_ASCII);
+                randomNonAsciiSize.setText(Integer.toString(size));
+            }
+        }
+        else if (o.has("base64")) {
+            String base64 = o.get("base64").getAsString();
+            byte[] d = Base64.getDecoder().decode(base64);
+            if (getDataType(d)==DataType.TEXT) {
+                setText(new String(d));
+                return true;
+            }
+            else if (getDataType(d)==DataType.BINARY) {
+                setData(d);
+                setType(PayloadType.FILE);
+                return true;
+            }
+        }
         return false;
     }
 
@@ -306,7 +362,7 @@ public class PayloadEditor extends VBox {
     }
 
     public void setText(String text) {
-        textProperty().set(text);
+        textProperty().set(text.substring(0, Math.min(text.length(), PAYLOAD_MAX_SIZE)));
         setType(PayloadType.TEXT);
     }
 
@@ -316,7 +372,7 @@ public class PayloadEditor extends VBox {
     }
 
     public void setData(byte[] data) {
-        this.data = data;
+        this.data = Arrays.copyOf(data, PAYLOAD_MAX_SIZE);
     }
 
     public PayloadType getType() {
@@ -457,36 +513,91 @@ public class PayloadEditor extends VBox {
         return PayloadType.UNKNOWN;
     }
 
-    private boolean file2data() {
+    private void alert(boolean error, String title, String mess) {
+        Alert alert;
+
+        if (error) {
+            logger.error("{}: {}", title, mess);
+            alert = new Alert(Alert.AlertType.ERROR);
+        }
+        else {
+            logger.warn("{}: {}", title, mess);
+            alert = new Alert(Alert.AlertType.WARNING);
+        }
+        alert.setHeaderText(title);
+        alert.initOwner(getScene().getWindow());
+        if (mess != null ) {
+            alert.getDialogPane().setExpandableContent(new ScrollPane(new TextArea(title + ": " + mess)));
+        }
+        alert.showAndWait();
+    }
+
+    private void showError(String title, String mess) {
+        alert(true, title, mess);
+    }
+
+    private void showWarning(String title, String mess) {
+        alert(false, title, mess);
+    }
+
+    private void showError(String title) {
+        alert(true, title, null);
+    }
+
+    private void showWarning(String title) {
+        alert(false, title, null);
+    }
+
+    // Input for TEXT
+    private boolean text_data() {
+        if (textText.getText().length() > PAYLOAD_MAX_SIZE) {
+            showWarning("Raw data: text length must be less then " + PAYLOAD_MAX_SIZE + "\n Trancated to " + PAYLOAD_MAX_SIZE);
+            setText(textText.getText().substring(0, PAYLOAD_MAX_SIZE));
+        }
+        else {
+            setText(textText.getText());
+        }
+        return true;
+    }
+
+    // Verify input for FILE
+    private boolean file_data() {
         File file = new File(textFilename.getText());
 
         if (file.exists() && file.canRead()) {
             try {
-                data = Files.readAllBytes(file.toPath());
-                DataType datatype = getDataType(data);
+                byte[] temp = Files.readAllBytes(file.toPath());
+                DataType datatype = getDataType(temp);
+                data = Arrays.copyOf(temp, Math.min(temp.length, PAYLOAD_MAX_SIZE));
 
+                if (temp.length > PAYLOAD_MAX_SIZE) {
+                    showWarning("File length is greater then " + PAYLOAD_MAX_SIZE + "\n Trancated to " + PAYLOAD_MAX_SIZE);
+                }
                 if (datatype == DataType.TEXT) {
                     setText(new String(data));
                     return true;
                 }
                 else if (datatype == DataType.BINARY) {
+                    setType(PayloadType.FILE);
                     return true;
                 }
-                logger.error("UNKNOWN file type");
+
+                showError("UNKNOWN file type");
             } catch (IOException e) {
-                logger.error(e.getMessage());
+                showError("Exception", e.getMessage());
             }
         }
         else {
-            logger.error("File '" + file.getAbsolutePath() + "' not exists or is not readable");
+            showError("File '" + file.getAbsolutePath() + "' not exists or is not readable");
         }
         return false;
     }
 
-    private boolean textpattern2text() {
+    // Verify input for TEXT_PATTERN
+    private boolean text_pattern_data() {
         String ssize = textPatternSize.getText();
         if (ssize==null) {
-            logger.error("Size must be greater than zero");
+            showError("Size must be valid number");
             return false;
         }
 
@@ -495,31 +606,26 @@ public class PayloadEditor extends VBox {
             size = Integer.parseInt(ssize);
         }
         catch (NumberFormatException e) {
-            logger.error("Size must be greater than zero");
+            showError("Size must be valid number");
             return false;
         }
 
-        if (size > 0) {
+        if (size > 0 && size <= PAYLOAD_MAX_SIZE) {
             String pattern = textPatternText.getText();
             if (pattern.length() > 0) {
-                /*String text = new String("");
-
-                while (text.length() < size) {
-                    text = text.concat(pattern);
-                }
-                text = text.substring(0, size);
-                setText(text);*/
                 return true;
-            } else {
-                logger.error("Pattern must be greater than zero");
+            }
+            else {
+                showError("Pattern is empty");
             }
         } else {
-            logger.error("Size must be greater than zero");
+            showError("Size must be >= 1 and <= " + PAYLOAD_MAX_SIZE);
         }
         return false;
     }
 
-    private boolean filepattern2data() {
+    // Verify input for FILE_PATTERN
+    private boolean file_pattern_data() {
         File file = new File(filePatternFilename.getText());
         byte[] datapattern = null;
 
@@ -527,18 +633,18 @@ public class PayloadEditor extends VBox {
             try {
                 datapattern = Files.readAllBytes(file.toPath());
             } catch (IOException e) {
-                logger.error(e.getMessage());
+                showError(e.getMessage());
                 return false;
             }
         }
         else {
-            logger.error("File '" + file.getAbsolutePath() + "' not exists or is not readable");
+            showError("File '" + file.getAbsolutePath() + "' not exists or is not readable");
             return false;
         }
 
         String ssize = filePatternSize.getText();
         if (ssize==null) {
-            logger.error("Size must be greater than zero");
+            showError("Size must be valid number");
             return false;
         }
 
@@ -547,52 +653,41 @@ public class PayloadEditor extends VBox {
             size = Integer.parseInt(ssize);
         }
         catch (NumberFormatException e) {
-            logger.error("Size must be greater than zero");
+            showError("Size must be valid number");
             return false;
         }
 
-        if (size > 0) {
+        if (size > 0 && size <= PAYLOAD_MAX_SIZE) {
             if (datapattern.length > 0) {
                 DataType patterntype = getDataType(datapattern);
 
                 if (patterntype == DataType.TEXT) {
-                    String text = new String("");
-                    String pattern = new String(datapattern);
-
-                    while (text.length() < size) {
-                        text = text.concat(pattern);
-                    }
-                    text = text.substring(0, size);
-                    setText(text);
+                    data = datapattern.clone();
                     return true;
                 }
                 else if (patterntype == DataType.BINARY) {
-                    data = new byte[size];
-
-                    for (int j = 0; j < data.length; ) {
-                        System.arraycopy(datapattern, 0, data, j, Integer.min(datapattern.length, data.length - j));
-                        j += Integer.min(datapattern.length, data.length - j);
-                    }
+                    data = datapattern.clone();
                     return true;
                 }
-                logger.error("UNKNOWN file type");
+                showError("UNKNOWN file type");
             } else {
-                logger.error("Pattern must be greater than zero");
+                showError("Pattern is empty");
             }
         } else {
-            logger.error("Size must be greater than zero");
+            showError("Size must be >= 1 and <= " + PAYLOAD_MAX_SIZE);
         }
         return false;
     }
 
-    private boolean randombytes2data(boolean ascii) {
+    // Verify input for RANDOM_ASCII and RANDOM_NON_ASCII
+    private boolean random_bytes_data(boolean ascii) {
         String ssize = null;
 
         if (ascii) ssize = randomAsciiSize.getText();
         else       ssize = randomNonAsciiSize.getText();
 
         if (ssize==null) {
-            logger.error("Size must be greater than zero");
+            showError("Size must be greater than zero");
             return false;
         }
 
@@ -601,16 +696,15 @@ public class PayloadEditor extends VBox {
             size = Integer.parseInt(ssize);
         }
         catch (NumberFormatException e) {
-            logger.error("Size must be greater than zero");
+            showError("Size must be greater than zero");
             return false;
         }
 
-        if (size > 0) {
-            /*data = new byte[size];
-            randomBytes(ascii, data);*/
+        if (size > 0 && size <= PAYLOAD_MAX_SIZE) {
             return true;
-        } else {
-            logger.error("Size must be greater than zero");
+        }
+        else {
+            showError("Size must be >= 1 and <= " + PAYLOAD_MAX_SIZE);
         }
 
         return false;

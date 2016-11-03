@@ -21,7 +21,7 @@
                         <String fx:value="Text"/>
                         <String fx:value="File"/>
                         <String fx:value="Text pattern"/>
-                        <String fx:value="Load pattern from file"/>
+                        <String fx:value="File pattern"/>
                         <String fx:value="Random ascii"/>
                         <String fx:value="Random non-ascii"/>
                     </FXCollections>

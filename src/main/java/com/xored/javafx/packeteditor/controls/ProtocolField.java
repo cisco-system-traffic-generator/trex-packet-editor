@@ -287,16 +287,8 @@ public class ProtocolField extends EditableField {
     }
 
     private void commitChanges(PayloadEditor payloadEditor) {
-        PayloadEditor.PayloadType type = payloadEditor.getType();
-
-        if (type == PayloadEditor.PayloadType.TEXT
-                || type == PayloadEditor.PayloadType.TEXT_PATTERN) {
-            setModelValue(ReconstructField.setHumanValue(combinedField.getId(), payloadEditor.getText()), null);
-        }
-        else {
-            byte[] data = payloadEditor.getData();
-            setModelValue(ReconstructField.setValue(combinedField.getId(), data), null);
-        }
+        JsonElement json = payloadEditor.getJson();
+        setModelValue(ReconstructField.setRawValue(combinedField.getId(), json), null);
     }
     
     private boolean isExpressionField() {
@@ -309,17 +301,32 @@ public class ProtocolField extends EditableField {
         PayloadEditor pe = new PayloadEditor(injector);
         if (combinedField.getValue() instanceof JsonPrimitive) {
             pe.setText(combinedField.getValue().getAsString());
-        } else {
+        }
+        else if (combinedField.getUserValue() instanceof JsonPrimitive) {
+            pe.setText(combinedField.getUserValue().getAsString());
+        }
+        else if (combinedField.getUserValue() instanceof JsonElement) {
+            pe.setJson(combinedField.getUserValue());
+        }
+        else {
             pe.setText(combinedField.getScapyDisplayValue());
         }
 
-        pe.setOnActionSave((event) -> commitChanges(pe));
+        pe.setOnActionSave((event) -> {
+            commitChanges(pe);
+        });
 
         pe.setOnActionCancel(e -> {
-            //pe.setText(combinedField.getScapyFieldData().getValue().getAsString());
             if (combinedField.getValue() instanceof JsonPrimitive) {
                 pe.setText(combinedField.getValue().getAsString());
-            } else {
+            }
+            else if (combinedField.getUserValue() instanceof JsonPrimitive) {
+                pe.setText(combinedField.getUserValue().getAsString());
+            }
+            else if (combinedField.getValue() instanceof JsonElement) {
+                pe.setJson(combinedField.getValue());
+            }
+            else {
                 pe.setText(combinedField.getScapyDisplayValue());
             }
             this.showLabel();
@@ -327,4 +334,5 @@ public class ProtocolField extends EditableField {
 
         return  pe;
     }
+
 }
