@@ -77,9 +77,5 @@ public class UserProtocol {
         instruction.put(parameter, value);
         fieldInstructions.put(fieldId, instruction);
     }
-
-    public boolean hasFieldEngineInstructions() {
-        return !fieldInstructions.isEmpty();
-    }
 }
 
