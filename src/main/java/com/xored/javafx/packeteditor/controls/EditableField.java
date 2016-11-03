@@ -193,9 +193,9 @@ public abstract class EditableField extends FlowPane {
                 }
             }
             if (e.getCode().equals(KeyCode.ESCAPE)) {
+                revertTextFieldValue(tf);
                 textChanged = false;
                 this.showLabel();
-                revertTextFieldValue(tf);
             }
         });
         return tf;
