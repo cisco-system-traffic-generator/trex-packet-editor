@@ -43,17 +43,18 @@ public class MetadataService implements IMetadataService {
 
     private void loadProtocolDefinitions() {
         try {
-            // Stub shold be removed once scapy server started support get_instruction_parameters_defs
-            Map<String, FEInstructionParameterMeta> feInstructionParameterMetas = scapy.get_instruction_parameters_defs().feInstructionParameters.stream()
+            ScapyDefinitions definitions = scapy.get_definitions();
+
+            Map<String, FEInstructionParameterMeta> feInstructionParameterMetas = definitions.feInstructionParameters.stream()
                     .filter(param -> param.id != null)
                     .collect(Collectors.toMap(param -> param.id, param -> new FEInstructionParameterMeta(param.type, param.id, param.name, param.defaultValue, param.dict)));
             
-            scapy.get_definitions().protocols.forEach(proto -> {
+            definitions.protocols.forEach(proto -> {
                 // merge definitions with the hand-crafted file. json has priority over metadata from scapy
                 protocols.put(proto.id, new ProtocolMetadata(
                         proto.id,
                         proto.name,
-                        proto.fields.stream().map( field -> buildFieldMetadata(field)).collect(Collectors.toList()),
+                        proto.fields.stream().map(this::buildFieldMetadata).collect(Collectors.toList()),
                         feInstructionParameterMetas,
                         proto.fieldEngineAwareFields
                 ));
