@@ -196,34 +196,23 @@ public class ScapyServerClient {
         JsonArray payload = new JsonArray();
         payload.add(version_handler);
         payload.add(JsonNull.INSTANCE);
-        JsonElement res = request("get_definitions", payload);
-        return gson.fromJson(res, ScapyDefinitions.class);
-    }
+        JsonObject res = (JsonObject) request("get_definitions", payload);
 
-    public ScapyDefinitions get_instruction_parameters_defs() {
-        JsonArray payload = new JsonArray();
-        payload.add(version_handler);
-        payload.add(JsonNull.INSTANCE);
-//        JsonElement res = request("get_definitions", payload);
-
-        JsonObject res = new JsonObject();
-        
-        res.add("protocols", new JsonArray());
         JsonArray intructionParameters = new JsonArray();
-        
+
         intructionParameters.add(new JsonObject());
-        
+
         String[] params = new String[]{
                 "{'id': \"min_value\",'name': \"Minimun value\",'type': \"string\",'defaultValue': \"0\"}",
                 "{'id': \"max_value\",'name': \"Maximum value\",'type': \"string\",'defaultValue': \"0\"}",
                 "{'id': \"step\",'name': \"Step\",'type': \"string\",'defaultValue': \"1\"}",
                 "{'id': \"op\",'name': \"Operation\",'type': \"enum\",'defaultValue': \"inc\", 'dict': {'dec': \"Decrement\", 'inc': \"Increment\", 'random': \"Random\"}}",
         };
-        
+
         JsonParser parser = new JsonParser();
-        
+
         Arrays.stream(params).forEach(json -> intructionParameters.add(parser.parse(json)));
-        
+
         res.add("feInstructionParameters", intructionParameters);
         
         return gson.fromJson(res, ScapyDefinitions.class);
