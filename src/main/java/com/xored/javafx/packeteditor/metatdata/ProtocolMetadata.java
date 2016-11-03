@@ -38,7 +38,7 @@ public class ProtocolMetadata {
     public List<FEInstructionParameterMeta> getInstructionParametersMeta(String fieldId) {
         
         if (fieldEnigineAllowed(fieldId)) {
-            return instructionParametersMetas.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+            return instructionParametersMetas.values().stream().collect(Collectors.toList());
         } else {
             return Collections.<FEInstructionParameterMeta>emptyList();
         }

@@ -76,7 +76,7 @@ public class UserProtocol {
     }
     
     public void createFieldInstruction(String fieldId) {
-        Map<String, String> instruction = new HashMap<>();
+        Map<String, String> instruction = new LinkedHashMap<>();
         meta.getInstructionParametersMeta(fieldId).stream().forEach(parameterMeta -> instruction.put(parameterMeta.getId(), parameterMeta.getDefaultValue()));
         fieldInstructions.put(fieldId, instruction);
     }
