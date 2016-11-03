@@ -10,6 +10,8 @@
     /* -fx-smooth: false; Commented as there is a problem on Linux with "-fx-smooth: *;" */
     button-background: #32b4ea;
     button-text-fill: #FFFFFF;
+    -trex-field-row-background: #FFFFFF;
+    -trex-field-row-background-selected: aquamarine; /*#33adff;*/ /*-fx-selection-bar;*/
 }
 
 #pcapEditorTopPane .fieldeditortoppane {
@@ -35,11 +37,11 @@
 }
 
 #pcapEditorTopPane #fieldEditorTopPane {
-    -fx-background-color: #f4f4f4; //#ececec;
+    -fx-background-color: #f4f4f4; /*#ececec;*/
 }
 
 #pcapEditorTopPane .fieldeditorscrollpane {
-    -fx-background-color: #f4f4f4; //#ececec;
+    -fx-background-color: #f4f4f4; /*#ececec;*/
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
     -fx-border-insets: 0px;
@@ -61,13 +63,13 @@
     -fx-border-style: solid;
     -fx-border-width: 1px;
     -fx-padding: 0 0 0 0;
-    -fx-background-color: #f4f4f4; //#ececec;
+    -fx-background-color: #f4f4f4; /*#ececec;*/
     -fx-min-height: 8.88em;
     -fx-pref-height: -fx-min-height;
 }
 
 #pcapEditorTopPane .begroupscrollpane {
-    -fx-background-color: #f4f4f4; //#ececec;
+    -fx-background-color: #f4f4f4; /*#ececec;*/
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
     -fx-border-insets: 0px;
@@ -95,14 +97,14 @@
     -fx-color: #4b4b4b;
     -fx-fit-to-width: true;
     -fx-fit-to-height: true;
-    -fx-alignment: center-left;
-    -fx-padding: 0 0 0 40;
+    -fx-alignment: top-left;
+    -fx-padding: 0 0 0 0; /*0 0 0 40;*/
 }
 
 #pcapEditorTopPane .protocolgrid {
     -fx-background-color: #ffffff;
     -fx-border-width: 0px;
-    -fx-padding: 1.99px;                 /* narrowing */
+    -fx-padding: 0;/*1.99px;*/                 /* narrowing */
 }
 
 #pcapEditorTopPane .titled-pane {
@@ -199,7 +201,7 @@
 }
 
 #pcapEditorTopPane .field-row {
-    -fx-background-color: #ffffff;
+    -fx-background-color: -trex-field-row-background;
     -fx-padding: 0 0 0 40px;              /* narrowing */
     -fx-fill-height: true;
     -fx-fill-width: true;
@@ -274,6 +276,10 @@
     -fx-underline: false;
 }
 
+#pcapEditorTopPane .text {
+    -fx-font-smoothing-type: gray; /*lcd;*/
+}
+
 #pcapEditorTopPane .text-area {
     -fx-pref-width: 360px;
     -fx-pref-height: 200px;
@@ -334,17 +340,17 @@
 }
 
 /* For payload editor control */
+#pcapEditorTopPane .payloadvbox {
+    -fx-spacing: 7px;
+    -fx-padding: 2px 0px 2px 0px;
+}
+
 #pcapEditorTopPane .payloadhbox {
     -fx-min-height: -1;
     -fx-pref-height: -1;
     -fx-max-height: 400px;
     -fx-min-width: 300px;
     -fx-pref-width: 300px;
-    -fx-spacing: 7px;
-    -fx-padding: 0px 0px 2px 0px;
-}
-
-#pcapEditorTopPane .payloadvbox {
     -fx-spacing: 7px;
     -fx-padding: 0px 0px 2px 0px;
 }

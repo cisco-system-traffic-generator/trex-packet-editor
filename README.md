@@ -37,10 +37,23 @@ jar is located in **./build/libs/TRexPacketCraftingTool.jar**
 
     ./gradlew jar
 
+##### Build pom
+
+    ./gradlew createPom
+
+##### Build package/installer
+see https://github.com/FibreFoX/javafx-gradle-plugin#gradle-tasks for more options
+
+    ./gradlew jfxNative
+
+
 ##### Run scapy_server with python3
 `PYTHON=python3 ./scripts/run_scapy_server -v --scapy-port 4507`
 
 ##### Enable Debug logging for packed editor UI
+enable logging in gradle by specifying -PpacketEditorLogger(`gradle -PpacketEditorLogger <your command>`)
+also you may need to create logging.properties(see sl4j, logback documentation)
+
 ```
 cat <<ENDL > logging.properties
 handlers= java.util.logging.ConsoleHandler

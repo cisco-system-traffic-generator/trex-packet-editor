@@ -66,7 +66,21 @@ public class FieldEditorView {
 
     private List<TitledPane> protocolTitledPanes = new ArrayList<>();
 
+    // For even/odd background, this is NOT any real field index
     static private int oddIndex = 0;
+
+    // Current selected field
+    static private HBox selected_row = null;
+
+    static void setSelectedRow(HBox row) {
+        if (selected_row != row) {
+            if (selected_row != null) {
+                selected_row.setStyle("-fx-background-color: -trex-field-row-background;");
+            }
+            selected_row = row;
+            selected_row.setStyle("-fx-background-color: -trex-field-row-background-selected;");
+        }
+    }
 
     public static void initCss(Scene scene) {
         scene.getStylesheets().add(ClassLoader.getSystemResource("styles/modena-packet-editor.css").toExternalForm());
@@ -193,11 +207,9 @@ public class FieldEditorView {
         HBox controls = new HBox(10);
         pane.setId("append-protocol-pane");
         pane.setContent(controls);
+        pane.setCollapsible(false);
 
         List<ProtocolMetadata> protocols = controller.getModel().getAvailableProtocolsToAdd(false);
-        if (protocols.isEmpty()) {
-            pane.setExpanded(false);
-        }
         ComboBox<ProtocolMetadata> cb = new ComboBox<>();
         cb.setId("append-protocol-combobox");
         cb.getStyleClass().add("protocol-type-selector");
@@ -380,6 +392,7 @@ public class FieldEditorView {
         FieldMetadata.FieldType type = meta.getType();
 
         HBox row = new HBox();
+        row.setOnMouseClicked(e -> setSelectedRow(row));
 
         String even = "-even";
         if (!BYTES.equals(type) && oddIndex % 2 != 0) {
@@ -403,13 +416,15 @@ public class FieldEditorView {
         field.getFEInstructionParameters().stream().forEach(feInstructionParameter -> rows.add(createFEInstructionFieldRow(feInstructionParameter)));
         
         if(BITMASK.equals(type)) {
-            field.getMeta().getBits().stream().forEach(bitFlagMetadata -> rows.add(this.createBitFlagRow(field, bitFlagMetadata)));
+            field.getMeta().getBits().stream().forEach(bitFlagMetadata -> {
+                rows.add(this.createBitFlagRow(field, bitFlagMetadata));
+            });
         }
         // TODO: remove this crutch :)
         if(TCP_OPTIONS.equals(type) && field.getScapyFieldData() != null) {
-            TCPOptionsData.fromFieldData(field.getScapyFieldData()).stream().forEach(fd ->
-                            rows.add(createTCPOptionRow(fd))
-            );
+            TCPOptionsData.fromFieldData(field.getScapyFieldData()).stream().forEach(fd -> {
+                rows.add(createTCPOptionRow(field, fd));
+            });
         }
 
         return rows;
@@ -420,17 +435,19 @@ public class FieldEditorView {
         Node label = buildIndentedFieldLabel("field engine", instructionParameterMeta.getName(), false);
         FEInstructionParameterField editableField = injector.getInstance(FEInstructionParameterField.class);
         editableField.init(instructionParameter);
-        return createRow(label, editableField);
+        return createRow(label, editableField, null);
     }
 
-    private Node createTCPOptionRow(TCPOptionsData tcpOption) {
+    private Node createTCPOptionRow(CombinedField field, TCPOptionsData tcpOption) {
         // TODO: reuse code
         BorderPane titlePane = new BorderPane();
         titlePane.setLeft(buildIndentedFieldLabel("", tcpOption.getName()));
         titlePane.getStyleClass().add("title-pane");
-        HBox row = new HBox();
-        row.getStyleClass().addAll("field-row");
+        titlePane.setOnMouseClicked(e -> controller.selectField(field));
 
+        HBox row = new HBox();
+        row.setOnMouseClicked(e -> setSelectedRow(row));
+        row.getStyleClass().addAll("field-row");
 
         BorderPane valuePane = new BorderPane();
         Text valueCtrl = new Text();
@@ -454,16 +471,20 @@ public class FieldEditorView {
         Node label = buildIndentedFieldLabel(maskToString(flagMask), flagName, true);
         ComboBox<ComboBoxItem> combo = createBitFlagComboBox(field, bitFlagMetadata, flagName, flagMask);
         
-        return createRow(label, combo);
+        return createRow(label, combo, field);
     }
 
-    private Node createRow(Node label, Node control) {
+    private Node createRow(Node label, Node control, CombinedField field) {
         BorderPane titlePane = new BorderPane();
         
         titlePane.setLeft(label);
         titlePane.getStyleClass().add("title-pane");
+        if (field != null) {
+            titlePane.setOnMouseClicked(e -> controller.selectField(field));
+        }
 
         HBox row = new HBox();
+        row.setOnMouseClicked(e -> setSelectedRow(row));
         row.getStyleClass().addAll("field-row-flags");
         if (oddIndex %2 == 0) oddIndex++;
 

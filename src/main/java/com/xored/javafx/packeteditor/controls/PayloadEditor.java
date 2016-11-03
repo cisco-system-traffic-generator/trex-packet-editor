@@ -1,6 +1,5 @@
 package com.xored.javafx.packeteditor.controls;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -255,39 +254,47 @@ public class PayloadEditor extends VBox {
     }
 
     public JsonElement getJson() {
-        JsonArray json = new JsonArray();
-
-        JsonObject jsonobject = new JsonObject();
-        jsonobject.add("type", new JsonPrimitive(type.human()));
+        JsonObject value = new JsonObject();
+        value.add("vtype", new JsonPrimitive("BYTES"));
 
         if (type == PayloadType.TEXT) {
-            jsonobject.add("text", new JsonPrimitive(getText()));
+            String data_base64 = Base64.getEncoder().encodeToString(getText().getBytes());
+            value.add("base64", new JsonPrimitive(data_base64));
         }
         else if (type == PayloadType.FILE) {
-            jsonobject.add("file", new JsonPrimitive(file.getAbsolutePath()));
+            String data_base64 = Base64.getEncoder().encodeToString(getData());
+            value.add("base64", new JsonPrimitive(data_base64));
         }
         else if (type == PayloadType.TEXT_PATTERN) {
-            jsonobject.add("text_pattern", new JsonPrimitive(textPatternText.getText()));
-            jsonobject.add("size", new JsonPrimitive(textPatternSize.getText()));
+            value.add("generate", new JsonPrimitive("template"));
+            value.add("size", new JsonPrimitive(Integer.parseInt(textPatternSize.getText())));
+            String data_base64 = Base64.getEncoder().encodeToString(textPatternText.getText().getBytes());
+            value.add("template_base64", new JsonPrimitive(data_base64));
         }
-        else if (type == PayloadType.FILE_PATTERN) {
+        /*lse if (type == PayloadType.FILE_PATTERN) {
             jsonobject.add("file_pattern", new JsonPrimitive(file.getAbsolutePath()));
             jsonobject.add("size", new JsonPrimitive(filePatternSize.getText()));
-        }
+        }*/
         else if (type == PayloadType.RANDOM_ASCII) {
-            jsonobject.add("size", new JsonPrimitive(randomAsciiSize.getText()));
-            String data_base64 = Base64.getEncoder().encodeToString(data);
-            jsonobject.add("data_base64", new JsonPrimitive(data_base64));
+            value.add("generate", new JsonPrimitive("random_ascii"));
+            value.add("size", new JsonPrimitive(Integer.parseInt(randomAsciiSize.getText())));
+            value.add("seed", new JsonPrimitive("12345"));
         }
-        else if (type == PayloadType.RANDOM_NON_ASCII) {
+        /*else if (type == PayloadType.RANDOM_NON_ASCII) {
             jsonobject.add("size", new JsonPrimitive(randomNonAsciiSize.getText()));
             String data_base64 = Base64.getEncoder().encodeToString(data);
             jsonobject.add("data_base64", new JsonPrimitive(data_base64));
+        }*/
+        else {
+            logger.warn("Not yet implemented");
         }
 
-        json.add(jsonobject);
+        return value;
+    }
 
-        return json;
+
+    public boolean setJson(JsonElement json) {
+        return false;
     }
 
     public String getText() {
@@ -495,13 +502,13 @@ public class PayloadEditor extends VBox {
         if (size > 0) {
             String pattern = textPatternText.getText();
             if (pattern.length() > 0) {
-                String text = new String("");
+                /*String text = new String("");
 
                 while (text.length() < size) {
                     text = text.concat(pattern);
                 }
                 text = text.substring(0, size);
-                setText(text);
+                setText(text);*/
                 return true;
             } else {
                 logger.error("Pattern must be greater than zero");
@@ -599,8 +606,8 @@ public class PayloadEditor extends VBox {
         }
 
         if (size > 0) {
-            data = new byte[size];
-            randomBytes(ascii, data);
+            /*data = new byte[size];
+            randomBytes(ascii, data);*/
             return true;
         } else {
             logger.error("Size must be greater than zero");

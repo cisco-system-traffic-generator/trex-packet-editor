@@ -1,6 +1,7 @@
 package com.xored.javafx.packeteditor.service;
 
 import com.google.common.eventbus.Subscribe;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
@@ -20,10 +21,6 @@ import java.util.stream.Collectors;
 /** provides protocol metadata based on hand-crafted protocol definition file or Scapy definitions */
 public class MetadataService implements IMetadataService {
     private static Logger logger = LoggerFactory.getLogger(IMetadataService.class);
-    final int max_enum_values_to_display = 100; // max sane number of choice enumeration.
-
-    @Inject
-    LocalFileMetadataService localFileMetadataService;
 
     @Inject
     ScapyServerClient scapy;
@@ -45,7 +42,6 @@ public class MetadataService implements IMetadataService {
     }
 
     private void loadProtocolDefinitions() {
-        localFileMetadataService.initialize();
         try {
             // Stub shold be removed once scapy server started support get_instruction_parameters_defs
             Map<String, FEInstructionParameterMeta> feInstructionParameterMetas = scapy.get_instruction_parameters_defs().feInstructionParameters.stream()
@@ -54,16 +50,13 @@ public class MetadataService implements IMetadataService {
             
             scapy.get_definitions().protocols.forEach(proto -> {
                 // merge definitions with the hand-crafted file. json has priority over metadata from scapy
-                ProtocolMetadata jsonProtocol = localFileMetadataService.getProtocols().getOrDefault(proto.id, null);
-                
-                ProtocolMetadata protocolMeta = new ProtocolMetadata(
-                    proto.id,
-                    jsonProtocol != null ? jsonProtocol.getName() : proto.name,
-                    proto.fields.stream().map(field -> buildFieldMetadata(field, jsonProtocol)).collect(Collectors.toList()),
-                    feInstructionParameterMetas,
-                    proto.fieldEngineAwareFields
-                ); 
-                protocols.put(proto.id, protocolMeta);
+                protocols.put(proto.id, new ProtocolMetadata(
+                        proto.id,
+                        proto.name,
+                        proto.fields.stream().map( field -> buildFieldMetadata(field)).collect(Collectors.toList()),
+                        feInstructionParameterMetas,
+                        proto.fieldEngineAwareFields
+                ));
             });
         } catch (Exception e) {
             logger.error("failed to load protocol defs from scapy: {}", e);
@@ -71,35 +64,43 @@ public class MetadataService implements IMetadataService {
     }
 
     /** builds field metadata from scapy field definition */
-    private FieldMetadata buildFieldMetadata(ScapyDefinitions.ScapyField field, ProtocolMetadata jsonDefaults) {
+    private FieldMetadata buildFieldMetadata(ScapyDefinitions.ScapyField field) {
         String fieldName = field.name;
-        FieldMetadata.FieldType ftype = FieldMetadata.FieldType.STRING;
-        Map<String, JsonElement> dict_map = null;
-        List<BitFlagMetadata> bits_meta = null;
-        boolean isAuto = false;
-        FieldRules rules = null;
+        FieldMetadata.FieldType ftype = FieldMetadata.fieldTypeFromString(field.type);
+        boolean isAuto = field.auto != null ? field.auto.booleanValue() : false;
+        FieldRules rules = new FieldRules(field.min, field.max, field.regex);
+        Map<String, JsonElement> values_dict = null;
+        List<BitFlagMetadata> bitFlags = new ArrayList<>();
 
-        // merging definitions
-        if (jsonDefaults != null) {
-            FieldMetadata jsonFieldMeta = jsonDefaults.getMetaForFieldOrNull(field.id);
-            if (jsonFieldMeta != null) {
-                fieldName = jsonFieldMeta.getName();
-                dict_map = jsonFieldMeta.getDictionary();
-                ftype = jsonFieldMeta.getType();
-                bits_meta = jsonFieldMeta.getBits();
-                isAuto = jsonFieldMeta.isAuto();
-                rules = jsonFieldMeta.getFieldRules();
-            }
-        }
-        if (dict_map == null && field.values_dict instanceof JsonObject) {
+        if (field.values_dict instanceof JsonObject) {
             JsonObject field_dict = field.values_dict.getAsJsonObject();
             if (field_dict.size() > 0) {
                 ftype = FieldMetadata.FieldType.ENUM;
-                dict_map = field.values_dict.getAsJsonObject().entrySet().stream()
+                values_dict = field.values_dict.getAsJsonObject().entrySet().stream()
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             }
         }
-        return new FieldMetadata(field.id, fieldName, ftype, dict_map, bits_meta, isAuto, rules);
+
+        if (field.bits instanceof JsonArray) {
+            for (Object o : field.bits) {
+                JsonObject bitFlag = (JsonObject) o;
+
+                JsonArray bitFlagValues = bitFlag.getAsJsonArray("values");
+                Iterator bitFlagValuesIT = bitFlagValues.iterator();
+
+                Map<String, JsonElement> vals = new HashMap<>();
+
+                while (bitFlagValuesIT.hasNext()) {
+                    JsonObject bitFlagValue = (JsonObject) bitFlagValuesIT.next();
+                    vals.put(bitFlagValue.get("name").getAsString(), bitFlagValue.get("value"));
+                }
+                String bitFlagName = bitFlag.get("name").getAsString();
+                Integer mask = bitFlag.get("mask").getAsInt();
+                BitFlagMetadata bitFlagMeta = new BitFlagMetadata(bitFlagName, mask, vals);
+                bitFlags.add(bitFlagMeta);
+            }
+        }
+        return new FieldMetadata(field.id, fieldName, ftype, values_dict, bitFlags, isAuto, rules);
     }
 
     /** normally should not be used, since we should have get_definitions */

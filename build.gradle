@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'application'
 
 group = 'com.xored'
-version = '1.00-SNAPSHOT'
+version = '1.01'
 
 description = """TRex Scapy Packet Editor GUI Application"""
 
@@ -16,6 +16,7 @@ if (!hasProperty('mainClass')) {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -89,7 +90,7 @@ dependencies {
     compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
 
-    if (project.hasProperty('release')) {
+    if (project.hasProperty('release') || !project.hasProperty('packetEditorLogger') ) {
         compile group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.21'
     } else {
         compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.7'
@@ -110,5 +111,46 @@ jar {
         attributes 'Main-Class': mainClassName
     }
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+task createPom << {
+    pom {
+        project {
+            groupId = group
+            artifactId 'TRexPacketCraftingTool'
+            version = version
+
+            inceptionYear '2016'
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                }
+            }
+        }
+    }.writeTo("pom.xml")
+}
+
+apply plugin: 'javafx-gradle-plugin'
+
+buildscript {
+    dependencies {
+        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.7.0'
+    }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+
+    }
+}
+
+
+jfx {
+    mainClass = mainClassName
+    jfxMainAppJarName = "TRexPacketCraftingTool.jar"
+    appName = "TRexPacketCraftingTool"
+    nativeReleaseVersion = version
+    vendor = 'Xored'
 }
 

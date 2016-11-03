@@ -8,6 +8,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyEvent;
@@ -49,12 +50,12 @@ public class BinaryEditorController implements Initializable, Observer {
     final int maxByteRows = 64; // higher values may require display optimizations
 
     final double yPadding = 0;
-    final double xPadding = 0;      // Global padding
+    final double xPadding = 5;      // Global padding
     final double xBytePadding = 50; // Padding for bytes column
     final double xHexPadding = 55;  // Padding for hex column (latest column)
     final double xOffset = 0;
     final double yOffset = 20;
-    final double numLineLength = 36.12 * 2; // Length of bytes number column
+    final double numLineLength = 36.12; // Length of bytes number column
     final double byteLength = 15;
     final double byteLengthHex = 7.224375;  // 9.6325 for font-size=16; 7.224375 for font-size=12
     final double byteGap = 5;      // Gap between bytes inside series
@@ -114,15 +115,30 @@ public class BinaryEditorController implements Initializable, Observer {
             beGroup.getChildren().add(selRectHex[i]);
         }
 
+        Rectangle rect4lineNums = new Rectangle(0, 0);
+        rect4lineNums.setFill(Color.WHITESMOKE);
+        rect4lineNums.setTranslateZ(0);
+        beGroup.getChildren().add(rect4lineNums);
+
         beGroup.getChildren().add(editingRect);
         for (int i = 0; i < h; i++) {
             texts[i] = new Text[w];
-            lineNums[i] = new Text(String.format("%04x-%04x", i * w, (i + 1) * w - 1) + ':');
+            lineNums[i] = new Text(String.format("%04x", i * w));
             lineHex[i] = new Text(convertHexToString(binaryData.getBytes(i * w, Math.min(w, displayedBytesLen - i * w))));
 
             lineNums[i].setTranslateX(xOffset + xPadding);
             lineNums[i].setTranslateY(yOffset * (i+1) + yPadding);
             lineNums[i].setFont(Font.font("monospace"));
+            lineNums[i].setFill(Color.GREY);
+            lineNums[i].setTranslateZ(100);
+
+            Bounds b = lineNums[i].getBoundsInParent();
+            rect4lineNums.setTranslateX(Math.min(b.getMinX(), rect4lineNums.getX()));
+            rect4lineNums.setTranslateY(Math.min(b.getMinY(), rect4lineNums.getY()));
+            rect4lineNums.setWidth(Math.max(b.getMaxX() - rect4lineNums.getX() + xPadding, rect4lineNums.getWidth()));
+            rect4lineNums.setHeight(Math.max(b.getMaxY() - rect4lineNums.getY(), rect4lineNums.getHeight()));
+            rect4lineNums.setHeight(Math.max(beGroupScrollPane.getLayoutBounds().getHeight(), rect4lineNums.getHeight()));
+
 
             lineHex[i].setTranslateX(numLineLength + xBytePadding + xOffset + w * byteLength + w * byteGap + (w/4 - 1) * byteWordGap + xOffset + xPadding + xHexPadding);
             lineHex[i].setTranslateY(yOffset * (i+1) + yPadding);
