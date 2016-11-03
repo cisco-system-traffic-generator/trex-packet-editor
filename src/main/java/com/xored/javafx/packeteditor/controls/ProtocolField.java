@@ -167,7 +167,9 @@ public class ProtocolField extends EditableField {
         String cssClassName = hasDefaultValue() ? "field-value-default" : "field-value-set";
         if (combinedField.getMeta().getType() == BYTES) {
             cssClassName = cssClassName.concat("-raw");
-            label.getStyleClass().removeAll("label");
+            if (label != null) {
+                label.getStyleClass().removeAll("label");
+            }
         }
         return cssClassName;
     }
