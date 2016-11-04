@@ -46,11 +46,13 @@ public class MetadataService implements IMetadataService {
             ScapyDefinitions definitions = scapy.get_definitions();
 
             Map<String, FEInstructionParameterMeta> feInstructionParameterMetas = new LinkedHashMap<>();
-            definitions.feInstructionParameters.stream()
-                    .filter(param -> param.id != null)
-                    .forEach(param -> {
-                        feInstructionParameterMetas.put(param.id, new FEInstructionParameterMeta(param.type, param.id, param.name, param.defaultValue, param.dict));
-                    });
+            
+            if (definitions.feInstructionParameters != null) {
+                definitions.feInstructionParameters.stream()
+                        .filter(param -> param.id != null)
+                        .forEach(param -> feInstructionParameterMetas.put(param.id, new FEInstructionParameterMeta(param.type, param.id, param.name, param.defaultValue, param.dict)));
+            }
+            
             
             definitions.protocols.forEach(proto -> {
                 // merge definitions with the hand-crafted file. json has priority over metadata from scapy
