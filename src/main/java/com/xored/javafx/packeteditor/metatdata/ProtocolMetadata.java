@@ -28,11 +28,6 @@ public class ProtocolMetadata {
         for(FieldMetadata fieldMeta : fields) {
            this.fields.put(fieldMeta.getId(), fieldMeta);
         }
-
-        // TODO: remove this stub once scapy_server supported it
-        if (id.equals("Ether")) {
-            this.fieldEngineAwareFields = Arrays.asList("src", "dst");
-        }
     }
 
     public List<FEInstructionParameterMeta> getInstructionParametersMeta(String fieldId) {
