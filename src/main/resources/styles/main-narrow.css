@@ -103,7 +103,7 @@
 
 #pcapEditorTopPane .begrouptext,
 #pcapEditorTopPane .begrouptext * {
-    -fx-font-weight: lighter;
+    -fx-font-weight: 100; /*lighter;*/
 }
 
 #pcapEditorTopPane .protocolgrid {
