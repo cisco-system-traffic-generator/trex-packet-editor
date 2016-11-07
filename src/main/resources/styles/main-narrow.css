@@ -11,7 +11,7 @@
     button-background: #32b4ea;
     button-text-fill: #FFFFFF;
     -trex-field-row-background: #FFFFFF;
-    -trex-field-row-background-selected: aquamarine; /*#33adff;*/ /*-fx-selection-bar;*/
+    -trex-field-row-background-selected: skyblue; /*#33adff;*/ /*-fx-selection-bar;*/
 }
 
 #pcapEditorTopPane .fieldeditortoppane {

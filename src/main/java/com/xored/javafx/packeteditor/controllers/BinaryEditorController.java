@@ -102,14 +102,14 @@ public class BinaryEditorController implements Initializable, Observer {
         beGroup.getChildren().clear();
         for (int i = 0; i < selRect.length; i++) {
             selRect[i] = new Rectangle();
-            selRect[i].setFill(Color.AQUAMARINE);
+            selRect[i].setFill(Color.SKYBLUE);
             selRect[i].setTranslateZ(0);
 
             beGroup.getChildren().add(selRect[i]);
         }
         for (int i = 0; i < selRectHex.length; i++) {
             selRectHex[i] = new Rectangle();
-            selRectHex[i].setFill(Color.AQUAMARINE);
+            selRectHex[i].setFill(Color.SKYBLUE);
             selRectHex[i].setTranslateZ(0);
 
             beGroup.getChildren().add(selRectHex[i]);
