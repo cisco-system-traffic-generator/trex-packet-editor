@@ -107,13 +107,13 @@ public class Document {
         }
     }
 
-   public List<ReconstructProtocol> buildScapyModel() {
-       return protocols.stream().map(
-               protocol -> ReconstructProtocol.modify(protocol.getId(), protocol.getSetFields().stream().map(
-                       field -> createFieldValue(field)
-               ).collect(Collectors.toList()))
-       ).collect(Collectors.toList());
-   }
+    public List<ReconstructProtocol> buildScapyModel() {
+        return protocols.stream().map(
+                protocol -> ReconstructProtocol.modify(protocol.getId(), protocol.getSetFields().stream()
+                        .map(this::createFieldValue)
+                        .collect(Collectors.toList()))
+        ).collect(Collectors.toList());
+    }
 
     private JsonElement asJson() {
         JsonArray json = new JsonArray();
