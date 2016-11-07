@@ -161,7 +161,7 @@ public class BinaryEditorController implements Initializable, Observer {
                 text.setTranslateY(yOffset * (i+1) + yPadding);
                 text.setTranslateZ(100);
 
-                text.setFont(Font.font("monospace"));
+                text.getStyleClass().add("begrouptext");
 
                 texts[i][j] = text;
 

@@ -101,6 +101,11 @@
     -fx-padding: 0 0 0 0; /*0 0 0 40;*/
 }
 
+#pcapEditorTopPane .begrouptext,
+#pcapEditorTopPane .begrouptext * {
+    -fx-font-weight: 100;
+}
+
 #pcapEditorTopPane .protocolgrid {
     -fx-background-color: #ffffff;
     -fx-border-width: 0px;

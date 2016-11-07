@@ -91,12 +91,12 @@ public class FieldEditorView {
         String fontsCssFile;
         if (fontFamilies.contains("Menlo")) {
             fontsCssFile = "main-font-menlo.css";
-        } else if (fontFamilies.contains("Lucida Console")) {
-            fontsCssFile = "main-font-lucida-console.css";
         } else if (fontFamilies.contains("Consolas")) {
             fontsCssFile = "main-font-consolas.css";
         } else if (fontFamilies.contains("Courier New")) {
             fontsCssFile = "main-font-courier-new.css";
+        } else if (fontFamilies.contains("Lucida Console")) {
+            fontsCssFile = "main-font-lucida-console.css";
         } else {
             fontsCssFile = "main-font-monospace.css";
         }
