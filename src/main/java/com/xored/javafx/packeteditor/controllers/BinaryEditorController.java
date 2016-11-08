@@ -58,6 +58,7 @@ public class BinaryEditorController implements Initializable, Observer {
     final double numLineLength = 36.12; // Length of bytes number column
     final double byteLength = 15;
     final double byteLengthHex = 7.224375;  // 9.6325 for font-size=16; 7.224375 for font-size=12
+          double byteLengthHexScale = -1;
     final double byteGap = 5;      // Gap between bytes inside series
     final double byteWordGap = 25; // Gap between 4-bytes series
 
@@ -395,7 +396,20 @@ public class BinaryEditorController implements Initializable, Observer {
     }
 
     private double getWidthScale() {
-        return (texts[0][0].getLayoutBounds().getWidth() / texts[0][0].getText().length()) / byteLengthHex;
+        if (texts != null &&
+                texts.length > 0 &&
+                texts[0] != null &&
+                texts[0].length > 0 &&
+                texts[0][0] != null)
+        {
+            if (byteLengthHexScale == -1 ) {
+                byteLengthHexScale = (texts[0][0].getLayoutBounds().getWidth() / texts[0][0].getText().length()) / byteLengthHex;
+            }
+        }
+        else {
+            byteLengthHexScale = 1.0;
+        }
+        return byteLengthHexScale;
     }
 
     private boolean isEditingAllowed() {
