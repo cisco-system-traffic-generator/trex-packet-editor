@@ -142,7 +142,7 @@ public class BinaryEditorController implements Initializable, Observer {
 
             lineHex[i].setTranslateX(numLineLength + xBytePadding + xOffset + w * byteLength + w * byteGap + (w/4 - 1) * byteWordGap + xOffset + xPadding + xHexPadding);
             lineHex[i].setTranslateY(yOffset * (i+1) + yPadding);
-            lineHex[i].setFont(Font.font("monospace"));
+            lineHex[i].getStyleClass().add("begrouptext");
 
             beGroup.getChildren().addAll(lineNums[i], lineHex[i]);
 

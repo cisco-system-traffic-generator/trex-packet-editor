@@ -103,6 +103,7 @@
 
 #pcapEditorTopPane .begrouptext,
 #pcapEditorTopPane .begrouptext * {
+    -fx-font-smoothing-type: gray; /*lcd;*/
     -fx-font-weight: 100; /*lighter;*/
     -fx-font-style: normal;
     -fx-font-stretch: normal;

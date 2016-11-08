@@ -53,6 +53,10 @@ public class PayloadEditor extends VBox {
     @FXML private TextField filePatternFilename;
     @FXML private Button    filePatternButton;
 
+    // Payload generation from code pattern
+    @FXML private TextField codePatternSize;
+    @FXML private TextArea  codePatternText;
+
     // Payload random ascii generation
     @FXML private TextField randomAsciiSize;
 
@@ -66,8 +70,9 @@ public class PayloadEditor extends VBox {
         FILE            (1, "File"),
         TEXT_PATTERN    (2, "Text pattern"),
         FILE_PATTERN    (3, "File pattern"),
-        RANDOM_ASCII    (4, "Random ASCII"),
-        RANDOM_NON_ASCII(5, "Random non ASCII");
+        CODE_PATTERN    (4, "Code pattern"),
+        RANDOM_ASCII    (5, "Random ASCII"),
+        RANDOM_NON_ASCII(6, "Random non ASCII");
 
         private final int    index;
         private final String human;
@@ -144,6 +149,9 @@ public class PayloadEditor extends VBox {
         }
         else if (type == PayloadType.FILE_PATTERN) {
             itsok = file_pattern_data();
+        }
+        else if (type == PayloadType.CODE_PATTERN) {
+            itsok = code_pattern_data();
         }
         else if (type == PayloadType.RANDOM_ASCII) {
             itsok = random_bytes_data(true);
@@ -270,6 +278,11 @@ public class PayloadEditor extends VBox {
             String data_base64 = Base64.getEncoder().encodeToString(data);
             value.add("template_base64", new JsonPrimitive(data_base64));
         }
+        else if (type == PayloadType.CODE_PATTERN) {
+            value.add("generate", new JsonPrimitive("template_code"));
+            value.add("size", new JsonPrimitive(Integer.parseInt(codePatternSize.getText())));
+            value.add("template_code", new JsonPrimitive(codePatternText.getText()));
+        }
         else if (type == PayloadType.RANDOM_ASCII) {
             value.add("generate", new JsonPrimitive("random_ascii"));
             value.add("size", new JsonPrimitive(Integer.parseInt(randomAsciiSize.getText())));
@@ -300,6 +313,7 @@ public class PayloadEditor extends VBox {
             int size = -1, size_total = -1;
             String template = null;
             byte[] template_base64 = null;
+            String template_code = null;
 
             if (o.has("size")) {
                 size = o.get("size").getAsInt();
@@ -312,6 +326,9 @@ public class PayloadEditor extends VBox {
             }
             if (o.has("template_base64")) {
                 template_base64 = o.get("template_base64").getAsString().getBytes();
+            }
+            else if (o.has("template_code")) {
+                template_code = o.get("template_code").getAsString();
             }
 
             if (generate.equals("template")) {
@@ -326,15 +343,26 @@ public class PayloadEditor extends VBox {
                         setType(PayloadType.FILE_PATTERN);
                         filePatternSize.setText(Integer.toString(size));
                     }
+                    return true;
                 }
+            }
+            else if (generate.equals("template_code")) {
+                setType(PayloadType.CODE_PATTERN);
+                if (template_code != null) {
+                    codePatternText.setText(template_code);
+                    codePatternSize.setText(Integer.toString(size));
+                }
+                return true;
             }
             else if (generate.equals("random_ascii")) {
                 setType(PayloadType.RANDOM_ASCII);
                 randomAsciiSize.setText(Integer.toString(size));
+                return true;
             }
             else if (generate.equals("random_bytes")) {
                 setType(PayloadType.RANDOM_NON_ASCII);
                 randomNonAsciiSize.setText(Integer.toString(size));
+                return true;
             }
         }
         else if (o.has("base64")) {
@@ -612,6 +640,37 @@ public class PayloadEditor extends VBox {
 
         if (size > 0 && size <= PAYLOAD_MAX_SIZE) {
             String pattern = textPatternText.getText();
+            if (pattern.length() > 0) {
+                return true;
+            }
+            else {
+                showError("Pattern is empty");
+            }
+        } else {
+            showError("Size must be >= 1 and <= " + PAYLOAD_MAX_SIZE);
+        }
+        return false;
+    }
+
+    // Verify input for CODE_PATTERN
+    private boolean code_pattern_data() {
+        String ssize = codePatternSize.getText();
+        if (ssize==null) {
+            showError("Size must be valid number");
+            return false;
+        }
+
+        int size = 0;
+        try {
+            size = Integer.parseInt(ssize);
+        }
+        catch (NumberFormatException e) {
+            showError("Size must be valid number");
+            return false;
+        }
+
+        if (size > 0 && size <= PAYLOAD_MAX_SIZE) {
+            String pattern = codePatternText.getText();
             if (pattern.length() > 0) {
                 return true;
             }
