@@ -1,6 +1,7 @@
 package com.xored.javafx.packeteditor.data.user;
 
 
+import com.google.gson.internal.LinkedTreeMap;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 
 import java.util.*;
@@ -15,7 +16,7 @@ public class UserProtocol {
     private Map<String, UserField> fieldMap = new LinkedHashMap<>();
     boolean collapsed = false;
 
-    private Map<String, Map<String, String>> fieldInstructions = new HashMap<>();
+    private Map<String, FEInstruction> fieldInstructions = new HashMap<>();
     
     public UserProtocol(ProtocolMetadata meta, List<String> path) {
         this.meta = meta;
@@ -66,27 +67,35 @@ public class UserProtocol {
     }
 
     public String getFieldInstructionParam(String fieldId, String paramId) {
-        return fieldInstructions.get(fieldId) != null ? fieldInstructions.get(fieldId).get(paramId) : null;
+        return fieldInstructions.get(fieldId) != null ? fieldInstructions.get(fieldId).getParameterValue(paramId) : null;
     }
 
     public void setFieldInstruction(String fieldId, String parameter, String value) {
-        Map<String, String> instruction = fieldInstructions.get(fieldId);
-        instruction.put(parameter, value);
-        fieldInstructions.put(fieldId, instruction);
+        FEInstruction instruction = fieldInstructions.get(fieldId);
+        if (instruction == null) {
+            instruction = createFieldInstruction(fieldId);
+        }
+        instruction.putValue(parameter, value);
     }
     
-    public void createFieldInstruction(String fieldId) {
-        Map<String, String> instruction = new LinkedHashMap<>();
-        meta.getInstructionParametersMeta(fieldId).stream().forEach(parameterMeta -> instruction.put(parameterMeta.getId(), parameterMeta.getDefaultValue()));
+    public FEInstruction createFieldInstruction(String fieldId) {
+        Map<String, String> parameters = new LinkedTreeMap<>();
+        meta.getInstructionParametersMeta(fieldId).stream().forEach(parameterMeta -> parameters.put(parameterMeta.getId(), parameterMeta.getDefaultValue()));
+        FEInstruction instruction = new FEInstruction(fieldId, parameters);
         fieldInstructions.put(fieldId, instruction);
+        return instruction;
     }
     
     public void deleteFieldInstruction(String fieldId) {
-        fieldInstructions.put(fieldId, Collections.<String, String>emptyMap());
+        fieldInstructions.put(fieldId, null);
     }
     
-    public Map<String, String> getFieldInstruction(String fieldId) {
-        return fieldInstructions.getOrDefault(fieldId, Collections.<String, String>emptyMap());
+    public FEInstruction getFieldInstruction(String fieldId) {
+        return fieldInstructions.get(fieldId);
+    }
+
+    public List<FEInstruction> getFieldInstructionsList() {
+        return fieldInstructions.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }
 }
 

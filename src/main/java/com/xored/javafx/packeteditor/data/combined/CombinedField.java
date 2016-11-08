@@ -2,10 +2,12 @@ package com.xored.javafx.packeteditor.data.combined;
 
 import com.google.gson.JsonElement;
 import com.xored.javafx.packeteditor.data.FEInstructionParameter;
+import com.xored.javafx.packeteditor.data.user.FEInstruction;
 import com.xored.javafx.packeteditor.data.user.UserField;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,8 +62,12 @@ public class CombinedField {
     }
 
     public List<FEInstructionParameter> getFEInstructionParameters() {
-
-        return parent.getUserProtocol().getFieldInstruction(getId()).entrySet().stream()
+        FEInstruction fieldInstruction = parent.getUserProtocol().getFieldInstruction(getId());
+        if (fieldInstruction == null) {
+            return Collections.<FEInstructionParameter>emptyList();
+        }
+        
+        return fieldInstruction.getParameters().entrySet().stream()
                 .map(parameterEntry -> new FEInstructionParameter(this, parent.getMeta().getInstructionParameterMeta(parameterEntry.getKey())))
                 .collect(Collectors.toList());
     }
@@ -71,6 +77,6 @@ public class CombinedField {
     }
 
     public boolean fieldEngineEnabled() {
-        return !parent.getUserProtocol().getFieldInstruction(getId()).isEmpty();
+        return parent.getUserProtocol().getFieldInstruction(getId()) != null;
     }
 }
