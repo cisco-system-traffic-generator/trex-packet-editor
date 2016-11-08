@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class FieldEditorController implements Initializable {
@@ -333,5 +334,13 @@ public class FieldEditorController implements Initializable {
     public void reset() {
         model.reset();
         view.reset();
+    }
+
+    public String getBinaryPkt() {
+        return getModel().getPkt().binary;
+    }
+
+    public Map<String, Object> getPktVmInstructions() {
+        return getModel().getPkt().getPktVmInstructions();
     }
 }
