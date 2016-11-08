@@ -56,14 +56,16 @@
                 <HBox GridPane.rowIndex="0"
                       styleClass="payloadhbox">
                     <children>
-                        <TextArea fx:id="textText"
+                        <TextArea HBox.hgrow="ALWAYS"
+                                  fx:id="textText"
                                   styleClass="payloadeditortextarea"/>
                     </children>
                 </HBox>
                 <HBox GridPane.rowIndex="1"
                       styleClass="payloadhbox">
                     <children>
-                        <TextField fx:id="textFilename"
+                        <TextField HBox.hgrow="ALWAYS"
+                                   fx:id="textFilename"
                                    styleClass="payloadeditortextfield"/>
                         <Button mnemonicParsing="false"
                                 HBox.hgrow="ALWAYS"
@@ -78,12 +80,15 @@
                             <children>
                                 <Label text="Payload size: "
                                        HBox.hgrow="ALWAYS"
+                                       fx:id="textPatternSizeLabel"
                                        styleClass="payloadlabel"/>
-                                <TextField fx:id="textPatternSize"
+                                <TextField HBox.hgrow="ALWAYS"
+                                           fx:id="textPatternSize"
                                            styleClass="payloadeditortextfield"/>
                             </children>
                         </HBox>
-                        <TextArea fx:id="textPatternText"
+                        <TextArea HBox.hgrow="ALWAYS"
+                                  fx:id="textPatternText"
                                   styleClass="payloadeditortextarea"/>
                     </children>
                 </VBox>
@@ -94,13 +99,15 @@
                                 <Label text="Payload size: "
                                        HBox.hgrow="ALWAYS"
                                        styleClass="payloadlabel"/>
-                                <TextField fx:id="filePatternSize"
+                                <TextField HBox.hgrow="ALWAYS"
+                                           fx:id="filePatternSize"
                                            styleClass="payloadeditortextfield"/>
                             </children>
                         </HBox>
                         <HBox styleClass="payloadhbox">
                             <children>
-                                <TextField fx:id="filePatternFilename"
+                                <TextField HBox.hgrow="ALWAYS"
+                                           fx:id="filePatternFilename"
                                            styleClass="payloadeditortextfield"/>
                                 <Button mnemonicParsing="false"
                                         HBox.hgrow="ALWAYS"
@@ -118,11 +125,13 @@
                                 <Label text="Payload size: "
                                        HBox.hgrow="ALWAYS"
                                        styleClass="payloadlabel"/>
-                                <TextField fx:id="codePatternSize"
+                                <TextField HBox.hgrow="ALWAYS"
+                                           fx:id="codePatternSize"
                                            styleClass="payloadeditortextfield"/>
                             </children>
                         </HBox>
-                        <TextArea fx:id="codePatternText"
+                        <TextArea HBox.hgrow="ALWAYS"
+                                  fx:id="codePatternText"
                                   styleClass="payloadeditortextarea"/>
                     </children>
                 </VBox>
@@ -132,7 +141,8 @@
                         <Label text="Payload size:"
                                HBox.hgrow="ALWAYS"
                                styleClass="payloadlabel"/>
-                        <TextField fx:id="randomAsciiSize"
+                        <TextField HBox.hgrow="ALWAYS"
+                                   fx:id="randomAsciiSize"
                                    styleClass="payloadeditortextfield"/>
                     </children>
                 </HBox>
@@ -142,7 +152,8 @@
                         <Label text="Payload size:"
                                HBox.hgrow="ALWAYS"
                                styleClass="payloadlabel"/>
-                        <TextField fx:id="randomNonAsciiSize"
+                        <TextField HBox.hgrow="ALWAYS"
+                                   fx:id="randomNonAsciiSize"
                                    styleClass="payloadeditortextfield"/>
                     </children>
                 </HBox>

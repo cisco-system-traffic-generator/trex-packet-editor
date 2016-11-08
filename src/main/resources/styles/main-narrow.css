@@ -358,10 +358,10 @@
     -fx-min-height: -1;
     -fx-pref-height: -1;
     -fx-max-height: 400px;
-    -fx-min-width: 300px;
-    -fx-pref-width: 300px;
+    -fx-min-width: 350px;
+    -fx-pref-width: -fx-min-width;
     -fx-spacing: 7px;
-    -fx-padding: 0px 0px 2px 0px;
+    -fx-padding: 0px 2px 2px 0px;
 }
 
 #pcapEditorTopPane .payloadchoice {
