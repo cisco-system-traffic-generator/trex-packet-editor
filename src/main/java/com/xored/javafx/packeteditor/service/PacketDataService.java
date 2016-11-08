@@ -1,6 +1,7 @@
 package com.xored.javafx.packeteditor.service;
 
 import com.google.common.eventbus.Subscribe;
+import com.google.gson.JsonElement;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.events.ScapyClientConnectedEvent;
 import com.xored.javafx.packeteditor.scapy.*;
@@ -28,6 +29,10 @@ public class PacketDataService {
     
     public PacketData buildPacket(List<ReconstructProtocol> pktStructure) {
         return scapy.build_pkt(pktStructure);
+    }
+    
+    public PacketData buildPacket(List<ReconstructProtocol> pktStructure, JsonElement extra_options) {
+        return scapy.build_pkt_ex(pktStructure, extra_options);
     }
     
     public PacketData reconstructPacket(PacketData currentPkt, List<ReconstructProtocol> modify) {

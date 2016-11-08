@@ -192,6 +192,14 @@ public class ScapyServerClient {
         return build_pkt(gson.toJsonTree(protocols));
     }
 
+    public PacketData build_pkt_ex(List<ReconstructProtocol> protocols, JsonElement extra_options) {
+        JsonArray payload = new JsonArray();
+        payload.add(version_handler);
+        payload.add(gson.toJsonTree(protocols));
+        payload.add(extra_options);
+        return packetFromJson(request("build_pkt_ex", payload));
+    }
+
     public ScapyDefinitions get_definitions() {
         JsonArray payload = new JsonArray();
         payload.add(version_handler);
