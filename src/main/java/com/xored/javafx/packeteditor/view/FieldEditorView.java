@@ -34,10 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -222,10 +219,48 @@ public class FieldEditorView {
                 .sorted()
                 .collect(Collectors.toList());
 
-        protoAutoCompleter = TextFields.bindAutoCompletion(cb.getEditor(), protoIds);
+        protoAutoCompleter = TextFields.bindAutoCompletion(cb.getEditor(), sr -> {
+            List<String> o = protoIds.stream()
+                    .filter(p -> p.contains(sr.getUserText()) ).collect(Collectors.toList());
+            Collections.sort(o, (o1, o2) -> {
+                boolean b1 = o1.startsWith(sr.getUserText()), b2 = o2.startsWith(sr.getUserText());
+
+                if (b1 && !b2) {
+                    return -1;
+                }
+                if (b2 && !b1) {
+                    return 1;
+                }
+                if (b1 && b2) {
+                    if (o1.length() < o2.length()) return -1;
+                    else return 1;
+                }
+                return o1.compareTo(o2);
+            });
+            return o;
+        });
         cb.setOnHidden((e) -> {
             if (protoAutoCompleter == null) {
-                protoAutoCompleter = TextFields.bindAutoCompletion(cb.getEditor(), protoIds);
+                protoAutoCompleter = TextFields.bindAutoCompletion(cb.getEditor(), sr -> {
+                    List<String> o = protoIds.stream()
+                            .filter(p -> p.contains(sr.getUserText()) ).collect(Collectors.toList());
+                    Collections.sort(o, (o1, o2) -> {
+                        boolean b1 = o1.startsWith(sr.getUserText()), b2 = o2.startsWith(sr.getUserText());
+
+                        if (b1 && !b2) {
+                            return -1;
+                        }
+                        if (b2 && !b1) {
+                            return 1;
+                        }
+                        if (b1 && b2) {
+                            if (o1.length() < o2.length()) return -1;
+                            else return 1;
+                        }
+                        return o1.compareTo(o2);
+                    });
+                    return o;
+                });
             }
         });
 
