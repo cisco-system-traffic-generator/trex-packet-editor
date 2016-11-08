@@ -186,6 +186,7 @@ public abstract class EditableField extends FlowPane {
             if (e.getCode().equals(KeyCode.ENTER)) {
                 if (isValid()) {
                     commitChanges(tf);
+                    textChanged = false;
                 }
             }
             if (e.getCode().equals(KeyCode.ESCAPE)) {
