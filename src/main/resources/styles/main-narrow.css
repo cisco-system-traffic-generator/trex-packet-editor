@@ -104,6 +104,9 @@
 #pcapEditorTopPane .begrouptext,
 #pcapEditorTopPane .begrouptext * {
     -fx-font-weight: 100; /*lighter;*/
+    -fx-font-style: normal;
+    -fx-font-stretch: normal;
+    -fx-fill: #3b3b3b;
 }
 
 #pcapEditorTopPane .protocolgrid {
