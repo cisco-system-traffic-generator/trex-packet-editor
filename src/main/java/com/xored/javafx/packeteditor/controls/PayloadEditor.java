@@ -14,6 +14,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import org.slf4j.Logger;
@@ -45,22 +46,27 @@ public class PayloadEditor extends VBox {
     @FXML private Button    textFilenameButton;
 
     // Payload generation from text pattern
+    @FXML private ChoiceBox textPatternSizeChoice;
     @FXML private TextField textPatternSize;
     @FXML private TextArea  textPatternText;
 
     // Payload generation from file pattern
+    @FXML private ChoiceBox filePatternSizeChoice;
     @FXML private TextField filePatternSize;
     @FXML private TextField filePatternFilename;
     @FXML private Button    filePatternButton;
 
     // Payload generation from code pattern
+    @FXML private ChoiceBox codePatternSizeChoice;
     @FXML private TextField codePatternSize;
     @FXML private TextArea  codePatternText;
 
     // Payload random ascii generation
+    @FXML private ChoiceBox randomAsciiSizeChoice;
     @FXML private TextField randomAsciiSize;
 
     // Payload random non-ascii generation
+    @FXML private ChoiceBox randomNonAsciiSizeChoice;
     @FXML private TextField randomNonAsciiSize;
 
 
@@ -180,6 +186,17 @@ public class PayloadEditor extends VBox {
             logger.error(e.getMessage());
         }
 
+        HBox.setHgrow(textPatternSizeChoice, Priority.NEVER);
+        textPatternSizeChoice.setStyle("-fx-min-width: -1; -fx-pref-width: -1; -fx-max-width: -1;");
+        HBox.setHgrow(filePatternSizeChoice, Priority.NEVER);
+        filePatternSizeChoice.setStyle("-fx-min-width: -1; -fx-pref-width: -1; -fx-max-width: -1;");
+        HBox.setHgrow(codePatternSizeChoice, Priority.NEVER);
+        codePatternSizeChoice.setStyle("-fx-min-width: -1; -fx-pref-width: -1; -fx-max-width: -1;");
+        HBox.setHgrow(randomAsciiSizeChoice, Priority.NEVER);
+        randomAsciiSizeChoice.setStyle("-fx-min-width: -1; -fx-pref-width: -1; -fx-max-width: -1;");
+        HBox.setHgrow(randomNonAsciiSizeChoice, Priority.NEVER);
+        randomNonAsciiSizeChoice.setStyle("-fx-min-width: -1; -fx-pref-width: -1; -fx-max-width: -1;");
+
         payloadChoiceType.setOnAction((event) -> {
             int index = payloadChoiceType.getSelectionModel().getSelectedIndex();
             if (index >= 0) {
@@ -268,29 +285,64 @@ public class PayloadEditor extends VBox {
         }
         else if (type == PayloadType.TEXT_PATTERN) {
             value.add("generate", new JsonPrimitive("template"));
-            value.add("size", new JsonPrimitive(Integer.parseInt(textPatternSize.getText())));
+            String sz = textPatternSizeChoice.getSelectionModel().getSelectedItem().toString();
+            if (sz.contains("Total size")) {
+                sz = "size_total";
+            }
+            else {
+                sz = "size";
+            }
+            value.add(sz, new JsonPrimitive(Integer.parseInt(textPatternSize.getText())));
             String data_base64 = Base64.getEncoder().encodeToString(textPatternText.getText().getBytes());
             value.add("template_base64", new JsonPrimitive(data_base64));
         }
         else if (type == PayloadType.FILE_PATTERN) {
             value.add("generate", new JsonPrimitive("template"));
-            value.add("size", new JsonPrimitive(Integer.parseInt(filePatternSize.getText())));
+            String sz = filePatternSizeChoice.getSelectionModel().getSelectedItem().toString();
+            if (sz.contains("Total size")) {
+                sz = "size_total";
+            }
+            else {
+                sz = "size";
+            }
+            value.add(sz, new JsonPrimitive(Integer.parseInt(filePatternSize.getText())));
             String data_base64 = Base64.getEncoder().encodeToString(data);
             value.add("template_base64", new JsonPrimitive(data_base64));
         }
         else if (type == PayloadType.CODE_PATTERN) {
             value.add("generate", new JsonPrimitive("template_code"));
-            value.add("size", new JsonPrimitive(Integer.parseInt(codePatternSize.getText())));
+            String sz = codePatternSizeChoice.getSelectionModel().getSelectedItem().toString();
+            if (sz.contains("Total size")) {
+                sz = "size_total";
+            }
+            else {
+                sz = "size";
+            }
+            value.add(sz, new JsonPrimitive(Integer.parseInt(codePatternSize.getText())));
             value.add("template_code", new JsonPrimitive(codePatternText.getText()));
         }
         else if (type == PayloadType.RANDOM_ASCII) {
             value.add("generate", new JsonPrimitive("random_ascii"));
-            value.add("size", new JsonPrimitive(Integer.parseInt(randomAsciiSize.getText())));
+            String sz = randomAsciiSizeChoice.getSelectionModel().getSelectedItem().toString();
+            if (sz.contains("Total size")) {
+                sz = "size_total";
+            }
+            else {
+                sz = "size";
+            }
+            value.add(sz, new JsonPrimitive(Integer.parseInt(randomAsciiSize.getText())));
             value.add("seed", new JsonPrimitive(seed));
         }
         else if (type == PayloadType.RANDOM_NON_ASCII) {
             value.add("generate", new JsonPrimitive("random_bytes"));
-            value.add("size", new JsonPrimitive(Integer.parseInt(randomNonAsciiSize.getText())));
+            String sz = randomNonAsciiSizeChoice.getSelectionModel().getSelectedItem().toString();
+            if (sz.contains("Total size")) {
+                sz = "size_total";
+            }
+            else {
+                sz = "size";
+            }
+            value.add(sz, new JsonPrimitive(Integer.parseInt(randomNonAsciiSize.getText())));
             value.add("seed", new JsonPrimitive(seed));
         }
         else {
