@@ -200,15 +200,17 @@ public class FieldEditorView {
         return gridTitlePane;
     }
 
-    public TitledPane buildAppendProtocolPane() {
+    public TitledPane buildCustomPane(String uiId, String title, Node content) {
         TitledPane pane = new TitledPane();
-        pane.setText("Append new layer");
+        pane.setText(title);
         pane.getStyleClass().add("append-protocol");
-        HBox controls = new HBox(10);
-        pane.setId("append-protocol-pane");
-        pane.setContent(controls);
+        pane.setId(uiId);
+        pane.setContent(content);
         pane.setCollapsible(false);
+        return pane;
+    }
 
+    public TitledPane buildAppendProtocolPane() {
         List<ProtocolMetadata> protocols = controller.getModel().getAvailableProtocolsToAdd(false);
         ComboBox<ProtocolMetadata> cb = new ComboBox<>();
         cb.setId("append-protocol-combobox");
@@ -283,9 +285,10 @@ public class FieldEditorView {
 
         addBtn.setOnAction( e-> onAppendLayer.accept(null) );
 
+        HBox controls = new HBox(10);
         controls.getChildren().add(cb);
         controls.getChildren().add(addBtn);
-        return pane;
+        return buildCustomPane("append-protocol-pane", "Append new layer", controls);
     }
 
     public void rebuild(CombinedProtocolModel model) {
