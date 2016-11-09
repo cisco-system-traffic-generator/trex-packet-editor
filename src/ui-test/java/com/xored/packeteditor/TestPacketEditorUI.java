@@ -59,22 +59,6 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     }
 
     @Test
-    public void should_build_payload() {
-        addLayer("Raw");
-        verifyThat("#Ether-Raw-load", hasText("dummy"));
-        clickOn("#Ether-Raw-load");
-        clickOn("#payloadButtonCancel");
-        verifyThat("#Ether-Raw-load", hasText("dummy"));
-        clickOn("#Ether-Raw-load");
-        verifyThat("#textText", hasText("dummy"));
-        clickOn("#textText");
-        push(SPACE,A,B,C);
-        clickOn("#payloadButtonSave");
-        interrupt();
-        verifyThat("#Ether-Raw-load", hasText("dummy abc"));
-    }
-
-    @Test
     public void should_do_undo_redo() {
         setFieldText("#Ether-src", "00:11:22:33:44:55");
         verifyUserModelFieldSet("#Ether-src");
@@ -260,6 +244,48 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     public void load_and_save_pcap_file_neg() {
         loadPcapFile("http.pcap");
         savePcapFileEx("/http-2.pcap", true);
+    }
+
+    @Test
+    public void should_build_payload() {
+        addLayer("Raw");
+        verifyThat("#Ether-Raw-load", hasText("dummy"));
+        clickOn("#Ether-Raw-load");
+        clickOn("#payloadButtonCancel");
+        verifyThat("#Ether-Raw-load", hasText("dummy"));
+        clickOn("#Ether-Raw-load");
+        verifyThat("#textText", hasText("dummy"));
+        clickOn("#textText");
+        push(SPACE,A,B,C);
+        clickOn("#payloadButtonSave");
+        interrupt();
+        verifyThat("#Ether-Raw-load", hasText("dummy abc"));
+    }
+
+    @Test
+    public void should_build_payload_random_ascii() {
+        should_build_payload();
+        clickOn("#Ether-Raw-load");
+        clickOn("#payloadChoiceType");
+        clickOn("Random ascii");
+        clickOn("#patternSize");
+        push(DIGIT3,DIGIT2);
+        clickOn("#payloadButtonSave");
+        interrupt();
+        verifyThat("#Ether-Raw-load", hasText("G n<B2U/+IU0TA{(|GO.d2@\"@{|f yri"));
+    }
+
+    @Test
+    public void should_build_payload_random_non_ascii() {
+        should_build_payload();
+        clickOn("#Ether-Raw-load");
+        clickOn("#payloadChoiceType");
+        clickOn("Random non-ascii");
+        clickOn("#patternSize");
+        push(DIGIT3,DIGIT2);
+        clickOn("#payloadButtonSave");
+        interrupt();
+        verifyThat("#Ether-Raw-load", hasText("<binary>"));
     }
 
 }
