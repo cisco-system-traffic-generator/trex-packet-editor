@@ -435,22 +435,22 @@ public class PayloadEditor extends VBox {
                         textPatternText.setText(template);
                         if (size != -1) {
                             textPatternSize.setText(Integer.toString(size));
-                            textPatternSizeChoice.getSelectionModel().select("Load size");
+                            textPatternSizeChoice.getSelectionModel().select(0);
                         }
                         else if (total_size != -1) {
                             textPatternSize.setText(Integer.toString(total_size));
-                            textPatternSizeChoice.getSelectionModel().select("Total size");
+                            textPatternSizeChoice.getSelectionModel().select(1);
                         }
                     }
                     else if (getDataType(template_base64) == DataType.TEXT) {
                         setType(PayloadType.FILE_PATTERN);
                         if (size != -1) {
                             filePatternSize.setText(Integer.toString(size));
-                            filePatternSizeChoice.getSelectionModel().select("Load size");
+                            filePatternSizeChoice.getSelectionModel().select(0);
                         }
                         else if (total_size != -1) {
                             filePatternSize.setText(Integer.toString(total_size));
-                            filePatternSizeChoice.getSelectionModel().select("Total size");
+                            filePatternSizeChoice.getSelectionModel().select(1);
                         }
                     }
                     return true;
@@ -462,11 +462,11 @@ public class PayloadEditor extends VBox {
                     codePatternText.setText(template_code);
                     if (size != -1) {
                         codePatternSize.setText(Integer.toString(size));
-                        codePatternSizeChoice.getSelectionModel().select("Load size");
+                        codePatternSizeChoice.getSelectionModel().select(0);
                     }
                     else if (total_size != -1) {
                         codePatternSize.setText(Integer.toString(total_size));
-                        codePatternSizeChoice.getSelectionModel().select("Total size");
+                        codePatternSizeChoice.getSelectionModel().select(1);
                     }
                 }
                 return true;
@@ -475,11 +475,11 @@ public class PayloadEditor extends VBox {
                 setType(PayloadType.RANDOM_ASCII);
                 if (size != -1) {
                     randomAsciiSize.setText(Integer.toString(size));
-                    randomAsciiSizeChoice.getSelectionModel().select("Load size");
+                    randomAsciiSizeChoice.getSelectionModel().select(0);
                 }
                 else if (total_size != -1) {
                     randomAsciiSize.setText(Integer.toString(total_size));
-                    randomAsciiSizeChoice.getSelectionModel().select("Total size");
+                    randomAsciiSizeChoice.getSelectionModel().select(1);
                 }
                 return true;
             }
@@ -487,11 +487,11 @@ public class PayloadEditor extends VBox {
                 setType(PayloadType.RANDOM_NON_ASCII);
                 if (size != -1) {
                     randomNonAsciiSize.setText(Integer.toString(size));
-                    randomNonAsciiSizeChoice.getSelectionModel().select("Load size");
+                    randomNonAsciiSizeChoice.getSelectionModel().select(0);
                 }
                 else if (total_size != -1) {
                     randomNonAsciiSize.setText(Integer.toString(total_size));
-                    randomNonAsciiSizeChoice.getSelectionModel().select("Total size");
+                    randomNonAsciiSizeChoice.getSelectionModel().select(1);
                 }
                 return true;
             }
