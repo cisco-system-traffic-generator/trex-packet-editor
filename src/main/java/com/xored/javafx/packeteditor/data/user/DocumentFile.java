@@ -29,10 +29,12 @@ public class DocumentFile {
 
     private static class DocumentFieldVmInstruction {
         public String id;
+        public String fieldId;
         public Map<String, String> parameters = new LinkedTreeMap<>();
 
-        public DocumentFieldVmInstruction(String id, Map<String, String> parameters) {
+        public DocumentFieldVmInstruction(String id, String fieldId, Map<String, String> parameters) {
             this.id = id;
+            this.fieldId = fieldId;
             this.parameters.putAll(parameters);
         }
     }
@@ -65,7 +67,7 @@ public class DocumentFile {
                             .collect(Collectors.toList());
                     
                     List<DocumentFieldVmInstruction> fieldsVmInstructions = protocol.getFieldInstructionsList().stream()
-                            .map(fieldsVmInstruction -> new DocumentFieldVmInstruction(fieldsVmInstruction.getId(), fieldsVmInstruction.getParameters()))
+                            .map(fieldsVmInstruction -> new DocumentFieldVmInstruction(fieldsVmInstruction.getId(), fieldsVmInstruction.getFieldId(), fieldsVmInstruction.getParameters()))
                             .collect(Collectors.toList());
                     return new DocumentProtocol(protocol.getId(), documentFields, fieldsVmInstructions);
                 } 
@@ -81,7 +83,7 @@ public class DocumentFile {
                     doc.addProtocol(metadataService.getProtocolMetadataById(documentProtocol.id));
                     UserProtocol userProtocol = doc.getProtocolStack().peek();
                     documentProtocol.fieldsVmInstructions.stream().forEach(docInstruction -> {
-                        FEInstruction instruction = new FEInstruction(docInstruction.id, docInstruction.parameters);
+                        FEInstruction instruction = new FEInstruction(docInstruction.id, docInstruction.fieldId, docInstruction.parameters);
                         userProtocol.addFieldVmInstruction(instruction);
                     });
                     documentProtocol.fields.forEach(field -> userProtocol.getField(field.id).setValue(field.value));

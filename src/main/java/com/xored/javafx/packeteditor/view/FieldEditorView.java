@@ -22,6 +22,7 @@ import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -210,6 +211,25 @@ public class FieldEditorView {
         return pane;
     }
 
+    public TitledPane buildFieldEnginePane() {
+        Label instructionsLabel = new Label("VM instructions:");
+        
+        GridPane vmInstructionsPane = new GridPane();
+        vmInstructionsPane.setVgap(10);
+        vmInstructionsPane.getColumnConstraints().add(new ColumnConstraints(140));
+        vmInstructionsPane.add(instructionsLabel, 0, 0);
+        int row = 0;
+        for(String vmInstruction : controller.getModel().getVmInstructions()) {
+            Node node = new Text(vmInstruction);
+            vmInstructionsPane.add(node, 1, row++);
+            GridPane.setHalignment(node, HPos.LEFT);
+        }
+        
+        VBox content = new VBox(10);
+        content.getChildren().addAll(vmInstructionsPane);
+        return buildCustomPane("field-engine-pane", "Field Engine", content);
+    }
+    
     public TitledPane buildAppendProtocolPane() {
         List<ProtocolMetadata> protocols = controller.getModel().getAvailableProtocolsToAdd(false);
         ComboBox<ProtocolMetadata> cb = new ComboBox<>();
@@ -303,6 +323,9 @@ public class FieldEditorView {
 
             protocolsPaneVbox.getChildren().setAll(protocolTitledPanes);
             protocolsPaneVbox.getChildren().add(buildAppendProtocolPane());
+            if (!controller.getModel().getVmInstructions().isEmpty()) {
+                protocolsPaneVbox.getChildren().add(buildFieldEnginePane());
+            }
             fieldEditorPane.getChildren().setAll(protocolsPaneVbox);
         } catch(Exception e) {
             logger.error("Error occurred during rebuilding view. Error {}", e);

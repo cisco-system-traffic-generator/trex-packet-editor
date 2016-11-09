@@ -81,7 +81,8 @@ public class UserProtocol {
     public FEInstruction createFieldInstruction(String fieldId) {
         Map<String, String> parameters = new LinkedTreeMap<>();
         meta.getInstructionParametersMeta(fieldId).stream().forEach(parameterMeta -> parameters.put(parameterMeta.getId(), parameterMeta.getDefaultValue()));
-        FEInstruction instruction = new FEInstruction(fieldId, parameters);
+        String instructionId = getId() + "." + fieldId;
+        FEInstruction instruction = new FEInstruction(instructionId, fieldId, parameters);
         fieldInstructions.put(fieldId, instruction);
         return instruction;
     }
@@ -99,7 +100,7 @@ public class UserProtocol {
     }
 
     public void addFieldVmInstruction(FEInstruction instruction) {
-        fieldInstructions.put(instruction.getId(), instruction);
+        fieldInstructions.put(instruction.getFieldId(), instruction);
     }
 }
 

@@ -1,7 +1,7 @@
 package com.xored.javafx.packeteditor.data;
 
 import com.google.common.eventbus.EventBus;
-import com.google.gson.*;
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
@@ -68,6 +68,17 @@ public class FieldEditorModel {
         beforeContentReplace();
         userModel.deleteFEFieldInstruction(combinedField);
         fireUpdateViewEvent();
+    }
+
+    public List<String> getVmInstructions() {
+        List<String> instructions = new ArrayList<>();
+        getUserModel().getProtocolStack().stream()
+                .flatMap(userProtocol -> userProtocol.getFieldInstructionsList().stream())
+                .forEach(instruction -> {
+                    instructions.add(instruction.getVmFlowVar());
+                    instructions.add(instruction.getVmWrFlowVar());
+                });
+        return instructions;
     }
 
     public class DocState {
@@ -181,7 +192,7 @@ public class FieldEditorModel {
     private void setNewUserModel(Document userModel) {
         this.userModel = userModel;
         userModel.getProtocolStack().forEach(protocol -> protocol.setCollapsed(true));
-        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
+        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getGeneratedVmInstructions()));
     }
 
     public void loadTemplate(DocumentFile outFile) {
@@ -257,7 +268,7 @@ public class FieldEditorModel {
     public void setVmInstructionParameter(FEInstructionParameter instructionParameter, String value) {
         beforeContentReplace();
         userModel.setFEInstructionParameter(instructionParameter, value);
-        PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel());
+        PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getGeneratedVmInstructions());
         setPktAndReload(newPkt);    
     }
     

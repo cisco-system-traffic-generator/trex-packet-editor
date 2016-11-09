@@ -149,7 +149,7 @@ public class Document {
         combinedField.getProtocol().getUserProtocol().deleteFieldInstruction(combinedField.getId());
     }
 
-    public JsonElement getVmInstructionsModel() {
+    public JsonElement getGeneratedVmInstructions() {
         JsonArray instructions = new JsonArray();
         Gson gson = new Gson();
         getProtocolStack().stream().forEach(userProtocol -> {
