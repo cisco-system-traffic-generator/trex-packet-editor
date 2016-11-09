@@ -70,7 +70,7 @@ public class PayloadEditor extends VBox {
     @FXML private TextField randomNonAsciiSize;
 
 
-    public enum PayloadType {
+    public enum PayloadType { // The index is equal to the combobox index !
         UNKNOWN         (-1, "UNKNOWN"),
         TEXT            (0, "Text"),
         FILE            (1, "File"),
@@ -186,6 +186,7 @@ public class PayloadEditor extends VBox {
             logger.error(e.getMessage());
         }
 
+        payloadChoiceType.setStyle("-fx-max-width: Infinity;");
         HBox.setHgrow(textPatternSizeChoice, Priority.NEVER);
         textPatternSizeChoice.setStyle("-fx-min-width: -1; -fx-pref-width: -1; -fx-max-width: -1;");
         HBox.setHgrow(filePatternSizeChoice, Priority.NEVER);

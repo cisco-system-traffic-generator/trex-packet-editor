@@ -367,20 +367,15 @@
 #pcapEditorTopPane .payloadchoice {
     -fx-min-height: 10px;
     -fx-pref-height: 30px;
-    -fx-pref-width: 150px;
     -fx-min-width: 150px;
+    -fx-pref-width: 150px;
+    -fx-max-width: Infinity;
 }
 
 #pcapEditorTopPane .payloadchoicesize {
     -fx-min-height: 10px;
     -fx-pref-height: 30px;
     -fx-min-width: 140px;
-    /*-fx-pref-width: 135px;
-    -fx-max-width: -fx-pref-width;*/
-}
-
-#pcapEditorTopPane .payloadchoicesize .label{
-    -fx-padding: 1px 1px 1px 1px;
 }
 
 #pcapEditorTopPane .payloadbutton {
@@ -431,7 +426,7 @@
 #pcapEditorTopPane .titled-pane .choice-box,
 #pcapEditorTopPane .titled-pane .combo-box,
 #pcapEditorTopPane .titled-pane .list-cell {
-    -fx-padding: 1px 1px 1px 1px;
+    -fx-padding: 1px 1px 1px 5px;
     -fx-pref-height: 1.51em;
     -fx-min-height: 1.51em;
     -fx-max-height: 1.51em;
