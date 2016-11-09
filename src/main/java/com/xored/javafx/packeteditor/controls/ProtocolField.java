@@ -236,6 +236,9 @@ public class ProtocolField extends EditableField {
             // TODO: implement validator and/or message box/popup            
             if (valueNode != null) {
                 valueNode.getStyleClass().add("field-error");
+                if (valueNode instanceof PayloadEditor) {
+                    ((PayloadEditor) valueNode).accessibleHelpProperty().setValue("ERROR: " + e.getMessage());
+                }
             }
         }
     }
@@ -288,7 +291,7 @@ public class ProtocolField extends EditableField {
 
     private void commitChanges(PayloadEditor payloadEditor) {
         JsonElement json = payloadEditor.getJson();
-        setModelValue(ReconstructField.setRawValue(combinedField.getId(), json), null);
+        setModelValue(ReconstructField.setRawValue(combinedField.getId(), json), payloadEditor);
     }
     
     private boolean isExpressionField() {

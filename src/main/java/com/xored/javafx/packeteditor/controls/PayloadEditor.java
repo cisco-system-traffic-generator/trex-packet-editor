@@ -6,10 +6,13 @@ import com.google.gson.JsonPrimitive;
 import com.google.inject.Injector;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -17,6 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,8 +141,15 @@ public class PayloadEditor extends VBox {
     private JsonObject  jsonData = null;
 
     private ChangeListener<String> onlyNumberListener = (observable, oldValue, newValue) -> {
-        if (!newValue.matches("\\d*"))
+        if (!newValue.matches("\\d*")) {
             ((StringProperty) observable).set(oldValue);
+        }
+    };
+
+    private ChangeListener<String> onlyHexListener = (observable, oldValue, newValue) -> {
+        if (!newValue.matches("([0-9a-fA-F]*|0x[0-9a-fA-F]*|\\s*[0-9a-fA-F]*|\\s*0x[0-9a-fA-F]*)*")) {
+            ((StringProperty) observable).set(oldValue);
+        }
     };
 
     private EventHandler<ActionEvent> handlerActionSaveInternal = (event) -> {
@@ -233,12 +244,34 @@ public class PayloadEditor extends VBox {
             }
         });
 
+        //codePatternText.textProperty().addListener(onlyHexListener);
         textPatternSize.textProperty().addListener(onlyNumberListener);
         filePatternSize.textProperty().addListener(onlyNumberListener);
         randomAsciiSize.textProperty().addListener(onlyNumberListener);
         randomNonAsciiSize.textProperty().addListener(onlyNumberListener);
 
         setMode(EditorMode.UNKNOWN);
+
+        this.accessibleHelpProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue.contains("ERROR")) {
+                showError(newValue);
+                accessibleHelpProperty().setValue(null);
+            }
+        });
+
+        this.getStyleClass().addListener(new ListChangeListener<String>() {
+            @Override
+            public void onChanged(Change<? extends String> c) {
+                if (c.toString().contains("field-error")) {
+                    switch (getType()) {
+                        case CODE_PATTERN:
+                            codePatternText.getStyleClass().add("field-error");
+                            codePatternText.requestFocus();
+                            break;
+                    }
+                }
+            }
+        });
     }
 
     public EditorMode getMode() {
@@ -552,7 +585,6 @@ public class PayloadEditor extends VBox {
     public void select(int index) {
         gridSetVisible(payloadEditorGrid, index);
         getSelectionModel().select(index);
-        payloadChoiceType.getSelectionModel().select(index);
     }
 
     public static boolean isTextFile(String fileUrl) throws IOException {
