@@ -2,6 +2,7 @@ package com.xored.javafx.packeteditor.controls;
 
 import com.google.gson.JsonPrimitive;
 import com.xored.javafx.packeteditor.data.FEInstructionParameter;
+import com.xored.javafx.packeteditor.scapy.ScapyException;
 import com.xored.javafx.packeteditor.view.ComboBoxItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
@@ -93,7 +94,13 @@ public class FEInstructionParameterField extends EditableField {
 
     @Override
     protected void commitChanges(TextField textField) {
-        controller.getModel().setVmInstructionParameter(feInstructionParameter, textField.getText());
+        String prevValue = feInstructionParameter.getValue();
+        try {
+            controller.getModel().setVmInstructionParameter(feInstructionParameter, textField.getText());
+        } catch (ScapyException e) {
+            textField.getStyleClass().add("field-error");
+            controller.getModel().getUserModel().setFEInstructionParameter(feInstructionParameter, prevValue);
+        }
     }
 
     @Override
