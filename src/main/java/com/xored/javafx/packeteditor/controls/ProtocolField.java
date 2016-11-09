@@ -317,18 +317,7 @@ public class ProtocolField extends EditableField {
         });
 
         pe.setOnActionCancel(e -> {
-            if (combinedField.getValue() instanceof JsonPrimitive) {
-                pe.setText(combinedField.getValue().getAsString());
-            }
-            else if (combinedField.getUserValue() instanceof JsonPrimitive) {
-                pe.setText(combinedField.getUserValue().getAsString());
-            }
-            else if (combinedField.getValue() instanceof JsonElement) {
-                pe.setJson(combinedField.getValue());
-            }
-            else {
-                pe.setText(combinedField.getScapyDisplayValue());
-            }
+            pe.reset();
             this.showLabel();
         });
 

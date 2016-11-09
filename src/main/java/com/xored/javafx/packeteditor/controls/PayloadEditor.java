@@ -134,6 +134,7 @@ public class PayloadEditor extends VBox {
     private byte[]      data;
     private File        file;
     private int         seed = 12345;
+    private JsonObject  jsonData = null;
 
     private ChangeListener<String> onlyNumberListener = (observable, oldValue, newValue) -> {
         if (!newValue.matches("\\d*"))
@@ -288,7 +289,7 @@ public class PayloadEditor extends VBox {
             value.add("generate", new JsonPrimitive("template"));
             String sz = textPatternSizeChoice.getSelectionModel().getSelectedItem().toString();
             if (sz.contains("Total size")) {
-                sz = "size_total";
+                sz = "total_size";
             }
             else {
                 sz = "size";
@@ -301,7 +302,7 @@ public class PayloadEditor extends VBox {
             value.add("generate", new JsonPrimitive("template"));
             String sz = filePatternSizeChoice.getSelectionModel().getSelectedItem().toString();
             if (sz.contains("Total size")) {
-                sz = "size_total";
+                sz = "total_size";
             }
             else {
                 sz = "size";
@@ -314,7 +315,7 @@ public class PayloadEditor extends VBox {
             value.add("generate", new JsonPrimitive("template_code"));
             String sz = codePatternSizeChoice.getSelectionModel().getSelectedItem().toString();
             if (sz.contains("Total size")) {
-                sz = "size_total";
+                sz = "total_size";
             }
             else {
                 sz = "size";
@@ -326,7 +327,7 @@ public class PayloadEditor extends VBox {
             value.add("generate", new JsonPrimitive("random_ascii"));
             String sz = randomAsciiSizeChoice.getSelectionModel().getSelectedItem().toString();
             if (sz.contains("Total size")) {
-                sz = "size_total";
+                sz = "total_size";
             }
             else {
                 sz = "size";
@@ -338,7 +339,7 @@ public class PayloadEditor extends VBox {
             value.add("generate", new JsonPrimitive("random_bytes"));
             String sz = randomNonAsciiSizeChoice.getSelectionModel().getSelectedItem().toString();
             if (sz.contains("Total size")) {
-                sz = "size_total";
+                sz = "total_size";
             }
             else {
                 sz = "size";
@@ -354,16 +355,25 @@ public class PayloadEditor extends VBox {
     }
 
 
+    public boolean reset() {
+        if (jsonData != null) {
+            return setJson(jsonData);
+        }
+        return false;
+    }
+
     public boolean setJson(JsonElement json) {
+        if (json == null) return false;
         if (!json.isJsonObject()) return false;
 
         JsonObject o = json.getAsJsonObject();
         if (!o.has("vtype")) return false;
         if (!o.get("vtype").getAsString().equals("BYTES")) return false;
 
+        jsonData = o;
         if (o.has("generate")) {
             String generate = o.get("generate").getAsString();
-            int size = -1, size_total = -1;
+            int size = -1, total_size = -1;
             String template = null;
             byte[] template_base64 = null;
             String template_code = null;
@@ -371,8 +381,8 @@ public class PayloadEditor extends VBox {
             if (o.has("size")) {
                 size = o.get("size").getAsInt();
             }
-            if (o.has("size_total")) {
-                size = o.get("size_total").getAsInt();
+            if (o.has("total_size")) {
+                total_size = o.get("total_size").getAsInt();
             }
             if (o.has("seed")) {
                 seed = o.get("seed").getAsInt();
@@ -390,11 +400,25 @@ public class PayloadEditor extends VBox {
                     if (getDataType(template.getBytes()) == DataType.TEXT) {
                         setType(PayloadType.TEXT_PATTERN);
                         textPatternText.setText(template);
-                        textPatternSize.setText(Integer.toString(size));
+                        if (size != -1) {
+                            textPatternSize.setText(Integer.toString(size));
+                            textPatternSizeChoice.getSelectionModel().select("Load size");
+                        }
+                        else if (total_size != -1) {
+                            textPatternSize.setText(Integer.toString(total_size));
+                            textPatternSizeChoice.getSelectionModel().select("Total size");
+                        }
                     }
                     else if (getDataType(template_base64) == DataType.TEXT) {
                         setType(PayloadType.FILE_PATTERN);
-                        filePatternSize.setText(Integer.toString(size));
+                        if (size != -1) {
+                            filePatternSize.setText(Integer.toString(size));
+                            filePatternSizeChoice.getSelectionModel().select("Load size");
+                        }
+                        else if (total_size != -1) {
+                            filePatternSize.setText(Integer.toString(total_size));
+                            filePatternSizeChoice.getSelectionModel().select("Total size");
+                        }
                     }
                     return true;
                 }
@@ -403,18 +427,39 @@ public class PayloadEditor extends VBox {
                 setType(PayloadType.CODE_PATTERN);
                 if (template_code != null) {
                     codePatternText.setText(template_code);
-                    codePatternSize.setText(Integer.toString(size));
+                    if (size != -1) {
+                        codePatternSize.setText(Integer.toString(size));
+                        codePatternSizeChoice.getSelectionModel().select("Load size");
+                    }
+                    else if (total_size != -1) {
+                        codePatternSize.setText(Integer.toString(total_size));
+                        codePatternSizeChoice.getSelectionModel().select("Total size");
+                    }
                 }
                 return true;
             }
             else if (generate.equals("random_ascii")) {
                 setType(PayloadType.RANDOM_ASCII);
-                randomAsciiSize.setText(Integer.toString(size));
+                if (size != -1) {
+                    randomAsciiSize.setText(Integer.toString(size));
+                    randomAsciiSizeChoice.getSelectionModel().select("Load size");
+                }
+                else if (total_size != -1) {
+                    randomAsciiSize.setText(Integer.toString(total_size));
+                    randomAsciiSizeChoice.getSelectionModel().select("Total size");
+                }
                 return true;
             }
             else if (generate.equals("random_bytes")) {
                 setType(PayloadType.RANDOM_NON_ASCII);
-                randomNonAsciiSize.setText(Integer.toString(size));
+                if (size != -1) {
+                    randomNonAsciiSize.setText(Integer.toString(size));
+                    randomNonAsciiSizeChoice.getSelectionModel().select("Load size");
+                }
+                else if (total_size != -1) {
+                    randomNonAsciiSize.setText(Integer.toString(total_size));
+                    randomNonAsciiSizeChoice.getSelectionModel().select("Total size");
+                }
                 return true;
             }
         }
@@ -507,6 +552,7 @@ public class PayloadEditor extends VBox {
     public void select(int index) {
         gridSetVisible(payloadEditorGrid, index);
         getSelectionModel().select(index);
+        payloadChoiceType.getSelectionModel().select(index);
     }
 
     public static boolean isTextFile(String fileUrl) throws IOException {
