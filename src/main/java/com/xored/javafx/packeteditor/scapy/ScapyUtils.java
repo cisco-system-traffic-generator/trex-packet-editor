@@ -20,7 +20,7 @@ public class ScapyUtils {
 
     public static boolean isAsciiChar(byte val) { return (int)val <= 127; }
     /** returns true if character can be displayed. https://en.wikipedia.org/wiki/ASCII#Printable_characters */
-    public static boolean isPrintableChar(byte val) { return (int)val > 0x20 && (int) val < 0x7E; }
+    public static boolean isPrintableChar(byte val) { return (int)val >= 0x20 && (int) val <= 0x7E; }
 
 }
 
