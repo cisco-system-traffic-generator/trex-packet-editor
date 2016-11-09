@@ -1,10 +1,7 @@
 package com.xored.javafx.packeteditor.data;
 
 import com.google.common.eventbus.EventBus;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
@@ -184,7 +181,7 @@ public class FieldEditorModel {
     private void setNewUserModel(Document userModel) {
         this.userModel = userModel;
         userModel.getProtocolStack().forEach(protocol -> protocol.setCollapsed(true));
-        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
     }
 
     public void loadTemplate(DocumentFile outFile) {
@@ -260,17 +257,7 @@ public class FieldEditorModel {
     public void setVmInstructionParameter(FEInstructionParameter instructionParameter, String value) {
         beforeContentReplace();
         userModel.setFEInstructionParameter(instructionParameter, value);
-        JsonArray instructions = new JsonArray();
-        Gson gson = new Gson();
-        userModel.getProtocolStack().stream().forEach(userProtocol -> {
-            JsonObject protocolInstructions = new JsonObject();
-            protocolInstructions.add("id", new JsonPrimitive(userProtocol.getId()));
-            protocolInstructions.add("fields", gson.toJsonTree(userProtocol.getFieldInstructionsList()));
-            instructions.add(protocolInstructions);
-        });
-        JsonObject payload = new JsonObject();
-        payload.add("vm_instructions", gson.toJsonTree(instructions));
-        PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), payload);
+        PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel());
         setPktAndReload(newPkt);    
     }
     

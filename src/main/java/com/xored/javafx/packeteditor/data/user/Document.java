@@ -1,9 +1,6 @@
 package com.xored.javafx.packeteditor.data.user;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 import com.xored.javafx.packeteditor.data.FEInstructionParameter;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
@@ -150,5 +147,19 @@ public class Document {
 
     public void deleteFEFieldInstruction(CombinedField combinedField) {
         combinedField.getProtocol().getUserProtocol().deleteFieldInstruction(combinedField.getId());
+    }
+
+    public JsonElement getVmInstructionsModel() {
+        JsonArray instructions = new JsonArray();
+        Gson gson = new Gson();
+        getProtocolStack().stream().forEach(userProtocol -> {
+            JsonObject protocolInstructions = new JsonObject();
+            protocolInstructions.add("id", new JsonPrimitive(userProtocol.getId()));
+            protocolInstructions.add("fields", gson.toJsonTree(userProtocol.getFieldInstructionsList()));
+            instructions.add(protocolInstructions);
+        });
+        JsonObject payload = new JsonObject();
+        payload.add("vm_instructions", gson.toJsonTree(instructions));
+        return payload;
     }
 }
