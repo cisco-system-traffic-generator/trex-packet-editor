@@ -97,5 +97,9 @@ public class UserProtocol {
     public List<FEInstruction> getFieldInstructionsList() {
         return fieldInstructions.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }
+
+    public void addFieldVmInstruction(FEInstruction instruction) {
+        fieldInstructions.put(instruction.getId(), instruction);
+    }
 }
 

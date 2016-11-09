@@ -2,12 +2,14 @@ package com.xored.javafx.packeteditor.data.user;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.internal.LinkedTreeMap;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -19,19 +21,31 @@ public class DocumentFile {
         public String id;
         public JsonElement value;
 
-        public DocumentField(String id, JsonElement value) {
-            this.id = id;
-            this.value = value;
+        public DocumentField(UserField field) {
+            this.id = field.getId();
+            this.value = field.getValue();
         }
     }
+
+    private static class DocumentFieldVmInstruction {
+        public String id;
+        public Map<String, String> parameters = new LinkedTreeMap<>();
+
+        public DocumentFieldVmInstruction(String id, Map<String, String> parameters) {
+            this.id = id;
+            this.parameters.putAll(parameters);
+        }
+    }
+
     public static class DocumentProtocol {
-        // TODO: support vm instructions
         public String id;
         public List<DocumentField> fields;
+        public List<DocumentFieldVmInstruction> fieldsVmInstructions;
 
-        public DocumentProtocol(String id, List<DocumentField> fields) {
+        public DocumentProtocol(String id, List<DocumentField> fields, List<DocumentFieldVmInstruction> fieldsVmInstructions) {
             this.id = id;
             this.fields = fields;
+            this.fieldsVmInstructions = fieldsVmInstructions;
         }
     }
     public String fileType;
@@ -45,9 +59,16 @@ public class DocumentFile {
         data.version = "1.0.0";
         data.metadata = doc.getMetadata();
         data.packet = doc.getProtocolStack().stream().map(
-                protocol -> new DocumentProtocol(protocol.getId(), protocol.getSetFields().stream().map(
-                        field -> new DocumentField(field.getId(), field.getValue())
-                ).collect(Collectors.toList()))
+                protocol -> {
+                    List<DocumentField> documentFields = protocol.getSetFields().stream()
+                            .map(DocumentField::new)
+                            .collect(Collectors.toList());
+                    
+                    List<DocumentFieldVmInstruction> fieldsVmInstructions = protocol.getFieldInstructionsList().stream()
+                            .map(fieldsVmInstruction -> new DocumentFieldVmInstruction(fieldsVmInstruction.getId(), fieldsVmInstruction.getParameters()))
+                            .collect(Collectors.toList());
+                    return new DocumentProtocol(protocol.getId(), documentFields, fieldsVmInstructions);
+                } 
         ).collect(Collectors.toList());
         return data;
     }
@@ -56,13 +77,14 @@ public class DocumentFile {
         Document doc = new Document();
         doc.setMetadata(data.metadata);
         data.packet.forEach(
-                protocol -> {
-                    doc.addProtocol(metadataService.getProtocolMetadataById(protocol.id));
-                    protocol.fields.forEach(
-                            field -> {
-                                doc.getProtocolStack().peek().getField(field.id).setValue(field.value);
-                            }
-                    );
+                documentProtocol -> {
+                    doc.addProtocol(metadataService.getProtocolMetadataById(documentProtocol.id));
+                    UserProtocol userProtocol = doc.getProtocolStack().peek();
+                    documentProtocol.fieldsVmInstructions.stream().forEach(docInstruction -> {
+                        FEInstruction instruction = new FEInstruction(docInstruction.id, docInstruction.parameters);
+                        userProtocol.addFieldVmInstruction(instruction);
+                    });
+                    documentProtocol.fields.forEach(field -> userProtocol.getField(field.id).setValue(field.value));
                 }
         );
         return doc;
