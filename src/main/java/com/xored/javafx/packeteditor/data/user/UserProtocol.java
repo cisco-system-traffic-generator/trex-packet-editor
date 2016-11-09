@@ -87,7 +87,7 @@ public class UserProtocol {
     }
     
     public void deleteFieldInstruction(String fieldId) {
-        fieldInstructions.put(fieldId, null);
+        fieldInstructions.remove(fieldId);
     }
     
     public FEInstruction getFieldInstruction(String fieldId) {
