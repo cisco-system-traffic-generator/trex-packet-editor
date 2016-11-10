@@ -3,6 +3,7 @@ package com.xored.javafx.packeteditor.metatdata;
 import java.util.Map;
 
 import static com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta.Type.ENUM;
+import static com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta.Type.NUMBER;
 import static com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta.Type.STRING;
 
 public class FEInstructionParameterMeta {
@@ -31,7 +32,15 @@ public class FEInstructionParameterMeta {
     }
     
     public Type getType() {
-        return "string".equals(type) ? STRING : ENUM;
+        switch (type) {
+            case "ENUM":
+                return ENUM;
+            case "NUMBER":
+                return NUMBER;
+            case "STRING":
+            default:
+                return STRING;
+        }
     }
 
     public String getId() {
@@ -51,6 +60,6 @@ public class FEInstructionParameterMeta {
     }
 
     public enum Type {
-        STRING, ENUM
+        STRING, ENUM, NUMBER
     }
 }
