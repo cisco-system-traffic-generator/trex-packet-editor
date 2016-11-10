@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta.Type.STRING;
+import static com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta.Type.ENUM;
 
 public class FEInstructionParameterField extends EditableField {
     
@@ -22,7 +22,15 @@ public class FEInstructionParameterField extends EditableField {
     
     public void init(FEInstructionParameter option) {
         this.feInstructionParameter = option;
-        this.editableControl = STRING.equals(option.getType()) ? createTextField() : createEnumField();
+        switch (option.getType()) {
+            case ENUM:
+                this.editableControl = createEnumField();
+                break;
+            case NUMBER:
+            case STRING:
+            default:
+                this.editableControl = createTextField(); 
+        }
         this.label = createLabel();
        
         getChildren().addAll(label);
@@ -80,9 +88,12 @@ public class FEInstructionParameterField extends EditableField {
 
     private String getInstructionParamValue() {
         String value = feInstructionParameter.getValue();
-
         if (value == null) {
             value = feInstructionParameter.getDefaultValue();
+        }
+        if (ENUM.equals(feInstructionParameter.getType())) {
+            String humanValue = feInstructionParameter.getMeta().getDict().get(value);
+            value = String.format("%s (%s)", humanValue, value);
         }
         return value;
     }
@@ -111,5 +122,10 @@ public class FEInstructionParameterField extends EditableField {
     @Override
     protected boolean isCheckBoxEditable() {
         return false;
+    }
+
+    @Override
+    protected void onComboBoxSelectedAction(ComboBox<ComboBoxItem> combo) {
+        commitChanges(combo);
     }
 }

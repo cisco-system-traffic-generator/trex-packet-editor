@@ -16,6 +16,7 @@ import org.controlsfx.control.textfield.TextFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
@@ -80,7 +81,7 @@ public abstract class EditableField extends FlowPane {
         ComboBox<ComboBoxItem> combo = new ComboBox<>();
         combo.setId(getUniqueViewId());
         combo.setEditable(isCheckBoxEditable());
-        combo.getStyleClass().addAll("control", "enum-control");
+        combo.getStyleClass().addAll(getComboBoxStyles());
 
 
         focusControl = (v) -> {
@@ -154,8 +155,20 @@ public abstract class EditableField extends FlowPane {
                 commitChanges(combo);
             }
         });
+        
+        combo.setOnAction((event) -> {
+            if(!isCheckBoxEditable()) {
+                onComboBoxSelectedAction(combo);
+            }
+        });
 
         return combo;
+    }
+
+    protected void onComboBoxSelectedAction(ComboBox<ComboBoxItem> combo) {}
+
+    protected List<String> getComboBoxStyles() {
+        return Arrays.asList("control", "enum-control");
     }
 
     protected abstract boolean isCheckBoxEditable();
