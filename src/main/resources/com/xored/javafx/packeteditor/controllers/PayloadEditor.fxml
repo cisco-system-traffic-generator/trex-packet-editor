@@ -54,7 +54,7 @@
                 <items>
                     <FXCollections fx:factory="observableArrayList">
                         <String fx:value="Load size"/>
-                        <String fx:value="Total size"/>
+                        <String fx:value="Packet size"/>
                     </FXCollections>
                 </items>
             </ChoiceBox>
@@ -65,6 +65,10 @@
             <TextField HBox.hgrow="ALWAYS"
                        fx:id="patternSize"
                        styleClass="payloadeditortextfield"/>
+            <Label text="bytes"
+                   HBox.hgrow="NEVER"
+                   fx:id="patternSizeLabel2"
+                   styleClass="payloadlabel"/>
         </children>
     </HBox>
     <HBox fx:id="payloadEditorHboxValue"

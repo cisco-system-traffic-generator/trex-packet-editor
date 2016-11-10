@@ -34,11 +34,13 @@ public class PayloadEditor extends VBox {
 
     @FXML private VBox root;
     @FXML private HBox payloadEditorHboxChoice;
-    @FXML private HBox payloadEditorHboxSize;
     @FXML private HBox payloadEditorHboxValue;
     @FXML private GridPane payloadEditorGrid;
+
+    @FXML private HBox payloadEditorHboxSize;
     @FXML private ChoiceBox patternSizeChoice;
     @FXML private Label     patternSizeLabel;
+    @FXML private Label     patternSizeLabel2;
     @FXML private TextField patternSize;
 
     // Choice and save button
@@ -194,9 +196,13 @@ public class PayloadEditor extends VBox {
 
         payloadChoiceType.setStyle("-fx-max-width: Infinity;");
         HBox.setHgrow(patternSizeChoice, Priority.ALWAYS);
-        patternSizeChoice.setStyle("-fx-min-width: -1; -fx-pref-width: -1; -fx-max-width: -1;");
+        patternSizeChoice.setStyle("-fx-min-width: 14em; -fx-pref-width: -1; -fx-max-width: -1;");
         HBox.setHgrow(patternSizeLabel, Priority.NEVER);
         patternSizeLabel.setStyle("-fx-min-width: 1.5em; -fx-pref-width: 1.5em; -fx-max-width: 1.5em;");
+        HBox.setHgrow(patternSize, Priority.ALWAYS);
+        patternSize.setStyle("-fx-min-width: 5em; -fx-pref-width: -1; -fx-max-width: -1;");
+        HBox.setHgrow(patternSizeLabel2, Priority.NEVER);
+        patternSizeLabel2.setStyle("-fx-min-width: 5em; -fx-pref-width: -1; -fx-max-width: -1;");
 
         payloadChoiceType.setOnAction((event) -> {
             int index = payloadChoiceType.getSelectionModel().getSelectedIndex();
@@ -304,13 +310,16 @@ public class PayloadEditor extends VBox {
         value.add("vtype", new JsonPrimitive("BYTES"));
 
         String sz = patternSizeChoice.getSelectionModel().getSelectedItem().toString();
-        if (sz.contains("Total size")) {
+        if (sz.contains("Packet size")) {
             sz = "total_size";
         }
         else {
             sz = "size";
         }
         String size = patternSize.getText();
+        if (size.length() > 0) {
+            value.add(sz, new JsonPrimitive(Integer.parseInt(size)));
+        }
 
         // We have already verified and got input data
         // So, just create json object
@@ -324,29 +333,24 @@ public class PayloadEditor extends VBox {
         }
         else if (type == PayloadType.TEXT_PATTERN) {
             value.add("generate", new JsonPrimitive("template"));
-            value.add(sz, new JsonPrimitive(Integer.parseInt(size)));
             String data_base64 = Base64.getEncoder().encodeToString(textPatternText.getText().getBytes());
             value.add("template_base64", new JsonPrimitive(data_base64));
         }
         else if (type == PayloadType.FILE_PATTERN) {
             value.add("generate", new JsonPrimitive("template"));
-            value.add(sz, new JsonPrimitive(Integer.parseInt(size)));
             String data_base64 = Base64.getEncoder().encodeToString(data);
             value.add("template_base64", new JsonPrimitive(data_base64));
         }
         else if (type == PayloadType.CODE_PATTERN) {
             value.add("generate", new JsonPrimitive("template_code"));
-            value.add(sz, new JsonPrimitive(Integer.parseInt(size)));
             value.add("template_code", new JsonPrimitive(codePatternText.getText()));
         }
         else if (type == PayloadType.RANDOM_ASCII) {
             value.add("generate", new JsonPrimitive("random_ascii"));
-            value.add(sz, new JsonPrimitive(Integer.parseInt(size)));
             value.add("seed", new JsonPrimitive(seed));
         }
         else if (type == PayloadType.RANDOM_NON_ASCII) {
             value.add("generate", new JsonPrimitive("random_bytes"));
-            value.add(sz, new JsonPrimitive(Integer.parseInt(size)));
             value.add("seed", new JsonPrimitive(seed));
         }
         else {
@@ -697,55 +701,46 @@ public class PayloadEditor extends VBox {
         return false;
     }
 
-    // Verify input for TEXT_PATTERN
-    private boolean text_pattern_data() {
+    // Verify size
+    boolean verify_size(boolean may_empty) {
         String ssize = patternSize.getText();
-        if (ssize==null) {
-            showError("Size must be valid number");
-            return false;
+        if (may_empty &&
+                (ssize==null || ssize.isEmpty()))
+        {
+            return true;
         }
 
         int size = 0;
         try {
             size = Integer.parseInt(ssize);
+            if (!(size > 0 && size <= PAYLOAD_MAX_SIZE)) {
+                showError("Size may be empty OR must be >= 1 and <= " + PAYLOAD_MAX_SIZE);
+                return false;
+            }
+            return true;
         }
         catch (NumberFormatException e) {
             showError("Size must be valid number");
             return false;
         }
+    }
 
-        if (size > 0 && size <= PAYLOAD_MAX_SIZE) {
+    // Verify input for TEXT_PATTERN
+    private boolean text_pattern_data() {
+        if (verify_size(false)) {
             String pattern = textPatternText.getText();
             if (pattern.length() > 0) {
                 return true;
-            }
-            else {
+            } else {
                 showError("Pattern is empty");
             }
-        } else {
-            showError("Size must be >= 1 and <= " + PAYLOAD_MAX_SIZE);
         }
         return false;
     }
 
     // Verify input for CODE_PATTERN
     private boolean code_pattern_data() {
-        String ssize = patternSize.getText();
-        if (ssize==null) {
-            showError("Size must be valid number");
-            return false;
-        }
-
-        int size = 0;
-        try {
-            size = Integer.parseInt(ssize);
-        }
-        catch (NumberFormatException e) {
-            showError("Size must be valid number");
-            return false;
-        }
-
-        if (size > 0 && size <= PAYLOAD_MAX_SIZE) {
+        if (verify_size(true)) {
             String pattern = codePatternText.getText();
             if (pattern.length() > 0) {
                 return true;
@@ -753,8 +748,6 @@ public class PayloadEditor extends VBox {
             else {
                 showError("Pattern is empty");
             }
-        } else {
-            showError("Size must be >= 1 and <= " + PAYLOAD_MAX_SIZE);
         }
         return false;
     }
@@ -777,22 +770,7 @@ public class PayloadEditor extends VBox {
             return false;
         }
 
-        String ssize = patternSize.getText();
-        if (ssize==null) {
-            showError("Size must be valid number");
-            return false;
-        }
-
-        int size = 0;
-        try {
-            size = Integer.parseInt(ssize);
-        }
-        catch (NumberFormatException e) {
-            showError("Size must be valid number");
-            return false;
-        }
-
-        if (size > 0 && size <= PAYLOAD_MAX_SIZE) {
+        if (verify_size(false)) {
             if (datapattern.length > 0) {
                 DataType patterntype = getDataType(datapattern);
 
@@ -808,39 +786,15 @@ public class PayloadEditor extends VBox {
             } else {
                 showError("Pattern is empty");
             }
-        } else {
-            showError("Size must be >= 1 and <= " + PAYLOAD_MAX_SIZE);
         }
         return false;
     }
 
     // Verify input for RANDOM_ASCII and RANDOM_NON_ASCII
     private boolean random_bytes_data(boolean ascii) {
-        String ssize = null;
-
-        ssize = patternSize.getText();
-
-        if (ssize==null) {
-            showError("Size must be greater than zero");
-            return false;
-        }
-
-        int size = 0;
-        try {
-            size = Integer.parseInt(ssize);
-        }
-        catch (NumberFormatException e) {
-            showError("Size must be greater than zero");
-            return false;
-        }
-
-        if (size > 0 && size <= PAYLOAD_MAX_SIZE) {
+        if (verify_size(false)) {
             return true;
         }
-        else {
-            showError("Size must be >= 1 and <= " + PAYLOAD_MAX_SIZE);
-        }
-
         return false;
     }
 

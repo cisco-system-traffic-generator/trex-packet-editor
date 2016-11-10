@@ -348,6 +348,66 @@
     -fx-focus-color: red;
 }
 
+/* Narrowing */
+#pcapEditorTopPane .titled-pane .label,
+#pcapEditorTopPane .titled-pane .button,
+#pcapEditorTopPane .titled-pane .text-field,
+#pcapEditorTopPane .titled-pane .choice-box,
+#pcapEditorTopPane .titled-pane .combo-box,
+#pcapEditorTopPane .titled-pane .list-cell {
+    -fx-padding: 1px 1px 1px 1px;
+    -fx-pref-height: 1.51em;
+    -fx-min-height: 1.51em;
+    -fx-max-height: 1.51em;
+    -fx-background-radius: 0px, 0px, 0px, 0px;
+}
+
+#pcapEditorTopPane .titled-pane .text-field,
+#pcapEditorTopPane .titled-pane .choice-box,
+#pcapEditorTopPane .titled-pane .combo-box,
+#pcapEditorTopPane .titled-pane .list-cell {
+    -fx-min-width: 15em;
+    -fx-pref-width: -1; /*-fx-min-width;*/
+    -fx-max-width: -1; /*-fx-min-width;*/
+}
+
+#pcapEditorTopPane .titled-pane .protocol-type-selector {
+    -fx-min-width: 15em;
+    -fx-pref-width: -1; /*-fx-min-width;*/
+    -fx-max-width: 15em; /*-fx-min-width;*/
+}
+
+#pcapEditorTopPane ProtocolField {
+    -fx-min-width: 4.4em;
+    -fx-pref-width: 28.8em;
+    -fx-max-width: 28.8em;
+}
+
+#pcapEditorTopPane .titled-pane .label {
+    -fx-min-width: 4.4em;
+    -fx-pref-width: 28.8em;
+    -fx-max-width: 28.8em;
+}
+
+#pcapEditorTopPane .titled-pane .choice-box,
+#pcapEditorTopPane .titled-pane .combo-box
+ {
+    /* modena.css:
+    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;*/
+    -fx-background-color: #ececec, #ececec, #f4f4f4, #ececec;
+    -fx-background-insets: 0 0 0 0, 0, 0, 0;
+}
+
+
+#pcapEditorTopPane .titled-pane .text-field {
+    /*-fx-border-insets: 0px;
+    -fx-border-style: solid;
+    -fx-background-color: red, white, #f4f4f4, white;*/
+    -fx-border-width: 0px;
+    -fx-padding: 1px 1px 1px 3px;
+}
+
+/* Restore after narrowing */
 /* For payload editor control */
 #pcapEditorTopPane .payloadvbox {
     -fx-spacing: 7px;
@@ -419,69 +479,15 @@
     -fx-min-width: 300px;
 }
 
-/* Narrowing */
-#pcapEditorTopPane .titled-pane .label,
-#pcapEditorTopPane .titled-pane .button,
-#pcapEditorTopPane .titled-pane .text-field,
-#pcapEditorTopPane .titled-pane .choice-box,
-#pcapEditorTopPane .titled-pane .combo-box,
-#pcapEditorTopPane .titled-pane .list-cell {
-    -fx-padding: 1px 1px 1px 5px;
-    -fx-pref-height: 1.51em;
-    -fx-min-height: 1.51em;
-    -fx-max-height: 1.51em;
-    -fx-background-radius: 0px, 0px, 0px, 0px;
-}
-
-#pcapEditorTopPane .titled-pane .text-field,
-#pcapEditorTopPane .titled-pane .choice-box,
-#pcapEditorTopPane .titled-pane .combo-box,
-#pcapEditorTopPane .titled-pane .list-cell {
-    -fx-min-width: 15em;
-    -fx-pref-width: -1; /*-fx-min-width;*/
-    -fx-max-width: -1; /*-fx-min-width;*/
-}
-
-#pcapEditorTopPane .titled-pane .protocol-type-selector {
-    -fx-min-width: 15em;
-    -fx-pref-width: -1; /*-fx-min-width;*/
-    -fx-max-width: 15em; /*-fx-min-width;*/
-}
-
-#pcapEditorTopPane ProtocolField {
-    -fx-min-width: 4.4em;
-    -fx-pref-width: 28.8em;
-    -fx-max-width: 28.8em;
-}
-
-#pcapEditorTopPane .titled-pane .label {
-    -fx-min-width: 4.4em;
-    -fx-pref-width: 28.8em;
-    -fx-max-width: 28.8em;
-}
-
-#pcapEditorTopPane .titled-pane .choice-box,
-#pcapEditorTopPane .titled-pane .combo-box
- {
-    /* modena.css:
-    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;*/
-    -fx-background-color: #ececec, #ececec, #f4f4f4, #ececec;
-    -fx-background-insets: 0 0 0 0, 0, 0, 0;
-}
-
-
-#pcapEditorTopPane .titled-pane .text-field {
-    /*-fx-border-insets: 0px;
-    -fx-border-style: solid;
-    -fx-background-color: red, white, #f4f4f4, white;*/
-    -fx-border-width: 0px;
-    -fx-padding: 1px 1px 1px 3px;
-}
-
-/* Restore after narrowing */
 #pcapEditorTopPane .payloadvbox .choice-box .label,
-#pcapEditorTopPane .payloadvbox .combo-box .label{
-    -fx-padding: 1px 7.3px 1px 7.3px;
+#pcapEditorTopPane .payloadvbox .combo-box .label,
+#pcapEditorTopPane .payloadchoice .label,
+#pcapEditorTopPane .payloadchoicesize .label,
+#pcapEditorTopPane .payloadchoice .cell,
+#pcapEditorTopPane .payloadchoice .indexed-cell,
+#pcapEditorTopPane .payloadchoice list-cell {
+    /*-fx-padding: 1px 7.3px 1px 7.3px;*/
+    -fx-padding: 1px 1px 1px 5px;
 }
 
 /* Restore after narrowing */
