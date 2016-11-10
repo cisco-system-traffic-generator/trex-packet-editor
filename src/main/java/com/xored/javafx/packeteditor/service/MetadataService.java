@@ -4,13 +4,11 @@ import com.google.common.eventbus.Subscribe;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.internal.LinkedTreeMap;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.FieldRules;
 import com.xored.javafx.packeteditor.events.ScapyClientConnectedEvent;
-import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
-import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
-import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
-import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
+import com.xored.javafx.packeteditor.metatdata.*;
 import com.xored.javafx.packeteditor.scapy.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +25,7 @@ public class MetadataService implements IMetadataService {
 
     Map<String, ProtocolMetadata> protocols = new HashMap<>();
     Map<String, List<String>> payload_classes_cache = new HashMap<>();
+    Map<String, FeParameterMeta> feParametersMeta = new HashMap<>();
 
     public void initialize() {
         // TODO: delete me once protocols json moved to scapy server.
@@ -41,18 +40,28 @@ public class MetadataService implements IMetadataService {
         return protocols;
     }
 
+    @Override
+    public Map<String, FeParameterMeta> getFeParameters() {
+        return feParametersMeta;
+    }
+
     private void loadProtocolDefinitions() {
         try {
             ScapyDefinitions definitions = scapy.get_definitions();
 
-            Map<String, FEInstructionParameterMeta> feInstructionParameterMetas = new LinkedHashMap<>();
+            Map<String, FEInstructionParameterMeta> feInstructionParameterMetas = new LinkedTreeMap<>();
             
             if (definitions.feInstructionParameters != null) {
                 definitions.feInstructionParameters.stream()
                         .filter(param -> param.id != null)
                         .forEach(param -> feInstructionParameterMetas.put(param.id, new FEInstructionParameterMeta(param.type, param.id, param.name, param.defaultValue, param.dict)));
             }
-            
+
+            if (definitions.feParameters != null) {
+                feParametersMeta.putAll(definitions.feParameters.stream()
+                        .map(scapyFEParameter -> new FeParameterMeta(scapyFEParameter.id, scapyFEParameter.name, scapyFEParameter.type, scapyFEParameter.defaultValue))
+                        .collect(Collectors.toMap(FeParameterMeta::getId, meta -> meta)));
+            }
             
             definitions.protocols.forEach(proto -> {
                 // merge definitions with the hand-crafted file. json has priority over metadata from scapy
