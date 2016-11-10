@@ -32,7 +32,11 @@ public class PacketDataService {
     }
     
     public PacketData buildPacket(List<ReconstructProtocol> pktStructure, JsonElement extra_options) {
-        return scapy.build_pkt_ex(pktStructure, extra_options);
+        if (extra_options == null) {
+            return buildPacket(pktStructure);
+        } else {
+            return scapy.build_pkt_ex(pktStructure, extra_options);
+        }
     }
     
     public PacketData reconstructPacket(PacketData currentPkt, List<ReconstructProtocol> modify) {

@@ -1,6 +1,8 @@
 package com.xored.packeteditor;
 
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import org.junit.Test;
@@ -216,6 +218,15 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         verifyThat("#Ether-IP-TCP-pane", (TitledPane pane) -> pane.isExpanded() == false);
         verifyThat("#Ether-IP-version", hasText("4"));
         verifyThat("#Ether-IP-TCP-seq", hasText("951057939"));
+    }
+
+    @Test
+    public void template_tcp_syn() {
+        clickOn("File");
+        clickOn("New Template");
+        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        clickOn("TCP-SYN");
+        verifyThat("#Ether-IP-TCP-flags", hasText("S"));
     }
 
     @Test

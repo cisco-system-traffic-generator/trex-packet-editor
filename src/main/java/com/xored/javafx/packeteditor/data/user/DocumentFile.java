@@ -82,10 +82,12 @@ public class DocumentFile {
                 documentProtocol -> {
                     doc.addProtocol(metadataService.getProtocolMetadataById(documentProtocol.id));
                     UserProtocol userProtocol = doc.getProtocolStack().peek();
-                    documentProtocol.fieldsVmInstructions.stream().forEach(docInstruction -> {
-                        FEInstruction instruction = new FEInstruction(docInstruction.id, docInstruction.fieldId, docInstruction.parameters);
-                        userProtocol.addFieldVmInstruction(instruction);
-                    });
+                    if (documentProtocol.fieldsVmInstructions != null) {
+                        documentProtocol.fieldsVmInstructions.stream().forEach(docInstruction -> {
+                            FEInstruction instruction = new FEInstruction(docInstruction.id, docInstruction.fieldId, docInstruction.parameters);
+                            userProtocol.addFieldVmInstruction(instruction);
+                        });
+                    }
                     documentProtocol.fields.forEach(field -> userProtocol.getField(field.id).setValue(field.value));
                 }
         );

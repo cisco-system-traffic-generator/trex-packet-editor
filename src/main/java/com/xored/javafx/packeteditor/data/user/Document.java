@@ -151,15 +151,20 @@ public class Document {
 
     public JsonElement getGeneratedVmInstructions() {
         JsonArray instructions = new JsonArray();
+        boolean hasInstructions = false;
         Gson gson = new Gson();
-        getProtocolStack().stream().forEach(userProtocol -> {
+        for (UserProtocol userProtocol: getProtocolStack()) {
             JsonObject protocolInstructions = new JsonObject();
             protocolInstructions.add("id", new JsonPrimitive(userProtocol.getId()));
-            protocolInstructions.add("fields", gson.toJsonTree(userProtocol.getFieldInstructionsList()));
+            List<FEInstruction> field_instructions = userProtocol.getFieldInstructionsList();
+            protocolInstructions.add("fields", gson.toJsonTree(field_instructions));
+            if (field_instructions.size() > 0) {
+                hasInstructions = true;
+            }
             instructions.add(protocolInstructions);
-        });
+        }
         JsonObject payload = new JsonObject();
         payload.add("vm_instructions", gson.toJsonTree(instructions));
-        return payload;
+        return hasInstructions ? payload : null;
     }
 }
