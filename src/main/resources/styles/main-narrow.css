@@ -498,7 +498,16 @@
     -fx-padding: 1px 1px 1px 5px;
 }
 
-/* Restore after narrowing */
+
+#pcapEditorTopPane .payloadchoicesize .context-menu,
+#pcapEditorTopPane .payloadchoicesize .context-menu .menu-item {
+    -fx-min-width: 14em;
+    -fx-pref-width: 18em; /*-fx-min-width;*/
+    -fx-max-width: 18em; /*-fx-min-width;*/
+    -fx-padding: 1px 1px 1px 1px;
+    -fx-background-radius: 0, 0, 0;
+}
+
 #pcapEditorTopPane #payloadEditorHboxValue .label {
     -fx-min-width: 1em;
     -fx-pref-width: -1;
