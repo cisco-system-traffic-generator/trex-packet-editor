@@ -30,7 +30,7 @@ public class ScapyDefinitions {
         public JsonArray bits;
     }
 
-    public class ScapyFEInstructionParameter {
+    public class ScapyFEParameter {
         public String type;
         public String id;
         public String name;
@@ -40,5 +40,6 @@ public class ScapyDefinitions {
 
     public List<ScapyProtocol> protocols;
 
-    public List<ScapyFEInstructionParameter> feInstructionParameters;
+    public List<ScapyFEParameter> feInstructionParameters;
+    public List<ScapyFEParameter> feParameters;
 }
