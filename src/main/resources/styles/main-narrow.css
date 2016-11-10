@@ -379,6 +379,13 @@
     -fx-max-width: -1; /*-fx-min-width;*/
 }
 
+#pcapEditorTopPane .titled-pane .text-field-100 {
+    -fx-min-width: 100px;
+}
+#pcapEditorTopPane .titled-pane .combo-box-100 {
+    -fx-min-width: 100px;
+}
+
 #pcapEditorTopPane .titled-pane .protocol-type-selector {
     -fx-min-width: 15em;
     -fx-pref-width: -1; /*-fx-min-width;*/
