@@ -530,7 +530,7 @@
 #pcapEditorTopPane .bitflag > .list-cell,
 #pcapEditorTopPane .bitflag > .list-cell .text {
     /*-fx-fill: grey;*/
-    -fx-background-color: white white white white; /*transparent, transparent, transparent, transparent;*/
+    -fx-background-color: transparent transparent transparent transparent;
 }
 
 #pcapEditorTopPane .split-pane {
