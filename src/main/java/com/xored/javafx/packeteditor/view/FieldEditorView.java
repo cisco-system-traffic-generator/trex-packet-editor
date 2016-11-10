@@ -215,10 +215,19 @@ public class FieldEditorView {
         instructionsGrid.getColumnConstraints().add(new ColumnConstraints(140));
         instructionsGrid.add(instructionsLabel, 0, 0);
         int row = 0;
-        for(String vmInstruction : controller.getModel().getVmInstructions()) {
+        
+        List<String> vmInstructions = controller.getModel().getVmInstructions();
+        int lastIdx = vmInstructions.size()-1;
+
+        int i = 0;
+        for(String vmInstruction : vmInstructions) {
+            if (0 < i && i < lastIdx) {
+                vmInstruction +=",";
+            }
             Text text = new Text(vmInstruction);
             instructionsGrid.add(text, 1, row++, 2, 1);
             GridPane.setHalignment(text, HPos.LEFT);
+            i++;
         }
 
         GridPane parametersGrid = new GridPane();
@@ -343,7 +352,7 @@ public class FieldEditorView {
 
             protocolsPaneVbox.getChildren().setAll(protocolTitledPanes);
             protocolsPaneVbox.getChildren().add(buildAppendProtocolPane());
-            if (!controller.getModel().getVmInstructions().isEmpty()) {
+            if (controller.getModel().getVmInstructions().size() > 2) {
                 protocolsPaneVbox.getChildren().add(buildFieldEnginePane());
             }
             fieldEditorPane.getChildren().setAll(protocolsPaneVbox);

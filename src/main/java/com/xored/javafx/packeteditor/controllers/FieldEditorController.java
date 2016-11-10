@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -343,11 +344,20 @@ public class FieldEditorController implements Initializable {
     }
 
     public void copyInstructionsToClipboard() {
-        final Clipboard clipboard = Clipboard.getSystemClipboard();
-        final ClipboardContent content = new ClipboardContent();
-        String instructions = getModel().getVmInstructions().stream()
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        List<String> vmInstructions = getModel().getVmInstructions();
+        if(vmInstructions.isEmpty()) {
+            return;
+        }
+        String header = vmInstructions.get(0);
+        int lastIdx = vmInstructions.size()-1;
+        String footer = vmInstructions.get(lastIdx);
+        vmInstructions.remove(lastIdx);
+        vmInstructions.remove(0);
+        String instructions = vmInstructions.stream()
                 .collect(Collectors.joining(",\n"));
-        content.putString("["+instructions+"]");
+        content.putString(header+instructions+footer);
         clipboard.setContent(content);
     }
 }
