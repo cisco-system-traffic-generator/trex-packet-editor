@@ -467,7 +467,14 @@ public class FieldEditorView {
         valuePane.setCenter(fieldControl);
         row.getChildren().addAll(titlePane, valuePane);
         rows.add(row);
-        
+        row.setOnContextMenuRequested(e->{
+            ContextMenu contextMenu = fieldControl.getContextMenu();
+            if (contextMenu != null) {
+                e.consume();
+                contextMenu.show(row, e.getScreenX(), e.getScreenY());
+            }
+        });
+
         field.getFEInstructionParameters().stream().forEach(feInstructionParameter -> rows.add(createFEInstructionFieldRow(feInstructionParameter)));
         
         if(BITMASK.equals(type)) {
@@ -475,7 +482,6 @@ public class FieldEditorView {
                 rows.add(this.createBitFlagRow(field, bitFlagMetadata));
             });
         }
-        // TODO: remove this crutch :)
         if(TCP_OPTIONS.equals(type) && field.getScapyFieldData() != null) {
             TCPOptionsData.fromFieldData(field.getScapyFieldData()).stream().forEach(fd -> {
                 rows.add(createTCPOptionRow(field, fd));
@@ -525,7 +531,7 @@ public class FieldEditorView {
         int flagMask = bitFlagMetadata.getMask();
         Node label = buildIndentedFieldLabel(maskToString(flagMask), flagName, true);
         ComboBox<ComboBoxItem> combo = createBitFlagComboBox(field, bitFlagMetadata, flagName, flagMask);
-        
+
         return createRow(label, combo, field);
     }
 

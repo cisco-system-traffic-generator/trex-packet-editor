@@ -189,7 +189,7 @@ public class ProtocolField extends EditableField {
     }
 
     @Override
-    protected ContextMenu getContextMenu() {
+    public ContextMenu getContextMenu() {
         ContextMenu context = new ContextMenu();
 
         MenuItem generateItem = new MenuItem(resourceBundle.getString("GENERATE"));

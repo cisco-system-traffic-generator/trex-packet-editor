@@ -59,7 +59,7 @@ public class FeParameterField extends EditableField {
     }
 
     @Override
-    protected ContextMenu getContextMenu() {
+    public ContextMenu getContextMenu() {
         return null;
     }
 

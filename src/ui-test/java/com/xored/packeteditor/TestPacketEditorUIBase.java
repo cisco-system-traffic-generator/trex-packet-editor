@@ -70,6 +70,10 @@ public class TestPacketEditorUIBase extends ApplicationTest {
         return label.getStyleClass().contains("field-value-set");
     }
 
+    public boolean fieldLabelIsUnSet(Label label) {
+        return !fieldLabelIsSet(label);
+    }
+
     /** label contains a default value */
     public boolean fieldLabelIsDefault(Label label) {
         return label.getStyleClass().contains("field-value-default");

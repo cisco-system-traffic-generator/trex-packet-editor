@@ -195,6 +195,52 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     }
 
     @Test
+    public void should_have_row_ctx_menu() {
+        rightClickOn("#Ether-src-label");
+        clickOn("Generate");
+        verifyThat("#Ether-src", this::fieldLabelIsSet);
+
+        rightClickOn("#Ether-src-label");
+        clickOn("Set to default");
+        verifyThat("#Ether-src", this::fieldLabelIsUnSet);
+    }
+
+    @Test
+    public void should_have_value_ctx_menu() {
+        clickOn("#Ether-src"); // show value box
+        rightClickOn("#Ether-src"); // click on text field
+        clickOn("Generate");
+        verifyThat("#Ether-src", this::fieldLabelIsSet);
+
+        rightClickOn("#Ether-src"); // click on label
+        clickOn("Set to default");
+        verifyThat("#Ether-src", this::fieldLabelIsUnSet);
+    }
+
+    @Test
+    public void should_have_protocole_ctx_menu() {
+        // creates Ether/TCP/IP and tests protocol ctx menu(move, delete)
+        addLayerForce("TCP");
+        with("#Ether-pane", (TitledPane pane) -> pane.setExpanded(false));
+        with("#Ether-TCP-pane", (TitledPane pane) -> pane.setExpanded(false));
+        addLayerIPv4();
+        with("#Ether-TCP-IP-pane", (TitledPane pane) -> pane.setExpanded(false));
+
+        rightClickOn("#Ether-TCP-pane");
+        clickOn("Move Layer Down");
+        rightClickOn("#Ether-IP-TCP-pane");
+        clickOn("Move Layer Up");
+
+        verifyThat("#Ether-TCP-pane", (TitledPane pane) -> pane.isExpanded() == false );
+        verifyThat("#Ether-TCP-IP-pane", (TitledPane pane) -> pane.isExpanded() == false);
+
+        rightClickOn("#Ether-TCP-pane");
+        clickOn("Delete layer");
+        rightClickOn("#Ether-IP-pane");
+        clickOn("Delete layer");
+    }
+
+    @Test
     public void should_set_enum_value_as_text() {
         setFieldText("#Ether-type", "0x800"); // IPv4
         verifyThat("#Ether-type", (Label t) -> t.getText().contains("IPv4"));

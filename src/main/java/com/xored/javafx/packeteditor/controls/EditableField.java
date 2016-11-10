@@ -70,8 +70,6 @@ public abstract class EditableField extends FlowPane {
 
         label.setOnMouseClicked(this::onLableClickedAction);
 
-        label.setContextMenu(getContextMenu());
-
         return label;
     }
 
@@ -217,7 +215,7 @@ public abstract class EditableField extends FlowPane {
         return isValid;
     }
 
-    protected abstract ContextMenu getContextMenu();
+    public abstract ContextMenu getContextMenu();
 
     protected abstract void onLableClickedAction(MouseEvent mouseEvent);
 
