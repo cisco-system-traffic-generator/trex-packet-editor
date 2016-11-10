@@ -299,4 +299,36 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         verifyThat("#Ether-Raw-load", hasText("<binary>"));
     }
 
+    @Test
+    public void should_build_payload_code() {
+        should_build_payload();
+        clickOn("#Ether-Raw-load");
+        clickOn("#payloadChoiceType");
+        clickOn("Code pattern");
+        clickOn("#patternSize");
+        push(DIGIT3,DIGIT2);
+        clickOn("#codePatternText");
+        push(DIGIT3,DIGIT2);
+        clickOn("#payloadButtonSave");
+        interrupt();
+        verifyThat("#Ether-Raw-load", hasText("22222222222222222222222222222222"));
+    }
+
+    @Test
+    public void should_build_payload_code_no_size() {
+        should_build_payload();
+        clickOn("#Ether-Raw-load");
+        clickOn("#payloadChoiceType");
+        clickOn("Code pattern");
+        clickOn("#codePatternText");
+        push(DIGIT3,DIGIT2);
+        push(DIGIT3,DIGIT2);
+        push(DIGIT3,DIGIT2);
+        push(DIGIT3,DIGIT2);
+        push(DIGIT3,DIGIT2);
+        clickOn("#payloadButtonSave");
+        interrupt();
+        verifyThat("#Ether-Raw-load", hasText("22222"));
+    }
+
 }
