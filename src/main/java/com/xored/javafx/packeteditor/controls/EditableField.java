@@ -155,12 +155,12 @@ public abstract class EditableField extends FlowPane {
                 commitChanges(combo);
             }
         });
-        
-        combo.setOnAction((event) -> {
-            if(!isCheckBoxEditable()) {
+
+        if(!isCheckBoxEditable()) {
+            combo.setOnAction((event) -> {
                 onComboBoxSelectedAction(combo);
-            }
-        });
+            });
+        }
 
         return combo;
     }
