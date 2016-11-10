@@ -112,27 +112,6 @@ public class Document {
         ).collect(Collectors.toList());
     }
 
-    private JsonElement asJson() {
-        JsonArray json = new JsonArray();
-        protocols.stream().forEach(protocol -> {
-            JsonObject jsonProtocol = new JsonObject();
-            jsonProtocol.add("id", new JsonPrimitive(protocol.getId()));
-            List<UserField> fields = protocol.getSetFields();
-            JsonArray jsonFields = new JsonArray();
-            fields.stream().forEach(field -> {
-                JsonObject jsonField = new JsonObject();
-                jsonField.add("id", new JsonPrimitive(field.getId()));
-                jsonField.add("value", field.getValue());
-                jsonFields.add(jsonField);
-            });
-            jsonProtocol.add("fields", jsonFields);
-            json.add(jsonProtocol);
-        });
-        JsonArray arr = new JsonArray();
-        arr.add(json);
-        return json;
-    }
-
     public void revertLastChanges() {
         if (lastModifiedField != null) {
             lastModifiedField.setValue(valueBeforeModification);
