@@ -26,10 +26,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -41,6 +38,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class FieldEditorController implements Initializable {
 
@@ -342,5 +340,14 @@ public class FieldEditorController implements Initializable {
 
     public Map<String, Object> getPktVmInstructions() {
         return getModel().getPkt().getPktVmInstructions();
+    }
+
+    public void copyInstructionsToClipboard() {
+        final Clipboard clipboard = Clipboard.getSystemClipboard();
+        final ClipboardContent content = new ClipboardContent();
+        String instructions = getModel().getVmInstructions().stream()
+                .collect(Collectors.joining(",\n"));
+        content.putString("["+instructions+"]");
+        clipboard.setContent(content);
     }
 }

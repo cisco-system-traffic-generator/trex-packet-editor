@@ -132,6 +132,11 @@ public class MenuController implements Initializable {
         getModel().setBinaryMode(false);
     }
 
+    @FXML
+    public void handleCopyInstructions(ActionEvent event) {
+        controller.copyInstructionsToClipboard();
+    }
+    
     public void handleExpandAll(ActionEvent actionEvent) {
         eventBus.post(new ProtocolExpandCollapseEvent(true));
     }
