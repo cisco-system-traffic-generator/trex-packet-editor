@@ -1,17 +1,19 @@
 package com.xored.javafx.packeteditor.data.user;
 
+import com.google.common.base.Strings;
 import com.google.gson.*;
 import com.xored.javafx.packeteditor.data.FEInstructionParameter;
+import com.xored.javafx.packeteditor.data.FeParameter;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
+import com.xored.javafx.packeteditor.metatdata.FeParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldValue;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.scapy.ReconstructProtocol;
 
 import java.io.File;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /** Defines a document with user model of a packet
@@ -23,6 +25,8 @@ public class Document {
 
     private DocumentMetadata metadata = new DocumentMetadata();
 
+    public Map<String, FeParameter> feParameters = new HashMap<>();
+    
     File currentFile;
 
     private UserField lastModifiedField;
@@ -124,26 +128,74 @@ public class Document {
         combinedField.getProtocol().getUserProtocol().createFieldInstruction(combinedField.getId());
     }
 
+    public void createFePrarameter(FeParameterMeta meta, String value) {
+        FeParameter feParameter = new FeParameter(meta, value);
+        feParameters.put(meta.getId(), feParameter);
+    }
+
+    public void setFePrarameterValue(String feParameterId, String value) {
+        FeParameter feParameter = getFeParameter(feParameterId);
+        feParameter.setValue(value);
+        feParameters.put(feParameterId, feParameter);
+    }
+
+    public FeParameter getFeParameter(String parameterId) {
+        return feParameters.get(parameterId);
+    }
+    
     public void deleteFEFieldInstruction(CombinedField combinedField) {
         combinedField.getProtocol().getUserProtocol().deleteFieldInstruction(combinedField.getId());
     }
 
-    public JsonElement getGeneratedVmInstructions() {
+    public JsonElement getVmInstructionsModel() {
         JsonArray instructions = new JsonArray();
-        boolean hasInstructions = false;
         Gson gson = new Gson();
         for (UserProtocol userProtocol: getProtocolStack()) {
             JsonObject protocolInstructions = new JsonObject();
             protocolInstructions.add("id", new JsonPrimitive(userProtocol.getId()));
             List<FEInstruction> field_instructions = userProtocol.getFieldInstructionsList();
             protocolInstructions.add("fields", gson.toJsonTree(field_instructions));
-            if (field_instructions.size() > 0) {
-                hasInstructions = true;
-            }
             instructions.add(protocolInstructions);
         }
         JsonObject payload = new JsonObject();
-        payload.add("vm_instructions", gson.toJsonTree(instructions));
-        return hasInstructions ? payload : null;
+        JsonObject fieldEngine = new JsonObject();
+        fieldEngine.add("instructions", gson.toJsonTree(instructions));
+        Map<String, String> feParameters = getFePrarameters().stream()
+                .filter(feParameter -> !Strings.isNullOrEmpty(feParameter.getValue()))
+                .collect(Collectors.toMap(FeParameter::getId, FeParameter::getValue));
+        fieldEngine.add("global_parameters", gson.toJsonTree(feParameters));
+        payload.add("field_engine", fieldEngine);
+        return payload;
+    }
+
+    public List<FeParameter> getFePrarameters() {
+        return feParameters.isEmpty() ? Collections.<FeParameter>emptyList() : feParameters.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+    }
+
+
+    public void initFeParameters(Map<String, FeParameterMeta> feParameters) {
+        feParameters.entrySet().stream().forEach(metaEntry -> {
+            FeParameterMeta meta = metaEntry.getValue();
+            FeParameter feParameter = new FeParameter(meta, meta.getDefault());
+            this.feParameters.put(meta.getId(), feParameter);
+        });
+    }
+    
+    public void clearFeParameters() {
+        feParameters.clear();
+    }
+
+    public void clearSplitByIfnecessary(String protocolId) {
+        for(FeParameter parameter : getFePrarameters()) {
+            if(needToClearSplitBy(parameter, protocolId)) {
+                parameter.setValue("");
+            }
+        }
+    }
+    
+    private boolean needToClearSplitBy(FeParameter parameter, String protocolId) {
+        String value = parameter.getValue().toLowerCase();
+        return parameter.getId().equals("split_by_var")
+            && parameter.getId().equals("split_by_var") && value.contains(protocolId.toLowerCase());
     }
 }

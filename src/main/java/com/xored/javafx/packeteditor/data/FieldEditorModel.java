@@ -11,6 +11,7 @@ import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
+import com.xored.javafx.packeteditor.scapy.InstructionExpressionData;
 import com.xored.javafx.packeteditor.scapy.PacketData;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.service.IMetadataService;
@@ -60,25 +61,34 @@ public class FieldEditorModel {
 
     public void addFEParameters(CombinedField combinedField) {
         beforeContentReplace();
+        userModel.initFeParameters(metadataService.getFeParameters());
         userModel.createFEFieldInstruction(combinedField);
-        fireUpdateViewEvent();
+        PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel());
+        setPktAndReload(newPkt);
     }
 
     public void deleteFEParameters(CombinedField combinedField) {
         beforeContentReplace();
         userModel.deleteFEFieldInstruction(combinedField);
-        fireUpdateViewEvent();
+        if (getVmInstructions().isEmpty()) {
+            userModel.clearFeParameters();
+        }
+        PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel());
+        setPktAndReload(newPkt);
     }
 
     public List<String> getVmInstructions() {
-        List<String> instructions = new ArrayList<>();
-        getUserModel().getProtocolStack().stream()
-                .flatMap(userProtocol -> userProtocol.getFieldInstructionsList().stream())
-                .forEach(instruction -> {
-                    instructions.add(instruction.getVmFlowVar());
-                    instructions.add(instruction.getVmWrFlowVar());
-                });
-        return instructions;
+        return packet.vm_instructions_expressions.stream().map(InstructionExpressionData::toString).collect(Collectors.toList());
+    }
+
+    public List<String> getSplitByParams() {
+        List<String> params = new ArrayList<>();
+        for(UserProtocol userProtocol: userModel.getProtocolStack()) {
+            params.addAll(userProtocol.getFieldInstructionsList().stream()
+                    .map(instruction -> userProtocol.getId() + "." + instruction.getFieldId())
+                    .collect(Collectors.toList()));
+        }
+        return params;
     }
 
     public class DocState {
@@ -118,7 +128,7 @@ public class FieldEditorModel {
                 if (isBinaryMode()) {
                     setPktAndReload(packetDataService.appendProtocol(packet, meta.getId()));
                 } else {
-                    setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+                    setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
                 }
             } catch(Exception e) {
                 undo();
@@ -163,7 +173,7 @@ public class FieldEditorModel {
         } else {
             if (userModel.getProtocolStack().size() > 1) {
                 userModel.getProtocolStack().pop();
-                setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+                setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
             }
         }
     }
@@ -192,7 +202,7 @@ public class FieldEditorModel {
     private void setNewUserModel(Document userModel) {
         this.userModel = userModel;
         userModel.getProtocolStack().forEach(protocol -> protocol.setCollapsed(true));
-        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getGeneratedVmInstructions()));
+        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
     }
 
     public void loadTemplate(DocumentFile outFile) {
@@ -223,8 +233,9 @@ public class FieldEditorModel {
         int idx = protocolStack.indexOf(protocol);
         if (idx > 0 && !isBinaryMode()) { // can't remove 1st layer
             beforeContentReplace();
+            getUserModel().clearSplitByIfnecessary(protocol.getId());
             protocolStack.remove(idx);
-            setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+            setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
         }
     }
 
@@ -235,7 +246,7 @@ public class FieldEditorModel {
             beforeContentReplace();
             protocolStack.remove(idx);
             protocolStack.insertElementAt(protocol, idx - 1);
-            setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+            setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
         }
     }
 
@@ -246,7 +257,7 @@ public class FieldEditorModel {
             beforeContentReplace();
             protocolStack.remove(idx);
             protocolStack.insertElementAt(protocol, idx + 1);
-            setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel()));
+            setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
         }
     }
 
@@ -268,8 +279,8 @@ public class FieldEditorModel {
     public void setVmInstructionParameter(FEInstructionParameter instructionParameter, String value) {
         beforeContentReplace();
         userModel.setFEInstructionParameter(instructionParameter, value);
-        PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getGeneratedVmInstructions());
-        setPktAndReload(newPkt);    
+        PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel());
+        setPktAndReload(newPkt);
     }
     
     public void editField(CombinedField field, ReconstructField newValue) {
@@ -306,7 +317,7 @@ public class FieldEditorModel {
             if (isBinaryMode()) {
                 newPkt = packetDataService.reconstructPacketField(packet, field.getProtocol().getPath(), newValue);
             } else {
-                newPkt = packetDataService.buildPacket(userModel.buildScapyModel());
+                newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel());
             }
         } catch (Exception e) {
             logger.error("Fail to update field {} with new value: {} due to: \"{}\"", field.getId(), newValue.value, e.getMessage());
@@ -409,5 +420,13 @@ public class FieldEditorModel {
 
     public String serialize() {
         return Base64.getEncoder().encodeToString(new Gson().toJson(toPOJO(userModel)).getBytes());
+    }
+
+    public void setFeParameterValue(String feParameterId, String value) {
+        beforeContentReplace();
+        userModel.setFePrarameterValue(feParameterId, value);
+        
+        PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel());
+        setPktAndReload(newPkt);
     }
 }

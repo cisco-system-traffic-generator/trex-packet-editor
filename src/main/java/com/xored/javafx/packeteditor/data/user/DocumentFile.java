@@ -3,11 +3,14 @@ package com.xored.javafx.packeteditor.data.user;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.internal.LinkedTreeMap;
+import com.xored.javafx.packeteditor.data.FeParameter;
+import com.xored.javafx.packeteditor.metatdata.FeParameterMeta;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,7 +19,13 @@ import java.util.stream.Collectors;
  * Serializes Document to POJO and JSON file
  */
 public class DocumentFile {
+    public String fileType;
+    public String version;
+    public DocumentMetadata metadata;
+    public List<DocumentProtocol> packet;
+    public Map<String, String> fePrarameters = new HashMap<>();
     public static final String FILE_EXTENSION = ".trp";
+
     public static class DocumentField {
         public String id;
         public JsonElement value;
@@ -50,16 +59,13 @@ public class DocumentFile {
             this.fieldsVmInstructions = fieldsVmInstructions;
         }
     }
-    public String fileType;
-    public String version;
-    public DocumentMetadata metadata;
-    public List<DocumentProtocol> packet;
 
     public static DocumentFile toPOJO(Document doc) {
         DocumentFile data = new DocumentFile();
         data.fileType = "trex-packet-editor";
         data.version = "1.0.0";
         data.metadata = doc.getMetadata();
+        data.fePrarameters = doc.getFePrarameters().stream().collect(Collectors.toMap(FeParameter::getId, FeParameter::getValue));
         data.packet = doc.getProtocolStack().stream().map(
                 protocol -> {
                     List<DocumentField> documentFields = protocol.getSetFields().stream()
@@ -78,6 +84,10 @@ public class DocumentFile {
     public static Document fromPOJO(DocumentFile data, IMetadataService metadataService) {
         Document doc = new Document();
         doc.setMetadata(data.metadata);
+        Map<String, FeParameterMeta> feParameterMetas = metadataService.getFeParameters();
+        data.fePrarameters.entrySet().stream()
+                .forEach(entry -> doc.createFePrarameter(feParameterMetas.get(entry.getKey()), entry.getValue()));
+        
         data.packet.forEach(
                 documentProtocol -> {
                     doc.addProtocol(metadataService.getProtocolMetadataById(documentProtocol.id));
