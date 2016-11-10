@@ -103,21 +103,21 @@ public class BinaryEditorController implements Initializable, Observer {
         beGroup.getChildren().clear();
         for (int i = 0; i < selRect.length; i++) {
             selRect[i] = new Rectangle();
-            selRect[i].setFill(Color.SKYBLUE);
+            selRect[i].getStyleClass().add("be-selection-rectangle");
             selRect[i].setTranslateZ(0);
 
             beGroup.getChildren().add(selRect[i]);
         }
         for (int i = 0; i < selRectHex.length; i++) {
             selRectHex[i] = new Rectangle();
-            selRectHex[i].setFill(Color.SKYBLUE);
+            selRectHex[i].getStyleClass().add("be-selection-rectangle");
             selRectHex[i].setTranslateZ(0);
 
             beGroup.getChildren().add(selRectHex[i]);
         }
 
         Rectangle rect4lineNums = new Rectangle(0, 0);
-        rect4lineNums.setFill(Color.WHITESMOKE);
+        rect4lineNums.getStyleClass().add("be-address-rectangle");
         rect4lineNums.setTranslateZ(0);
         beGroup.getChildren().add(rect4lineNums);
 

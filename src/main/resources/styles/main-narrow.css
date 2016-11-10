@@ -11,7 +11,15 @@
     button-background: #32b4ea;
     button-text-fill: #FFFFFF;
     -trex-field-row-background: #FFFFFF;
-    -trex-field-row-background-selected: skyblue; /*#33adff;*/ /*-fx-selection-bar;*/
+    -trex-field-row-background-selected: #b7e1ff;
+}
+
+#pcapEditorTopPane .be-selection-rectangle {
+    -fx-fill: -trex-field-row-background-selected;
+}
+
+#pcapEditorTopPane .be-address-rectangle {
+    -fx-fill: whitesmoke;
 }
 
 #pcapEditorTopPane .fieldeditortoppane {
@@ -200,7 +208,7 @@
 }
 
 #pcapEditorTopPane .binary-field.selected {
-    -fx-background-color: #33adff;
+    -fx-background-color: -trex-field-row-background-selected;
 }
 
 #pcapEditorTopPane .protocol-row {
@@ -210,7 +218,7 @@
 }
 
 #pcapEditorTopPane .field-row {
-    -fx-background-color: -trex-field-row-background;
+    -fx-background-color: #d1e2ff;
     -fx-padding: 0 0 0 40px;              /* narrowing */
     -fx-fill-height: true;
     -fx-fill-width: true;
