@@ -14,6 +14,8 @@ public class PacketData {
     
     public JsonElement vm_instructions;
     
+    public List<InstructionExpressionData> vm_instructions_expressions = new ArrayList<>();
+    
     public List<ProtocolData> data = new ArrayList<>();
     public String binary = ""; // binary packet data in base64 encoding
 
