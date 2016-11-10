@@ -6,17 +6,16 @@ import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.controls.FEInstructionParameterField;
+import com.xored.javafx.packeteditor.controls.FeParameterField;
 import com.xored.javafx.packeteditor.controls.ProtocolField;
 import com.xored.javafx.packeteditor.data.FEInstructionParameter;
+import com.xored.javafx.packeteditor.data.FeParameter;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
-import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
-import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
-import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
-import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
+import com.xored.javafx.packeteditor.metatdata.*;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
@@ -35,10 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -214,22 +210,46 @@ public class FieldEditorView {
     public TitledPane buildFieldEnginePane() {
         Label instructionsLabel = new Label("VM instructions:");
         
-        GridPane vmInstructionsPane = new GridPane();
-        vmInstructionsPane.setVgap(10);
-        vmInstructionsPane.getColumnConstraints().add(new ColumnConstraints(140));
-        vmInstructionsPane.add(instructionsLabel, 0, 0);
+        GridPane instructionsGrid = new GridPane();
+        instructionsGrid.setVgap(5);
+        instructionsGrid.getColumnConstraints().add(new ColumnConstraints(140));
+        instructionsGrid.add(instructionsLabel, 0, 0);
         int row = 0;
         for(String vmInstruction : controller.getModel().getVmInstructions()) {
-            Node node = new Text(vmInstruction);
-            vmInstructionsPane.add(node, 1, row++);
-            GridPane.setHalignment(node, HPos.LEFT);
+            Text text = new Text(vmInstruction);
+            instructionsGrid.add(text, 1, row++, 2, 1);
+            GridPane.setHalignment(text, HPos.LEFT);
+        }
+
+        GridPane parametersGrid = new GridPane();
+        parametersGrid.setVgap(5);
+        parametersGrid.getColumnConstraints().addAll(new ColumnConstraints(140),new ColumnConstraints(100),new ColumnConstraints(120));
+        Label parametersLabel = new Label("Parameters:");
+        parametersGrid.add(parametersLabel, 0, 0);
+        row = 0;
+        for(FeParameter feParameter: controller.getModel().getUserModel().getFePrarameters()) {
+            int rowId = row++;
+            Node label = new Label(feParameter.getName());
+            parametersGrid.add(label, 1, rowId, 2, 1);
+            GridPane.setHalignment(label, HPos.LEFT);
+            Node control = createFeParameterControl(feParameter);
+            parametersGrid.add(control, 2, rowId);
+            GridPane.setFillWidth(control, true);
         }
         
-        VBox content = new VBox(10);
-        content.getChildren().addAll(vmInstructionsPane);
+        VBox content = new VBox(30);
+        content.getChildren().addAll(instructionsGrid, parametersGrid);
         return buildCustomPane("field-engine-pane", "Field Engine", content);
     }
     
+    private Node createFeParameterControl(FeParameter feParameter) {
+        Node control;
+        FeParameterField parameterField = injector.getInstance(FeParameterField.class);
+        parameterField.init(feParameter);
+        control = parameterField;
+        return control;
+    }
+
     public TitledPane buildAppendProtocolPane() {
         List<ProtocolMetadata> protocols = controller.getModel().getAvailableProtocolsToAdd(false);
         ComboBox<ProtocolMetadata> cb = new ComboBox<>();
