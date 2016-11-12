@@ -133,7 +133,6 @@ public class FieldEditorModel {
             } catch(Exception e) {
                 undo();
                 logger.error("Unable to add protocol due to: {}", e);
-                userModel.getProtocolStack().pop();
                 throw e;
             }
             logger.info("UserProtocol {} added.", meta.getName());
