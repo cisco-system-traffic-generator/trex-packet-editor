@@ -5,9 +5,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import org.junit.AssumptionViolatedException;
 import org.junit.Test;
 
 import static javafx.scene.input.KeyCode.*;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeThat;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.util.NodeQueryUtils.hasText;
 
@@ -133,6 +136,8 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     @Test
     public void should_change_ether_type_and_back() {
         addLayerIPv4();
+        expandAllProtocols();
+        scrollFieldsUp();
         setFieldText("#Ether-type", "LOOP");
         setFieldText("#Ether-IP-src", "127.0.1.2");
         verifyThat("#Ether-type", (Label t) -> t.getText().contains("LOOP")); // default value for Ether
@@ -155,6 +160,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         addLayer("Raw");
         addLayerForce("Ether");
         addLayerForce("IP");
+        expandAllProtocols();
 
         setFieldText("#Ether-type", "LOOP");
         verifyThat("#Ether-type", (Label t) -> t.getText().contains("LOOP")); // default value for Ether
@@ -171,6 +177,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     @Test
     public void should_build_tcpip_stack() {
         addLayerIPv4();
+        expandPane("#Ether-pane");
         verifyThat("#Ether-IP-version", hasText("4"));
         verifyThat("#Ether-type", (Label t) -> t.getText().contains("IPv4"));
         selectProtoType("IPv4");
@@ -196,29 +203,20 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
     public void should_have_row_ctx_menu() {
-        rightClickOn("#Ether-src-label");
+        assumeFalse("headless not supported", isHeadless());
+
+        showCtxMenu("#Ether-src-label");
         clickOn("Generate");
         verifyThat("#Ether-src", this::fieldLabelIsSet);
 
-        rightClickOn("#Ether-src-label");
+        showCtxMenu("#Ether-src-label");
         clickOn("Set to default");
         verifyThat("#Ether-src", this::fieldLabelIsUnSet);
     }
 
     @Test
-    public void should_have_value_ctx_menu() {
-        clickOn("#Ether-src"); // show value box
-        rightClickOn("#Ether-src"); // click on text field
-        clickOn("Generate");
-        verifyThat("#Ether-src", this::fieldLabelIsSet);
-
-        rightClickOn("#Ether-src"); // click on label
-        clickOn("Set to default");
-        verifyThat("#Ether-src", this::fieldLabelIsUnSet);
-    }
-
-    @Test
-    public void should_have_protocole_ctx_menu() {
+    public void should_have_protocol_ctx_menu() {
+        assumeFalse("headless not supported", isHeadless());
         // creates Ether/TCP/IP and tests protocol ctx menu(move, delete)
         addLayerForce("TCP");
         with("#Ether-pane", (TitledPane pane) -> pane.setExpanded(false));
@@ -226,17 +224,17 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         addLayerIPv4();
         with("#Ether-TCP-IP-pane", (TitledPane pane) -> pane.setExpanded(false));
 
-        rightClickOn("#Ether-TCP-pane");
+        showCtxMenu("#Ether-TCP-pane");
         clickOn("Move Layer Down");
-        rightClickOn("#Ether-IP-TCP-pane");
+        showCtxMenu("#Ether-IP-TCP-pane");
         clickOn("Move Layer Up");
 
         verifyThat("#Ether-TCP-pane", (TitledPane pane) -> pane.isExpanded() == false );
         verifyThat("#Ether-TCP-IP-pane", (TitledPane pane) -> pane.isExpanded() == false);
 
-        rightClickOn("#Ether-TCP-pane");
+        showCtxMenu("#Ether-TCP-pane");
         clickOn("Delete layer");
-        rightClickOn("#Ether-IP-pane");
+        showCtxMenu("#Ether-IP-pane");
         clickOn("Delete layer");
     }
 

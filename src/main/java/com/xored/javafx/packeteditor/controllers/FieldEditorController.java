@@ -24,6 +24,7 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
@@ -154,8 +155,23 @@ public class FieldEditorController implements Initializable {
 
     @Subscribe
     public void handleProtocolExpandCollapseEvent(ProtocolExpandCollapseEvent event) {
-        view.getProtocolTitledPanes().stream().filter(titledPane -> titledPane.isCollapsible()).forEach(titledPane ->
-            titledPane.setExpanded(event.expandState())
+        List<TitledPane> panes = view.getProtocolTitledPanes();
+        if (panes.isEmpty())
+            return;
+        TitledPane lastPane = panes.get(panes.size() - 1);
+        panes.stream().filter(titledPane -> titledPane.isCollapsible()).forEach(titledPane -> {
+            switch(event.getAction()) {
+                case EXPAND_ALL:
+                    titledPane.setExpanded(true);
+                    break;
+                case COLLAPSE_ALL:
+                    titledPane.setExpanded(false);
+                    break;
+                case EXPAND_ONLY_LAST:
+                    titledPane.setExpanded(titledPane == lastPane);
+                    break;
+            }
+        }
         );
     }
 

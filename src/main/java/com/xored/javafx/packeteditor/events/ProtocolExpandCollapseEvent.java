@@ -4,14 +4,20 @@ package com.xored.javafx.packeteditor.events;
  * Requirement to expand/collapse all titled panes
  */
 public class ProtocolExpandCollapseEvent {
-    private boolean expanded;
+    private Action action;
 
-    public ProtocolExpandCollapseEvent(boolean expanded) {
-        this.expanded = expanded;
+    public enum Action {
+        EXPAND_ALL,
+        COLLAPSE_ALL,
+        EXPAND_ONLY_LAST
+    };
+
+    public ProtocolExpandCollapseEvent(Action action) {
+        this.action = action;
     }
 
-    public boolean expandState() {
-        return expanded;
+    public Action getAction() {
+        return action;
     }
 }
 

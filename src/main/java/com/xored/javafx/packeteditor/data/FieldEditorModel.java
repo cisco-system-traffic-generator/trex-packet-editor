@@ -8,6 +8,7 @@ import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.data.user.Document;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
+import com.xored.javafx.packeteditor.events.ProtocolExpandCollapseEvent;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
@@ -125,6 +126,8 @@ public class FieldEditorModel {
             try{
                 beforeContentReplace();
                 userModel.addProtocol(meta);
+                Stack<UserProtocol> protocols = userModel.getProtocolStack();
+                protocols.forEach(p -> p.setCollapsed(p != protocols.peek())); // EXPAND_ONLY_LAST
                 if (isBinaryMode()) {
                     setPktAndReload(packetDataService.appendProtocol(packet, meta.getId()));
                 } else {

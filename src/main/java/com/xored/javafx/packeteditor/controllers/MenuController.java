@@ -138,10 +138,10 @@ public class MenuController implements Initializable {
     }
     
     public void handleExpandAll(ActionEvent actionEvent) {
-        eventBus.post(new ProtocolExpandCollapseEvent(true));
+        eventBus.post(new ProtocolExpandCollapseEvent(ProtocolExpandCollapseEvent.Action.EXPAND_ALL));
     }
 
     public void handleCollapseAll(ActionEvent actionEvent) {
-        eventBus.post(new ProtocolExpandCollapseEvent(false));
+        eventBus.post(new ProtocolExpandCollapseEvent(ProtocolExpandCollapseEvent.Action.COLLAPSE_ALL));
     }
 }

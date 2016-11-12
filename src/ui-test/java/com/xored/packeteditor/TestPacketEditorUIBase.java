@@ -8,10 +8,7 @@ import com.xored.javafx.packeteditor.guice.GuiceModule;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import javafx.application.Platform;
 import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.junit.Assert;
 import org.junit.Before;
@@ -81,11 +78,15 @@ public class TestPacketEditorUIBase extends ApplicationTest {
 
     public void setFieldText(String query, String val) {
         clickOn(query); // click on label
+        interrupt();
         with(query, (Node node)->{
             if (node instanceof ComboBox) {
                 ((ComboBox)node).getEditor().setText(val);
-            } else {
+            } else if (node instanceof TextField) {
                 ((TextField)node).setText(val);
+            } else {
+                logger.error("unexpected node type - {}", node);
+                throw new RuntimeException("unexpected node type");
             }
             clickOn(node);
             push(ENTER);
@@ -245,12 +246,14 @@ public class TestPacketEditorUIBase extends ApplicationTest {
         clickOn(".protocol-type-selector .arrow-button");
         clickOn(layerType);
         clickOn("#append-protocol-button");
+        interrupt();
     }
 
     void addLayerForce(String layerType) {
         setComboBoxText(".protocol-type-selector", layerType);
         clickOn(".protocol-type-selector");
         clickOn("#append-protocol-button");
+        interrupt();
     }
 
     void selectProtoType(String proto) {
@@ -283,8 +286,31 @@ public class TestPacketEditorUIBase extends ApplicationTest {
         //push(SHORTCUT, KeyCode.R);
     }
 
+    void scrollFieldsUp() {
+        with("#fieldEditorScrollPane", (ScrollPane sp) -> sp.setVvalue(0) );
+    }
+
     void scrollFieldsDown() {
         with("#fieldEditorScrollPane", (ScrollPane sp) -> sp.setVvalue(sp.getVmax()) );
+    }
+
+    void showCtxMenu(String paneID) {
+        rightClickOn(paneID);
+        interrupt();
+    }
+
+    void expandPane(String paneID) {
+        with(paneID, (TitledPane tp) -> tp.setExpanded(true));
+        interrupt();
+    }
+
+    void collapsePane(String paneID) {
+        with(paneID, (TitledPane tp) -> tp.setExpanded(false));
+    }
+
+    void expandAllProtocols() {
+        clickOn("Action");
+        clickOn("Expand all");
     }
 
 }
