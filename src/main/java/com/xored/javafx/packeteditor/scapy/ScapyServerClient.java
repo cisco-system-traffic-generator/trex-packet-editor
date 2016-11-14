@@ -154,6 +154,13 @@ public class ScapyServerClient {
 
         Response resp = gson.fromJson(response_json, Response.class);
 
+        if (resp.error != null) {
+            String message = resp.error.get("message").getAsString();
+            if(message.equals("Method not found")) {
+                throw new MethodNotFoundException();
+            }
+        }
+
         if (!resp.id.equals(reqs.id)) {
             logger.error("received id:{}, expected:{}", resp.id, reqs.id);
             throw new ScapyException("unexpected result id");
