@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.gson.JsonPrimitive;
 import com.xored.javafx.packeteditor.data.FeParameter;
 import com.xored.javafx.packeteditor.metatdata.FeParameterMeta;
+import com.xored.javafx.packeteditor.scapy.ScapyException;
 import com.xored.javafx.packeteditor.view.ComboBoxItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
@@ -105,7 +106,13 @@ public class FeParameterField extends EditableField {
 
     @Override
     protected void commitChanges(TextField textField) {
-        controller.getModel().setFeParameterValue(feParameter.getId(), textField.getText());
+        String prevValue = feParameter.getValue();
+        try {
+            controller.getModel().setFeParameterValue(feParameter.getId(), textField.getText());
+        } catch (ScapyException e) {
+            textField.getStyleClass().add("field-error");
+            controller.getModel().setFeParameterValue(feParameter.getId(), prevValue);
+        }
     }
 
     @Override

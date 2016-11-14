@@ -382,6 +382,12 @@
 #pcapEditorTopPane .titled-pane .text-field-100 {
     -fx-min-width: 100px;
 }
+
+#pcapEditorTopPane .titled-pane .text-field-100 .field-error {
+    -fx-focus-color: red;
+}
+
+
 #pcapEditorTopPane .titled-pane .combo-box-100 {
     -fx-min-width: 100px;
 }
