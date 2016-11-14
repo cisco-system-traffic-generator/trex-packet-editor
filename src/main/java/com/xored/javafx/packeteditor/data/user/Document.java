@@ -150,13 +150,16 @@ public class Document {
     public JsonElement getVmInstructionsModel() {
         JsonArray instructions = new JsonArray();
         Gson gson = new Gson();
-        for (UserProtocol userProtocol: getProtocolStack()) {
-            JsonObject protocolInstructions = new JsonObject();
-            protocolInstructions.add("id", new JsonPrimitive(userProtocol.getId()));
-            List<FEInstruction> field_instructions = userProtocol.getFieldInstructionsList();
-            protocolInstructions.add("fields", gson.toJsonTree(field_instructions));
-            instructions.add(protocolInstructions);
-        }
+        getProtocolStack().stream()
+                .filter(protocol -> !protocol.getFieldInstructionsList().isEmpty())
+                .forEach(userProtocol -> {
+                    JsonObject protocolInstructions = new JsonObject();
+                    protocolInstructions.add("id", new JsonPrimitive(userProtocol.getId()));
+                    List<FEInstruction> field_instructions = userProtocol.getFieldInstructionsList();
+                    protocolInstructions.add("fields", gson.toJsonTree(field_instructions));
+                    instructions.add(protocolInstructions);
+                });
+        
         JsonObject payload = new JsonObject();
         JsonObject fieldEngine = new JsonObject();
         fieldEngine.add("instructions", gson.toJsonTree(instructions));
