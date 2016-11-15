@@ -342,8 +342,15 @@ public class FieldEditorController implements Initializable {
         }
     }
 
-    public void loadUserModel(String userModelJSON) {
-        model.loadDocumentFromJSON(userModelJSON);
+    /**
+     * Load user model from JSON encoded in base64.
+     * This method is used in trex-stateless-gui application.
+     * 
+     * @param base64JSONUserModel
+     */
+    public void loadUserModel(String base64JSONUserModel) {
+        reset();
+        model.loadDocumentFromJSON(base64JSONUserModel);
     }
 
     public void reset() {
