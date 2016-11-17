@@ -19,6 +19,4 @@ public interface IMetadataService {
     ProtocolMetadata getProtocolMetadataById(String protocolId);
 
     List<String> getAllowedPayloadForProtocol(String protocolId);
-
-    void initialize();
 }

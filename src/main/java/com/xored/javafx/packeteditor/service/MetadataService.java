@@ -27,10 +27,6 @@ public class MetadataService implements IMetadataService {
     Map<String, List<String>> payload_classes_cache = new HashMap<>();
     Map<String, FeParameterMeta> feParametersMeta = new HashMap<>();
     Map<String, InstructionExpressionMeta> feInstructionMetas = new HashMap<>();
-
-    public void initialize() {
-        // TODO: delete me once protocols json moved to scapy server.
-    }
     
     @Subscribe
     public void handleScapyConnectedEvent(ScapyClientConnectedEvent event) {
