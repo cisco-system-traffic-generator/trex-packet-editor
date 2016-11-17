@@ -26,6 +26,7 @@ public class MetadataService implements IMetadataService {
     Map<String, ProtocolMetadata> protocols = new HashMap<>();
     Map<String, List<String>> payload_classes_cache = new HashMap<>();
     Map<String, FeParameterMeta> feParametersMeta = new HashMap<>();
+    Map<String, InstructionExpressionMeta> feInstructionMetas = new HashMap<>();
 
     public void initialize() {
         // TODO: delete me once protocols json moved to scapy server.
@@ -33,7 +34,7 @@ public class MetadataService implements IMetadataService {
     
     @Subscribe
     public void handleScapyConnectedEvent(ScapyClientConnectedEvent event) {
-        loadProtocolDefinitions();
+        loadDefinitions();
     }
 
     public Map<String, ProtocolMetadata> getProtocols() {
@@ -45,7 +46,12 @@ public class MetadataService implements IMetadataService {
         return feParametersMeta;
     }
 
-    private void loadProtocolDefinitions() {
+    @Override
+    public Map<String, InstructionExpressionMeta> getFeInstructions() {
+        return feInstructionMetas;
+    }
+
+    private void loadDefinitions() {
         try {
             ScapyDefinitions definitions = scapy.get_definitions();
 
@@ -73,6 +79,16 @@ public class MetadataService implements IMetadataService {
                         proto.fieldEngineAwareFields
                 ));
             });
+            
+            if (definitions.feInstructions != null) {
+                definitions.feInstructions.stream().forEach( instructionData -> {
+                    List<FEInstructionParameterMeta> parameterMetas = instructionData.parameters.stream()
+                            .map(feInstructionParameterMetas::get).collect(Collectors.toList());
+                    
+                    InstructionExpressionMeta meta = new InstructionExpressionMeta(instructionData.id, parameterMetas);
+                    feInstructionMetas.put(instructionData.id, meta);
+                });
+            }
         } catch (Exception e) {
             logger.error("failed to load protocol defs from scapy: {}", e);
         }
