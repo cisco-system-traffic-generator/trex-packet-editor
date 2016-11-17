@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.gson.*;
 import com.xored.javafx.packeteditor.data.FEInstructionParameter;
 import com.xored.javafx.packeteditor.data.FeParameter;
+import com.xored.javafx.packeteditor.data.InstructionExpression;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.FeParameterMeta;
@@ -33,6 +34,8 @@ public class Document {
     
     private JsonElement valueBeforeModification;
     
+    private List<InstructionExpression> feInstructions = new ArrayList<>();
+
     public DocumentMetadata getMetadata() {
         return metadata;
     }
@@ -171,6 +174,18 @@ public class Document {
         return payload;
     }
 
+    public List<InstructionExpression> getInstructions() {
+        return feInstructions;
+    }
+
+    public void addInstruction(InstructionExpression instructionExpression) {
+        feInstructions.add(instructionExpression);
+    }
+
+    public void deleteInstruction(InstructionExpression instructionExpression) {
+        feInstructions.remove(instructionExpression);
+    }
+    
     public List<FeParameter> getFePrarameters() {
         return feParameters.isEmpty() ? Collections.<FeParameter>emptyList() : feParameters.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }
@@ -200,5 +215,9 @@ public class Document {
         String value = parameter.getValue().toLowerCase();
         return parameter.getId().equals("split_by_var")
             && parameter.getId().equals("split_by_var") && value.contains(protocolId.toLowerCase());
+    }
+
+    public List<InstructionExpression> getFeInstructions() {
+        return feInstructions;
     }
 }
