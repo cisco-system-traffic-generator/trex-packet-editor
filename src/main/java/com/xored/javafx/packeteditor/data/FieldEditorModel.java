@@ -8,7 +8,6 @@ import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.data.user.Document;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
-import com.xored.javafx.packeteditor.events.ProtocolExpandCollapseEvent;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
@@ -80,6 +79,10 @@ public class FieldEditorModel {
 
     public List<String> getVmInstructions() {
         return packet.vm_instructions_expressions.stream().map(InstructionExpressionData::toString).collect(Collectors.toList());
+    }
+
+    public List<InstructionExpression> getInstructionExpressions() {
+        return userModel.getFeInstructions();
     }
 
     public List<String> getSplitByParams() {
