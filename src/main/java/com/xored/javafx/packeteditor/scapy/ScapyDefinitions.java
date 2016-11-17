@@ -38,8 +38,14 @@ public class ScapyDefinitions {
         public Map<String, String> dict;
     }
 
+    public class ScapyFEInstruction {
+        public String id;
+        public List<String> parameters;
+    }
+
     public List<ScapyProtocol> protocols;
 
     public List<ScapyFEParameter> feInstructionParameters;
+    public List<ScapyFEInstruction> feInstructions;
     public List<ScapyFEParameter> feParameters;
 }
