@@ -15,7 +15,9 @@ import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
-import com.xored.javafx.packeteditor.metatdata.*;
+import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
+import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
+import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
@@ -25,17 +27,17 @@ import javafx.geometry.HPos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
-import org.controlsfx.control.textfield.TextFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.*;
@@ -259,87 +261,6 @@ public class FieldEditorView {
         return control;
     }
 
-    public TitledPane buildAppendProtocolPane() {
-        List<ProtocolMetadata> protocols = controller.getModel().getAvailableProtocolsToAdd(false);
-        ComboBox<ProtocolMetadata> cb = new ComboBox<>();
-        cb.setId("append-protocol-combobox");
-        cb.getStyleClass().add("protocol-type-selector");
-        cb.setEditable(true);
-        cb.getItems().addAll(protocols);
-
-        // Display only available protocols, but let user choose any
-        List<String> protoIds = controller.getMetadataService().getProtocols().values().stream()
-                .map(ProtocolMetadata::getId)
-                .sorted()
-                .collect(Collectors.toList());
-
-        protoAutoCompleter = TextFields.bindAutoCompletion(cb.getEditor(), protoIds);
-        cb.setOnHidden((e) -> {
-            if (protoAutoCompleter == null) {
-                protoAutoCompleter = TextFields.bindAutoCompletion(cb.getEditor(), protoIds);
-            }
-        });
-
-        cb.setOnShown((e) -> {
-            if (protoAutoCompleter!=null) {
-                protoAutoCompleter.dispose();
-                protoAutoCompleter = null;
-            }
-        });
-
-        Button addBtn = new Button();
-        addBtn.setId("append-protocol-button");
-        addBtn.setText("Append layer");
-
-        Consumer<Object> onAppendLayer = (o) -> {
-            Object sel = cb.getSelectionModel().getSelectedItem();
-            try {
-                if (sel==null) {
-                    sel = cb.getEditor().getText();
-                }
-                if (sel instanceof ProtocolMetadata) {
-                    controller.getModel().addProtocol((ProtocolMetadata)sel);
-                }
-                else if (sel instanceof String) {
-                    String selText = (String)sel;
-                    ProtocolMetadata meta = protocols.stream().filter(
-                            m -> m.getId().equals(selText) || m.getName().equals(selText)
-                    ).findFirst().orElse(null);
-                    if (meta != null) {
-                        controller.getModel().addProtocol(meta);
-                    } else {
-                        controller.getModel().addProtocol(selText);
-                    }
-                }
-            } catch(Exception e) {
-                String selectedProtocolName = "unknown";
-                if (sel instanceof ProtocolMetadata) {
-                    selectedProtocolName = ((ProtocolMetadata)sel).getName();
-                } else if (sel instanceof String) {
-                    selectedProtocolName = (String) sel;
-                }
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setHeaderText("Unable to add \""+ selectedProtocolName +"\" protocol.");
-                alert.initOwner(fieldEditorPane.getScene().getWindow());
-                
-                alert.showAndWait();
-            }
-        };
-
-        cb.setOnKeyReleased( e -> {
-            if (e.getCode().equals(KeyCode.ENTER)) {
-                onAppendLayer.accept(null);
-            }
-        });
-
-        addBtn.setOnAction( e-> onAppendLayer.accept(null) );
-
-        HBox controls = new HBox(10);
-        controls.getChildren().add(cb);
-        controls.getChildren().add(addBtn);
-        return buildCustomPane("append-protocol-pane", "Append new layer", controls);
-    }
-
     public void rebuild(CombinedProtocolModel model) {
         try {
             protocolTitledPanes = new ArrayList<>();
@@ -351,7 +272,6 @@ public class FieldEditorView {
             VBox protocolsPaneVbox = new VBox();
 
             protocolsPaneVbox.getChildren().setAll(protocolTitledPanes);
-            protocolsPaneVbox.getChildren().add(buildAppendProtocolPane());
             if (controller.getModel().getVmInstructions().size() > 2) {
                 protocolsPaneVbox.getChildren().add(buildFieldEnginePane());
             }

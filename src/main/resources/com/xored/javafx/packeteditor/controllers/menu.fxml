@@ -145,6 +145,9 @@
                      </ImageView>
                  </graphic>
              </Button>
+            <Separator />
+            <ComboBox fx:id="protocolSelector" focusTraversable="false" editable="true" />
+            <Button fx:id="appendProtocolBtn" focusTraversable="false" text="Append" />
             <Button fx:id="binaryModeOnBtn" text="Switch to binary mode" onAction="#handleModeBinary" visible="false" />
             <Button fx:id="abstractModeOnBtn" text="Switch to abstract mode" onAction="#handleModeAbstract" visible="false" />
          </items>

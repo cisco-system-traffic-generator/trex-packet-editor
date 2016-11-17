@@ -160,8 +160,9 @@
     -fx-font-stretch: normal;
 }
 
-#pcapEditorTopPane #append-protocol-combobox {
-    -fx-min-width: 25em;
+#append-protocol-combobox {
+    -fx-min-width: 15em;
+    -fx-pref-height: 16px;
 }
 
 #pcapEditorTopPane .append-protocol .title {
@@ -169,12 +170,12 @@
     -fx-font-weight: normal;
 }
 
-#append-protocol-pane {
+#field-engine-pane {
     -fx-padding: 10px 0 0 0;
 }
 
 #pcapEditorTopPane .append-protocol .content {
-    -fx-background-color: WHITE;
+    -fx-color: #4b4b4b;
 }
 
 #pcapEditorTopPane #append-protocol-button {
@@ -390,12 +391,6 @@
 
 #pcapEditorTopPane .titled-pane .combo-box-100 {
     -fx-min-width: 100px;
-}
-
-#pcapEditorTopPane .titled-pane .protocol-type-selector {
-    -fx-min-width: 15em;
-    -fx-pref-width: -1; /*-fx-min-width;*/
-    -fx-max-width: 15em; /*-fx-min-width;*/
 }
 
 #pcapEditorTopPane ProtocolField {
