@@ -40,6 +40,7 @@ public class ScapyDefinitions {
 
     public class ScapyFEInstruction {
         public String id;
+        public String help;
         public List<String> parameters;
     }
 
