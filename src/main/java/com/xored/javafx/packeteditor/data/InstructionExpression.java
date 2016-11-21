@@ -6,9 +6,9 @@ import java.util.List;
 
 public class InstructionExpression {
     private InstructionExpressionMeta meta;
-    private List<FEInstructionParameter> parameters;
+    private List<FEInstructionParameter2> parameters;
 
-    public InstructionExpression(InstructionExpressionMeta meta, List<FEInstructionParameter> parameters) {
+    public InstructionExpression(InstructionExpressionMeta meta, List<FEInstructionParameter2> parameters) {
         this.meta = meta;
         this.parameters = parameters;
     }
@@ -21,7 +21,15 @@ public class InstructionExpression {
         return meta;
     }
 
-    public List<FEInstructionParameter> getParameters() {
+    public List<FEInstructionParameter2> getParameters() {
         return parameters;
+    }
+    
+    public String toString() {
+        return meta.getId();
+    }
+
+    public String getHelp() {
+        return meta.getHelp();
     }
 }

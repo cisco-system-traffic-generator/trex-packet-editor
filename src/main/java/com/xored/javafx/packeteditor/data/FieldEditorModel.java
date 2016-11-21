@@ -2,6 +2,7 @@ package com.xored.javafx.packeteditor.data;
 
 import com.google.common.eventbus.EventBus;
 import com.google.gson.Gson;
+import com.google.gson.JsonPrimitive;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
@@ -9,6 +10,7 @@ import com.xored.javafx.packeteditor.data.user.Document;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
+import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.InstructionExpressionData;
@@ -93,6 +95,21 @@ public class FieldEditorModel {
                     .collect(Collectors.toList()));
         }
         return params;
+    }
+
+    public void addInstruction(InstructionExpressionMeta instructionMeta) {
+        List<FEInstructionParameter2> parameters = instructionMeta.getParameterMetas().stream()
+                .map(meta -> new FEInstructionParameter2(meta, new JsonPrimitive(meta.getDefaultValue())))
+                .collect(Collectors.toList());
+        InstructionExpression instruction = new InstructionExpression(instructionMeta, parameters);
+
+        beforeContentReplace();
+        
+        userModel.addInstruction(instruction);
+        
+        // call scapy
+
+        setPktAndReload(packet);
     }
 
     public class DocState {
@@ -281,10 +298,12 @@ public class FieldEditorModel {
         });
     }
     
-    public void setVmInstructionParameter(FEInstructionParameter instructionParameter, String value) {
+    public void setVmInstructionParameter(FEInstructionParameter2 instructionParameter, String value) {
         beforeContentReplace();
         userModel.setFEInstructionParameter(instructionParameter, value);
-        PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel());
+        PacketData newPkt = packet;
+        // TODO: implement scapy call
+//        PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel());
         setPktAndReload(newPkt);
     }
     
