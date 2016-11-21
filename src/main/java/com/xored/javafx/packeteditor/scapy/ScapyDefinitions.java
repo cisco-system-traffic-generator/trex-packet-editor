@@ -36,6 +36,7 @@ public class ScapyDefinitions {
         public String name;
         public String defaultValue;
         public Map<String, String> dict;
+        public Boolean required;
     }
 
     public class ScapyFEInstruction {
