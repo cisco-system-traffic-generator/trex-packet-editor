@@ -1,14 +1,20 @@
 package com.xored.javafx.packeteditor.controls;
 
 import com.google.gson.JsonPrimitive;
-import com.xored.javafx.packeteditor.data.FEInstructionParameter;
+import com.xored.javafx.packeteditor.data.FEInstructionParameter2;
+import com.xored.javafx.packeteditor.data.InstructionExpression;
+import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta.Type;
 import com.xored.javafx.packeteditor.scapy.ScapyException;
 import com.xored.javafx.packeteditor.view.ComboBoxItem;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Text;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,9 +24,11 @@ import static com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta
 
 public class FEInstructionParameterField extends EditableField {
     
-    private FEInstructionParameter feInstructionParameter;
+    protected FEInstructionParameter2 feInstructionParameter;
+
+    protected InstructionExpression feInstruction;
     
-    public void init(FEInstructionParameter option) {
+    public void init(FEInstructionParameter2 option) {
         this.feInstructionParameter = option;
         switch (option.getType()) {
             case ENUM:
@@ -36,14 +44,44 @@ public class FEInstructionParameterField extends EditableField {
         getChildren().addAll(label);
     }
 
+    protected Node createLabel() {
+        Text valueNode = new Text();
+        Paint color;
+        String val = feInstructionParameter.getValue().getAsString();
+        if("more".equals(val)) {
+            color = Color.web("grey");
+        }
+        else if (Type.NUMBER.equals(feInstructionParameter.getType()) || isNumber(val)) {
+            color = Color.web("#40a070");
+        } else {
+            val = "\"" + val + "\"";
+            color = Color.web("#4070a0");
+        }
+
+        valueNode.setText(val);
+        valueNode.setFill(color);
+        valueNode.setOnMouseClicked(this::onLableClickedAction);
+        
+        return valueNode;
+    }
+    
+    private boolean isNumber(String str) {
+        try {
+            Integer.valueOf(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+    
     @Override
     protected String getUniqueViewId() {
-        return view.getUniqueIdFor(feInstructionParameter.getCombinedField()) + "-" + feInstructionParameter.getId();
+        return feInstructionParameter.getId();
     }
 
     @Override
     protected void revertTextFieldValue(TextField tf) {
-        tf.setText(feInstructionParameter.getValue());
+        tf.setText(feInstructionParameter.getValue().getAsString());
     }
 
     @Override
@@ -67,7 +105,7 @@ public class FEInstructionParameterField extends EditableField {
     protected void processDefaultAndSetItems(ComboBox<ComboBoxItem> combo, List<ComboBoxItem> items) {
         combo.getItems().addAll(items);
         Optional<ComboBoxItem> defaultComboBoxItem = items.stream()
-                .filter(item -> item.getValue().getAsString().equals(feInstructionParameter.getValue()))
+                .filter(item -> item.getValue().getAsString().equals(feInstructionParameter.getValue().getAsString()))
                 .findFirst();
         if (defaultComboBoxItem.isPresent()) {
             combo.setValue(defaultComboBoxItem.get());
@@ -87,7 +125,7 @@ public class FEInstructionParameterField extends EditableField {
     }
 
     private String getInstructionParamValue() {
-        String value = feInstructionParameter.getValue();
+        String value = feInstructionParameter.getValue().getAsString();
         if (value == null) {
             value = feInstructionParameter.getDefaultValue();
         }
@@ -100,12 +138,12 @@ public class FEInstructionParameterField extends EditableField {
     
     @Override
     protected void commitChanges(ComboBox<ComboBoxItem> combo) {
-         controller.getModel().setVmInstructionParameter(feInstructionParameter, combo.getSelectionModel().getSelectedItem().getValue().getAsString());
+//         controller.getModel().setVmInstructionParameter(feInstructionParameter, combo.getSelectionModel().getSelectedItem().getValue().getAsString());
     }
 
     @Override
     protected void commitChanges(TextField textField) {
-        String prevValue = feInstructionParameter.getValue();
+        String prevValue = feInstructionParameter.getValue().getAsString();
         try {
             controller.getModel().setVmInstructionParameter(feInstructionParameter, textField.getText());
         } catch (ScapyException e) {
@@ -127,5 +165,9 @@ public class FEInstructionParameterField extends EditableField {
     @Override
     protected void onComboBoxSelectedAction(ComboBox<ComboBoxItem> combo) {
         commitChanges(combo);
+    }
+
+    public void setInstruction(InstructionExpression instruction) {
+        this.feInstruction = instruction;
     }
 }
