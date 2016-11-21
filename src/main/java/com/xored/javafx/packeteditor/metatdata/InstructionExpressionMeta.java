@@ -4,11 +4,13 @@ import java.util.List;
 
 public class InstructionExpressionMeta {
     private String id;
+    private String help;
     private List<FEInstructionParameterMeta> parameterMetas;
 
-    public InstructionExpressionMeta(String id, List<FEInstructionParameterMeta> parameterMetas) {
+    public InstructionExpressionMeta(String id, String help, List<FEInstructionParameterMeta> parameterMetas) {
         this.id = id;
         this.parameterMetas = parameterMetas;
+        this.help = help;
     }
 
     public String getId() {
@@ -21,5 +23,9 @@ public class InstructionExpressionMeta {
     
     public String toString() {
         return id;
+    }
+
+    public String getHelp() {
+        return help;
     }
 }
