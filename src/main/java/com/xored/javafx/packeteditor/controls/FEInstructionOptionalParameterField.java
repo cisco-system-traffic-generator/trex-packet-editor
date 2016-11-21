@@ -66,11 +66,7 @@ public class FEInstructionOptionalParameterField extends FEInstructionParameterF
     protected TextField getTextField() { return null; }
 
     @Override
-    protected void commitChanges(ComboBox<ComboBoxItem> combo) {
-        String selectedParameter = combo.getSelectionModel().getSelectedItem().getValue().getAsString();
-        
-        controller.getModel().addInstructionParameter(feInstruction, selectedParameter);
-    }
+    protected void commitChanges(ComboBox<ComboBoxItem> combo) {}
 
     @Override
     protected boolean isCheckBoxEditable() {
