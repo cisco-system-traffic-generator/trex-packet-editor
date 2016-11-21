@@ -56,7 +56,7 @@ public class MetadataService implements IMetadataService {
             if (definitions.feInstructionParameters != null) {
                 definitions.feInstructionParameters.stream()
                         .filter(param -> param.id != null)
-                        .forEach(param -> feInstructionParameterMetas.put(param.id, new FEInstructionParameterMeta(param.type, param.id, param.name, param.defaultValue, param.dict)));
+                        .forEach(param -> feInstructionParameterMetas.put(param.id, new FEInstructionParameterMeta(param.type, param.id, param.name, param.defaultValue, param.dict, param.required)));
             }
 
             if (definitions.feParameters != null) {
@@ -80,8 +80,8 @@ public class MetadataService implements IMetadataService {
                 definitions.feInstructions.stream().forEach( instructionData -> {
                     List<FEInstructionParameterMeta> parameterMetas = instructionData.parameters.stream()
                             .map(feInstructionParameterMetas::get).collect(Collectors.toList());
-                    
-                    InstructionExpressionMeta meta = new InstructionExpressionMeta(instructionData.id, parameterMetas);
+                    String help = new String(Base64.getDecoder().decode(instructionData.help.getBytes()));
+                    InstructionExpressionMeta meta = new InstructionExpressionMeta(instructionData.id, help, parameterMetas);
                     feInstructionMetas.put(instructionData.id, meta);
                 });
             }
