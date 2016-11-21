@@ -217,11 +217,4 @@ public class Document {
         return feInstructions;
     }
 
-    public void addInstructionParameter(InstructionExpression feInstruction, String parameterId) {
-        feInstruction.enableParam(parameterId);
-    }
-
-    public void removeInstructionParameter(InstructionExpression feInstruction, String parameterId) {
-        feInstruction.disableParam(parameterId);
-    }
 }
