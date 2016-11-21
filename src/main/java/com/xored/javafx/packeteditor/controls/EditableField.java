@@ -35,7 +35,7 @@ public abstract class EditableField extends FlowPane {
 
     protected Node editableControl;
 
-    protected Label label;
+    protected Node label;
 
     protected Boolean isValid = true;
     protected boolean textChanged = false; // for text field onLostFocus
@@ -62,7 +62,7 @@ public abstract class EditableField extends FlowPane {
         getChildren().add(label);
     }
 
-    protected Label createLabel() {
+    protected Node createLabel() {
         Label label = new Label(getLabelText());
         label.setId(getUniqueViewId());
 
