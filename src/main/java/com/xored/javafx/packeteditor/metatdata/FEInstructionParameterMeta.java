@@ -8,7 +8,6 @@ import static com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta
 
 public class FEInstructionParameterMeta {
 
-    // "string" or "enum"
     private String type;
     
     private String id;
@@ -18,17 +17,28 @@ public class FEInstructionParameterMeta {
     private String defaultValue;
     
     private Map<String, String> dict;
+    
+    private Boolean required;
 
-    public FEInstructionParameterMeta(String type, String id, String name, String defaultValue, Map<String, String> dict) {
+    public FEInstructionParameterMeta(String type, String id, String name, String defaultValue, Map<String, String> dict, Boolean required) {
         this.type = type;
         this.id = id;
         this.name = name;
         this.defaultValue = defaultValue;
         this.dict = dict;
+        this.required = required == null ? Boolean.FALSE : required;
     }
 
+    public Boolean isRequired() {
+        return required;
+    }
+
+    public String toString() {
+        return id;
+    }
+    
     public boolean isEnum() {
-        return "enum".equals(type);
+        return ENUM.equals(getType());
     }
     
     public Type getType() {
@@ -52,7 +62,7 @@ public class FEInstructionParameterMeta {
     }
 
     public String getDefaultValue() {
-        return defaultValue;
+        return defaultValue == null ? "" : defaultValue;
     }
 
     public Map<String, String> getDict() {
