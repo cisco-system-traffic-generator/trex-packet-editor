@@ -200,22 +200,6 @@ public class ProtocolField extends EditableField {
 
         context.getItems().addAll(generateItem, defaultItem);
 
-        if (combinedField.fieldEngineAllowed()) {
-            
-            String menuTitleProperty = combinedField.fieldEngineEnabled() ? "FIELD_ENGINE_CLOSE" :"FIELD_ENGINE"; 
-            
-            MenuItem fieldEngineItem = new MenuItem(resourceBundle.getString(menuTitleProperty));
-            fieldEngineItem.setOnAction(event -> {
-                if(combinedField.fieldEngineEnabled()) {
-                    controller.getModel().deleteFEParameters(combinedField);
-                } else {
-                    controller.getModel().addFEParameters(combinedField);
-                }
-            });
-
-            context.getItems().add(fieldEngineItem);
-        }
-        
         return context;
     }
 
