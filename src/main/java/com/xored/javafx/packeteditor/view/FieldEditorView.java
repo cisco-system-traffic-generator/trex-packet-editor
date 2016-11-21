@@ -8,9 +8,7 @@ import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.controls.FEInstructionParameterField;
 import com.xored.javafx.packeteditor.controls.FeParameterField;
 import com.xored.javafx.packeteditor.controls.ProtocolField;
-import com.xored.javafx.packeteditor.data.FEInstructionParameter;
-import com.xored.javafx.packeteditor.data.FeParameter;
-import com.xored.javafx.packeteditor.data.FieldEditorModel;
+import com.xored.javafx.packeteditor.data.*;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
@@ -18,26 +16,26 @@ import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
+import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import org.controlsfx.control.PopOver;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.*;
@@ -47,6 +45,7 @@ public class FieldEditorView {
     FieldEditorController controller;
 
     private StackPane fieldEditorPane;
+    private StackPane fieldEnginePane;
     
     private Logger logger = LoggerFactory.getLogger(FieldEditorView.class);
 
@@ -111,8 +110,11 @@ public class FieldEditorView {
         }
     }
 
-    public void setParentPane(StackPane parentPane) {
-        this.fieldEditorPane = parentPane;
+    public void setFieldEditorPane(StackPane fieldEditorPane) {
+        this.fieldEditorPane = fieldEditorPane;
+    }
+    public void setFieldEnginePane(StackPane fieldEnginePane) {
+        this.fieldEnginePane = fieldEnginePane;
     }
 
     private MenuItem addMenuItem(ContextMenu ctxMenu, String text, EventHandler<ActionEvent> action) {
@@ -199,68 +201,112 @@ public class FieldEditorView {
         return gridTitlePane;
     }
 
-    public TitledPane buildCustomPane(String uiId, String title, Node content) {
+    public TitledPane buildFETitlePane(String title, Node content) {
         TitledPane pane = new TitledPane();
         pane.setText(title);
         pane.getStyleClass().add("append-protocol");
-        pane.setId(uiId);
+        pane.setId("fe-parameters-pane");
         pane.setContent(content);
         pane.setCollapsible(false);
         return pane;
     }
 
-    public TitledPane buildFieldEnginePane() {
-        Label instructionsLabel = new Label("VM instructions:");
-        
-        GridPane instructionsGrid = new GridPane();
-        instructionsGrid.setVgap(5);
-        instructionsGrid.getColumnConstraints().add(new ColumnConstraints(140));
-        instructionsGrid.add(instructionsLabel, 0, 0);
-        int row = 0;
-        
-        List<String> vmInstructions = controller.getModel().getVmInstructions();
-        int lastIdx = vmInstructions.size()-1;
+    public void buildFieldEnginePane() {
 
-        int i = 0;
-        for(String vmInstruction : vmInstructions) {
-            if (0 < i && i < lastIdx) {
-                vmInstruction +=",";
-            }
-            Text text = new Text(vmInstruction);
-            instructionsGrid.add(text, 1, row++, 2, 1);
-            GridPane.setHalignment(text, HPos.LEFT);
-            i++;
-        }
-
+        VBox instructionsPaneVbox = new VBox(20);
+        
+        //        parametersGrid.add(addInstructionPane, 0, row, 3, 1)
+        
+        HBox addInstructionPane = new HBox(10);
+        ComboBox<InstructionExpressionMeta> instructionSelector = new ComboBox<>();
+        instructionSelector.setEditable(true);
+        List<InstructionExpressionMeta> items = controller.getMetadataService().getFeInstructions().entrySet().stream()
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+        instructionSelector.getItems().addAll(items);
+        Button newInstructionBtn = new Button("Add");
+        newInstructionBtn.setOnAction(e -> {
+            InstructionExpressionMeta selected = instructionSelector.getSelectionModel().getSelectedItem();
+            controller.getModel().addInstruction(selected);
+        });
+        addInstructionPane.getChildren().addAll(new Text("Select: "), instructionSelector, newInstructionBtn);
+        
+        VBox parametersPane = new VBox();
         GridPane parametersGrid = new GridPane();
         parametersGrid.setVgap(5);
         parametersGrid.getColumnConstraints().addAll(new ColumnConstraints(140),new ColumnConstraints(100),new ColumnConstraints(120));
-        Label parametersLabel = new Label("Parameters:");
-        parametersGrid.add(parametersLabel, 0, 0);
-        row = 0;
+        int row = 0;
         for(FeParameter feParameter: controller.getModel().getUserModel().getFePrarameters()) {
             int rowId = row++;
             Node label = new Label(feParameter.getName());
             parametersGrid.add(label, 1, rowId, 2, 1);
             GridPane.setHalignment(label, HPos.LEFT);
-            Node control = createFeParameterControl(feParameter);
-            parametersGrid.add(control, 2, rowId);
-            GridPane.setFillWidth(control, true);
+            FeParameterField parameterField = injector.getInstance(FeParameterField.class);
+            parameterField.init(feParameter);
+            parametersGrid.add(parameterField, 2, rowId);
+//            GridPane.setFillWidth(parameterField, true);
         }
+        parametersPane.getChildren().addAll(parametersGrid, addInstructionPane);
+        instructionsPaneVbox.getChildren().add(buildFETitlePane("", parametersPane));
+
+        row = 0;
+        GridPane instructionsGrid = new GridPane();
+        for(InstructionExpression instruction: controller.getModel().getInstructionExpressions()) {
+            row = renderInstruction(instructionsGrid, row, instruction);
+        }
+
+        instructionsPaneVbox.getChildren().add(buildFETitlePane("Instructions", instructionsGrid));
         
-        VBox content = new VBox(30);
-        content.getChildren().addAll(instructionsGrid, parametersGrid);
-        return buildCustomPane("field-engine-pane", "Field Engine", content);
+        fieldEnginePane.getChildren().setAll(instructionsPaneVbox);
     }
     
-    private Node createFeParameterControl(FeParameter feParameter) {
-        Node control;
-        FeParameterField parameterField = injector.getInstance(FeParameterField.class);
-        parameterField.init(feParameter);
-        control = parameterField;
-        return control;
+    private int renderInstruction(GridPane grid, int rowIdx, InstructionExpression instruction) {
+        // Instruction name
+        Text instructionName = new Text(instruction.getId());
+        instructionName.setOnMouseReleased(e -> {
+            PopOver popOver = new PopOver();
+            Text help = new Text(instruction.getHelp());
+            popOver.setContentNode(help);
+            popOver.setTitle("Help - " + instruction.getId());
+            popOver.setAnimated(true);
+            popOver.show(instructionName);
+        });
+        FlowPane instructionNamePane = new FlowPane();
+        instructionNamePane.getChildren().addAll(instructionName, new Text("("));
+        grid.add(instructionNamePane, 0, rowIdx++);
+         
+        // Add parameters
+        for(FEInstructionParameter2 parameter : instruction.getParameters()) {
+            HBox parameterPane = getParameterPane();
+            
+            FEInstructionParameterField instructionField = injector.getInstance(FEInstructionParameterField.class);
+            instructionField.init(parameter);
+            instructionField.setInstruction(instruction);
+
+            parameterPane.getChildren().addAll(new Text(parameter.getId()), new Text("="), instructionField);
+            grid.add(parameterPane, 0, rowIdx++);
+        }
+        
+        grid.add(new Text(")"), 0, rowIdx++);
+        grid.add(new Text(""), 0, rowIdx++);
+        return rowIdx;
     }
 
+    private HBox getParameterPane() {
+        HBox parameterPane = new HBox(5);
+        parameterPane.setPrefHeight(20);
+        parameterPane.setPadding(new Insets(0, 0, 0, 30));
+        return parameterPane;
+    }
+
+    private FEInstructionParameter2 createAppendParameter(List<FEInstructionParameter2> parameters) {
+        Map<String, String> dict = parameters.stream()
+                .collect(Collectors.toMap(FEInstructionParameter2::getId, FEInstructionParameter2::getId));
+        FEInstructionParameterMeta meta = new FEInstructionParameterMeta("ENUM", "appendParam", "appendParam", "more", dict, false);
+        
+        return new FEInstructionParameter2(meta, new JsonPrimitive(meta.getDefaultValue()));
+    }
+    
     public void rebuild(CombinedProtocolModel model) {
         try {
             protocolTitledPanes = new ArrayList<>();
@@ -270,12 +316,10 @@ public class FieldEditorView {
             });
 
             VBox protocolsPaneVbox = new VBox();
-
             protocolsPaneVbox.getChildren().setAll(protocolTitledPanes);
-            if (controller.getModel().getVmInstructions().size() > 2) {
-                protocolsPaneVbox.getChildren().add(buildFieldEnginePane());
-            }
             fieldEditorPane.getChildren().setAll(protocolsPaneVbox);
+
+            buildFieldEnginePane();
         } catch(Exception e) {
             logger.error("Error occurred during rebuilding view. Error {}", e);
         }
@@ -415,7 +459,7 @@ public class FieldEditorView {
         FEInstructionParameterMeta instructionParameterMeta = instructionParameter.getMeta();
         Node label = buildIndentedFieldLabel("field engine", instructionParameterMeta.getName(), false);
         FEInstructionParameterField editableField = injector.getInstance(FEInstructionParameterField.class);
-        editableField.init(instructionParameter);
+//        editableField.init(instructionParameter);
         return createRow(label, editableField, null);
     }
 

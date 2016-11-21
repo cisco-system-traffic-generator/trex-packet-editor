@@ -22,6 +22,7 @@
     -fx-fill: whitesmoke;
 }
 
+#pcapEditorTopPane .fieldenginetoppane,
 #pcapEditorTopPane .fieldeditortoppane {
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
@@ -33,6 +34,7 @@
     -fx-background-color: #ffffff;
 }
 
+#pcapEditorTopPane #fieldEnginePane,
 #pcapEditorTopPane #fieldEditorPane {
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
@@ -44,10 +46,12 @@
     -fx-background-color: #ffffff;
 }
 
+#pcapEditorTopPane #fieldEngineTopPane,
 #pcapEditorTopPane #fieldEditorTopPane {
     -fx-background-color: #f4f4f4; /*#ececec;*/
 }
 
+#pcapEditorTopPane .fieldenginescrollpane,
 #pcapEditorTopPane .fieldeditorscrollpane {
     -fx-background-color: #f4f4f4; /*#ececec;*/
     -fx-border-radius: 0px;
@@ -165,17 +169,12 @@
     -fx-pref-height: 16px;
 }
 
-#pcapEditorTopPane .append-protocol .title {
-    -fx-color: WHITE;
-    -fx-font-weight: normal;
+.instruction-parameter-value-str {
+    -fx-color: #4070a0;
 }
 
-#field-engine-pane {
-    -fx-padding: 10px 0 0 0;
-}
-
-#pcapEditorTopPane .append-protocol .content {
-    -fx-color: #4b4b4b;
+.instruction-parameter-value-int {
+    -fx-color: #40a070;
 }
 
 #pcapEditorTopPane #append-protocol-button {
@@ -550,8 +549,8 @@
     -fx-background-color: transparent transparent transparent transparent;
 }
 
+#pcapEditorTopPane .fieldEngineTopPane,
 #pcapEditorTopPane .split-pane {
-    -fx-padding: 0px;
     -fx-padding: 25 25 25 25; /* the toppest pane */
 }
 

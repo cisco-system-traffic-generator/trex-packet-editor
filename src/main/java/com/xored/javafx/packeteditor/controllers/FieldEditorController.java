@@ -49,6 +49,7 @@ public class FieldEditorController implements Initializable {
 
     @FXML private StackPane  fieldEditorTopPane;
     @FXML private StackPane  fieldEditorPane;
+    @FXML private StackPane  fieldEnginePane;
     @FXML private ScrollPane fieldEditorScrollPane;
 
     @Inject
@@ -85,7 +86,8 @@ public class FieldEditorController implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        view.setParentPane(fieldEditorPane);
+        view.setFieldEditorPane(fieldEditorPane);
+        view.setFieldEnginePane(fieldEnginePane);
         if (packetController.isInitialized()) {
             if (configurationService.isStandaloneMode()) {
                 Platform.runLater(this::newPacket);

@@ -6,7 +6,7 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.xored.javafx.packeteditor.controllers.FieldEditorController"
             fx:id="fieldEditorTopPane"
-            styleClass="fieldeditortoppane">
+            styleClass="fieldenginetoppane">
         <ScrollPane xmlns:fx="http://javafx.com/fxml/1"
                    fx:id="fieldEditorScrollPane"
                    styleClass="fieldeditorscrollpane">

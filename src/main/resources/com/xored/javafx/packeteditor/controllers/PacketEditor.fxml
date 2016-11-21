@@ -2,14 +2,29 @@
 
 
 <?import javafx.scene.control.SplitPane?>
-<SplitPane xmlns="http://javafx.com/javafx/8"
-           xmlns:fx="http://javafx.com/fxml/1"
-           dividerPositions="0.95"
-           fx:id="fieldEditorSplitPane"
-           orientation="VERTICAL"
-           prefWidth="850">
-    <items>
-        <fx:include source="FieldEditor.fxml" />
-        <fx:include source="BinaryEditor.fxml" SplitPane.resizableWithParent="false" />
-    </items>
-</SplitPane>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<TabPane xmlns="http://javafx.com/javafx/8"
+         xmlns:fx="http://javafx.com/fxml/1"
+         fx:id="tabPane" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE">
+    <tabs>
+        <Tab text="Packet Editor" >
+            <content>
+                <SplitPane dividerPositions="0.95"
+                           fx:id="fieldEditorSplitPane"
+                           orientation="VERTICAL"
+                           prefWidth="850">
+                    <items>
+                        <fx:include source="FieldEditor.fxml" />
+                        <fx:include source="BinaryEditor.fxml" SplitPane.resizableWithParent="false" />
+                    </items>
+                </SplitPane>
+            </content>
+        </Tab>
+        <Tab text="Field Engine" >
+            <content>
+                <fx:include source="FieldEngine.fxml" />
+            </content>
+        </Tab>
+    </tabs>
+</TabPane>
