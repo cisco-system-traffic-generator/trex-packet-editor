@@ -16,6 +16,7 @@ public class UserProtocol {
     private Map<String, UserField> fieldMap = new LinkedHashMap<>();
     boolean collapsed = false;
 
+    // TODO: delete
     private Map<String, FEInstruction> fieldInstructions = new HashMap<>();
     
     public UserProtocol(ProtocolMetadata meta, List<String> path) {
@@ -68,14 +69,6 @@ public class UserProtocol {
 
     public String getFieldInstructionParam(String fieldId, String paramId) {
         return fieldInstructions.get(fieldId) != null ? fieldInstructions.get(fieldId).getParameterValue(paramId) : null;
-    }
-
-    public void setFieldInstruction(String fieldId, String parameter, String value) {
-        FEInstruction instruction = fieldInstructions.get(fieldId);
-        if (instruction == null) {
-            instruction = createFieldInstruction(fieldId);
-        }
-        instruction.putValue(parameter, value);
     }
     
     public FEInstruction createFieldInstruction(String fieldId) {

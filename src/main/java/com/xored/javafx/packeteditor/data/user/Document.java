@@ -2,11 +2,10 @@ package com.xored.javafx.packeteditor.data.user;
 
 import com.google.common.base.Strings;
 import com.google.gson.*;
-import com.xored.javafx.packeteditor.data.FEInstructionParameter;
+import com.xored.javafx.packeteditor.data.FEInstructionParameter2;
 import com.xored.javafx.packeteditor.data.FeParameter;
 import com.xored.javafx.packeteditor.data.InstructionExpression;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
-import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.FeParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldValue;
@@ -78,11 +77,8 @@ public class Document {
         field.setValue(value);
     }
 
-    public void setFEInstructionParameter(FEInstructionParameter instructionParameter, String value) {
-        CombinedField field = instructionParameter.getCombinedField();
-        FEInstructionParameterMeta instructionParameterMeta = instructionParameter.getMeta();
-        UserProtocol protocol = instructionParameter.getCombinedField().getProtocol().getUserProtocol();
-        protocol.setFieldInstruction(field.getMeta().getId(), instructionParameterMeta.getId(), value);
+    public void setFEInstructionParameter(FEInstructionParameter2 instructionParameter, String value) {
+        instructionParameter.setValue(value);
     }
     
     public UserProtocol getProtocolByPath(List<String> path) {
@@ -219,5 +215,13 @@ public class Document {
 
     public List<InstructionExpression> getFeInstructions() {
         return feInstructions;
+    }
+
+    public void addInstructionParameter(InstructionExpression feInstruction, String parameterId) {
+        feInstruction.enableParam(parameterId);
+    }
+
+    public void removeInstructionParameter(InstructionExpression feInstruction, String parameterId) {
+        feInstruction.disableParam(parameterId);
     }
 }
