@@ -71,12 +71,4 @@ public class CombinedField {
                 .map(parameterEntry -> new FEInstructionParameter(this, parent.getMeta().getInstructionParameterMeta(parameterEntry.getKey())))
                 .collect(Collectors.toList());
     }
-
-    public boolean fieldEngineAllowed() {
-        return parent.getMeta().fieldEnigineAllowed(getId());
-    }
-
-    public boolean fieldEngineEnabled() {
-        return parent.getUserProtocol().getFieldInstruction(getId()) != null;
-    }
 }
