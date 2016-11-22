@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.*;
+
 public class CombinedField {
     UserField userField;
 
@@ -70,5 +72,9 @@ public class CombinedField {
         return fieldInstruction.getParameters().entrySet().stream()
                 .map(parameterEntry -> new FEInstructionParameter(this, parent.getMeta().getInstructionParameterMeta(parameterEntry.getKey())))
                 .collect(Collectors.toList());
+    }
+
+    public FieldType getType() {
+        return meta.getType();
     }
 }
