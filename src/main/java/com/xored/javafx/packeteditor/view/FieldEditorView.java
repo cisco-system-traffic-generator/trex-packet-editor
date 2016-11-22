@@ -5,13 +5,8 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
-import com.xored.javafx.packeteditor.controls.FEInstructionParameterField;
-import com.xored.javafx.packeteditor.controls.FeParameterField;
 import com.xored.javafx.packeteditor.controls.ProtocolField;
-import com.xored.javafx.packeteditor.data.FEInstructionParameter2;
-import com.xored.javafx.packeteditor.data.FeParameter;
 import com.xored.javafx.packeteditor.data.FieldEditorModel;
-import com.xored.javafx.packeteditor.data.InstructionExpression;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
@@ -19,47 +14,42 @@ import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType;
-import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import org.controlsfx.control.PopOver;
-import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.*;
 
 public class FieldEditorView {
     @Inject
-    FieldEditorController controller;
+    protected FieldEditorController controller;
 
-    private StackPane rootPane;
-    private StackPane fieldEnginePane;
-    
-    private Logger logger = LoggerFactory.getLogger(FieldEditorView.class);
+    protected StackPane rootPane;
+
+    protected Logger logger = LoggerFactory.getLogger(FieldEditorView.class);
 
     @Inject
     @Named("resources")
-    ResourceBundle resourceBundle;
+    protected ResourceBundle resourceBundle;
 
     @Inject
-    Injector injector;
-
-    private AutoCompletionBinding<String> protoAutoCompleter;
+    protected Injector injector;
 
     public List<TitledPane> getProtocolTitledPanes() {
         return protocolTitledPanes;
@@ -68,12 +58,12 @@ public class FieldEditorView {
     private List<TitledPane> protocolTitledPanes = new ArrayList<>();
 
     // For even/odd background, this is NOT any real field index
-    static private int oddIndex = 0;
+    static protected int oddIndex = 0;
 
     // Current selected field
-    static private HBox selected_row = null;
+    static protected HBox selected_row = null;
 
-    static void setSelectedRow(HBox row) {
+    static protected void setSelectedRow(HBox row) {
         if (selected_row != row) {
             if (selected_row != null) {
                 selected_row.setStyle("-fx-background-color: -trex-field-row-background;");
@@ -115,9 +105,6 @@ public class FieldEditorView {
 
     public void setRootPane(StackPane rootPane) {
         this.rootPane = rootPane;
-    }
-    public void setFieldEnginePane(StackPane fieldEnginePane) {
-        this.fieldEnginePane = fieldEnginePane;
     }
 
     private MenuItem addMenuItem(ContextMenu ctxMenu, String text, EventHandler<ActionEvent> action) {
@@ -237,92 +224,6 @@ public class FieldEditorView {
         return pane;
     }
 
-    public void buildFieldEnginePane() {
-
-        VBox instructionsPaneVbox = new VBox(20);
-        
-        HBox addInstructionPane = new HBox(10);
-        ComboBox<InstructionExpressionMeta> instructionSelector = new ComboBox<>();
-        instructionSelector.setEditable(true);
-        List<InstructionExpressionMeta> items = controller.getMetadataService().getFeInstructions().entrySet().stream()
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
-        instructionSelector.getItems().addAll(items);
-        Button newInstructionBtn = new Button("Add");
-        newInstructionBtn.setOnAction(e -> {
-            InstructionExpressionMeta selected = instructionSelector.getSelectionModel().getSelectedItem();
-            controller.getModel().addInstruction(selected);
-        });
-        addInstructionPane.getChildren().addAll(new Text("Select: "), instructionSelector, newInstructionBtn);
-        
-        VBox parametersPane = new VBox();
-        GridPane parametersGrid = new GridPane();
-        parametersGrid.setVgap(5);
-        parametersGrid.getColumnConstraints().addAll(new ColumnConstraints(140),new ColumnConstraints(100),new ColumnConstraints(120));
-        int row = 0;
-        for(FeParameter feParameter: controller.getModel().getUserModel().getFePrarameters()) {
-            int rowId = row++;
-            Node label = new Label(feParameter.getName());
-            parametersGrid.add(label, 1, rowId, 2, 1);
-            GridPane.setHalignment(label, HPos.LEFT);
-            FeParameterField parameterField = injector.getInstance(FeParameterField.class);
-            parameterField.init(feParameter);
-            parametersGrid.add(parameterField, 2, rowId);
-//            GridPane.setFillWidth(parameterField, true);
-        }
-        parametersPane.getChildren().addAll(parametersGrid, addInstructionPane);
-        instructionsPaneVbox.getChildren().add(buildFETitlePane("", parametersPane));
-
-        row = 0;
-        GridPane instructionsGrid = new GridPane();
-        for(InstructionExpression instruction: controller.getModel().getInstructionExpressions()) {
-            row = renderInstruction(instructionsGrid, row, instruction);
-        }
-
-        instructionsPaneVbox.getChildren().add(buildFETitlePane("Instructions", instructionsGrid));
-        
-        fieldEnginePane.getChildren().setAll(instructionsPaneVbox);
-    }
-    
-    private int renderInstruction(GridPane grid, int rowIdx, InstructionExpression instruction) {
-        // Instruction name
-        Text instructionName = new Text(instruction.getId());
-        instructionName.setOnMouseReleased(e -> {
-            PopOver popOver = new PopOver();
-            Text help = new Text(instruction.getHelp());
-            popOver.setContentNode(help);
-            popOver.setTitle("Help - " + instruction.getId());
-            popOver.setAnimated(true);
-            popOver.show(instructionName);
-        });
-        FlowPane instructionNamePane = new FlowPane();
-        instructionNamePane.getChildren().addAll(instructionName, new Text("("));
-        grid.add(instructionNamePane, 0, rowIdx++);
-         
-        // Add parameters
-        for(FEInstructionParameter2 parameter : instruction.getParameters()) {
-            HBox parameterPane = getParameterPane();
-            
-            FEInstructionParameterField instructionField = injector.getInstance(FEInstructionParameterField.class);
-            instructionField.init(parameter);
-            instructionField.setInstruction(instruction);
-
-            parameterPane.getChildren().addAll(new Text(parameter.getId()), new Text("="), instructionField);
-            grid.add(parameterPane, 0, rowIdx++);
-        }
-        
-        grid.add(new Text(")"), 0, rowIdx++);
-        grid.add(new Text(""), 0, rowIdx++);
-        return rowIdx;
-    }
-
-    private HBox getParameterPane() {
-        HBox parameterPane = new HBox(5);
-        parameterPane.setPrefHeight(20);
-        parameterPane.setPadding(new Insets(0, 0, 0, 30));
-        return parameterPane;
-    }
-
     public void rebuild(CombinedProtocolModel model) {
         try {
             protocolTitledPanes = new ArrayList<>();
@@ -334,8 +235,6 @@ public class FieldEditorView {
             VBox protocolsPaneVbox = new VBox();
             protocolsPaneVbox.getChildren().setAll(protocolTitledPanes);
             rootPane.getChildren().setAll(protocolsPaneVbox);
-
-            buildFieldEnginePane();
         } catch(Exception e) {
             logger.error("Error occurred during rebuilding view. Error {}", e);
         }

@@ -15,6 +15,7 @@ import com.xored.javafx.packeteditor.service.IMetadataService;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.view.ConnectionErrorDialog;
 import com.xored.javafx.packeteditor.view.FieldEditorView;
+import com.xored.javafx.packeteditor.view.FieldEngineView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -62,7 +63,10 @@ public class FieldEditorController implements Initializable {
     private PacketDataService packetController;
     
     @Inject
-    FieldEditorView view;
+    FieldEditorView fieldEditorView;
+    
+    @Inject
+    FieldEngineView fieldEngineView;
 
     @Inject
     ConfigurationService configurationService;
@@ -86,16 +90,16 @@ public class FieldEditorController implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        view.setRootPane(fieldEditorPane);
-        view.setFieldEnginePane(fieldEnginePane);
+        fieldEditorView.setRootPane(fieldEditorPane);
+        fieldEngineView.setRootPane(fieldEnginePane);
         if (packetController.isInitialized()) {
             if (configurationService.isStandaloneMode()) {
                 Platform.runLater(this::newPacket);
             } else {
-                view.showEmptyPacketContent();
+                fieldEditorView.showEmptyPacketContent();
             }
         } else {
-            view.displayConnectionError();
+            fieldEditorView.displayConnectionError();
         }
     }
 
@@ -157,7 +161,7 @@ public class FieldEditorController implements Initializable {
 
     @Subscribe
     public void handleProtocolExpandCollapseEvent(ProtocolExpandCollapseEvent event) {
-        List<TitledPane> panes = view.getProtocolTitledPanes();
+        List<TitledPane> panes = fieldEditorView.getProtocolTitledPanes();
         if (panes.isEmpty())
             return;
         TitledPane lastPane = panes.get(panes.size() - 1);
@@ -199,7 +203,7 @@ public class FieldEditorController implements Initializable {
                 snapImage.getHeight() - insets.getTop() - insets.getBottom()));
         fieldEditorTopPane.getChildren().add(snapView);
         // Rebuild content
-        view.rebuild(event.getModel());
+        fieldEditorView.rebuild(event.getModel());
         
         Platform.runLater(()-> {
             // Save scroll position workaround: runLater inside runLater :)
@@ -357,7 +361,7 @@ public class FieldEditorController implements Initializable {
 
     public void reset() {
         model.reset();
-        view.reset();
+        fieldEditorView.reset();
     }
 
     public String getBinaryPkt() {
