@@ -8,14 +8,17 @@ import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.controls.FEInstructionParameterField;
 import com.xored.javafx.packeteditor.controls.FeParameterField;
 import com.xored.javafx.packeteditor.controls.ProtocolField;
-import com.xored.javafx.packeteditor.data.*;
+import com.xored.javafx.packeteditor.data.FEInstructionParameter2;
+import com.xored.javafx.packeteditor.data.FeParameter;
+import com.xored.javafx.packeteditor.data.FieldEditorModel;
+import com.xored.javafx.packeteditor.data.InstructionExpression;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
-import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
+import com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType;
 import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
@@ -44,7 +47,7 @@ public class FieldEditorView {
     @Inject
     FieldEditorController controller;
 
-    private StackPane fieldEditorPane;
+    private StackPane rootPane;
     private StackPane fieldEnginePane;
     
     private Logger logger = LoggerFactory.getLogger(FieldEditorView.class);
@@ -110,8 +113,8 @@ public class FieldEditorView {
         }
     }
 
-    public void setFieldEditorPane(StackPane fieldEditorPane) {
-        this.fieldEditorPane = fieldEditorPane;
+    public void setRootPane(StackPane rootPane) {
+        this.rootPane = rootPane;
     }
     public void setFieldEnginePane(StackPane fieldEnginePane) {
         this.fieldEnginePane = fieldEnginePane;
@@ -125,52 +128,95 @@ public class FieldEditorView {
         return menuItem;
     }
 
-    public TitledPane buildProtocolPane(CombinedProtocol protocol) {
-        TitledPane gridTitlePane = new TitledPane();
-        String protocolPathId = protocol.getPath().stream().collect(Collectors.joining("-"));
-        gridTitlePane.setId(protocolPathId + "-pane");
+    public TitledPane buildLayer(CombinedProtocol protocol) {
+        TitledPane layerPane = new TitledPane();
+        layerPane.setId(getLayerId(protocol) + "-pane");
+        
+        layerPane.getStyleClass().add(getLayerStyleClass(protocol));
+        
+        GridPane layerContent = new GridPane();
+        layerContent.getStyleClass().add("protocolgrid");
 
-        GridPane grid = new GridPane();
-        grid.getStyleClass().add("protocolgrid");
-
-        final int[] ij = {0, 0}; // col, row
+        int layerRowIdx = 0;
 
         oddIndex = 0;
-        protocol.getFields().stream().forEach(field -> {
-            FieldMetadata meta = field.getMeta();
-            FieldMetadata.FieldType type = meta.getType();
-            List<Node> list;
+        for(Node row : buildLayerRows(protocol)) {
+            layerContent.add(row, 0, layerRowIdx++);
+        }
 
-            list = buildFieldRow(field);
-            
-            boolean hasVMInstructions = !field.getFEInstructionParameters().isEmpty();
-            for (Node n : list) {
-                grid.add(n, ij[0]++, ij[1], 1, 1);
-                if (BITMASK.equals(type)
-                        || TCP_OPTIONS.equals(type)
-                        || BYTES.equals(type)
-                        || hasVMInstructions) {
-                    ij[0] = 0;
-                    ij[1]++;
-                }
+        String layerTitle = getLayerTitle(protocol);
+        layerPane.setText(layerTitle);
+        layerPane.setContent(layerContent);
+        configureLayerExpandCollapse(layerPane, protocol);
+        layerPane.setContextMenu(getLayerContextMenu(protocol));
+        return layerPane;
+    }
+    
+    protected List<Node> buildLayerRows(CombinedProtocol protocol) {
+        List<Node> rows = new ArrayList<>();
+        protocol.getFields().stream().forEach(field -> {
+            rows.add(buildFieldRow(field));
+            FieldType type = field.getType();
+            if(BITMASK.equals(type)) {
+                rows.addAll(createBitFlagRows(field));
             }
-            ij[0] = 0;
-            ij[1]++;
+            if(TCP_OPTIONS.equals(type) && field.getScapyFieldData() != null) {
+                rows.addAll(createTCPOptionRows(field));
+            }
         });
+        return rows;
+    }
+    
+    protected void configureLayerExpandCollapse(TitledPane layerPane, CombinedProtocol protocol) {
+        UserProtocol userProtocol = protocol.getUserProtocol();
+        if(userProtocol != null) {
+            layerPane.setExpanded(!userProtocol.isCollapsed());
+            layerPane.expandedProperty().addListener(val->
+                    userProtocol.setCollapsed(!layerPane.isExpanded())
+            );
+        }
+    }
+    
+    protected ContextMenu getLayerContextMenu(CombinedProtocol protocol) {
+        UserProtocol userProtocol = protocol.getUserProtocol();    
+        FieldEditorModel model = controller.getModel();
+        ContextMenu layerCtxMenu = null;
+        if (!model.isBinaryMode() && model.getUserModel().getProtocolStack().indexOf(userProtocol) > 0) {
+            layerCtxMenu = new ContextMenu();
+            addMenuItem(layerCtxMenu, "Move Layer Up", e -> model.moveLayerUp(userProtocol));
+            addMenuItem(layerCtxMenu, "Move Layer Down", e -> model.moveLayerDown(userProtocol));
+            addMenuItem(layerCtxMenu, "Delete layer", e -> model.removeLayer(userProtocol));
+        }
+        return layerCtxMenu;
+    }
+    
+    private String getLayerId(CombinedProtocol protocol) {
+        return protocol.getPath().stream().collect(Collectors.joining("-"));
+    }
+    
+    protected String getLayerStyleClass(CombinedProtocol protocol) {
+        UserProtocol userProtocol = protocol.getUserProtocol();
+        ProtocolData protocolData = protocol.getScapyProtocol();
+        if (userProtocol != null && protocolData != null
+            && ( protocolData.isInvalidStructure() || protocolData.protocolRealIdDifferent())) {
+            return "invalid-protocol";
+        }
+        return "";
+    }
+    
+    protected String getLayerTitle (CombinedProtocol protocol) {
         String title = protocol.getMeta().getName();
         UserProtocol userProtocol = protocol.getUserProtocol();
         ProtocolData protocolData = protocol.getScapyProtocol();
         String subtype = null;
         if (userProtocol != null && protocolData == null) {
             subtype = "as Payload";
-            gridTitlePane.getStyleClass().add("invalid-protocol");
         } else if (userProtocol != null && protocolData != null && protocolData.isInvalidStructure()) {
             if (protocolData.getRealId() == null) {
                 subtype = "as Payload";
             } else {
                 subtype = "as " + protocolData.getRealId();
             }
-            gridTitlePane.getStyleClass().add("invalid-protocol");
         } else if (userProtocol != null && protocolData != null && protocolData.protocolRealIdDifferent() ) {
             subtype = "as " + protocolData.getRealId();
         }
@@ -178,29 +224,9 @@ public class FieldEditorView {
         if (subtype != null) {
             title = title + " " + subtype;
         }
-
-        gridTitlePane.setText(title);
-        gridTitlePane.setContent(grid);
-
-        if (userProtocol != null) {
-            gridTitlePane.setExpanded(!userProtocol.isCollapsed());
-            gridTitlePane.expandedProperty().addListener(val->
-                    userProtocol.setCollapsed(!gridTitlePane.isExpanded())
-            );
-
-            FieldEditorModel model = controller.getModel();
-            if (!model.isBinaryMode() && model.getUserModel().getProtocolStack().indexOf(userProtocol) > 0) {
-                ContextMenu layerCtxMenu = new ContextMenu();
-                addMenuItem(layerCtxMenu, "Move Layer Up", e -> model.moveLayerUp(userProtocol));
-                addMenuItem(layerCtxMenu, "Move Layer Down", e -> model.moveLayerDown(userProtocol));
-                addMenuItem(layerCtxMenu, "Delete layer", e -> model.removeLayer(userProtocol));
-                gridTitlePane.setContextMenu(layerCtxMenu);
-            }
-        }
-
-        return gridTitlePane;
+        return title;
     }
-
+    
     public TitledPane buildFETitlePane(String title, Node content) {
         TitledPane pane = new TitledPane();
         pane.setText(title);
@@ -214,8 +240,6 @@ public class FieldEditorView {
     public void buildFieldEnginePane() {
 
         VBox instructionsPaneVbox = new VBox(20);
-        
-        //        parametersGrid.add(addInstructionPane, 0, row, 3, 1)
         
         HBox addInstructionPane = new HBox(10);
         ComboBox<InstructionExpressionMeta> instructionSelector = new ComboBox<>();
@@ -299,25 +323,17 @@ public class FieldEditorView {
         return parameterPane;
     }
 
-    private FEInstructionParameter2 createAppendParameter(List<FEInstructionParameter2> parameters) {
-        Map<String, String> dict = parameters.stream()
-                .collect(Collectors.toMap(FEInstructionParameter2::getId, FEInstructionParameter2::getId));
-        FEInstructionParameterMeta meta = new FEInstructionParameterMeta("ENUM", "appendParam", "appendParam", "more", dict, false);
-        
-        return new FEInstructionParameter2(meta, new JsonPrimitive(meta.getDefaultValue()));
-    }
-    
     public void rebuild(CombinedProtocolModel model) {
         try {
             protocolTitledPanes = new ArrayList<>();
 
             model.getProtocolStack().stream().forEach(proto -> {
-                protocolTitledPanes.add(buildProtocolPane(proto));
+                protocolTitledPanes.add(buildLayer(proto));
             });
 
             VBox protocolsPaneVbox = new VBox();
             protocolsPaneVbox.getChildren().setAll(protocolTitledPanes);
-            fieldEditorPane.getChildren().setAll(protocolsPaneVbox);
+            rootPane.getChildren().setAll(protocolsPaneVbox);
 
             buildFieldEnginePane();
         } catch(Exception e) {
@@ -364,20 +380,6 @@ public class FieldEditorView {
         return row;
     }
 
-    private Node getEmptyFieldLabel() {
-        HBox row = new HBox();
-        Label lblInfo = new Label("");
-        Label lblName = new Label("");
-
-        lblInfo.getStyleClass().add("field-label-info");
-        lblName.getStyleClass().add("field-label-name");
-
-        row.getChildren().add(lblInfo);
-        row.getChildren().add(lblName);
-
-        return row;
-    }
-
     private Node buildIndentedFieldLabel(String info, String name, Boolean isBitFlag) {
         HBox row = new HBox();
         Label lblInfo = new Label(info);
@@ -405,10 +407,9 @@ public class FieldEditorView {
         return fullpath.stream().collect(Collectors.joining("-"));
     }
 
-    private List<Node> buildFieldRow(CombinedField field) {
-        List<Node> rows = new ArrayList<>();
+    protected Node buildFieldRow(CombinedField field) {
         FieldMetadata meta = field.getMeta();
-        FieldMetadata.FieldType type = meta.getType();
+        FieldType type = meta.getType();
 
         HBox row = new HBox();
         row.setOnMouseClicked(e -> setSelectedRow(row));
@@ -430,73 +431,52 @@ public class FieldEditorView {
         BorderPane valuePane = new BorderPane();
         valuePane.setCenter(fieldControl);
         row.getChildren().addAll(titlePane, valuePane);
-        rows.add(row);
-        row.setOnContextMenuRequested(e->{
+        row.setOnContextMenuRequested(e -> {
             ContextMenu contextMenu = fieldControl.getContextMenu();
             if (contextMenu != null) {
                 e.consume();
                 contextMenu.show(row, e.getScreenX(), e.getScreenY());
             }
         });
-
-        field.getFEInstructionParameters().stream().forEach(feInstructionParameter -> rows.add(createFEInstructionFieldRow(feInstructionParameter)));
-        
-        if(BITMASK.equals(type)) {
-            field.getMeta().getBits().stream().forEach(bitFlagMetadata -> {
-                rows.add(this.createBitFlagRow(field, bitFlagMetadata));
-            });
-        }
-        if(TCP_OPTIONS.equals(type) && field.getScapyFieldData() != null) {
-            TCPOptionsData.fromFieldData(field.getScapyFieldData()).stream().forEach(fd -> {
-                rows.add(createTCPOptionRow(field, fd));
-            });
-        }
-
-        return rows;
-    }
-
-    private Node createFEInstructionFieldRow(FEInstructionParameter instructionParameter) {
-        FEInstructionParameterMeta instructionParameterMeta = instructionParameter.getMeta();
-        Node label = buildIndentedFieldLabel("field engine", instructionParameterMeta.getName(), false);
-        FEInstructionParameterField editableField = injector.getInstance(FEInstructionParameterField.class);
-//        editableField.init(instructionParameter);
-        return createRow(label, editableField, null);
-    }
-
-    private Node createTCPOptionRow(CombinedField field, TCPOptionsData tcpOption) {
-        // TODO: reuse code
-        BorderPane titlePane = new BorderPane();
-        titlePane.setLeft(buildIndentedFieldLabel("", tcpOption.getName()));
-        titlePane.getStyleClass().add("title-pane");
-        titlePane.setOnMouseClicked(e -> controller.selectField(field));
-
-        HBox row = new HBox();
-        row.setOnMouseClicked(e -> setSelectedRow(row));
-        row.getStyleClass().addAll("field-row");
-
-        BorderPane valuePane = new BorderPane();
-        Text valueCtrl = new Text();
-        if (tcpOption.hasValue()) {
-            valueCtrl.setText(tcpOption.getDisplayValue());
-        } else {
-            valueCtrl.setText("-");
-        }
-        valuePane.setLeft(valueCtrl);
-        row.getChildren().addAll(titlePane, valuePane);
         return row;
+    }
+
+    private List<Node> createTCPOptionRows(CombinedField field) {
+        return TCPOptionsData.fromFieldData(field.getScapyFieldData()).stream().map(fd -> {
+            BorderPane titlePane = new BorderPane();
+            titlePane.setLeft(buildIndentedFieldLabel("", fd.getName()));
+            titlePane.getStyleClass().add("title-pane");
+            titlePane.setOnMouseClicked(e -> controller.selectField(field));
+
+            HBox row = new HBox();
+            row.setOnMouseClicked(e -> setSelectedRow(row));
+            row.getStyleClass().addAll("field-row");
+
+            BorderPane valuePane = new BorderPane();
+            Text valueCtrl = new Text();
+            if (fd.hasValue()) {
+                valueCtrl.setText(fd.getDisplayValue());
+            } else {
+                valueCtrl.setText("-");
+            }
+            valuePane.setLeft(valueCtrl);
+            row.getChildren().addAll(titlePane, valuePane);
+            return row;
+        }).collect(Collectors.toList());
     }
 
     private String maskToString(int mask) {
         return String.format("%8s", Integer.toBinaryString(mask)).replace(' ', '.').replace('0', '.');
     }
 
-    private Node createBitFlagRow(CombinedField field, BitFlagMetadata bitFlagMetadata) {
-        String flagName = bitFlagMetadata.getName();
-        int flagMask = bitFlagMetadata.getMask();
-        Node label = buildIndentedFieldLabel(maskToString(flagMask), flagName, true);
-        ComboBox<ComboBoxItem> combo = createBitFlagComboBox(field, bitFlagMetadata, flagName, flagMask);
-
-        return createRow(label, combo, field);
+    private List<Node> createBitFlagRows(CombinedField field) {
+        return field.getMeta().getBits().stream().map(bitFlagMetadata -> {
+            String flagName = bitFlagMetadata.getName();
+            int flagMask = bitFlagMetadata.getMask();
+            Node label = buildIndentedFieldLabel(maskToString(flagMask), flagName, true);
+            ComboBox<ComboBoxItem> combo = createBitFlagComboBox(field, bitFlagMetadata, flagName, flagMask);
+            return createRow(label, combo, field);
+        }).collect(Collectors.toList());
     }
 
     private Node createRow(Node label, Node control, CombinedField field) {
@@ -564,11 +544,11 @@ public class FieldEditorView {
         
         emptyPacketPane.setOnMouseClicked((event) -> controller.newPacket());
         
-        fieldEditorPane.getChildren().add(emptyPacketPane);
+        rootPane.getChildren().add(emptyPacketPane);
     }
 
     public void reset() {
-        fieldEditorPane.getChildren().clear();
+        rootPane.getChildren().clear();
         showEmptyPacketContent();
     }
 }

@@ -86,7 +86,7 @@ public class FieldEditorController implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        view.setFieldEditorPane(fieldEditorPane);
+        view.setRootPane(fieldEditorPane);
         view.setFieldEnginePane(fieldEnginePane);
         if (packetController.isInitialized()) {
             if (configurationService.isStandaloneMode()) {
