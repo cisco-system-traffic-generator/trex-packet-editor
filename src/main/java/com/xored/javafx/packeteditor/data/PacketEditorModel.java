@@ -55,6 +55,10 @@ public class PacketEditorModel {
     /** model, produced using userModel and information from Scapy. user for building UI structure */
     CombinedProtocolModel model = new CombinedProtocolModel();
 
+    public CombinedProtocolModel getCombinedProtocolModel() {
+        return model;
+    }
+
     public void reset() {
         packet = new PacketData();
         binary.clear();
