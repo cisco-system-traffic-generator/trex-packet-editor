@@ -212,7 +212,7 @@ public class PacketEditorModel {
             model = CombinedProtocolModel.fromUserModel(metadataService, userModel, packet.getProtocols());
         }
         logger.debug("Rebuilding UI model");
-        eventBus.post(new RebuildViewEvent(model));
+        eventBus.post(new RebuildViewEvent());
     }
 
     private void setPktAndReload(PacketData pkt) {

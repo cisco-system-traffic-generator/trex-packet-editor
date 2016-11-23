@@ -9,7 +9,6 @@ import com.xored.javafx.packeteditor.controls.ProtocolField;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
-import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
@@ -166,7 +165,7 @@ public class FieldEditorView {
     
     protected ContextMenu getLayerContextMenu(CombinedProtocol protocol) {
         UserProtocol userProtocol = protocol.getUserProtocol();    
-        PacketEditorModel model = controller.getModel();
+        PacketEditorModel model = getModel();
         ContextMenu layerCtxMenu = null;
         if (!model.isBinaryMode() && model.getUserModel().getProtocolStack().indexOf(userProtocol) > 0) {
             layerCtxMenu = new ContextMenu();
@@ -224,11 +223,11 @@ public class FieldEditorView {
         return pane;
     }
 
-    public void rebuild(CombinedProtocolModel model) {
+    public void rebuild() {
         try {
             protocolTitledPanes = new ArrayList<>();
 
-            model.getProtocolStack().stream().forEach(proto -> {
+            getModel().getCombinedProtocolModel().getProtocolStack().stream().forEach(proto -> {
                 protocolTitledPanes.add(buildLayer(proto));
             });
 
@@ -238,6 +237,10 @@ public class FieldEditorView {
         } catch(Exception e) {
             logger.error("Error occurred during rebuilding view. Error {}", e);
         }
+    }
+
+    private PacketEditorModel getModel() {
+        return controller.getModel();
     }
 
     private Node getFieldLabel(CombinedField field) {
@@ -427,7 +430,7 @@ public class FieldEditorView {
             int selected = val.getValue().getAsInt();
             int current = field.getValue().getAsInt();
             String newVal = String.valueOf(current & ~(bitFlagMask) | selected);
-            controller.getModel().editField(field, newVal);
+            getModel().editField(field, newVal);
         });
         return combo;
     }
