@@ -28,6 +28,22 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FieldEngineView extends FieldEditorView {
+
+    public void rebuild(CombinedProtocolModel model) {
+        try {
+            List<Node> layers = new ArrayList<>();
+
+//            model.getProtocolStack().stream().forEach(proto -> {
+//                layers.add(buildLayer(proto));
+//            });
+
+            VBox protocolsPaneVbox = new VBox();
+            protocolsPaneVbox.getChildren().setAll(layers);
+            rootPane.getChildren().setAll(protocolsPaneVbox);
+        } catch(Exception e) {
+            logger.error("Error occurred during rebuilding view. Error {}", e);
+        }
+    }
     
     public TitledPane buildLayer(CombinedProtocol protocol) {
         TitledPane layerPane = new TitledPane();
@@ -210,24 +226,6 @@ public class FieldEngineView extends FieldEditorView {
         parameterPane.setPrefHeight(20);
         parameterPane.setPadding(new Insets(0, 0, 0, 30));
         return parameterPane;
-    }
-
-    public void rebuild(CombinedProtocolModel model) {
-        try {
-            List<Node> protocolTitledPanes = new ArrayList<>();
-
-            model.getProtocolStack().stream().forEach(proto -> {
-                protocolTitledPanes.add(buildLayer(proto));
-            });
-
-            VBox protocolsPaneVbox = new VBox();
-            protocolsPaneVbox.getChildren().setAll(protocolTitledPanes);
-            rootPane.getChildren().setAll(protocolsPaneVbox);
-
-//            buildFieldEnginePane();
-        } catch(Exception e) {
-            logger.error("Error occurred during rebuilding view. Error {}", e);
-        }
     }
 
     private Node createRow(Node label, Node control, CombinedField field) {
