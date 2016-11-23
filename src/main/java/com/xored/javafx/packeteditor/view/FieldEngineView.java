@@ -4,7 +4,7 @@ import com.xored.javafx.packeteditor.controls.FEInstructionParameterField;
 import com.xored.javafx.packeteditor.controls.FeParameterField;
 import com.xored.javafx.packeteditor.data.FEInstructionParameter2;
 import com.xored.javafx.packeteditor.data.FeParameter;
-import com.xored.javafx.packeteditor.data.FieldEditorModel;
+import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.InstructionExpression;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
@@ -86,7 +86,7 @@ public class FieldEngineView extends FieldEditorView {
     
     protected ContextMenu getLayerContextMenu(CombinedProtocol protocol) {
         UserProtocol userProtocol = protocol.getUserProtocol();    
-        FieldEditorModel model = controller.getModel();
+        PacketEditorModel model = controller.getModel();
         ContextMenu layerCtxMenu = null;
         if (!model.isBinaryMode() && model.getUserModel().getProtocolStack().indexOf(userProtocol) > 0) {
             layerCtxMenu = new ContextMenu();

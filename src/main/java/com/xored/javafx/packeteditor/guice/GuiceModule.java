@@ -8,7 +8,7 @@ import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
 import com.xored.javafx.packeteditor.controllers.AppController;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.data.BinaryData;
-import com.xored.javafx.packeteditor.data.FieldEditorModel;
+import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.IBinaryData;
 import com.xored.javafx.packeteditor.guice.provider.FXMLLoaderProvider;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
@@ -35,7 +35,7 @@ public class GuiceModule extends AbstractModule {
         bind(ConfigurationService.class).in(Singleton.class);
         bind(ScapyServerClient.class).in(Singleton.class);
         bind(PacketDataService.class).in(Singleton.class);
-        bind(FieldEditorModel.class).in(Singleton.class);
+        bind(PacketEditorModel.class).in(Singleton.class);
         bind(EventBus.class).in(Singleton.class);
         bind(FieldEditorController.class).in(Singleton.class);
         bind(AppController.class).in(Singleton.class);

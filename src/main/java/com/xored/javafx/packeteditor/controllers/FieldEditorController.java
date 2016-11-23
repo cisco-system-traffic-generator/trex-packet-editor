@@ -4,7 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.xored.javafx.packeteditor.data.FieldEditorModel;
+import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.events.ProtocolExpandCollapseEvent;
@@ -54,7 +54,7 @@ public class FieldEditorController implements Initializable {
     @FXML private ScrollPane fieldEditorScrollPane;
 
     @Inject
-    FieldEditorModel model;
+    PacketEditorModel model;
     
     @Inject
     IMetadataService metadataService;
@@ -340,7 +340,7 @@ public class FieldEditorController implements Initializable {
         fitSizeToScene();
     }
 
-    public FieldEditorModel getModel() { return model; }
+    public PacketEditorModel getModel() { return model; }
 
     private void fitSizeToScene() {
         if (configurationService.isStandaloneMode()) {

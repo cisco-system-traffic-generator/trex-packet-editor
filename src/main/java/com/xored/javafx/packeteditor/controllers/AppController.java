@@ -2,7 +2,7 @@ package com.xored.javafx.packeteditor.controllers;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import com.xored.javafx.packeteditor.data.FieldEditorModel;
+import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
 import com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode;
 import com.xored.javafx.packeteditor.service.IMetadataService;
@@ -26,7 +26,7 @@ public class AppController {
     private EventBus eventBus;
 
     @Inject
-    private FieldEditorModel model;
+    private PacketEditorModel model;
 
     @Inject
     private ConfigurationService configurationService;

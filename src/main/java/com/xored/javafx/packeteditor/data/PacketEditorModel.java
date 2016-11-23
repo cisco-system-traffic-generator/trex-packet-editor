@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.data.user.DocumentFile.toPOJO;
 
-public class FieldEditorModel {
-    private Logger logger = LoggerFactory.getLogger(FieldEditorModel.class);
+public class PacketEditorModel {
+    private Logger logger = LoggerFactory.getLogger(PacketEditorModel.class);
 
     @Inject
     EventBus eventBus;

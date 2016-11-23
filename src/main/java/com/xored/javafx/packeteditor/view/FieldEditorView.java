@@ -6,7 +6,7 @@ import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.controls.ProtocolField;
-import com.xored.javafx.packeteditor.data.FieldEditorModel;
+import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
@@ -166,7 +166,7 @@ public class FieldEditorView {
     
     protected ContextMenu getLayerContextMenu(CombinedProtocol protocol) {
         UserProtocol userProtocol = protocol.getUserProtocol();    
-        FieldEditorModel model = controller.getModel();
+        PacketEditorModel model = controller.getModel();
         ContextMenu layerCtxMenu = null;
         if (!model.isBinaryMode() && model.getUserModel().getProtocolStack().indexOf(userProtocol) > 0) {
             layerCtxMenu = new ContextMenu();

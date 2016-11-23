@@ -3,7 +3,7 @@ package com.xored.javafx.packeteditor.controllers;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.xored.javafx.packeteditor.data.FieldEditorModel;
+import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.events.ProtocolExpandCollapseEvent;
 import com.xored.javafx.packeteditor.metatdata.PacketTemplate;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
@@ -165,7 +165,7 @@ public class MenuController implements Initializable {
         getModel().removeLast();
     }
 
-    private FieldEditorModel getModel() { return controller.getModel(); }
+    private PacketEditorModel getModel() { return controller.getModel(); }
 
     @FXML
     public void handleNewDocument(ActionEvent actionEvent) {

@@ -1,7 +1,7 @@
 package com.xored.javafx.packeteditor.controllers;
 
 import com.xored.javafx.packeteditor.data.BinaryData;
-import com.xored.javafx.packeteditor.data.FieldEditorModel;
+import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.IBinaryData;
 import com.xored.javafx.packeteditor.scapy.ScapyUtils;
 import javafx.beans.value.ChangeListener;
@@ -35,7 +35,7 @@ public class BinaryEditorController implements Initializable, Observer {
     @Inject private IBinaryData binaryData;
 
     @Inject
-    FieldEditorModel model;
+    PacketEditorModel model;
 
     boolean updating = false;
 
