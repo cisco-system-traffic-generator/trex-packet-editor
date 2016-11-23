@@ -4,10 +4,7 @@ import com.xored.javafx.packeteditor.controls.FEInstructionParameterField;
 import com.xored.javafx.packeteditor.controls.FeParameterField;
 import com.xored.javafx.packeteditor.data.FeParameter;
 import com.xored.javafx.packeteditor.data.InstructionExpression;
-import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
-import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
-import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -66,7 +63,9 @@ public class FieldEngineView extends FieldEditorView {
 
             @Override
             public ContextMenu getContextMenu() {
-                return null;
+                ContextMenu layerCtxMenu = new ContextMenu();
+                addMenuItem(layerCtxMenu, "Delete", e -> controller.getModel().removeInstructionLayer(instruction));
+                return layerCtxMenu;
             }
 
             @Override
@@ -137,19 +136,6 @@ public class FieldEngineView extends FieldEditorView {
         }).collect(Collectors.toList());
     }
     
-    protected ContextMenu getLayerContextMenu(CombinedProtocol protocol) {
-        UserProtocol userProtocol = protocol.getUserProtocol();    
-        PacketEditorModel model = controller.getModel();
-        ContextMenu layerCtxMenu = null;
-        if (!model.isBinaryMode() && model.getUserModel().getProtocolStack().indexOf(userProtocol) > 0) {
-            layerCtxMenu = new ContextMenu();
-            addMenuItem(layerCtxMenu, "Move Layer Up", e -> model.moveLayerUp(userProtocol));
-            addMenuItem(layerCtxMenu, "Move Layer Down", e -> model.moveLayerDown(userProtocol));
-            addMenuItem(layerCtxMenu, "Delete", e -> model.removeLayer(userProtocol));
-        }
-        return layerCtxMenu;
-    }
-
     private MenuItem addMenuItem(ContextMenu ctxMenu, String text, EventHandler<ActionEvent> action) {
         MenuItem menuItem = new MenuItem();
         menuItem.setText(text);

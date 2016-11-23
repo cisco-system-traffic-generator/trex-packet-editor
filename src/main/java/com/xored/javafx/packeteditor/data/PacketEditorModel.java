@@ -116,6 +116,16 @@ public class PacketEditorModel {
         setPktAndReload(packet);
     }
 
+    public void removeInstructionLayer(InstructionExpression instruction) {
+        beforeContentReplace();
+
+        userModel.deleteInstruction(instruction);
+
+        // call scapy
+
+        setPktAndReload(packet);
+    }
+
     public class DocState {
         public DocumentFile userModel;
         public PacketData packet;
