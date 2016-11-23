@@ -241,7 +241,7 @@ public class FieldEditorView {
         LayerData layerData = new LayerData() {
             @Override
             public String getLayerId() {
-                return protocol.getId();
+                return protocol.getPath().stream().collect(Collectors.joining("-")) + "-pane";
             }
             @Override
             public String getTitle() {
