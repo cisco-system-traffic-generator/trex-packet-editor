@@ -9,7 +9,6 @@ import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
-import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -32,9 +31,9 @@ public class FieldEngineView extends FieldEditorView {
 
             layers.add(buildAddInstructionLayer());
 
-            List<Node> instuctionLayers = getModel().getInstructionExpressions().stream().map(this::buildLayerData).collect(Collectors.toList());
+            List<Node> instructionLayers = getModel().getInstructionExpressions().stream().map(this::buildLayerData).collect(Collectors.toList());
 
-            layers.addAll(instuctionLayers);
+            layers.addAll(instructionLayers);
             VBox protocolsPaneVbox = new VBox();
             protocolsPaneVbox.getChildren().setAll(layers);
             rootPane.getChildren().setAll(protocolsPaneVbox);
@@ -138,16 +137,6 @@ public class FieldEngineView extends FieldEditorView {
         }).collect(Collectors.toList());
     }
     
-    protected void configureLayerExpandCollapse(TitledPane layerPane, CombinedProtocol protocol) {
-        UserProtocol userProtocol = protocol.getUserProtocol();
-        if(userProtocol != null) {
-            layerPane.setExpanded(!userProtocol.isCollapsed());
-            layerPane.expandedProperty().addListener(val->
-                    userProtocol.setCollapsed(!layerPane.isExpanded())
-            );
-        }
-    }
-    
     protected ContextMenu getLayerContextMenu(CombinedProtocol protocol) {
         UserProtocol userProtocol = protocol.getUserProtocol();    
         PacketEditorModel model = controller.getModel();
@@ -167,43 +156,6 @@ public class FieldEngineView extends FieldEditorView {
         menuItem.setOnAction(action);
         ctxMenu.getItems().add(menuItem);
         return menuItem;
-    }
-    
-    private String getLayerId(CombinedProtocol protocol) {
-        return protocol.getPath().stream().collect(Collectors.joining("-"));
-    }
-    
-    protected String getLayerStyleClass(CombinedProtocol protocol) {
-        UserProtocol userProtocol = protocol.getUserProtocol();
-        ProtocolData protocolData = protocol.getScapyProtocol();
-        if (userProtocol != null && protocolData != null
-            && ( protocolData.isInvalidStructure() || protocolData.protocolRealIdDifferent())) {
-            return "invalid-protocol";
-        }
-        return "";
-    }
-    
-    protected String getLayerTitle (CombinedProtocol protocol) {
-        String title = protocol.getMeta().getName();
-        UserProtocol userProtocol = protocol.getUserProtocol();
-        ProtocolData protocolData = protocol.getScapyProtocol();
-        String subtype = null;
-        if (userProtocol != null && protocolData == null) {
-            subtype = "as Payload";
-        } else if (userProtocol != null && protocolData != null && protocolData.isInvalidStructure()) {
-            if (protocolData.getRealId() == null) {
-                subtype = "as Payload";
-            } else {
-                subtype = "as " + protocolData.getRealId();
-            }
-        } else if (userProtocol != null && protocolData != null && protocolData.protocolRealIdDifferent() ) {
-            subtype = "as " + protocolData.getRealId();
-        }
-
-        if (subtype != null) {
-            title = title + " " + subtype;
-        }
-        return title;
     }
     
     public void buildFieldEnginePane() {
