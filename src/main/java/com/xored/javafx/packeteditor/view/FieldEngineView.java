@@ -2,7 +2,6 @@ package com.xored.javafx.packeteditor.view;
 
 import com.xored.javafx.packeteditor.controls.FEInstructionParameterField;
 import com.xored.javafx.packeteditor.controls.FeParameterField;
-import com.xored.javafx.packeteditor.data.FEInstructionParameter2;
 import com.xored.javafx.packeteditor.data.FeParameter;
 import com.xored.javafx.packeteditor.data.InstructionExpression;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
@@ -19,7 +18,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import org.controlsfx.control.PopOver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,16 +32,58 @@ public class FieldEngineView extends FieldEditorView {
 
             layers.add(buildAddInstructionLayer());
 
-            getModel().getInstructionExpressions().stream().forEach(instruction -> {
-//                layers.add(buildLayer(proto));
-            });
+            List<Node> instuctionLayers = getModel().getInstructionExpressions().stream().map(this::buildLayerData).collect(Collectors.toList());
 
-            VBox protocolsPaneVbox = new VBox(20);
+            layers.addAll(instuctionLayers);
+            VBox protocolsPaneVbox = new VBox();
             protocolsPaneVbox.getChildren().setAll(layers);
             rootPane.getChildren().setAll(protocolsPaneVbox);
         } catch(Exception e) {
             logger.error("Error occurred during rebuilding view. Error {}", e);
         }
+    }
+    
+    protected Node buildLayerData(InstructionExpression instruction) {
+        LayerData layerData = new LayerData() {
+            @Override
+            public String getLayerId() {
+                return "field-engine-instruction-" +instruction.getId();
+            }
+
+            @Override
+            public String getTitle() {
+                return instruction.getId();
+            }
+
+            @Override
+            public String getStyleClass() {
+                return "field-engine-instruction";
+            }
+
+            @Override
+            public List<Node> getRows() {
+                return buildLayerRows(instruction);
+            }
+
+            @Override
+            public ContextMenu getContextMenu() {
+                return null;
+            }
+
+            @Override
+            public boolean isCollapsed() {
+                return false;
+            }
+
+            @Override
+            public void setCollapsed(boolean collapsed) {
+            }
+
+            @Override
+            public void configureLayerExpandCollapse(TitledPane layerPane) {
+            }
+        };
+        return buildLayer(layerData);
     }
 
     private Node buildAddInstructionLayer() {
@@ -69,33 +109,33 @@ public class FieldEngineView extends FieldEditorView {
         return layer;
     }
     
-    public TitledPane buildLayer(CombinedProtocol protocol) {
-        TitledPane layerPane = new TitledPane();
-        layerPane.setId(getLayerId(protocol) + "-pane");
-        
-        layerPane.getStyleClass().add(getLayerStyleClass(protocol));
-        
-        GridPane layerContent = new GridPane();
-        layerContent.getStyleClass().add("protocolgrid");
+    protected List<Node> buildLayerRows(InstructionExpression instruction) {
+        return instruction.getParameters().stream().map(parameter -> {
+            HBox parameterPane = new HBox(5);
+            parameterPane.setPrefHeight(20);
+            parameterPane.setMaxHeight(20);
+            parameterPane.setMinHeight(20);
+            parameterPane.setPadding(new Insets(0, 0, 0, 30));
+            String even = "-even";
+            if (oddIndex % 2 != 0) {
+                even = "-odd";
+            }
+            parameterPane.getStyleClass().addAll("field-row" + even);
+            oddIndex++;
 
-        int layerRowIdx = 0;
+            FEInstructionParameterField instructionParameter = injector.getInstance(FEInstructionParameterField.class);
+            instructionParameter.init(parameter);
+            instructionParameter.setInstruction(instruction);
+            BorderPane instructionParameterPane = new BorderPane();
+            instructionParameterPane.setLeft(instructionParameter);
 
-        oddIndex = 0;
-        for(Node row : buildLayerRows(protocol)) {
-            layerContent.add(row, 0, layerRowIdx++);
-        }
+            BorderPane labelPane = new BorderPane();
+            labelPane.setLeft(new Text(parameter.getId()));
+            labelPane.getStyleClass().addAll("instruction-parameter-label-pane");
 
-        String layerTitle = getLayerTitle(protocol);
-        layerPane.setText(layerTitle);
-        layerPane.setContent(layerContent);
-        configureLayerExpandCollapse(layerPane, protocol);
-        layerPane.setContextMenu(getLayerContextMenu(protocol));
-        return layerPane;
-    }
-    
-    protected List<Node> buildLayerRows(CombinedProtocol protocol) {
-        List<Node> rows = new ArrayList<>();
-        return rows;
+            parameterPane.getChildren().addAll(labelPane, instructionParameterPane);
+            return parameterPane;
+        }).collect(Collectors.toList());
     }
     
     protected void configureLayerExpandCollapse(TitledPane layerPane, CombinedProtocol protocol) {
@@ -200,41 +240,34 @@ public class FieldEngineView extends FieldEditorView {
     
     private int renderInstruction(GridPane grid, int rowIdx, InstructionExpression instruction) {
         // Instruction name
-        Text instructionName = new Text(instruction.getId());
-        instructionName.setOnMouseReleased(e -> {
-            PopOver popOver = new PopOver();
-            Text help = new Text(instruction.getHelp());
-            popOver.setContentNode(help);
-            popOver.setTitle("Help - " + instruction.getId());
-            popOver.setAnimated(true);
-            popOver.show(instructionName);
-        });
-        FlowPane instructionNamePane = new FlowPane();
-        instructionNamePane.getChildren().addAll(instructionName, new Text("("));
-        grid.add(instructionNamePane, 0, rowIdx++);
-         
-        // Add parameters
-        for(FEInstructionParameter2 parameter : instruction.getParameters()) {
-            HBox parameterPane = getParameterPane();
-            
-            FEInstructionParameterField instructionField = injector.getInstance(FEInstructionParameterField.class);
-            instructionField.init(parameter);
-            instructionField.setInstruction(instruction);
-
-            parameterPane.getChildren().addAll(new Text(parameter.getId()), new Text("="), instructionField);
-            grid.add(parameterPane, 0, rowIdx++);
-        }
-        
-        grid.add(new Text(")"), 0, rowIdx++);
-        grid.add(new Text(""), 0, rowIdx++);
+//        Text instructionName = new Text(instruction.getId());
+//        instructionName.setOnMouseReleased(e -> {
+//            PopOver popOver = new PopOver();
+//            Text help = new Text(instruction.getHelp());
+//            popOver.setContentNode(help);
+//            popOver.setTitle("Help - " + instruction.getId());
+//            popOver.setAnimated(true);
+//            popOver.show(instructionName);
+//        });
+//        FlowPane instructionNamePane = new FlowPane();
+//        instructionNamePane.getChildren().addAll(instructionName, new Text("("));
+//        grid.add(instructionNamePane, 0, rowIdx++);
+//         
+//        // Add parameters
+//        for(FEInstructionParameter2 parameter : instruction.getParameters()) {
+//            HBox parameterPane = getParameterPane();
+//            
+//            FEInstructionParameterField instructionField = injector.getInstance(FEInstructionParameterField.class);
+//            instructionField.init(parameter);
+//            instructionField.setInstruction(instruction);
+//
+//            parameterPane.getChildren().addAll(new Text(parameter.getId()), new Text("="), instructionField);
+//            grid.add(parameterPane, 0, rowIdx++);
+//        }
+//        
+//        grid.add(new Text(")"), 0, rowIdx++);
+//        grid.add(new Text(""), 0, rowIdx++);
         return rowIdx;
-    }
-
-    private HBox getParameterPane() {
-        HBox parameterPane = new HBox(5);
-        parameterPane.setPrefHeight(20);
-        parameterPane.setPadding(new Insets(0, 0, 0, 30));
-        return parameterPane;
     }
 
     private Node createRow(Node label, Node control, CombinedField field) {

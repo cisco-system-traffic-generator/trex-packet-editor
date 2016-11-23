@@ -114,11 +114,11 @@ public class FieldEditorView {
         return menuItem;
     }
 
-    public TitledPane buildLayer(CombinedProtocol protocol) {
+    public TitledPane buildLayer(LayerData layerData) {
         TitledPane layerPane = new TitledPane();
-        layerPane.setId(getLayerId(protocol) + "-pane");
+        layerPane.setId(layerData.getLayerId());
         
-        layerPane.getStyleClass().add(getLayerStyleClass(protocol));
+        layerPane.getStyleClass().add(layerData.getStyleClass());
         
         GridPane layerContent = new GridPane();
         layerContent.getStyleClass().add("protocolgrid");
@@ -126,15 +126,15 @@ public class FieldEditorView {
         int layerRowIdx = 0;
 
         oddIndex = 0;
-        for(Node row : buildLayerRows(protocol)) {
+        for(Node row : layerData.getRows()) {
             layerContent.add(row, 0, layerRowIdx++);
         }
 
-        String layerTitle = getLayerTitle(protocol);
+        String layerTitle = layerData.getTitle();
         layerPane.setText(layerTitle);
         layerPane.setContent(layerContent);
-        configureLayerExpandCollapse(layerPane, protocol);
-        layerPane.setContextMenu(getLayerContextMenu(protocol));
+        layerData.configureLayerExpandCollapse(layerPane);
+        layerPane.setContextMenu(layerData.getContextMenu());
         return layerPane;
     }
     
@@ -153,7 +153,7 @@ public class FieldEditorView {
         return rows;
     }
     
-    protected void configureLayerExpandCollapse(TitledPane layerPane, CombinedProtocol protocol) {
+    protected void configureExpandCollapse(TitledPane layerPane, CombinedProtocol protocol) {
         UserProtocol userProtocol = protocol.getUserProtocol();
         if(userProtocol != null) {
             layerPane.setExpanded(!userProtocol.isCollapsed());
@@ -225,11 +225,9 @@ public class FieldEditorView {
 
     public void rebuild() {
         try {
-            protocolTitledPanes = new ArrayList<>();
-
-            getModel().getCombinedProtocolModel().getProtocolStack().stream().forEach(proto -> {
-                protocolTitledPanes.add(buildLayer(proto));
-            });
+            protocolTitledPanes = getModel().getCombinedProtocolModel().getProtocolStack().stream()
+                    .map(this::buildLayers)
+                    .collect(Collectors.toList());
 
             VBox protocolsPaneVbox = new VBox();
             protocolsPaneVbox.getChildren().setAll(protocolTitledPanes);
@@ -239,6 +237,45 @@ public class FieldEditorView {
         }
     }
 
+    private TitledPane buildLayers(CombinedProtocol protocol) {
+        LayerData layerData = new LayerData() {
+            @Override
+            public String getLayerId() {
+                return protocol.getId();
+            }
+            @Override
+            public String getTitle() {
+                return protocol.getMeta().getId();
+            }
+            @Override
+            public String getStyleClass() {
+                return getLayerStyleClass(protocol);
+            }
+            @Override
+            public List<Node> getRows() {
+                return buildLayerRows(protocol);
+            }
+            @Override
+            public ContextMenu getContextMenu() {
+                return getLayerContextMenu(protocol);
+            }
+            @Override
+            public boolean isCollapsed() {
+                return false;
+            }
+            @Override
+            public void setCollapsed(boolean collapsed) {
+                protocol.getUserProtocol().setCollapsed(collapsed);
+            }
+            @Override
+            public void configureLayerExpandCollapse(TitledPane layerPane) {
+                configureExpandCollapse(layerPane, protocol);
+            }
+        };
+        
+        return buildLayer(layerData);
+    }
+    
     protected PacketEditorModel getModel() {
         return controller.getModel();
     }

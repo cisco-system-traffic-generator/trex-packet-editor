@@ -309,6 +309,13 @@
     -fx-max-width: -fx-min-width;
 }
 
+#pcapEditorTopPane .instruction-parameter-label-pane {
+    -fx-fit-to-height: true;
+    -fx-min-width: 10em;
+    -fx-pref-width: -fx-min-width;
+    -fx-max-width: -fx-min-width;
+}
+
 #pcapEditorTopPane .field-row.value-pane {
     -fx-fit-to-height: true;
 }
