@@ -32,6 +32,8 @@ public class FieldEngineView extends FieldEditorView {
         try {
             List<Node> layers = new ArrayList<>();
 
+            layers.add(buildAddInstructionLayer());
+
             getModel().getInstructionExpressions().stream().forEach(instruction -> {
 //                layers.add(buildLayer(proto));
             });
@@ -42,6 +44,29 @@ public class FieldEngineView extends FieldEditorView {
         } catch(Exception e) {
             logger.error("Error occurred during rebuilding view. Error {}", e);
         }
+    }
+
+    private Node buildAddInstructionLayer() {
+        HBox addInstructionPane = new HBox(10);
+        ComboBox<InstructionExpressionMeta> instructionSelector = new ComboBox<>();
+        instructionSelector.setEditable(true);
+        List<InstructionExpressionMeta> items = controller.getMetadataService().getFeInstructions().entrySet().stream()
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+        instructionSelector.getItems().addAll(items);
+        Button newInstructionBtn = new Button("Add");
+        newInstructionBtn.setOnAction(e -> {
+            InstructionExpressionMeta selected = instructionSelector.getSelectionModel().getSelectedItem();
+            controller.getModel().addInstruction(selected);
+        });
+        addInstructionPane.getChildren().addAll(new Text("Select: "), instructionSelector, newInstructionBtn);
+
+        TitledPane layer = new TitledPane();
+        layer.setContent(addInstructionPane);
+        layer.setExpanded(true);
+        layer.setCollapsible(false);
+
+        return layer;
     }
     
     public TitledPane buildLayer(CombinedProtocol protocol) {
@@ -145,20 +170,6 @@ public class FieldEngineView extends FieldEditorView {
 
         VBox instructionsPaneVbox = new VBox(20);
         
-        HBox addInstructionPane = new HBox(10);
-        ComboBox<InstructionExpressionMeta> instructionSelector = new ComboBox<>();
-        instructionSelector.setEditable(true);
-        List<InstructionExpressionMeta> items = controller.getMetadataService().getFeInstructions().entrySet().stream()
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
-        instructionSelector.getItems().addAll(items);
-        Button newInstructionBtn = new Button("Add");
-        newInstructionBtn.setOnAction(e -> {
-            InstructionExpressionMeta selected = instructionSelector.getSelectionModel().getSelectedItem();
-            controller.getModel().addInstruction(selected);
-        });
-        addInstructionPane.getChildren().addAll(new Text("Select: "), instructionSelector, newInstructionBtn);
-        
         VBox parametersPane = new VBox();
         GridPane parametersGrid = new GridPane();
         parametersGrid.setVgap(5);
@@ -174,7 +185,6 @@ public class FieldEngineView extends FieldEditorView {
             parametersGrid.add(parameterField, 2, rowId);
 //            GridPane.setFillWidth(parameterField, true);
         }
-        parametersPane.getChildren().addAll(parametersGrid, addInstructionPane);
         instructionsPaneVbox.getChildren().add(buildFETitlePane("", parametersPane));
 
         row = 0;
