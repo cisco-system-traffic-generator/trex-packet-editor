@@ -3,7 +3,6 @@ package com.xored.javafx.packeteditor.controls;
 import com.google.gson.JsonPrimitive;
 import com.xored.javafx.packeteditor.data.FEInstructionParameter2;
 import com.xored.javafx.packeteditor.data.InstructionExpression;
-import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta.Type;
 import com.xored.javafx.packeteditor.scapy.ScapyException;
 import com.xored.javafx.packeteditor.view.ComboBoxItem;
 import javafx.scene.Node;
@@ -13,7 +12,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 
 import java.util.List;
@@ -46,32 +44,12 @@ public class FEInstructionParameterField extends EditableField {
 
     protected Node createLabel() {
         Text valueNode = new Text();
-        Paint color;
         String val = feInstructionParameter.getValue().getAsString();
-        if("more".equals(val)) {
-            color = Color.web("grey");
-        }
-        else if (Type.NUMBER.equals(feInstructionParameter.getType()) || isNumber(val)) {
-            color = Color.web("#40a070");
-        } else {
-            val = "\"" + val + "\"";
-            color = Color.web("#4070a0");
-        }
-
         valueNode.setText(val);
-        valueNode.setFill(color);
+        valueNode.setFill(Color.GREY);
         valueNode.setOnMouseClicked(this::onLableClickedAction);
         
         return valueNode;
-    }
-    
-    private boolean isNumber(String str) {
-        try {
-            Integer.valueOf(str);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
     }
     
     @Override
