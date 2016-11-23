@@ -204,6 +204,7 @@ public class FieldEditorController implements Initializable {
         fieldEditorTopPane.getChildren().add(snapView);
         // Rebuild content
         fieldEditorView.rebuild();
+        fieldEngineView.rebuild();
         
         Platform.runLater(()-> {
             // Save scroll position workaround: runLater inside runLater :)

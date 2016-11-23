@@ -4,11 +4,10 @@ import com.xored.javafx.packeteditor.controls.FEInstructionParameterField;
 import com.xored.javafx.packeteditor.controls.FeParameterField;
 import com.xored.javafx.packeteditor.data.FEInstructionParameter2;
 import com.xored.javafx.packeteditor.data.FeParameter;
-import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.InstructionExpression;
+import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
-import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
@@ -29,15 +28,15 @@ import java.util.stream.Collectors;
 
 public class FieldEngineView extends FieldEditorView {
 
-    public void rebuild(CombinedProtocolModel model) {
+    public void rebuild() {
         try {
             List<Node> layers = new ArrayList<>();
 
-//            model.getProtocolStack().stream().forEach(proto -> {
+            getModel().getInstructionExpressions().stream().forEach(instruction -> {
 //                layers.add(buildLayer(proto));
-//            });
+            });
 
-            VBox protocolsPaneVbox = new VBox();
+            VBox protocolsPaneVbox = new VBox(20);
             protocolsPaneVbox.getChildren().setAll(layers);
             rootPane.getChildren().setAll(protocolsPaneVbox);
         } catch(Exception e) {

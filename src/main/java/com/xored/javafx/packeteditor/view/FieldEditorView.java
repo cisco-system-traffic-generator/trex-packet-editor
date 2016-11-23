@@ -239,7 +239,7 @@ public class FieldEditorView {
         }
     }
 
-    private PacketEditorModel getModel() {
+    protected PacketEditorModel getModel() {
         return controller.getModel();
     }
 
