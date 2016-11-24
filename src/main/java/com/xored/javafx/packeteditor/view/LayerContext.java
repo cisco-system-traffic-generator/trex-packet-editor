@@ -6,7 +6,7 @@ import javafx.scene.control.TitledPane;
 
 import java.util.List;
 
-public interface LayerData {
+public interface LayerContext {
     String getLayerId();
     String getTitle();
     String getStyleClass();

@@ -40,7 +40,7 @@ public class FieldEngineView extends FieldEditorView {
     }
     
     protected Node buildLayerData(InstructionExpression instruction) {
-        LayerData layerData = new LayerData() {
+        LayerContext layerContext = new LayerContext() {
             @Override
             public String getLayerId() {
                 return "field-engine-instruction-" +instruction.getId();
@@ -81,7 +81,7 @@ public class FieldEngineView extends FieldEditorView {
             public void configureLayerExpandCollapse(TitledPane layerPane) {
             }
         };
-        return buildLayer(layerData);
+        return buildLayer(layerContext);
     }
 
     private Node buildAddInstructionLayer() {

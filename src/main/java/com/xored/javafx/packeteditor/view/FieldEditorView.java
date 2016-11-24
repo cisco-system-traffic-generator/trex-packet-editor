@@ -121,11 +121,11 @@ public class FieldEditorView {
         return menuItem;
     }
 
-    public TitledPane buildLayer(LayerData layerData) {
+    public TitledPane buildLayer(LayerContext layerContext) {
         TitledPane layerPane = new TitledPane();
-        layerPane.setId(layerData.getLayerId());
+        layerPane.setId(layerContext.getLayerId());
         
-        layerPane.getStyleClass().add(layerData.getStyleClass());
+        layerPane.getStyleClass().add(layerContext.getStyleClass());
         
         GridPane layerContent = new GridPane();
         layerContent.getStyleClass().add("protocolgrid");
@@ -133,15 +133,15 @@ public class FieldEditorView {
         int layerRowIdx = 0;
 
         oddIndex = 0;
-        for(Node row : layerData.getRows()) {
+        for(Node row : layerContext.getRows()) {
             layerContent.add(row, 0, layerRowIdx++);
         }
 
-        String layerTitle = layerData.getTitle();
+        String layerTitle = layerContext.getTitle();
         layerPane.setText(layerTitle);
         layerPane.setContent(layerContent);
-        layerData.configureLayerExpandCollapse(layerPane);
-        layerPane.setContextMenu(layerData.getContextMenu());
+        layerContext.configureLayerExpandCollapse(layerPane);
+        layerPane.setContextMenu(layerContext.getContextMenu());
         return layerPane;
     }
     
@@ -233,7 +233,7 @@ public class FieldEditorView {
     public void rebuild() {
         try {
             protocolTitledPanes = getModel().getCombinedProtocolModel().getProtocolStack().stream()
-                    .map(this::buildLayers)
+                    .map(this::buildLayer)
                     .collect(Collectors.toList());
 
             protocolTitledPanes.add(buildAppendProtocolPane());
@@ -245,8 +245,8 @@ public class FieldEditorView {
         }
     }
 
-    private TitledPane buildLayers(CombinedProtocol protocol) {
-        LayerData layerData = new LayerData() {
+    private TitledPane buildLayer(CombinedProtocol protocol) {
+        LayerContext layerContext = new LayerContext() {
             @Override
             public String getLayerId() {
                 return protocol.getPath().stream().collect(Collectors.joining("-")) + "-pane";
@@ -281,7 +281,7 @@ public class FieldEditorView {
             }
         };
         
-        return buildLayer(layerData);
+        return buildLayer(layerContext);
     }
 
     public TitledPane buildAppendProtocolPane() {
