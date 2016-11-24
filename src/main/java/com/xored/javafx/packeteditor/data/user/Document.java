@@ -6,6 +6,7 @@ import com.xored.javafx.packeteditor.data.FEInstructionParameter2;
 import com.xored.javafx.packeteditor.data.FeParameter;
 import com.xored.javafx.packeteditor.data.InstructionExpression;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
+import com.xored.javafx.packeteditor.data.user.DocumentFile.DocumentInstructionExpression;
 import com.xored.javafx.packeteditor.metatdata.FeParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldValue;
@@ -147,21 +148,14 @@ public class Document {
     }
 
     public JsonElement getVmInstructionsModel() {
-        JsonArray instructions = new JsonArray();
         Gson gson = new Gson();
-        getProtocolStack().stream()
-                .filter(protocol -> !protocol.getFieldInstructionsList().isEmpty())
-                .forEach(userProtocol -> {
-                    JsonObject protocolInstructions = new JsonObject();
-                    protocolInstructions.add("id", new JsonPrimitive(userProtocol.getId()));
-                    List<FEInstruction> field_instructions = userProtocol.getFieldInstructionsList();
-                    protocolInstructions.add("fields", gson.toJsonTree(field_instructions));
-                    instructions.add(protocolInstructions);
-                });
+        List<DocumentInstructionExpression> instructionsPOJO = feInstructions.stream()
+                .map(InstructionExpression::toPOJO)
+                .collect(Collectors.toList());
         
         JsonObject payload = new JsonObject();
         JsonObject fieldEngine = new JsonObject();
-        fieldEngine.add("instructions", gson.toJsonTree(instructions));
+        fieldEngine.add("instructions", gson.toJsonTree(instructionsPOJO));
         Map<String, String> feParameters = getFePrarameters().stream()
                 .filter(feParameter -> !Strings.isNullOrEmpty(feParameter.getValue()))
                 .collect(Collectors.toMap(FeParameter::getId, FeParameter::getValue));
