@@ -15,7 +15,6 @@ import javafx.scene.input.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class FeParameterField extends EditableField {
 
@@ -79,10 +78,6 @@ public class FeParameterField extends EditableField {
     protected List<ComboBoxItem> getComboBoxItems() {
         List<ComboBoxItem> items = new ArrayList<>();
         items.add(getNotSelectedItem());
-        
-        items.addAll(controller.getModel().getSplitByParams().stream()
-                .map(param -> new ComboBoxItem(param, new JsonPrimitive(param)))
-                .collect(Collectors.toList()));
         
         return items;
     }

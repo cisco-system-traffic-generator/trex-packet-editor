@@ -91,16 +91,6 @@ public class PacketEditorModel {
         return userModel.getFeInstructions();
     }
 
-    public List<String> getSplitByParams() {
-        List<String> params = new ArrayList<>();
-        for(UserProtocol userProtocol: userModel.getProtocolStack()) {
-            params.addAll(userProtocol.getFieldInstructionsList().stream()
-                    .map(instruction -> userProtocol.getId() + "." + instruction.getFieldId())
-                    .collect(Collectors.toList()));
-        }
-        return params;
-    }
-
     public void addInstruction(InstructionExpressionMeta instructionMeta) {
         List<FEInstructionParameter2> parameters = instructionMeta.getParameterMetas().stream()
                 .map(meta -> new FEInstructionParameter2(meta, new JsonPrimitive(meta.getDefaultValue())))
@@ -315,9 +305,8 @@ public class PacketEditorModel {
     public void setVmInstructionParameter(FEInstructionParameter2 instructionParameter, String value) {
         beforeContentReplace();
         userModel.setFEInstructionParameter(instructionParameter, value);
-        PacketData newPkt = packet;
-        // TODO: implement scapy call
-//        PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel());
+        
+        PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel());
         setPktAndReload(newPkt);
     }
     
