@@ -75,7 +75,7 @@ public class UserProtocol {
         Map<String, String> parameters = new LinkedTreeMap<>();
         meta.getInstructionParametersMeta(fieldId).stream().forEach(parameterMeta -> parameters.put(parameterMeta.getId(), parameterMeta.getDefaultValue()));
         String instructionId = getId() + "." + fieldId;
-        FEInstruction instruction = new FEInstruction(instructionId, fieldId, parameters);
+        FEInstruction instruction = new FEInstruction(instructionId, parameters);
         fieldInstructions.put(fieldId, instruction);
         return instruction;
     }
@@ -93,7 +93,6 @@ public class UserProtocol {
     }
 
     public void addFieldVmInstruction(FEInstruction instruction) {
-        fieldInstructions.put(instruction.getFieldId(), instruction);
     }
 }
 

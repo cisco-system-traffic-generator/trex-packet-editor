@@ -36,14 +36,12 @@ public class DocumentFile {
         }
     }
 
-    private static class DocumentFieldVmInstruction {
+    public static class DocumentInstructionExpression {
         public String id;
-        public String fieldId;
         public Map<String, String> parameters = new LinkedTreeMap<>();
 
-        public DocumentFieldVmInstruction(String id, String fieldId, Map<String, String> parameters) {
+        public DocumentInstructionExpression(String id, Map<String, String> parameters) {
             this.id = id;
-            this.fieldId = fieldId;
             this.parameters.putAll(parameters);
         }
     }
@@ -51,9 +49,9 @@ public class DocumentFile {
     public static class DocumentProtocol {
         public String id;
         public List<DocumentField> fields;
-        public List<DocumentFieldVmInstruction> fieldsVmInstructions;
+        public List<DocumentInstructionExpression> fieldsVmInstructions;
 
-        public DocumentProtocol(String id, List<DocumentField> fields, List<DocumentFieldVmInstruction> fieldsVmInstructions) {
+        public DocumentProtocol(String id, List<DocumentField> fields, List<DocumentInstructionExpression> fieldsVmInstructions) {
             this.id = id;
             this.fields = fields;
             this.fieldsVmInstructions = fieldsVmInstructions;
@@ -72,8 +70,8 @@ public class DocumentFile {
                             .map(DocumentField::new)
                             .collect(Collectors.toList());
                     
-                    List<DocumentFieldVmInstruction> fieldsVmInstructions = protocol.getFieldInstructionsList().stream()
-                            .map(fieldsVmInstruction -> new DocumentFieldVmInstruction(fieldsVmInstruction.getId(), fieldsVmInstruction.getFieldId(), fieldsVmInstruction.getParameters()))
+                    List<DocumentInstructionExpression> fieldsVmInstructions = protocol.getFieldInstructionsList().stream()
+                            .map(fieldsVmInstruction -> new DocumentInstructionExpression(fieldsVmInstruction.getId(), fieldsVmInstruction.getParameters()))
                             .collect(Collectors.toList());
                     return new DocumentProtocol(protocol.getId(), documentFields, fieldsVmInstructions);
                 } 
@@ -94,7 +92,7 @@ public class DocumentFile {
                     UserProtocol userProtocol = doc.getProtocolStack().peek();
                     if (documentProtocol.fieldsVmInstructions != null) {
                         documentProtocol.fieldsVmInstructions.stream().forEach(docInstruction -> {
-                            FEInstruction instruction = new FEInstruction(docInstruction.id, docInstruction.fieldId, docInstruction.parameters);
+                            FEInstruction instruction = new FEInstruction(docInstruction.id, docInstruction.parameters);
                             userProtocol.addFieldVmInstruction(instruction);
                         });
                     }
