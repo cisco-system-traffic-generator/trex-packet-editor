@@ -116,7 +116,7 @@ public class FEInstructionParameterField extends EditableField {
     
     @Override
     protected void commitChanges(ComboBox<ComboBoxItem> combo) {
-//         controller.getModel().setVmInstructionParameter(feInstructionParameter, combo.getSelectionModel().getSelectedItem().getValue().getAsString());
+         controller.getModel().setVmInstructionParameter(feInstructionParameter, combo.getSelectionModel().getSelectedItem().getValue().getAsString());
     }
 
     @Override
