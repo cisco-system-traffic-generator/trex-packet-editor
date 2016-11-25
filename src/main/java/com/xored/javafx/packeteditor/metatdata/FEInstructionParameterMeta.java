@@ -19,14 +19,21 @@ public class FEInstructionParameterMeta {
     private Map<String, String> dict;
     
     private Boolean required;
+    
+    private Boolean autocomplete;
 
-    public FEInstructionParameterMeta(String type, String id, String name, String defaultValue, Map<String, String> dict, Boolean required) {
+    public FEInstructionParameterMeta(String type, String id, String name, String defaultValue, Map<String, String> dict, Boolean required, Boolean autocomplete) {
         this.type = type;
         this.id = id;
         this.name = name;
         this.defaultValue = defaultValue;
         this.dict = dict;
         this.required = required == null ? Boolean.FALSE : required;
+        this.autocomplete = autocomplete == null ? Boolean.FALSE : autocomplete;
+    }
+
+    public Boolean autocompleteRequire() {
+        return autocomplete;
     }
 
     public Boolean isRequired() {

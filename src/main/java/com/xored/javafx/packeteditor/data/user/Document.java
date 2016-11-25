@@ -63,10 +63,6 @@ public class Document {
         protocols.push(newProtocol);
     }
 
-    public void setFieldValue(List<String> path, String fieldId, String value) {
-        setFieldValue(path, fieldId, new JsonPrimitive(value));
-    }
-
     public void setFieldValue(List<String> path, String fieldId, JsonElement value) {
         UserProtocol protocol = getProtocolByPath(path);
         UserField field = protocol.getField(fieldId);
