@@ -207,4 +207,7 @@ public class Document {
         return feInstructions;
     }
 
+    public void clearInstructionExpressions() {
+        feInstructions.clear();
+    }
 }
