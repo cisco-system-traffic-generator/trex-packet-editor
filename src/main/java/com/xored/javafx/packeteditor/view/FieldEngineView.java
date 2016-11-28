@@ -7,6 +7,7 @@ import com.xored.javafx.packeteditor.data.InstructionExpression;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -18,7 +19,10 @@ import javafx.scene.text.Text;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import static javafx.scene.input.KeyCode.ENTER;
 
 public class FieldEngineView extends FieldEditorView {
 
@@ -88,14 +92,27 @@ public class FieldEngineView extends FieldEditorView {
         HBox addInstructionPane = new HBox(10);
         ComboBox<InstructionExpressionMeta> instructionSelector = new ComboBox<>();
         instructionSelector.setEditable(true);
-        List<InstructionExpressionMeta> items = controller.getMetadataService().getFeInstructions().entrySet().stream()
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
-        instructionSelector.getItems().addAll(items);
+        Map<String, InstructionExpressionMeta> instructionExpressionMetas = controller.getMetadataService().getFeInstructions();
+        instructionSelector.getItems().addAll(instructionExpressionMetas.values());
         Button newInstructionBtn = new Button("Add");
-        newInstructionBtn.setOnAction(e -> {
-            InstructionExpressionMeta selected = instructionSelector.getSelectionModel().getSelectedItem();
+        
+        Consumer<Event> onAddInstructionHandler = (event) -> {
+            Object selectedItem = instructionSelector.getSelectionModel().getSelectedItem();
+            InstructionExpressionMeta selected;
+            if (selectedItem instanceof String) {
+                selected = instructionExpressionMetas.get(selectedItem);
+            } else {
+                selected = (InstructionExpressionMeta) selectedItem;
+            }
             controller.getModel().addInstruction(selected);
+        }; 
+        
+        newInstructionBtn.setOnAction(onAddInstructionHandler::accept);
+        instructionSelector.setOnKeyReleased( e -> {
+            if (ENTER.equals(e.getCode())) {
+                onAddInstructionHandler.accept(e);
+                e.consume();
+            }
         });
         addInstructionPane.getChildren().addAll(new Text("Select: "), instructionSelector, newInstructionBtn);
 
