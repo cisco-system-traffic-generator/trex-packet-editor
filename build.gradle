@@ -96,14 +96,8 @@ dependencies {
         compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.7'
     }
 
-    if (project.hasProperty('jdk31')) {
-        // optional compatibility with JDK < 1.8 u40
-        compile group: 'org.controlsfx', name: 'openjfx-dialogs', version: '1.0.3'
-        compile group: 'org.controlsfx', name: 'controlsfx', version: '8.20.9'
-    } else {
-        compile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.12'
-        testCompile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.12'
-    }
+    compile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.12'
+    testCompile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.12'
 }
 
 jar {

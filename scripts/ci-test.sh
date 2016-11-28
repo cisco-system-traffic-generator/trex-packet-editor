@@ -7,5 +7,5 @@ DOWNLOAD_ONLY=true ./scripts/run_scapy_server
 
 start-stop-daemon --start --quiet --pidfile /var/run/scapy-server.pid -b --exec $PWD/scripts/run_scapy_server
 
-./gradlew --no-daemon -Pheadless -Pjdk31 jar test intTest $@
+./gradlew --no-daemon -Pheadless jar test intTest $@
 
