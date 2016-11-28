@@ -253,7 +253,7 @@ public class FieldEditorView {
             }
             @Override
             public String getTitle() {
-                return protocol.getMeta().getId();
+                return getLayerTitle(protocol);
             }
             @Override
             public String getStyleClass() {
