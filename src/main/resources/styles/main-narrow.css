@@ -578,3 +578,8 @@
     -fx-border-color: null;
     -fx-padding: 10px;
 }
+
+#pcapEditorTopPane #instructions-help-pane {
+    -fx-background-color: #f6f6f6;
+    -fx-padding: 20px;
+}

@@ -15,6 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import org.controlsfx.control.PopOver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +69,22 @@ public class FieldEngineView extends FieldEditorView {
             @Override
             public ContextMenu getContextMenu() {
                 ContextMenu layerCtxMenu = new ContextMenu();
+                addMenuItem(layerCtxMenu, "Show help", e -> {
+                    StackPane helpContentPane = new StackPane();
+                    helpContentPane.setId("instructions-help-pane");
+                    helpContentPane.getChildren().add(new Text(instruction.getHelp()));
+
+                    PopOver popOver = new PopOver();
+                    popOver.setAutoHide(true);
+                    popOver.setContentNode(helpContentPane);
+
+                    popOver.setTitle("Help - " + instruction.getId());
+                    popOver.setAnimated(true);
+                    
+                    Double x = layerCtxMenu.getX();
+                    Double y = layerCtxMenu.getY();
+                    popOver.show(rootPane, x, y);
+                });
                 addMenuItem(layerCtxMenu, "Delete", e -> controller.getModel().removeInstructionLayer(instruction));
                 return layerCtxMenu;
             }
