@@ -14,6 +14,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -92,7 +93,7 @@ public class FEInstructionParameterField extends EditableField {
     
     @Override
     protected List<ComboBoxItem> getComboBoxItems() {
-        return feInstructionParameter.getMeta().getDict().entrySet().stream()
+        return feInstructionParameter.getMeta().getDict() == null ? Collections.<ComboBoxItem>emptyList() : feInstructionParameter.getMeta().getDict().entrySet().stream()
                 .map(entry -> new ComboBoxItem(entry.getValue(), new JsonPrimitive(entry.getKey())))
                 .collect(Collectors.toList());
     }
@@ -137,7 +138,7 @@ public class FEInstructionParameterField extends EditableField {
     
     @Override
     protected boolean isCheckBoxEditable() {
-        return false;
+        return true;
     }
 
     @Override
