@@ -17,6 +17,14 @@ import static org.testfx.util.NodeQueryUtils.hasText;
 public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
+    public void shoud_has_as_raw_title_postfix() {
+        newDocument();
+        addLayerForce("TCP");
+        addLayerForce("IP");
+        verifyThat("#Ether-TCP-pane", (TitledPane pane) -> pane.getText().contains("as Raw"));
+    }
+    
+    @Test
     public void should_preserve_collapse_state() {
         newDocument();
         verifyUserModelFieldDefault("#Ether-src");
