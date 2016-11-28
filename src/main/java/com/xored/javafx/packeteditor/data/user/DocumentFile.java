@@ -2,14 +2,19 @@ package com.xored.javafx.packeteditor.data.user;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.internal.LinkedTreeMap;
+import com.xored.javafx.packeteditor.data.FEInstructionParameter2;
 import com.xored.javafx.packeteditor.data.FeParameter;
+import com.xored.javafx.packeteditor.data.InstructionExpression;
 import com.xored.javafx.packeteditor.metatdata.FeParameterMeta;
+import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +29,7 @@ public class DocumentFile {
     public DocumentMetadata metadata;
     public List<DocumentProtocol> packet;
     public Map<String, String> fePrarameters = new HashMap<>();
+    public List<DocumentInstructionExpression> feInstructions = new ArrayList<>();
     public static final String FILE_EXTENSION = ".trp";
 
     public static class DocumentField {
@@ -49,12 +55,10 @@ public class DocumentFile {
     public static class DocumentProtocol {
         public String id;
         public List<DocumentField> fields;
-        public List<DocumentInstructionExpression> fieldsVmInstructions;
 
-        public DocumentProtocol(String id, List<DocumentField> fields, List<DocumentInstructionExpression> fieldsVmInstructions) {
+        public DocumentProtocol(String id, List<DocumentField> fields) {
             this.id = id;
             this.fields = fields;
-            this.fieldsVmInstructions = fieldsVmInstructions;
         }
     }
 
@@ -64,19 +68,17 @@ public class DocumentFile {
         data.version = "1.0.0";
         data.metadata = doc.getMetadata();
         data.fePrarameters = doc.getFePrarameters().stream().collect(Collectors.toMap(FeParameter::getId, FeParameter::getValue));
-        data.packet = doc.getProtocolStack().stream().map(
-                protocol -> {
-                    List<DocumentField> documentFields = protocol.getSetFields().stream()
-                            .map(DocumentField::new)
-                            .collect(Collectors.toList());
-                    
-                    List<DocumentInstructionExpression> fieldsVmInstructions = protocol.getFieldInstructionsList().stream()
-                            .map(fieldsVmInstruction -> new DocumentInstructionExpression(fieldsVmInstruction.getId(), fieldsVmInstruction.getParameters()))
-                            .collect(Collectors.toList());
-                    return new DocumentProtocol(protocol.getId(), documentFields, fieldsVmInstructions);
-                } 
-        ).collect(Collectors.toList());
+        data.feInstructions = doc.getInstructions().stream().map(InstructionExpression::toPOJO).collect(Collectors.toList());
+        data.packet = doc.getProtocolStack().stream().map(DocumentFile::documentProtocolToPOJO).collect(Collectors.toList());
         return data;
+    }
+    
+    private static DocumentProtocol documentProtocolToPOJO(UserProtocol protocol) {
+        List<DocumentField> documentFields = protocol.getSetFields().stream()
+                .map(DocumentField::new)
+                .collect(Collectors.toList());
+
+        return new DocumentProtocol(protocol.getId(), documentFields);
     }
 
     public static Document fromPOJO(DocumentFile data, IMetadataService metadataService) {
@@ -86,18 +88,24 @@ public class DocumentFile {
         data.fePrarameters.entrySet().stream()
                 .forEach(entry -> doc.createFePrarameter(feParameterMetas.get(entry.getKey()), entry.getValue()));
         
+        data.feInstructions.stream().forEach(instructionPOJO -> {
+            InstructionExpressionMeta meta = metadataService.getFeInstructions().get(instructionPOJO.id);
+
+            List<FEInstructionParameter2> instructionParameters = meta.getParameterMetas().stream()
+                    .map(parameterMeta -> new FEInstructionParameter2(
+                                                parameterMeta,
+                                                new JsonPrimitive(instructionPOJO.parameters.get(parameterMeta.getId()))))
+                    .collect(Collectors.toList());
+            
+            doc.addInstruction(new InstructionExpression(meta, instructionParameters));
+        });
+
         data.packet.forEach(
-                documentProtocol -> {
-                    doc.addProtocol(metadataService.getProtocolMetadataById(documentProtocol.id));
-                    UserProtocol userProtocol = doc.getProtocolStack().peek();
-                    if (documentProtocol.fieldsVmInstructions != null) {
-                        documentProtocol.fieldsVmInstructions.stream().forEach(docInstruction -> {
-                            FEInstruction instruction = new FEInstruction(docInstruction.id, docInstruction.parameters);
-                            userProtocol.addFieldVmInstruction(instruction);
-                        });
-                    }
-                    documentProtocol.fields.forEach(field -> userProtocol.getField(field.id).setValue(field.value));
-                }
+            documentProtocol -> {
+                doc.addProtocol(metadataService.getProtocolMetadataById(documentProtocol.id));
+                UserProtocol userProtocol = doc.getProtocolStack().peek();
+                documentProtocol.fields.forEach(field -> userProtocol.getField(field.id).setValue(field.value));
+            }
         );
         return doc;
     }
