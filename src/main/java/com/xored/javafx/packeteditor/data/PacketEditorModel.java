@@ -100,10 +100,8 @@ public class PacketEditorModel {
         beforeContentReplace();
         
         userModel.addInstruction(instruction);
-        
-        // call scapy
 
-        setPktAndReload(packet);
+        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
     }
 
     public void removeInstructionLayer(InstructionExpression instruction) {
@@ -111,9 +109,7 @@ public class PacketEditorModel {
 
         userModel.deleteInstruction(instruction);
 
-        // call scapy
-
-        setPktAndReload(packet);
+        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
     }
 
     public class DocState {
