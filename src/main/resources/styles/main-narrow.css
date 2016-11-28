@@ -177,6 +177,7 @@
     -fx-color: #40a070;
 }
 
+#pcapEditorTopPane #append-instruction-button,
 #pcapEditorTopPane #append-protocol-button {
     -fx-padding: 0 1em, 0 1em;
     -fx-background-color: button-background;

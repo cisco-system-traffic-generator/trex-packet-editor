@@ -30,12 +30,12 @@ public class FieldEngineView extends FieldEditorView {
         try {
             List<Node> layers = new ArrayList<>();
 
-            layers.add(buildAddInstructionLayer());
-
             List<Node> instructionLayers = getModel().getInstructionExpressions().stream().map(this::buildLayerData).collect(Collectors.toList());
 
             layers.addAll(instructionLayers);
-            VBox protocolsPaneVbox = new VBox();
+            layers.add(buildAddInstructionLayer());
+
+            VBox protocolsPaneVbox = new VBox(10);
             protocolsPaneVbox.getChildren().setAll(layers);
             rootPane.getChildren().setAll(protocolsPaneVbox);
         } catch(Exception e) {
@@ -95,6 +95,7 @@ public class FieldEngineView extends FieldEditorView {
         Map<String, InstructionExpressionMeta> instructionExpressionMetas = controller.getMetadataService().getFeInstructions();
         instructionSelector.getItems().addAll(instructionExpressionMetas.values());
         Button newInstructionBtn = new Button("Add");
+        newInstructionBtn.setId("append-instruction-button");
         
         Consumer<Event> onAddInstructionHandler = (event) -> {
             Object selectedItem = instructionSelector.getSelectionModel().getSelectedItem();
