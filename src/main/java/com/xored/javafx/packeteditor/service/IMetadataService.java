@@ -1,6 +1,7 @@
 package com.xored.javafx.packeteditor.service;
 
 
+import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.FeParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
@@ -19,4 +20,6 @@ public interface IMetadataService {
     ProtocolMetadata getProtocolMetadataById(String protocolId);
 
     List<String> getAllowedPayloadForProtocol(String protocolId);
+
+    Map<String, FEInstructionParameterMeta> getFeInstructionParameters();
 }

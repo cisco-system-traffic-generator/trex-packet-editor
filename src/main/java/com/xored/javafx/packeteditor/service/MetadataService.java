@@ -27,6 +27,7 @@ public class MetadataService implements IMetadataService {
     Map<String, List<String>> payload_classes_cache = new HashMap<>();
     Map<String, FeParameterMeta> feParametersMeta = new HashMap<>();
     Map<String, InstructionExpressionMeta> feInstructionMetas = new HashMap<>();
+    Map<String, FEInstructionParameterMeta> feInstructionParameterMetas = new LinkedTreeMap<>();
     
     @Subscribe
     public void handleScapyConnectedEvent(ScapyClientConnectedEvent event) {
@@ -47,12 +48,15 @@ public class MetadataService implements IMetadataService {
         return feInstructionMetas;
     }
 
+    @Override
+    public Map<String, FEInstructionParameterMeta> getFeInstructionParameters() {
+        return feInstructionParameterMetas;
+    }
+
     private void loadDefinitions() {
         try {
             ScapyDefinitions definitions = scapy.get_definitions();
 
-            Map<String, FEInstructionParameterMeta> feInstructionParameterMetas = new LinkedTreeMap<>();
-            
             if (definitions.feInstructionParameters != null) {
                 definitions.feInstructionParameters.stream()
                         .filter(param -> param.id != null)
