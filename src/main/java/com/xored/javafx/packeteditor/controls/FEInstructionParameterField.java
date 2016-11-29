@@ -16,7 +16,7 @@ import javafx.scene.text.Text;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta.Type.ENUM;
@@ -83,17 +83,16 @@ public class FEInstructionParameterField extends EditableField {
     @Override
     protected void processDefaultAndSetItems(ComboBox<ComboBoxItem> combo, List<ComboBoxItem> items) {
         combo.getItems().addAll(items);
-        Optional<ComboBoxItem> defaultComboBoxItem = items.stream()
-                .filter(item -> item.getValue().getAsString().equals(feInstructionParameter.getValue().getAsString()))
-                .findFirst();
-        if (defaultComboBoxItem.isPresent()) {
-            combo.setValue(defaultComboBoxItem.get());
-        }
+        combo.setValue(new ComboBoxItem(feInstructionParameter.getValue().getAsString(), feInstructionParameter.getValue()));
     }
     
     @Override
     protected List<ComboBoxItem> getComboBoxItems() {
-        return feInstructionParameter.getMeta().getDict() == null ? Collections.<ComboBoxItem>emptyList() : feInstructionParameter.getMeta().getDict().entrySet().stream()
+        Map<String, String> parameterValues = controller.getModel().loadParameterValuesFromScapy(feInstructionParameter.getMeta());
+        if (parameterValues.isEmpty()) {
+            parameterValues = feInstructionParameter.getMeta().getDict() == null ? Collections.emptyMap() : feInstructionParameter.getMeta().getDict();
+        }
+        return parameterValues.entrySet().stream()
                 .map(entry -> new ComboBoxItem(entry.getValue(), new JsonPrimitive(entry.getKey())))
                 .collect(Collectors.toList());
     }
@@ -117,7 +116,9 @@ public class FEInstructionParameterField extends EditableField {
     
     @Override
     protected void commitChanges(ComboBox<ComboBoxItem> combo) {
-         controller.getModel().setVmInstructionParameter(feInstructionParameter, combo.getSelectionModel().getSelectedItem().getValue().getAsString());
+        Object selectedItem = combo.getSelectionModel().getSelectedItem();
+        String selection = selectedItem instanceof ComboBoxItem ? ((ComboBoxItem) selectedItem).getValue().getAsString() : selectedItem.toString();
+        controller.getModel().setVmInstructionParameter(feInstructionParameter, selection);
     }
 
     @Override
@@ -138,7 +139,7 @@ public class FEInstructionParameterField extends EditableField {
     
     @Override
     protected boolean isCheckBoxEditable() {
-        return true;
+        return feInstructionParameter.editable();
     }
 
     @Override
