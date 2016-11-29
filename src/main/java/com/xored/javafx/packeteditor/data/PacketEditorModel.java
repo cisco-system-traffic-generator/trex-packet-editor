@@ -458,4 +458,8 @@ public class PacketEditorModel {
         PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel());
         setPktAndReload(newPkt);
     }
+
+    public String getFieldEngineError() {
+        return packet.getFieldEngineError();
+    }
 }

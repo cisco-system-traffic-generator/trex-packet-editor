@@ -35,6 +35,11 @@ public class FieldEngineView extends FieldEditorView {
 
             layers.addAll(instructionLayers);
             layers.add(buildAddInstructionLayer());
+            
+            String error = controller.getModel().getFieldEngineError();
+            if(error != null) {
+                layers.add(buildErrorLayer(error));
+            }
 
             VBox protocolsPaneVbox = new VBox(10);
             protocolsPaneVbox.getChildren().setAll(layers);
@@ -43,7 +48,14 @@ public class FieldEngineView extends FieldEditorView {
             logger.error("Error occurred during rebuilding view. Error {}", e);
         }
     }
-    
+
+    private Node buildErrorLayer(String errorMessage) {
+        TitledPane errorPane = new TitledPane("Error", new BorderPane(new Text(errorMessage)));
+        errorPane.getStyleClass().add("invalid-layer");
+        errorPane.setCollapsible(false);
+        return errorPane;
+    }
+
     protected Node buildLayerData(InstructionExpression instruction) {
         LayerContext layerContext = new LayerContext() {
             @Override

@@ -152,7 +152,7 @@
     -fx-padding: 1.7 10.5 1.7 10.5;
 }
 
-#pcapEditorTopPane .invalid-protocol .title {
+#pcapEditorTopPane .invalid-layer .title {
     -fx-background-color: #dbbaba;
 }
 
