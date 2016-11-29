@@ -159,17 +159,13 @@ public class ScapyServerClient {
             if(message.equals("Method not found")) {
                 throw new MethodNotFoundException();
             }
+            logger.error("received error: {}", message);
+            throw new ScapyException(message);
         }
 
         if (!resp.id.equals(reqs.id)) {
             logger.error("received id:{}, expected:{}", resp.id, reqs.id);
             throw new ScapyException("unexpected result id");
-        }
-
-        if (resp.error != null) {
-            String error_msg = resp.error.get("message").getAsString();
-            logger.error("received error: {}", error_msg);
-            throw new ScapyException(error_msg);
         }
 
         return resp.result;
