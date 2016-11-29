@@ -20,20 +20,20 @@ public class FEInstructionParameterMeta {
     
     private Boolean required;
     
-    private Boolean autocomplete;
+    private Boolean editable;
 
-    public FEInstructionParameterMeta(String type, String id, String name, String defaultValue, Map<String, String> dict, Boolean required, Boolean autocomplete) {
+    public FEInstructionParameterMeta(String type, String id, String name, String defaultValue, Map<String, String> dict, Boolean required, Boolean editable) {
         this.type = type;
         this.id = id;
         this.name = name;
         this.defaultValue = defaultValue;
         this.dict = dict;
         this.required = required == null ? Boolean.FALSE : required;
-        this.autocomplete = autocomplete == null ? Boolean.FALSE : autocomplete;
+        this.editable = editable == null ? Boolean.FALSE : editable;
     }
 
-    public Boolean autocompleteRequire() {
-        return autocomplete;
+    public Boolean editable() {
+        return editable;
     }
 
     public Boolean isRequired() {

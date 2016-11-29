@@ -37,7 +37,7 @@ public class ScapyDefinitions {
         public String defaultValue;
         public Map<String, String> dict;
         public Boolean required;
-        public Boolean autocomplete;
+        public Boolean editable;
     }
 
     public class ScapyFEInstruction {
