@@ -9,7 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.scapy.ScapyUtils.createReconstructPktPayload;
@@ -104,5 +106,10 @@ public class PacketDataService {
 
     public boolean isInitialized() {
         return initialized;
+    }
+
+    public Map<String, String> loadInstructionParameterValues(List<ReconstructProtocol> pktStructure, JsonElement vmInstructionsModel, String parameterId) {
+        ScapyData values =  scapy.loadInstructionParameterValues(pktStructure, vmInstructionsModel, parameterId);
+        return values.map == null ? Collections.emptyMap() : values.map;
     }
 }

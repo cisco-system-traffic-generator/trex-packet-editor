@@ -207,6 +207,16 @@ public class ScapyServerClient {
         return packetFromJson(request("build_pkt_ex", payload));
     }
 
+    public ScapyData loadInstructionParameterValues(List<ReconstructProtocol> pktStructure, JsonElement vmInstructionsModel, String parameterId) {
+        JsonArray payload = new JsonArray();
+        payload.add(version_handler);
+        payload.add(gson.toJsonTree(pktStructure));
+        payload.add(vmInstructionsModel);
+        payload.add(new JsonPrimitive(parameterId));
+        JsonObject res = (JsonObject) request("load_instruction_parameter_values", payload);
+        return gson.fromJson(res, ScapyData.class);
+    }
+    
     public ScapyDefinitions get_definitions() {
         JsonArray payload = new JsonArray();
         payload.add(version_handler);
