@@ -1,5 +1,6 @@
 package com.xored.javafx.packeteditor.controls;
 
+import com.google.common.base.Strings;
 import com.google.gson.JsonPrimitive;
 import com.xored.javafx.packeteditor.data.FEInstructionParameter2;
 import com.xored.javafx.packeteditor.data.InstructionExpression;
@@ -46,6 +47,9 @@ public class FEInstructionParameterField extends EditableField {
     protected Node createLabel() {
         Text valueNode = new Text();
         String val = feInstructionParameter.getValue().getAsString();
+        if (ENUM.equals(feInstructionParameter.getType()) && Strings.isNullOrEmpty(val)) {
+            val = "Not selected";
+        }
         valueNode.setText(val);
         valueNode.setFill(Color.GREY);
         valueNode.setOnMouseClicked(this::onLableClickedAction);
@@ -106,10 +110,6 @@ public class FEInstructionParameterField extends EditableField {
         String value = feInstructionParameter.getValue().getAsString();
         if (value == null) {
             value = feInstructionParameter.getDefaultValue();
-        }
-        if (ENUM.equals(feInstructionParameter.getType())) {
-            String humanValue = feInstructionParameter.getMeta().getDict().get(value);
-            value = String.format("%s (%s)", humanValue, value);
         }
         return value;
     }
