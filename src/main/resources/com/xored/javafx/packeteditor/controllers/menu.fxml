@@ -113,17 +113,17 @@
                   </ImageView>
                </graphic>
             </Button>
-             <Separator />
-            <Button styleClass="toolbar-btn" focusTraversable="false" onAction="#handleCopyInstructions">
-               <tooltip>
-                  <Tooltip text="Copy instructions to Clipboard" />
-               </tooltip>
-               <graphic>
-                  <ImageView fitHeight="24.0" fitWidth="24.0">
-                     <Image url="/icons/copy.png" />
-                  </ImageView>
-               </graphic>
-            </Button>
+             <!--<Separator />-->
+            <!--<Button styleClass="toolbar-btn" focusTraversable="false" onAction="#handleCopyInstructions">-->
+               <!--<tooltip>-->
+                  <!--<Tooltip text="Copy instructions to Clipboard" />-->
+               <!--</tooltip>-->
+               <!--<graphic>-->
+                  <!--<ImageView fitHeight="24.0" fitWidth="24.0">-->
+                     <!--<Image url="/icons/copy.png" />-->
+                  <!--</ImageView>-->
+               <!--</graphic>-->
+            <!--</Button>-->
             <Separator />
              <Button styleClass="toolbar-btn" id="expandAllBtn" focusTraversable="false" onAction="#handleExpandAll">
                  <tooltip>
@@ -145,7 +145,6 @@
                      </ImageView>
                  </graphic>
              </Button>
-            <Separator />
             <Button styleClass="toolbar-btn" fx:id="binaryModeOnBtn" text="Switch to binary mode" onAction="#handleModeBinary" visible="false" />
             <Button styleClass="toolbar-btn" fx:id="abstractModeOnBtn" text="Switch to abstract mode" onAction="#handleModeAbstract" visible="false" />
          </items>
