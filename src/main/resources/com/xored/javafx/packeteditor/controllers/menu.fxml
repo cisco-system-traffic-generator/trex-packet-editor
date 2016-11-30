@@ -41,113 +41,113 @@
       </MenuBar>
       <ToolBar>
          <items>
-            <Button focusTraversable="false" onAction="#handleNewDocument" >
+            <Button styleClass="toolbar-btn" focusTraversable="false" onAction="#handleNewDocument" >
                <tooltip>
                   <Tooltip text="New" />
                </tooltip>
                <graphic>
-                  <ImageView fitHeight="16.0" fitWidth="16.0">
+                  <ImageView fitHeight="24.0" fitWidth="24.0">
                      <Image url="/icons/new.png" />
                   </ImageView>
                </graphic>
             </Button>
-            <Button focusTraversable="false" onAction="#handleOpenAction" >
+            <Button styleClass="toolbar-btn" focusTraversable="false" onAction="#handleOpenAction" >
                <tooltip>
                   <Tooltip text="Open" />
                </tooltip>
                <graphic>
-                  <ImageView fitHeight="16.0" fitWidth="16.0">
+                  <ImageView fitHeight="24.0" fitWidth="24.0">
                      <Image url="/icons/open.png" />
                   </ImageView>
                </graphic>
             </Button>
-            <Button focusTraversable="false" onAction="#handleSaveAction" >
+            <Button styleClass="toolbar-btn" focusTraversable="false" onAction="#handleSaveAction" >
                <tooltip>
                   <Tooltip text="Save" />
                </tooltip>
                <graphic>
-                  <ImageView fitHeight="16.0" fitWidth="16.0">
+                  <ImageView fitHeight="24.0" fitWidth="24.0">
                      <Image url="/icons/save.png" />
                   </ImageView>
                </graphic>
             </Button>
-            <MenuButton focusTraversable="false" fx:id="newTemplateMenuButton">
+            <MenuButton styleClass="toolbar-btn" focusTraversable="false" fx:id="newTemplateMenuButton">
                <tooltip>
                   <Tooltip text="Load from template" />
                </tooltip>
                <graphic>
-                  <ImageView fitHeight="16.0" fitWidth="16.0">
+                  <ImageView fitHeight="24.0" fitWidth="24.0">
                      <Image url="/icons/template.png" />
                   </ImageView>
                </graphic>
             </MenuButton>
             <Separator />
-            <Button focusTraversable="false" onAction="#handleUndo" >
+            <Button styleClass="toolbar-btn" focusTraversable="false" onAction="#handleUndo">
                <tooltip>
                   <Tooltip text="Undo" />
                </tooltip>
                <graphic>
-                  <ImageView fitHeight="16.0" fitWidth="16.0">
+                  <ImageView fitHeight="24.0" fitWidth="24.0">
                      <Image url="/icons/undo.png" />
                   </ImageView>
                </graphic>
             </Button>
-            <Button focusTraversable="false" onAction="#handleRedo" >
+            <Button styleClass="toolbar-btn" focusTraversable="false" onAction="#handleRedo" >
                <tooltip>
                   <Tooltip text="Redo" />
                </tooltip>
                <graphic>
-                  <ImageView fitHeight="16.0" fitWidth="16.0">
+                  <ImageView fitHeight="24.0" fitWidth="24.0">
                      <Image url="/icons/redo.png" />
                   </ImageView>
                </graphic>
             </Button>
             <Separator />
-            <Button focusTraversable="false" onAction="#handleDeleteProtocolAction">
+            <Button styleClass="toolbar-btn" focusTraversable="false" onAction="#handleDeleteProtocolAction">
                <tooltip>
                   <Tooltip text="Delete last layer" />
                </tooltip>
                <graphic>
-                  <ImageView fitHeight="16.0" fitWidth="16.0">
-                     <Image url="/icons/delete_layer.png" />
+                  <ImageView fitHeight="24.0" fitWidth="24.0">
+                     <Image url="/icons/delete.png" />
                   </ImageView>
                </graphic>
             </Button>
              <Separator />
-            <Button focusTraversable="false" onAction="#handleCopyInstructions">
+            <Button styleClass="toolbar-btn" focusTraversable="false" onAction="#handleCopyInstructions">
                <tooltip>
                   <Tooltip text="Copy instructions to Clipboard" />
                </tooltip>
                <graphic>
-                  <ImageView fitHeight="16.0" fitWidth="16.0">
+                  <ImageView fitHeight="24.0" fitWidth="24.0">
                      <Image url="/icons/copy.png" />
                   </ImageView>
                </graphic>
             </Button>
             <Separator />
-             <Button id="expandAllBtn" focusTraversable="false" onAction="#handleExpandAll">
+             <Button styleClass="toolbar-btn" id="expandAllBtn" focusTraversable="false" onAction="#handleExpandAll">
                  <tooltip>
                      <Tooltip text="Expand all" />
                  </tooltip>
                  <graphic>
-                     <ImageView fitHeight="16.0" fitWidth="16.0">
+                     <ImageView fitHeight="24.0" fitWidth="24.0">
                          <Image url="/icons/expand.png" />
                      </ImageView>
                  </graphic>
              </Button>
-             <Button id="collapseAllBtn" focusTraversable="false" onAction="#handleCollapseAll">
+             <Button styleClass="toolbar-btn" id="collapseAllBtn" focusTraversable="false" onAction="#handleCollapseAll">
                  <tooltip>
                      <Tooltip text="Collapse all" />
                  </tooltip>
                  <graphic>
-                     <ImageView fitHeight="16.0" fitWidth="16.0">
+                     <ImageView fitHeight="24.0" fitWidth="24.0">
                          <Image url="/icons/collapse.png" />
                      </ImageView>
                  </graphic>
              </Button>
             <Separator />
-            <Button fx:id="binaryModeOnBtn" text="Switch to binary mode" onAction="#handleModeBinary" visible="false" />
-            <Button fx:id="abstractModeOnBtn" text="Switch to abstract mode" onAction="#handleModeAbstract" visible="false" />
+            <Button styleClass="toolbar-btn" fx:id="binaryModeOnBtn" text="Switch to binary mode" onAction="#handleModeBinary" visible="false" />
+            <Button styleClass="toolbar-btn" fx:id="abstractModeOnBtn" text="Switch to abstract mode" onAction="#handleModeAbstract" visible="false" />
          </items>
       </ToolBar>
    </children>
