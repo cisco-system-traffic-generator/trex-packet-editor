@@ -109,7 +109,7 @@
                </tooltip>
                <graphic>
                   <ImageView fitHeight="24.0" fitWidth="24.0">
-                     <Image url="/icons/delete.png" />
+                     <Image url="/icons/delete-layer.png" />
                   </ImageView>
                </graphic>
             </Button>
