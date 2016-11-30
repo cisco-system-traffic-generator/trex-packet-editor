@@ -23,7 +23,7 @@ public class PacketData {
     public List<ProtocolData> getProtocols() { return data; }
 
     public String getFieldEngineError() {
-        return !(field_engine.get("error") instanceof JsonNull) ? field_engine.get("error").getAsString() : null;
+        return field_engine != null && !(field_engine.get("error") instanceof JsonNull) ? field_engine.get("error").getAsString() : null;
     }
 
     private class MapDeserializerDoubleAsInt implements JsonDeserializer<Map<String, Object>>{
