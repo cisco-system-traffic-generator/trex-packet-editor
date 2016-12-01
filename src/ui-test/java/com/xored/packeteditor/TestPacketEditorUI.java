@@ -275,7 +275,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     @Test
     public void template_tcp_syn() {
         clickOn("File");
-        clickOn("New Template");
+        clickOn("Templates");
         moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("TCP-SYN");
         verifyThat("#Ether-IP-TCP-flags", hasText("S"));
