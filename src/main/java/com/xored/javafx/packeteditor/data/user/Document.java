@@ -87,6 +87,7 @@ public class Document {
 
     public void clear() {
         protocols.clear();
+        feInstructions.clear();
     }
 
     public void deleteField(List<String> path, String fieldUniqueId) {

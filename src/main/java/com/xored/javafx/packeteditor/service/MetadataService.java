@@ -60,7 +60,7 @@ public class MetadataService implements IMetadataService {
             if (definitions.feInstructionParameters != null) {
                 definitions.feInstructionParameters.stream()
                         .filter(param -> param.id != null)
-                        .forEach(param -> feInstructionParameterMetas.put(param.id, new FEInstructionParameterMeta(param.type, param.id, param.name, param.defaultValue, param.dict, param.required, param.autocomplete)));
+                        .forEach(param -> feInstructionParameterMetas.put(param.id, new FEInstructionParameterMeta(param.type, param.id, param.name, param.defaultValue, param.dict, param.required, param.editable)));
             }
 
             if (definitions.feParameters != null) {

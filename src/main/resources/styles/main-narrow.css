@@ -152,7 +152,7 @@
     -fx-padding: 1.7 10.5 1.7 10.5;
 }
 
-#pcapEditorTopPane .invalid-protocol .title {
+#pcapEditorTopPane .invalid-layer .title {
     -fx-background-color: #dbbaba;
 }
 
@@ -582,4 +582,14 @@
 #pcapEditorTopPane #instructions-help-pane {
     -fx-background-color: #f6f6f6;
     -fx-padding: 20px;
+}
+#pcapEditorTopPane .toolbar-btn {
+    -fx-background-color: transparent;
+}
+#pcapEditorTopPane .toolbar-btn:hover {
+    /*-fx-background-color:#dae7f3;*/
+    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+    -fx-background-radius: 3px, 3px, 2px, 1px;
+
 }

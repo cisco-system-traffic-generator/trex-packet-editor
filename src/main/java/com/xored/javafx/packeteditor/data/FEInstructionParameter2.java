@@ -43,4 +43,8 @@ public class FEInstructionParameter2 {
     public void setValue(String value) {
         this.value = new JsonPrimitive(value);
     }
+
+    public boolean editable() {
+        return meta.editable();
+    }
 }

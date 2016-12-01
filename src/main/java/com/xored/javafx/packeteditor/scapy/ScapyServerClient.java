@@ -159,17 +159,13 @@ public class ScapyServerClient {
             if(message.equals("Method not found")) {
                 throw new MethodNotFoundException();
             }
+            logger.error("received error: {}", message);
+            throw new ScapyException(message);
         }
 
         if (!resp.id.equals(reqs.id)) {
             logger.error("received id:{}, expected:{}", resp.id, reqs.id);
             throw new ScapyException("unexpected result id");
-        }
-
-        if (resp.error != null) {
-            String error_msg = resp.error.get("message").getAsString();
-            logger.error("received error: {}", error_msg);
-            throw new ScapyException(error_msg);
         }
 
         return resp.result;
@@ -207,6 +203,16 @@ public class ScapyServerClient {
         return packetFromJson(request("build_pkt_ex", payload));
     }
 
+    public ScapyData loadInstructionParameterValues(List<ReconstructProtocol> pktStructure, JsonElement vmInstructionsModel, String parameterId) {
+        JsonArray payload = new JsonArray();
+        payload.add(version_handler);
+        payload.add(gson.toJsonTree(pktStructure));
+        payload.add(vmInstructionsModel);
+        payload.add(new JsonPrimitive(parameterId));
+        JsonObject res = (JsonObject) request("load_instruction_parameter_values", payload);
+        return gson.fromJson(res, ScapyData.class);
+    }
+    
     public ScapyDefinitions get_definitions() {
         JsonArray payload = new JsonArray();
         payload.add(version_handler);

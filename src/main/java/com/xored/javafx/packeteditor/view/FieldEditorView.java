@@ -192,7 +192,7 @@ public class FieldEditorView {
         ProtocolData protocolData = protocol.getScapyProtocol();
         if (userProtocol != null && protocolData != null
             && ( protocolData.isInvalidStructure() || protocolData.protocolRealIdDifferent())) {
-            return "invalid-protocol";
+            return "invalid-layer";
         }
         return "";
     }

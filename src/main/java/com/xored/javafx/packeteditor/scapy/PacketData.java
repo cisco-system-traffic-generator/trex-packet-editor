@@ -12,7 +12,7 @@ import java.util.*;
  */
 public class PacketData {
     
-    public JsonElement vm_instructions;
+    public JsonObject field_engine;
     
     public List<InstructionExpressionData> vm_instructions_expressions = new ArrayList<>();
     
@@ -21,6 +21,10 @@ public class PacketData {
 
     public byte[] getPacketBytes() { return Base64.getDecoder().decode(binary); }
     public List<ProtocolData> getProtocols() { return data; }
+
+    public String getFieldEngineError() {
+        return field_engine != null && !(field_engine.get("error") instanceof JsonNull) ? field_engine.get("error").getAsString() : null;
+    }
 
     private class MapDeserializerDoubleAsInt implements JsonDeserializer<Map<String, Object>>{
 
@@ -62,11 +66,12 @@ public class PacketData {
     
     @SuppressWarnings("unchecked")
     public Map<String, Object> getPktVmInstructions() {
-        if (vm_instructions == null) {
+        JsonObject instructions = field_engine.get("instructions").getAsJsonObject();
+        if (instructions.size() == 0) {
             return Collections.<String, Object>emptyMap();
         }
         Gson gson = buildGson();
-        return gson.fromJson(vm_instructions.toString(), new TypeToken<Map<String, Object>>(){}.getType());
+        return gson.fromJson(instructions.toString(), new TypeToken<Map<String, Object>>() {}.getType());
     }
     
     private Gson buildGson() {

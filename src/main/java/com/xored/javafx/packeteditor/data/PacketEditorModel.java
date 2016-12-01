@@ -10,6 +10,7 @@ import com.xored.javafx.packeteditor.data.user.Document;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
+import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
@@ -100,10 +101,8 @@ public class PacketEditorModel {
         beforeContentReplace();
         
         userModel.addInstruction(instruction);
-        
-        // call scapy
 
-        setPktAndReload(packet);
+        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
     }
 
     public void removeInstructionLayer(InstructionExpression instruction) {
@@ -111,9 +110,11 @@ public class PacketEditorModel {
 
         userModel.deleteInstruction(instruction);
 
-        // call scapy
+        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
+    }
 
-        setPktAndReload(packet);
+    public Map<String, String> loadParameterValuesFromScapy(FEInstructionParameterMeta meta) {
+        return packetDataService.loadInstructionParameterValues(userModel.buildScapyModel(), userModel.getVmInstructionsModel(), meta.getId());
     }
 
     public class DocState {
@@ -456,5 +457,9 @@ public class PacketEditorModel {
         
         PacketData newPkt = packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel());
         setPktAndReload(newPkt);
+    }
+
+    public String getFieldEngineError() {
+        return packet.getFieldEngineError();
     }
 }
