@@ -383,4 +383,40 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         verifyThat("#Ether-Raw-load", hasText("22222"));
     }
 
+    @Test
+    public void should_save_template() {
+        should_build_payload();
+        clickOn("#Ether-Raw-load");
+        clickOn("#payloadChoiceType");
+        clickOn("Code pattern");
+        clickOn("#codePatternText");
+        push(DIGIT3,DIGIT2);
+        push(DIGIT3,DIGIT2);
+        push(DIGIT3,DIGIT2);
+        push(DIGIT3,DIGIT2);
+        push(DIGIT3,DIGIT2);
+        clickOn("#payloadButtonSave");
+        interrupt();
+        verifyThat("#Ether-Raw-load", hasText("22222"));
+
+        // Save as template
+        clickOn("#newTemplateMenuButton");
+        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        clickOn("Save as template...");
+        clickOn("OK");
+        clickOn("OK");
+        interrupt();
+
+        // Load saved template
+        clickOn("#newTemplateMenuButton");
+        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        clickOn("NewTemplate");
+        interrupt();
+
+        // Verify loaded values
+        clickOn("#expandAllBtn");
+        interrupt();
+        verifyThat("#Ether-Raw-load", hasText("22222"));
+    }
+
 }
