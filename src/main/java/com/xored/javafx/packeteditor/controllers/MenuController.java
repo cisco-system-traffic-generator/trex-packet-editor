@@ -4,9 +4,11 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
+import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.events.ProtocolExpandCollapseEvent;
 import com.xored.javafx.packeteditor.metatdata.PacketTemplate;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
+import com.xored.javafx.packeteditor.service.ConfigurationService;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -15,6 +17,9 @@ import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -24,9 +29,12 @@ public class MenuController implements Initializable {
 
     public static final String EXIT_MENU_ITEM = "exit";
     private Logger logger= LoggerFactory.getLogger(MenuController.class);
-    
+
     @Inject
     FieldEditorController controller;
+
+    @Inject
+    ConfigurationService configurations;
 
     @Inject
     private EventBus eventBus;
@@ -85,6 +93,75 @@ public class MenuController implements Initializable {
             menuItem.setOnAction(event -> controller.getModel().loadTemplate(templateFile));
             menuItems.add(menuItem);
         });
+
+        // Add templates  to menu list
+        File repo = new File (configurations.getTemplatesLocation());
+        if (repo.isDirectory()) {
+            File[] fileList = repo.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.toLowerCase().endsWith(".trp");
+                }
+            });
+            for (File f : fileList) {
+                String fileName = f.getName();
+                int index = fileName.lastIndexOf('.');
+                if (index != -1) {
+                    fileName = fileName.substring(0, index);
+                }
+
+                MenuItem menuItem = new MenuItem(fileName);
+                menuItem.setOnAction(event -> {
+                    try {
+                        controller.getModel().loadDocumentFromFile(f);
+                    } catch (IOException e) {
+                        logger.error(e.getMessage());
+                    }
+                });
+                menuItems.add(menuItem);
+            }
+        }
+
+        // Add "Save as template..." item
+        menuItems.add(new SeparatorMenuItem());
+        MenuItem menuItem = new MenuItem("Save as template...");
+        menuItem.setOnAction(event -> {
+            if (controller.getModel().getUserModel().getProtocolStack().isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText("Save as template");
+                alert.setContentText("Can't save empty template. \nPlease add at least one protocol.");
+                alert.showAndWait();
+                return;
+            }
+            try {
+                String templ = controller.createNewTemplateDialog();
+                if (templ != null) {
+                    File file = new File(configurations.getTemplatesLocation() + "/" + templ + DocumentFile.FILE_EXTENSION);
+                    boolean ok2write = true;
+                    if (file.exists()) {
+                        ok2write = controller.createFileOverwriteDialog(file);
+                    }
+                    if (ok2write) {
+                        File dir = new File(file.getParent());
+                        if (! dir.exists()) {
+                            dir.mkdirs();
+                        }
+                        controller.getModel().saveDocumentToFile(file);
+
+                        newTemplateMenuButton.getItems().clear();
+                        addTemplates(newTemplateMenuButton.getItems());
+
+                        if (configurations.getApplicationMode() == STANDALONE) {
+                            newTemplateMenu.getItems().clear();
+                            addTemplates(newTemplateMenu.getItems());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+            }
+        });
+        menuItems.add(menuItem);
     }
 
     @FXML

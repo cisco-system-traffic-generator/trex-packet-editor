@@ -71,4 +71,8 @@ public class AppController {
     public ApplicationMode getApplicationMode() {
         return configurationService.getApplicationMode();
     }
+
+    public ConfigurationService getConfigurations() {
+        return configurationService;
+    }
 }

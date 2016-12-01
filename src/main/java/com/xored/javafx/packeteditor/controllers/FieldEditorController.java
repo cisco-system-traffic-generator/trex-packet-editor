@@ -22,10 +22,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
@@ -40,6 +37,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -215,6 +213,29 @@ public class FieldEditorController implements Initializable {
                 });
             });
         });
+    }
+
+    public String createNewTemplateDialog() {
+        // Add templates from templates dir
+        TextInputDialog dialog = new TextInputDialog("NewTemplate");
+        dialog.setTitle("Save as template");
+        dialog.setHeaderText("Please enter template name");
+        dialog.setContentText("");
+
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()){
+            return result.get();
+        }
+        return null;
+    }
+
+    public boolean createFileOverwriteDialog(File f) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Save as template");
+        alert.setHeaderText("File " + f.getName() + " exists");
+        alert.setContentText("Do you want to overwrite it ?");
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.get() == ButtonType.OK;
     }
 
     public void showLoadDialog() {

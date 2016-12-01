@@ -11,7 +11,7 @@
             <Menu mnemonicParsing="false" text="File" fx:id="fileMenu">
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#handleNewDocument" text="New" accelerator="Shortcut+N"/>
-                  <Menu fx:id="newTemplateMenu" mnemonicParsing="false" text="New Template" accelerator="Shortcut+T"/>
+                  <Menu fx:id="newTemplateMenu" mnemonicParsing="false" text="Templates" accelerator="Shortcut+T"/>
                   <MenuItem mnemonicParsing="false" onAction="#handleOpenAction" text="Open file" accelerator="Shortcut+O"/>
                   <MenuItem mnemonicParsing="false" onAction="#handleSaveAction" text="Save file" accelerator="Shortcut+S"/>
                   <MenuItem fx:id="exit" mnemonicParsing="false" onAction="#handleCloseAction" text="Exit" accelerator="Shortcut+Q"/>
@@ -73,7 +73,7 @@
             </Button>
             <MenuButton focusTraversable="false" fx:id="newTemplateMenuButton">
                <tooltip>
-                  <Tooltip text="Load from template" />
+                  <Tooltip text="Templates" />
                </tooltip>
                <graphic>
                   <ImageView fitHeight="16.0" fitWidth="16.0">
