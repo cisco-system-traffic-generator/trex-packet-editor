@@ -1,12 +1,14 @@
 package com.xored.packeteditor;
 
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import org.junit.AssumptionViolatedException;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
+import org.testfx.service.query.NodeQuery;
+
+import java.util.Optional;
 
 import static javafx.scene.input.KeyCode.*;
 import static org.junit.Assume.assumeFalse;
@@ -14,6 +16,7 @@ import static org.junit.Assume.assumeThat;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.util.NodeQueryUtils.hasText;
 
+//@FixMethodOrder(MethodSorters.NAME_ASCENDING) // execute tests in order
 public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
     @Test
@@ -404,7 +407,10 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("Save as template...");
         clickOn("OK");
-        clickOn("OK");
+        Node btn = (Node)lookup("OK").query();
+        if (btn != null) {
+            clickOn("OK");
+        }
         interrupt();
 
         // Load saved template
