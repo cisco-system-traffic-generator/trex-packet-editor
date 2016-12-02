@@ -7,6 +7,7 @@ import com.xored.javafx.packeteditor.data.InstructionExpression;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -33,6 +34,9 @@ import static javafx.scene.input.KeyCode.ENTER;
 public class FieldEngineView extends FieldEditorView {
 
     private AutoCompletionBinding<String> instructionAutoCompleter;
+    private VBox topPane;
+    private VBox bottomPane;
+    private ScrollPane scrollPane;
 
     public void rebuild() {
         try {
@@ -40,15 +44,11 @@ public class FieldEngineView extends FieldEditorView {
 
             List<Node> instructionLayers = getModel().getInstructionExpressions().stream().map(this::buildLayerData).collect(Collectors.toList());
 
-            layers.add(buildPacketStructureLayer());
+            updateTopLayer();
+            updateBottomLayer();
+            
             layers.addAll(instructionLayers);
             
-            String error = controller.getModel().getFieldEngineError();
-            if(error != null) {
-                layers.add(buildErrorLayer(error));
-            }
-            layers.add(buildAddInstructionLayer());
-
             VBox protocolsPaneVbox = new VBox();
             protocolsPaneVbox.getChildren().setAll(layers);
             rootPane.getChildren().setAll(protocolsPaneVbox);
@@ -57,20 +57,31 @@ public class FieldEngineView extends FieldEditorView {
         }
     }
 
-    private Node buildPacketStructureLayer() {
+    private void updateTopLayer() {
+        topPane.getChildren().clear();
         BreadCrumbBar<String> pktStructure = new BreadCrumbBar<>();
-        
         pktStructure.setAutoNavigationEnabled(false);
-        
         pktStructure.setSelectedCrumb(buildPktStructure());
+        pktStructure.setPadding(new Insets(10, 10, 10, 10));
         
-        BorderPane pktStructureContent = new BorderPane();
-        pktStructureContent.setLeft(pktStructure);
-        TitledPane pktStructurePane = new TitledPane();
-        pktStructurePane.setCollapsible(false);
-        pktStructurePane.setText("Packet Structure");
-        pktStructurePane.setContent(pktStructureContent);
-        return pktStructurePane;
+        TitledPane pktStructureLayer = new TitledPane();
+        pktStructureLayer.setCollapsible(false);
+        pktStructureLayer.setText("Packet structure");
+        pktStructureLayer.setContent(pktStructure);
+
+        topPane.getChildren().addAll(pktStructureLayer);
+        
+        String error = controller.getModel().getFieldEngineError();
+        if(error != null) {
+
+            BorderPane errorPane = new BorderPane();
+            errorPane.setLeft(new Text(error));
+            TitledPane errorLayer = new TitledPane("Error", errorPane);
+            
+            errorLayer.getStyleClass().add("invalid-layer");
+            errorLayer.setCollapsible(false);
+            topPane.getChildren().add(errorLayer);
+        }
     }
     
     private TreeItem<String> buildPktStructure() {
@@ -88,13 +99,6 @@ public class FieldEngineView extends FieldEditorView {
         return currentProto;
     }
     
-    private Node buildErrorLayer(String errorMessage) {
-        TitledPane errorPane = new TitledPane("Error", new BorderPane(new Text(errorMessage)));
-        errorPane.getStyleClass().add("invalid-layer");
-        errorPane.setCollapsible(false);
-        return errorPane;
-    }
-
     protected Node buildLayerData(InstructionExpression instruction) {
         LayerContext layerContext = new LayerContext() {
             @Override
@@ -156,7 +160,8 @@ public class FieldEngineView extends FieldEditorView {
         return buildLayer(layerContext);
     }
 
-    private Node buildAddInstructionLayer() {
+    private void updateBottomLayer() {
+        bottomPane.getChildren().clear();
         HBox addInstructionPane = new HBox(10);
         ComboBox<InstructionExpressionMeta> instructionSelector = new ComboBox<>();
         instructionSelector.setEditable(true);
@@ -194,6 +199,7 @@ public class FieldEngineView extends FieldEditorView {
                 selected = (InstructionExpressionMeta) selectedItem;
             }
             controller.getModel().addInstruction(selected);
+            Platform.runLater(() -> scrollPane.setVvalue(1.0));
         }; 
         
         newInstructionBtn.setOnAction(onAddInstructionHandler::accept);
@@ -205,14 +211,13 @@ public class FieldEngineView extends FieldEditorView {
         });
         addInstructionPane.getChildren().addAll(instructionSelector, newInstructionBtn);
 
-        TitledPane layer = new TitledPane();
-        layer.setPadding(new Insets(10,0,0,0));
-        layer.setText("Add instruction");
-        layer.setContent(addInstructionPane);
-        layer.setExpanded(true);
-        layer.setCollapsible(false);
+        TitledPane addInstructionLayer = new TitledPane();
+        addInstructionLayer.setText("Add instruction");
+        addInstructionLayer.setContent(addInstructionPane);
+        addInstructionLayer.setExpanded(true);
+        addInstructionLayer.setCollapsible(false);
 
-        return layer;
+        bottomPane.getChildren().add(addInstructionLayer);
     }
     
     protected List<Node> buildLayerRows(InstructionExpression instruction) {
@@ -342,5 +347,17 @@ public class FieldEngineView extends FieldEditorView {
     public void reset() {
         rootPane.getChildren().clear();
         showEmptyPacketContent();
+    }
+
+    public void setTopPane(VBox topPane) {
+        this.topPane = topPane;
+    }
+
+    public void setBottomPane(VBox bottomPane) {
+        this.bottomPane = bottomPane;
+    }
+
+    public void setScrollPane(ScrollPane scrollPane) {
+        this.scrollPane = scrollPane;
     }
 }
