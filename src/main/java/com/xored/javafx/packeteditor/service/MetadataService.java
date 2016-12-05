@@ -28,6 +28,7 @@ public class MetadataService implements IMetadataService {
     Map<String, FeParameterMeta> feParametersMeta = new HashMap<>();
     Map<String, InstructionExpressionMeta> feInstructionMetas = new HashMap<>();
     Map<String, FEInstructionParameterMeta> feInstructionParameterMetas = new LinkedTreeMap<>();
+    List<InstructionsTemplate> feTemplates = new ArrayList<>();
     
     @Subscribe
     public void handleScapyConnectedEvent(ScapyClientConnectedEvent event) {
@@ -51,6 +52,11 @@ public class MetadataService implements IMetadataService {
     @Override
     public Map<String, FEInstructionParameterMeta> getFeInstructionParameters() {
         return feInstructionParameterMetas;
+    }
+    
+    @Override
+    public List<InstructionsTemplate> getFeInstructionsTemplates() {
+        return feTemplates;
     }
 
     private void loadDefinitions() {
@@ -89,11 +95,24 @@ public class MetadataService implements IMetadataService {
                     feInstructionMetas.put(instructionData.id, meta);
                 });
             }
+            
+            if (definitions.feTemplates != null) {
+                feTemplates = definitions.feTemplates.stream()
+                        .map(this::buildInstructionsTemplate)
+                        .collect(Collectors.toList());
+            }
         } catch (Exception e) {
             logger.error("failed to load protocol defs from scapy: {}", e);
         }
     }
 
+    private InstructionsTemplate buildInstructionsTemplate(ScapyDefinitions.ScapyFETemplate templateData) {
+        List<InstructionExpressionMeta> instructions = templateData.instructionIds.stream()
+                .map(feInstructionMetas::get)
+                .collect(Collectors.toList());
+        return new InstructionsTemplate(templateData.id, templateData.name, instructions);
+    }
+    
     /** builds field metadata from scapy field definition */
     private FieldMetadata buildFieldMetadata(ScapyDefinitions.ScapyField field) {
         String fieldName = field.name;
