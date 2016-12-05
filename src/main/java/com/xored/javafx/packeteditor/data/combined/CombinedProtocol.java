@@ -5,6 +5,7 @@ import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CombinedProtocol {
@@ -22,4 +23,13 @@ public class CombinedProtocol {
     public ProtocolMetadata getMeta() { return meta; }
 
     public List<String> getPath() { return path; }
+
+    /**
+     * Returns protocol index(for duplicate entries) in packet structure.
+     * For ex: Ether()\IP()\UDP()\IP()\UDP() -> IP will have two indexes IP:0 and IP:1
+     * @return
+     */
+    public int getIdx() {
+        return Math.max(0, Collections.frequency(path, getId()) - 1);
+    }
 }
