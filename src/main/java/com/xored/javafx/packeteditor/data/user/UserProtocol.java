@@ -94,9 +94,5 @@ public class UserProtocol {
 
     public void addFieldVmInstruction(FEInstruction instruction) {
     }
-
-    public String getPaddedId() {
-        return " " + meta.getId() + " ";
-    }
 }
 

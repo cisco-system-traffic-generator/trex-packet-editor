@@ -32,4 +32,14 @@ public class CombinedProtocol {
     public int getIdx() {
         return Math.max(0, Collections.frequency(path, getId()) - 1);
     }
+
+    /**
+     * Returns protocol identificator in the packet structure
+     * @return
+     */
+    public String getCrumbId() {
+        int idx = getIdx();
+        String idxStr = idx > 0 ? ":" + idx : "";
+        return "  "+ getId() + idxStr + "  ";
+    }
 }

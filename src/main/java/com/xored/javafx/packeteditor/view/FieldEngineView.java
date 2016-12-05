@@ -5,7 +5,7 @@ import com.xored.javafx.packeteditor.controls.FeParameterField;
 import com.xored.javafx.packeteditor.data.FeParameter;
 import com.xored.javafx.packeteditor.data.InstructionExpression;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
-import com.xored.javafx.packeteditor.data.user.UserProtocol;
+import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -25,7 +25,6 @@ import org.controlsfx.control.textfield.TextFields;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -85,13 +84,12 @@ public class FieldEngineView extends FieldEditorView {
     }
     
     private TreeItem<String> buildPktStructure() {
-        Stack<UserProtocol> protocols = getModel().getUserModel().getProtocolStack();
         TreeItem<String> currentProto = null;
-        for(UserProtocol protocol : protocols) {
+        for(CombinedProtocol protocol : getModel().getCombinedProtocolModel().getProtocolStack()) {
             if(currentProto == null) {
-                currentProto = new TreeItem<>(protocol.getPaddedId());
+                currentProto = new TreeItem<>(protocol.getCrumbId());
             } else {
-                TreeItem<String> child = new TreeItem<>(protocol.getPaddedId());
+                TreeItem<String> child = new TreeItem<>(protocol.getCrumbId());
                 currentProto.getChildren().add(child);
                 currentProto = child;
             }
