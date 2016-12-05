@@ -117,6 +117,10 @@ public class PacketEditorModel {
         return packetDataService.loadInstructionParameterValues(userModel.buildScapyModel(), userModel.getVmInstructionsModel(), meta.getId());
     }
 
+    public void setFieldEngineError(String fieldEngineError) {
+        this.packet.setFieldEngineError(fieldEngineError);
+    }
+
     public class DocState {
         public DocumentFile userModel;
         public PacketData packet;

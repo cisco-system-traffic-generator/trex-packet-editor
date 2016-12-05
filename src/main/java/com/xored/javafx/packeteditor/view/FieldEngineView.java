@@ -193,8 +193,15 @@ public class FieldEngineView extends FieldEditorView {
         Consumer<Event> onAddInstructionHandler = (event) -> {
             Object selectedItem = instructionSelector.getSelectionModel().getSelectedItem();
             InstructionExpressionMeta selected;
-            if (selectedItem instanceof String) {
+            if (selectedItem instanceof String || selectedItem == null) {
+                if(selectedItem == null) {
+                    selectedItem = instructionSelector.getEditor().getText();
+                }
                 selected = instructionExpressionMetas.get(selectedItem);
+                if (selected == null) {
+                    getModel().setFieldEngineError("Unsupported VM Instruction: " + selectedItem);
+                    rebuild();
+                }
             } else {
                 selected = (InstructionExpressionMeta) selectedItem;
             }

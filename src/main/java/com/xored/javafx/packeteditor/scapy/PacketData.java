@@ -25,6 +25,9 @@ public class PacketData {
     public String getFieldEngineError() {
         return field_engine != null && !(field_engine.get("error") instanceof JsonNull) ? field_engine.get("error").getAsString() : null;
     }
+    public void setFieldEngineError(String error) {
+        field_engine.add("error", new JsonPrimitive(error));
+    }
 
     private class MapDeserializerDoubleAsInt implements JsonDeserializer<Map<String, Object>>{
 
