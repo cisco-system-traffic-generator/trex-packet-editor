@@ -46,9 +46,16 @@ public class ScapyDefinitions {
         public List<String> parameters;
     }
 
+    public class ScapyFETemplate {
+        public String id;
+        public String name;
+        public List<String> instructionIds;
+    }
+
     public List<ScapyProtocol> protocols;
 
     public List<ScapyFEParameter> feInstructionParameters;
     public List<ScapyFEInstruction> feInstructions;
+    public List<ScapyFETemplate> feTemplates;
     public List<ScapyFEParameter> feParameters;
 }
