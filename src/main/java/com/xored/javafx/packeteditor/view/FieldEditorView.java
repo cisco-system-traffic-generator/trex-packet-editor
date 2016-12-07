@@ -6,7 +6,6 @@ import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.controls.ProtocolField;
-import com.xored.javafx.packeteditor.controls.TitledPaneCustomCaption;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
@@ -18,7 +17,6 @@ import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -237,9 +235,9 @@ public class FieldEditorView {
         BorderPane pktStructureContent = new BorderPane();
         pktStructureContent.setLeft(pktStructure);
 
-        TitledPaneCustomCaption pktStructurePane = new TitledPaneCustomCaption();
+        TitledPane pktStructurePane = new TitledPane();
         pktStructurePane.setCollapsible(false);
-        pktStructurePane.setText("Global");
+        pktStructurePane.setText("Packet Structure");
         pktStructurePane.setContent(pktStructureContent);
 
         return pktStructurePane;
