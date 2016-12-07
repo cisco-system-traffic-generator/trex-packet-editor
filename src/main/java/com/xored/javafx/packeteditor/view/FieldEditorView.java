@@ -239,7 +239,7 @@ public class FieldEditorView {
 
         TitledPaneCustomCaption pktStructurePane = new TitledPaneCustomCaption();
         pktStructurePane.setCollapsible(false);
-        pktStructurePane.setText("Packet Structure");
+        pktStructurePane.setText("Global");
         pktStructurePane.setContent(pktStructureContent);
 
         return pktStructurePane;
