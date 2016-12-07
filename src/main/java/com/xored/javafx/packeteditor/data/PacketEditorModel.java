@@ -443,7 +443,6 @@ public class PacketEditorModel {
     public void newPacket() {
         userModel.clear();
         packet = new PacketData();
-        userModel.clearInstructionExpressions();
         addProtocol("Ether");
         clearHistory();
     }

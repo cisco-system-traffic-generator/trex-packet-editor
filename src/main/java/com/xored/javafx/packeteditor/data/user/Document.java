@@ -88,6 +88,7 @@ public class Document {
     public void clear() {
         protocols.clear();
         feInstructions.clear();
+        feParameters.clear();
     }
 
     public void deleteField(List<String> path, String fieldUniqueId) {
@@ -206,9 +207,5 @@ public class Document {
 
     public List<InstructionExpression> getFeInstructions() {
         return feInstructions;
-    }
-
-    public void clearInstructionExpressions() {
-        feInstructions.clear();
     }
 }
