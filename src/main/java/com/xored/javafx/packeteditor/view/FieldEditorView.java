@@ -232,13 +232,17 @@ public class FieldEditorView {
             rebuild();
         });
 
-        BorderPane pktStructureContent = new BorderPane();
-        pktStructureContent.setLeft(pktStructure);
-
         TitledPane pktStructurePane = new TitledPane();
         pktStructurePane.setCollapsible(false);
         pktStructurePane.setText("Packet Structure");
-        pktStructurePane.setContent(pktStructureContent);
+
+        GridPane grid = new GridPane();
+        grid.setVgap(5);
+        grid.getColumnConstraints().add(new ColumnConstraints(130));
+        //grid.add(new Label("Packet structure:"), 0,0);
+        grid.add(pktStructure, 0, 0);
+
+        pktStructurePane.setContent(grid);
 
         return pktStructurePane;
     }

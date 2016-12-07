@@ -148,12 +148,18 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     public void should_change_ether_type_and_back() {
         addLayerIPv4();
         expandAllProtocols();
+
         scrollFieldsUp();
         setFieldText("#Ether-type", "LOOP");
+
+        scrollFieldsDown();
         setFieldText("#Ether-IP-src", "127.0.1.2");
+
         verifyThat("#Ether-type", (Label t) -> t.getText().contains("LOOP")); // default value for Ether
         verifyUserModelFieldSet("#Ether-type");
         verifyUserModelFieldSet("#Ether-IP-src");
+
+        scrollFieldsUp();
         setFieldText("#Ether-type", "IPv4");
         verifyUserModelFieldSet("#Ether-type");
     }
