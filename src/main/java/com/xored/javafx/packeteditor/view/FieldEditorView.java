@@ -224,8 +224,7 @@ public class FieldEditorView {
         pktStructure.setAutoNavigationEnabled(false);
         pktStructure.setSelectedCrumb(buildProtocolStructure());
 
-        pktStructure.setOnCrumbAction((e) -> {
-            BreadCrumbBar.BreadCrumbActionEvent<UserProtocol> event = e;
+        pktStructure.setOnCrumbAction(e -> {
             UserProtocol protocol = e.getSelectedCrumb().getValue();
             Stack<UserProtocol> protocols = getModel().getUserModel().getProtocolStack();
             protocols.forEach(p -> p.setCollapsed(p != protocol));
@@ -234,13 +233,15 @@ public class FieldEditorView {
 
         TitledPane pktStructurePane = new TitledPane();
         pktStructurePane.setCollapsible(false);
-        pktStructurePane.setText("Packet Structure");
+        pktStructurePane.setText("Packet info");
 
         GridPane grid = new GridPane();
-        grid.setVgap(5);
-        grid.getColumnConstraints().add(new ColumnConstraints(130));
-        //grid.add(new Label("Packet structure:"), 0,0);
-        grid.add(pktStructure, 0, 0);
+        grid.setVgap(2);
+        grid.getColumnConstraints().add(new ColumnConstraints(80));
+        grid.add(new Label("Structure:"), 0,0);
+        grid.add(pktStructure, 1, 0);
+        grid.add(new Label("Size:"), 0,1);
+        grid.add(new Label(getModel().getPkt().getPacketBytes().length + " bytes"), 1,1);
 
         pktStructurePane.setContent(grid);
 
