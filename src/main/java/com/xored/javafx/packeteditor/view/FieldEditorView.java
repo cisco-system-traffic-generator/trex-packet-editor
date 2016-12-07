@@ -19,7 +19,9 @@ import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -219,15 +221,15 @@ public class FieldEditorView {
     }
 
     private Node buildProtocolStructureLayer() {
-        BreadCrumbBar<UserProtocol> pktStructure = new BreadCrumbBar<>();
+        BreadCrumbBar<CombinedProtocol> pktStructure = new BreadCrumbBar<>();
 
         pktStructure.setAutoNavigationEnabled(false);
         pktStructure.setSelectedCrumb(buildProtocolStructure());
 
-        pktStructure.setOnCrumbAction(e -> {
-            UserProtocol protocol = e.getSelectedCrumb().getValue();
-            Stack<UserProtocol> protocols = getModel().getUserModel().getProtocolStack();
-            protocols.forEach(p -> p.setCollapsed(p != protocol));
+        pktStructure.setOnCrumbAction((e) -> {
+            CombinedProtocol protocol = e.getSelectedCrumb().getValue();
+            List<CombinedProtocol> protocols = getModel().getCombinedProtocolModel().getProtocolStack();
+            protocols.forEach(p -> p.getUserProtocol().setCollapsed(p != protocol));
             rebuild();
         });
 
@@ -236,26 +238,38 @@ public class FieldEditorView {
         pktStructurePane.setText("Packet info");
 
         GridPane grid = new GridPane();
-        grid.setVgap(2);
-        grid.getColumnConstraints().add(new ColumnConstraints(80));
-        grid.add(new Label("Structure:"), 0,0);
+        grid.setVgap(5);
+        grid.setHgap(10);
+
+        ColumnConstraints col = new ColumnConstraints(90);
+        col.setHalignment(HPos.RIGHT);
+        grid.getColumnConstraints().add(col);
+
+        Label label = new Label("Structure:");
+        label.setAlignment(Pos.CENTER_RIGHT);
+        grid.add(label, 0,0);
         grid.add(pktStructure, 1, 0);
-        grid.add(new Label("Size:"), 0,1);
-        grid.add(new Label(getModel().getPkt().getPacketBytes().length + " bytes"), 1,1);
+
+        label = new Label("Size:");
+        label.setAlignment(Pos.CENTER_RIGHT);
+        grid.add(label, 0, 1);
+
+        label = new Label(String.format("%d bytes", getModel().getPkt().getPacketBytes().length + 4));
+        grid.add(label, 1, 1);
 
         pktStructurePane.setContent(grid);
 
         return pktStructurePane;
     }
 
-    private TreeItem<UserProtocol> buildProtocolStructure() {
-        Stack<UserProtocol> protocols = getModel().getUserModel().getProtocolStack();
-        TreeItem<UserProtocol> currentProto = null;
-        for(UserProtocol protocol : protocols) {
+    private TreeItem<CombinedProtocol> buildProtocolStructure() {
+        List<CombinedProtocol> protocols = getModel().getCombinedProtocolModel().getProtocolStack();
+        TreeItem<CombinedProtocol> currentProto = null;
+        for(CombinedProtocol protocol : protocols) {
             if(currentProto == null) {
-                currentProto = new TreeItem<UserProtocol>(protocol);
+                currentProto = new TreeItem<CombinedProtocol>(protocol);
             } else {
-                TreeItem<UserProtocol> child = new TreeItem<UserProtocol>(protocol);
+                TreeItem<CombinedProtocol> child = new TreeItem<CombinedProtocol>(protocol);
                 currentProto.getChildren().add(child);
                 currentProto = child;
             }

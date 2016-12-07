@@ -42,4 +42,8 @@ public class CombinedProtocol {
         String idxStr = idx > 0 ? ":" + idx : "";
         return "  "+ getId() + idxStr + "  ";
     }
+
+    public String toString() {
+        return getCrumbId();
+    }
 }
