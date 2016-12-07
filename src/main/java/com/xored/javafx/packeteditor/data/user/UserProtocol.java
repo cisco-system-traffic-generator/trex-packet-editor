@@ -42,7 +42,7 @@ public class UserProtocol {
     }
 
     public String toString() {
-        return getPaddedName();
+        return " " + meta.getName() + " ";
     }
 
     public List<UserField> getSetFields() {
@@ -99,12 +99,5 @@ public class UserProtocol {
     public void addFieldVmInstruction(FEInstruction instruction) {
     }
 
-    public String getPaddedId() {
-        return " " + meta.getId() + " ";
-    }
-
-    public String getPaddedName() {
-        return " " + meta.getName() + " ";
-    }
 }
 

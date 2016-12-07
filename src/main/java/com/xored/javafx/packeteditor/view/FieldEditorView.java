@@ -229,7 +229,6 @@ public class FieldEditorView {
         pktStructure.setOnCrumbAction((e) -> {
             BreadCrumbBar.BreadCrumbActionEvent<UserProtocol> event = e;
             UserProtocol protocol = e.getSelectedCrumb().getValue();
-
             Stack<UserProtocol> protocols = getModel().getUserModel().getProtocolStack();
             protocols.forEach(p -> p.setCollapsed(p != protocol));
             rebuild();
