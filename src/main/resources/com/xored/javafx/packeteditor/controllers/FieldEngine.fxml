@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.text.Text?>
-<StackPane xmlns="http://javafx.com/javafx/8"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.xored.javafx.packeteditor.controllers.FieldEditorController"
-           fx:id="fieldEngineTopPane"
-           styleClass="fieldEngineTopPane">
-    <ScrollPane fx:id="fieldEngineScrollPane" styleClass="fieldeditorscrollpane">
-        <StackPane fx:id="fieldEnginePane" prefWidth="800" styleClass="stackpane" />
-    </ScrollPane>
-</StackPane>
+<?import javafx.scene.layout.VBox?>
+<BorderPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.xored.javafx.packeteditor.controllers.FieldEditorController"
+            id="pcapEditorTopPane"
+            styleClass="fieldEngineTopPane">
+    <top>
+        <VBox fx:id="fieldEngineTopPane"  styleClass="field-engine-top-pane"/>
+    </top>
+    <center>
+        <ScrollPane fx:id="fieldEngineScrollPane" styleClass="fieldeditorscrollpane">
+            <StackPane fx:id="fieldEngineCenterPane" prefWidth="800" styleClass="stackpane" />
+        </ScrollPane>
+    </center>
+    <bottom>
+        <VBox fx:id="fieldEngineBottomPane" />
+    </bottom>
+</BorderPane>

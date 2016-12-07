@@ -13,7 +13,8 @@
                 <SplitPane dividerPositions="0.95"
                            fx:id="fieldEditorSplitPane"
                            orientation="VERTICAL"
-                           prefWidth="850">
+                           prefWidth="850"
+                           styleClass="editor-split-pane">
                     <items>
                         <fx:include source="FieldEditor.fxml" />
                         <fx:include source="BinaryEditor.fxml" SplitPane.resizableWithParent="false" />

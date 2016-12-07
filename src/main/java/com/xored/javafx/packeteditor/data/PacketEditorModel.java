@@ -18,6 +18,7 @@ import com.xored.javafx.packeteditor.scapy.InstructionExpressionData;
 import com.xored.javafx.packeteditor.scapy.PacketData;
 import com.xored.javafx.packeteditor.scapy.ReconstructField;
 import com.xored.javafx.packeteditor.service.IMetadataService;
+import com.xored.javafx.packeteditor.service.InstructionsTemplate;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.service.PacketUndoController;
 import org.slf4j.Logger;
@@ -104,6 +105,13 @@ public class PacketEditorModel {
 
         setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
     }
+    public void addInstructions(List<InstructionExpression> instructions) {
+        beforeContentReplace();
+        
+        instructions.stream().forEach(userModel::addInstruction);
+        
+        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
+    }
 
     public void removeInstructionLayer(InstructionExpression instruction) {
         beforeContentReplace();
@@ -115,6 +123,44 @@ public class PacketEditorModel {
 
     public Map<String, String> loadParameterValuesFromScapy(FEInstructionParameterMeta meta) {
         return packetDataService.loadInstructionParameterValues(userModel.buildScapyModel(), userModel.getVmInstructionsModel(), meta.getId());
+    }
+
+    public void setFieldEngineError(String fieldEngineError) {
+        this.packet.setFieldEngineError(fieldEngineError);
+    }
+
+    public void addFEInstructionsTemplate(CombinedField field, InstructionsTemplate template) {
+        String initValue = field.getDisplayValue();
+        int protocolIdx = field.getProtocol().getIdx();
+        String pktIdx = "";
+        if (protocolIdx > 0) {
+            pktIdx = ":"+protocolIdx;
+        }
+        String varName = field.getProtocol().getId() + pktIdx + "_" + field.getId();
+        String pktOffset = field.getProtocol().getId() + pktIdx +"." + field.getId();
+
+        List<InstructionExpression> instructions = template.getInstructions().stream().map(instructionMeta -> {
+            List<FEInstructionParameter2> parameters = instructionMeta.getParameterMetas().stream().map(meta -> {
+                    String parameterValue;
+                    switch (meta.getId()) {
+                        case "name":
+                        case "fv_name":
+                            parameterValue = varName;
+                            break;
+                        case "pkt_offset":
+                            parameterValue = pktOffset;
+                            break;
+                        case "init_value":
+                            parameterValue = initValue;
+                            break;
+                        default:
+                            parameterValue = meta.getDefaultValue();
+                    }
+                    return new FEInstructionParameter2(meta, new JsonPrimitive(parameterValue));
+                }).collect(Collectors.toList());
+            return new InstructionExpression(instructionMeta, parameters);
+        }).collect(Collectors.toList());
+        addInstructions(instructions);
     }
 
     public class DocState {

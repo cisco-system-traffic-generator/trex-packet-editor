@@ -45,7 +45,7 @@ public class FieldEditorView {
     @Inject
     protected FieldEditorController controller;
 
-    protected StackPane rootPane;
+    protected Pane rootPane;
 
     protected Logger logger = LoggerFactory.getLogger(FieldEditorView.class);
 
@@ -109,7 +109,7 @@ public class FieldEditorView {
         }
     }
 
-    public void setRootPane(StackPane rootPane) {
+    public void setRootPane(Pane rootPane) {
         this.rootPane = rootPane;
     }
 

@@ -22,4 +22,6 @@ public interface IMetadataService {
     List<String> getAllowedPayloadForProtocol(String protocolId);
 
     Map<String, FEInstructionParameterMeta> getFeInstructionParameters();
+
+    List<InstructionsTemplate> getFeInstructionsTemplates();
 }

@@ -51,7 +51,6 @@
     -fx-background-color: #f4f4f4; /*#ececec;*/
 }
 
-#pcapEditorTopPane .fieldenginescrollpane,
 #pcapEditorTopPane .fieldeditorscrollpane {
     -fx-background-color: #f4f4f4; /*#ececec;*/
     -fx-border-radius: 0px;
@@ -59,6 +58,59 @@
     -fx-border-insets: 0px;
     -fx-border-style: solid;
     -fx-border-width: 1px;
+    -fx-padding: 0 0 0 0;
+    -fx-alignment: center;
+    -fx-fit-to-width: true;
+    -fx-fit-to-height: true;
+    -fx-pannable: false;
+    -fx-hbar-policy: as-needed; /* [ never | always | as-needed ]*/
+    -fx-vbar-policy: as-needed; /* [ never | always | as-needed ]*/
+}
+#pcapEditorTopPane .fieldenginescrollpane {
+    -fx-fill-height: true;
+    -fx-background-color: #f4f4f4; /*#ececec;*/
+    -fx-border-radius: 0px;
+    -fx-border-color: #d8d8d8;
+    -fx-border-insets: 0px;
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+    -fx-padding: 25 25 25 25;
+    -fx-alignment: center;
+    -fx-fit-to-width: true;
+    -fx-fit-to-height: true;
+    -fx-pannable: false;
+    -fx-hbar-policy: as-needed; /* [ never | always | as-needed ]*/
+    -fx-vbar-policy: as-needed; /* [ never | always | as-needed ]*/
+}
+#pcapEditorTopPane .field-engine-container-embedded {
+    -fx-border-color: #d8d8d8;
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+}
+#pcapEditorTopPane .field-engine-center-pane {
+    -fx-background-color: #f4f4f4; /*#ececec;*/
+    -fx-border-radius: 0px;
+    -fx-border-color: #d8d8d8;
+    -fx-border-insets: 0px;
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+    -fx-alignment: center;
+    -fx-fit-to-width: true;
+    -fx-fit-to-height: true;
+    -fx-pannable: false;
+    -fx-hbar-policy: as-needed; /* [ never | always | as-needed ]*/
+    -fx-vbar-policy: as-needed; /* [ never | always | as-needed ]*/
+}
+#pcapEditorTopPane #fieldEngineTopPane {
+    -fx-border-width: 1px 1px 0px 1px;
+}
+#pcapEditorTopPane #fieldEngineBottomPane {
+    -fx-background-color: #f4f4f4; /*#ececec;*/
+    -fx-border-radius: 0px;
+    -fx-border-color: #d8d8d8;
+    -fx-border-insets: 0px;
+    -fx-border-style: solid;
+    -fx-border-width: 0px 1px 1px 1px;
     -fx-padding: 0 0 0 0;
     -fx-alignment: center;
     -fx-fit-to-width: true;
@@ -128,6 +180,7 @@
     -fx-padding: 0;/*1.99px;*/                 /* narrowing */
 }
 
+#pcapEditorTopPane .field-engine-top-pane,
 #pcapEditorTopPane .titled-pane {
     -fx-border-radius: 0px;
     -fx-border-color: #d8d8d8;
@@ -154,6 +207,9 @@
 
 #pcapEditorTopPane .invalid-layer .title {
     -fx-background-color: #dbbaba;
+}
+#pcapEditorTopPane .invalid-layer {
+    -fx-border-color: #dbbaba;
 }
 
 #pcapEditorTopPane .titled-pane .arrow-button {
@@ -558,7 +614,7 @@
 }
 
 #pcapEditorTopPane .fieldEngineTopPane,
-#pcapEditorTopPane .split-pane {
+#pcapEditorTopPane .editor-split-pane {
     -fx-padding: 25 25 25 25; /* the toppest pane */
 }
 

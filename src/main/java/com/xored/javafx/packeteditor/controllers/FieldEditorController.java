@@ -27,6 +27,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -48,7 +49,10 @@ public class FieldEditorController implements Initializable {
 
     @FXML private StackPane  fieldEditorTopPane;
     @FXML private StackPane  fieldEditorPane;
-    @FXML private StackPane  fieldEnginePane;
+    @FXML private StackPane  fieldEngineCenterPane;
+    @FXML private ScrollPane  fieldEngineScrollPane;
+    @FXML private VBox fieldEngineTopPane;
+    @FXML private VBox fieldEngineBottomPane;
     @FXML private ScrollPane fieldEditorScrollPane;
 
     @Inject
@@ -89,7 +93,10 @@ public class FieldEditorController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         fieldEditorView.setRootPane(fieldEditorPane);
-        fieldEngineView.setRootPane(fieldEnginePane);
+        fieldEngineView.setRootPane(fieldEngineCenterPane);
+        fieldEngineView.setTopPane(fieldEngineTopPane);
+        fieldEngineView.setBottomPane(fieldEngineBottomPane);
+        fieldEngineView.setScrollPane(fieldEngineScrollPane);
         if (packetController.isInitialized()) {
             if (configurationService.isStandaloneMode()) {
                 Platform.runLater(this::newPacket);

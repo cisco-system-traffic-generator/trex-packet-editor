@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane xmlns="http://javafx.com/javafx/8"
+         xmlns:fx="http://javafx.com/fxml/1"
+         prefHeight="400.0" prefWidth="600.0"
+         id="pcapEditorTopPane">
+    <top>
+        <fx:include source="toolbar.fxml" />
+    </top>
+    <center>
+        <SplitPane dividerPositions="0.95"
+                   fx:id="fieldEditorSplitPane"
+                   orientation="VERTICAL"
+                   prefWidth="850"
+                   styleClass="editor-split-pane">
+            <items>
+                <fx:include source="FieldEditor.fxml" />
+                <fx:include source="BinaryEditor.fxml" SplitPane.resizableWithParent="false" />
+            </items>
+        </SplitPane>
+    </center>
+</BorderPane>

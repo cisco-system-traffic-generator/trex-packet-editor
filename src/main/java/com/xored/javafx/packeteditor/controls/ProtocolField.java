@@ -15,6 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Menu;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -198,7 +199,14 @@ public class ProtocolField extends EditableField {
         MenuItem defaultItem = new MenuItem(resourceBundle.getString("SET_DEFAULT"));
         defaultItem.setOnAction(event ->clearFieldValue());
 
-        context.getItems().addAll(generateItem, defaultItem);
+        Menu feInstructionsTemplatesItem = new Menu(resourceBundle.getString("FE_TEMPLATES"));
+        controller.getMetadataService().getFeInstructionsTemplates().stream().forEach(template -> {
+            MenuItem instructionsTemplate = new MenuItem(template.getName());
+            instructionsTemplate.setOnAction(e -> controller.getModel().addFEInstructionsTemplate(combinedField, template));
+            feInstructionsTemplatesItem.getItems().add(instructionsTemplate);
+        });
+        
+        context.getItems().addAll(generateItem, defaultItem,feInstructionsTemplatesItem);
 
         return context;
     }
