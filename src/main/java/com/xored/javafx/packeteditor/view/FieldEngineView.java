@@ -6,6 +6,7 @@ import com.xored.javafx.packeteditor.data.FeParameter;
 import com.xored.javafx.packeteditor.data.InstructionExpression;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
+import com.xored.javafx.packeteditor.metatdata.FeParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -61,12 +62,30 @@ public class FieldEngineView extends FieldEditorView {
         BreadCrumbBar<String> pktStructure = new BreadCrumbBar<>();
         pktStructure.setAutoNavigationEnabled(false);
         pktStructure.setSelectedCrumb(buildPktStructure());
-        pktStructure.setPadding(new Insets(10, 10, 10, 10));
         
         TitledPane pktStructureLayer = new TitledPane();
         pktStructureLayer.setCollapsible(false);
-        pktStructureLayer.setText("Packet structure");
-        pktStructureLayer.setContent(pktStructure);
+        pktStructureLayer.setText("Global");
+        
+        GridPane grid = new GridPane();
+        grid.setVgap(5);
+        grid.getColumnConstraints().add(new ColumnConstraints(130));
+        grid.add(new Label("Packet structure:"), 0,0);
+        grid.add(pktStructure, 1, 0);
+        grid.add(new Label("Cache size:"), 0,1);
+
+        FeParameterField feParameterField = injector.getInstance(FeParameterField.class);
+        FeParameter cacheSize = getModel().getUserModel().getFeParameter("cache_size");
+        if (cacheSize == null) {
+            FeParameterMeta meta = controller.getMetadataService().getFeParameters().get("cache_size");
+            getModel().getUserModel().createFePrarameter(meta, meta.getDefault());
+            cacheSize = getModel().getUserModel().getFeParameter("cache_size");
+        }
+        feParameterField.init(cacheSize);
+        
+        grid.add(feParameterField, 1,1);
+        
+        pktStructureLayer.setContent(grid);
 
         topPane.getChildren().addAll(pktStructureLayer);
         
