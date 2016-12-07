@@ -41,6 +41,10 @@ public class UserProtocol {
         return meta.getId();
     }
 
+    public String toString() {
+        return getPaddedName();
+    }
+
     public List<UserField> getSetFields() {
         return fieldMap.entrySet().stream()
                 .filter(entry -> entry.getValue().getValue() != null)
@@ -97,6 +101,10 @@ public class UserProtocol {
 
     public String getPaddedId() {
         return " " + meta.getId() + " ";
+    }
+
+    public String getPaddedName() {
+        return " " + meta.getName() + " ";
     }
 }
 

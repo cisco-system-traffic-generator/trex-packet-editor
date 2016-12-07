@@ -6,6 +6,7 @@ import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.controllers.FieldEditorController;
 import com.xored.javafx.packeteditor.controls.ProtocolField;
+import com.xored.javafx.packeteditor.controls.TitledPaneCustomCaption;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
@@ -17,6 +18,7 @@ import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -25,16 +27,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import org.controlsfx.control.BreadCrumbBar;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -219,7 +219,48 @@ public class FieldEditorView {
         }
         return title;
     }
-    
+
+    private Node buildProtocolStructureLayer() {
+        BreadCrumbBar<UserProtocol> pktStructure = new BreadCrumbBar<>();
+
+        pktStructure.setAutoNavigationEnabled(false);
+        pktStructure.setSelectedCrumb(buildProtocolStructure());
+
+        pktStructure.setOnCrumbAction((e) -> {
+            BreadCrumbBar.BreadCrumbActionEvent<UserProtocol> event = e;
+            UserProtocol protocol = e.getSelectedCrumb().getValue();
+
+            Stack<UserProtocol> protocols = getModel().getUserModel().getProtocolStack();
+            protocols.forEach(p -> p.setCollapsed(p != protocol));
+            rebuild();
+        });
+
+        BorderPane pktStructureContent = new BorderPane();
+        pktStructureContent.setLeft(pktStructure);
+
+        TitledPaneCustomCaption pktStructurePane = new TitledPaneCustomCaption();
+        pktStructurePane.setCollapsible(false);
+        pktStructurePane.setText("Packet Structure");
+        pktStructurePane.setContent(pktStructureContent);
+
+        return pktStructurePane;
+    }
+
+    private TreeItem<UserProtocol> buildProtocolStructure() {
+        Stack<UserProtocol> protocols = getModel().getUserModel().getProtocolStack();
+        TreeItem<UserProtocol> currentProto = null;
+        for(UserProtocol protocol : protocols) {
+            if(currentProto == null) {
+                currentProto = new TreeItem<UserProtocol>(protocol);
+            } else {
+                TreeItem<UserProtocol> child = new TreeItem<UserProtocol>(protocol);
+                currentProto.getChildren().add(child);
+                currentProto = child;
+            }
+        }
+        return currentProto;
+    }
+
     public TitledPane buildFETitlePane(String title, Node content) {
         TitledPane pane = new TitledPane();
         pane.setText(title);
@@ -236,6 +277,7 @@ public class FieldEditorView {
                     .map(this::buildLayer)
                     .collect(Collectors.toList());
 
+            protocolTitledPanes.add(0, (TitledPane) buildProtocolStructureLayer());
             protocolTitledPanes.add(buildAppendProtocolPane());
             VBox protocolsPaneVbox = new VBox();
             protocolsPaneVbox.getChildren().setAll(protocolTitledPanes);
