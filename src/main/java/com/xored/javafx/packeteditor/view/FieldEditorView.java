@@ -292,7 +292,7 @@ public class FieldEditorView {
                     .map(this::buildLayer)
                     .collect(Collectors.toList());
 
-            protocolTitledPanes.add(0, (TitledPane) buildProtocolStructureLayer());
+//            protocolTitledPanes.add(0, (TitledPane) buildProtocolStructureLayer());
             protocolTitledPanes.add(buildAppendProtocolPane());
             VBox protocolsPaneVbox = new VBox();
             protocolsPaneVbox.getChildren().setAll(protocolTitledPanes);
