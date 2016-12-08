@@ -238,7 +238,6 @@ public class FieldEditorView {
         pktStructurePane.setText("Packet info");
 
         GridPane grid = new GridPane();
-        grid.setVgap(5);
         grid.setHgap(10);
 
         ColumnConstraints col = new ColumnConstraints(90);
@@ -254,7 +253,7 @@ public class FieldEditorView {
         label.setAlignment(Pos.CENTER_RIGHT);
         grid.add(label, 0, 1);
 
-        label = new Label(String.format("%d bytes", getModel().getPkt().getPacketBytes().length));
+        label = new Label(String.format("%d bytes", getModel().getPktSize()));
         grid.add(label, 1, 1);
 
         pktStructurePane.setContent(grid);
