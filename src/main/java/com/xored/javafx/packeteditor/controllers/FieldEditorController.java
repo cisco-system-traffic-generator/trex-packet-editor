@@ -20,16 +20,20 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.controlsfx.control.HiddenSidesPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,13 +51,16 @@ public class FieldEditorController implements Initializable {
     public static final int PCAP_MAX_FILESIZE = 1048576;
     static Logger logger = LoggerFactory.getLogger(FieldEditorController.class);
 
-    @FXML private StackPane  fieldEditorTopPane;
-    @FXML private StackPane  fieldEditorPane;
-    @FXML private StackPane  fieldEngineCenterPane;
-    @FXML private ScrollPane  fieldEngineScrollPane;
-    @FXML private VBox fieldEngineTopPane;
-    @FXML private VBox fieldEngineBottomPane;
+    @FXML private BorderPane fieldEditorBorderPane;
+    @FXML private FlowPane   fieldEditorTopPane;
+    @FXML private StackPane  fieldEditorCenterPane;
+    @FXML private StackPane  fieldEditorBottomPane;
     @FXML private ScrollPane fieldEditorScrollPane;
+
+    @FXML private StackPane  fieldEngineCenterPane;
+    @FXML private ScrollPane fieldEngineScrollPane;
+    @FXML private VBox       fieldEngineTopPane;
+    @FXML private VBox       fieldEngineBottomPane;
 
     @Inject
     PacketEditorModel model;
@@ -92,7 +99,10 @@ public class FieldEditorController implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        fieldEditorView.setRootPane(fieldEditorPane);
+        fieldEditorView.setRootPane(fieldEditorCenterPane);
+        fieldEditorView.setBreadCrumbPane(fieldEditorTopPane);
+        fieldEditorView.setBottomPane(fieldEditorBottomPane);
+
         fieldEngineView.setRootPane(fieldEngineCenterPane);
         fieldEngineView.setTopPane(fieldEngineTopPane);
         fieldEngineView.setBottomPane(fieldEngineBottomPane);
@@ -160,7 +170,7 @@ public class FieldEditorController implements Initializable {
         }
 
         if (configurationService.isStandaloneMode()) {
-            ((Stage)fieldEditorPane.getScene().getWindow()).setTitle(title);
+            ((Stage) fieldEditorCenterPane.getScene().getWindow()).setTitle(title);
         }
     }
 
@@ -198,15 +208,15 @@ public class FieldEditorController implements Initializable {
         // This image view hides scrollpane which is rebuilt
         // Then call view rebuild
         // And last, we set Vscroll and remove image view
-        WritableImage snapImage = fieldEditorTopPane.snapshot(new SnapshotParameters(), null);
+        WritableImage snapImage = fieldEditorBorderPane.snapshot(new SnapshotParameters(), null);
         ImageView snapView = new ImageView();
         snapView.setImage(snapImage);
-        Insets insets = fieldEditorTopPane.getPadding();
+        Insets insets = fieldEditorBorderPane.getPadding();
         snapView.setViewport(new javafx.geometry.Rectangle2D(insets.getLeft(),
                 insets.getTop(),
                 snapImage.getWidth() - insets.getLeft() - insets.getRight(),
                 snapImage.getHeight() - insets.getTop() - insets.getBottom()));
-        fieldEditorTopPane.getChildren().add(snapView);
+        fieldEditorBorderPane.getChildren().add(snapView);
         // Rebuild content
         fieldEditorView.rebuild();
         fieldEngineView.rebuild();
@@ -216,7 +226,7 @@ public class FieldEditorController implements Initializable {
             Platform.runLater(() -> {
                 Platform.runLater(() -> {
                     fieldEditorScrollPane.setVvalue(val);
-                    fieldEditorTopPane.getChildren().remove(snapView);
+                    fieldEditorBorderPane.getChildren().remove(snapView);
                 });
             });
         });
@@ -248,7 +258,7 @@ public class FieldEditorController implements Initializable {
     public void showLoadDialog() {
         initFileChooser();
         fileChooser.setTitle(resourceBundle.getString("OPEN_DIALOG_TITLE"));
-        File openFile = fileChooser.showOpenDialog(fieldEditorPane.getScene().getWindow());
+        File openFile = fileChooser.showOpenDialog(fieldEditorCenterPane.getScene().getWindow());
 
         try {
             if (openFile != null) {
@@ -316,7 +326,7 @@ public class FieldEditorController implements Initializable {
         logger.error("{}: {}", title, e);
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setHeaderText(title);
-        alert.initOwner(fieldEditorPane.getScene().getWindow());
+        alert.initOwner(fieldEditorCenterPane.getScene().getWindow());
         if (e != null ) {
             alert.getDialogPane().setExpandableContent(new ScrollPane(new TextArea(title + ": " + e.getMessage())));
         }
@@ -341,7 +351,7 @@ public class FieldEditorController implements Initializable {
     public void showSaveDialog() {
         initFileChooser();
         fileChooser.setTitle(resourceBundle.getString("SAVE_DIALOG_TITLE"));
-        java.io.File outFile = fileChooser.showSaveDialog(fieldEditorPane.getScene().getWindow());
+        java.io.File outFile = fileChooser.showSaveDialog(fieldEditorCenterPane.getScene().getWindow());
         if (outFile != null) {
             try {
                 if (outFile.getName().endsWith(DocumentFile.FILE_EXTENSION)) {
@@ -373,7 +383,7 @@ public class FieldEditorController implements Initializable {
 
     private void fitSizeToScene() {
         if (configurationService.isStandaloneMode()) {
-            fieldEditorPane.getScene().getWindow().sizeToScene();
+            fieldEditorCenterPane.getScene().getWindow().sizeToScene();
         }
     }
 
@@ -417,5 +427,36 @@ public class FieldEditorController implements Initializable {
                 .collect(Collectors.joining(",\n"));
         content.putString(header+instructions+footer);
         clipboard.setContent(content);
+    }
+
+    /****************************************************/
+    @FXML
+    private HiddenSidesPane pane;
+
+    @FXML
+    private Label pinLabel;
+    @FXML
+    private Label pinLabel2;
+
+    @FXML
+    public void handleMouseClickedX(MouseEvent event) {
+        if (pane.getPinnedSide() != null) {
+            pinLabel.setText("(unpinned)");
+            pane.setPinnedSide(null);
+        } else {
+            pinLabel.setText("(pinned)");
+            pane.setPinnedSide(Side.TOP);
+        }
+    }
+
+    @FXML
+    public void handleMouseClickedX2(MouseEvent event) {
+        if (pane.getPinnedSide() != null) {
+            pinLabel2.setText("(unpinned)");
+            pane.setPinnedSide(null);
+        } else {
+            pinLabel2.setText("(pinned)");
+            pane.setPinnedSide(Side.BOTTOM);
+        }
     }
 }

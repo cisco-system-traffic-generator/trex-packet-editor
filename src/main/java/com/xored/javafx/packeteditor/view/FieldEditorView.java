@@ -17,6 +17,9 @@ import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
+import javafx.beans.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -46,6 +49,8 @@ public class FieldEditorView {
     protected FieldEditorController controller;
 
     protected Pane rootPane;
+    protected Pane breadCrumbPane;
+    protected Pane bottomPane;
 
     protected Logger logger = LoggerFactory.getLogger(FieldEditorView.class);
 
@@ -111,6 +116,14 @@ public class FieldEditorView {
 
     public void setRootPane(Pane rootPane) {
         this.rootPane = rootPane;
+    }
+
+    public void setBreadCrumbPane(Pane breadCrumbPane) {
+        this.breadCrumbPane = breadCrumbPane;
+    }
+
+    public void setBottomPane(Pane bottomPane) {
+        this.bottomPane = bottomPane;
     }
 
     private MenuItem addMenuItem(ContextMenu ctxMenu, String text, EventHandler<ActionEvent> action) {
@@ -230,36 +243,25 @@ public class FieldEditorView {
             CombinedProtocol protocol = e.getSelectedCrumb().getValue();
             List<CombinedProtocol> protocols = getModel().getCombinedProtocolModel().getProtocolStack();
             protocols.forEach(p -> p.getUserProtocol().setCollapsed(p != protocol));
-            rebuild();
+            rebuild(false);
         });
-
-        TitledPane pktStructurePane = new TitledPane();
-        pktStructurePane.setCollapsible(false);
-        pktStructurePane.setText("Packet info");
 
         GridPane grid = new GridPane();
         grid.setVgap(5);
         grid.setHgap(10);
 
-        ColumnConstraints col = new ColumnConstraints(90);
-        col.setHalignment(HPos.RIGHT);
+        ColumnConstraints col = new ColumnConstraints();
+        col.setHgrow(Priority.ALWAYS);
         grid.getColumnConstraints().add(col);
 
-        Label label = new Label("Structure:");
-        label.setAlignment(Pos.CENTER_RIGHT);
-        grid.add(label, 0,0);
-        grid.add(pktStructure, 1, 0);
+        Label label = new Label(String.format("%d bytes", getModel().getPkt().getPacketBytes().length + 4));
+        grid.add(pktStructure, 1, 0, 10, 1);
+        grid.add(label, 0, 0);
 
-        label = new Label("Size:");
-        label.setAlignment(Pos.CENTER_RIGHT);
-        grid.add(label, 0, 1);
+        breadCrumbPane.getChildren().clear();
+        breadCrumbPane.getChildren().addAll(grid);
 
-        label = new Label(String.format("%d bytes", getModel().getPkt().getPacketBytes().length + 4));
-        grid.add(label, 1, 1);
-
-        pktStructurePane.setContent(grid);
-
-        return pktStructurePane;
+        return breadCrumbPane;
     }
 
     private TreeItem<CombinedProtocol> buildProtocolStructure() {
@@ -288,13 +290,21 @@ public class FieldEditorView {
     }
 
     public void rebuild() {
+        rebuild(true);
+    }
+
+    public void rebuild(boolean rebuld_breadcrumb) {
         try {
             protocolTitledPanes = getModel().getCombinedProtocolModel().getProtocolStack().stream()
                     .map(this::buildLayer)
                     .collect(Collectors.toList());
 
-            protocolTitledPanes.add(0, (TitledPane) buildProtocolStructureLayer());
-            protocolTitledPanes.add(buildAppendProtocolPane());
+            if (rebuld_breadcrumb) {
+                buildProtocolStructureLayer();
+                bottomPane.getChildren().clear();
+                bottomPane.getChildren().add(buildAppendProtocolPane());
+            }
+            //protocolTitledPanes.add(buildAppendProtocolPane());
             VBox protocolsPaneVbox = new VBox();
             protocolsPaneVbox.getChildren().setAll(protocolTitledPanes);
             rootPane.getChildren().setAll(protocolsPaneVbox);
@@ -422,7 +432,6 @@ public class FieldEditorView {
         controls.getChildren().add(addBtn);
         
         TitledPane titledPane = new TitledPane();
-        titledPane.setPadding(new Insets(10,0,0,0));
         titledPane.setCollapsible(false);
         titledPane.setId("append-protocol-pane");
         titledPane.setText("Append new layer");
