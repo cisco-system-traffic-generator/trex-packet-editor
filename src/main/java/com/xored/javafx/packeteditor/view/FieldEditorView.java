@@ -247,7 +247,6 @@ public class FieldEditorView {
         });
 
         GridPane grid = new GridPane();
-        grid.setVgap(5);
         grid.setHgap(10);
 
         ColumnConstraints col = new ColumnConstraints();

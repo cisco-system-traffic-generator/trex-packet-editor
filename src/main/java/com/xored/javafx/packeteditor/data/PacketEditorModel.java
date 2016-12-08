@@ -163,6 +163,17 @@ public class PacketEditorModel {
         addInstructions(instructions);
     }
 
+    /**
+     * Returns total packet size.
+     * 
+     * Scapy doesn't know about Ether.checksum
+     * 
+     * @return
+     */
+    public int getPktSize() {
+        return getPkt().getPacketBytes().length + 4;
+    }
+
     public class DocState {
         public DocumentFile userModel;
         public PacketData packet;
