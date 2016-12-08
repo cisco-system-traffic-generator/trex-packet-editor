@@ -254,7 +254,7 @@ public class FieldEditorView {
         label.setAlignment(Pos.CENTER_RIGHT);
         grid.add(label, 0, 1);
 
-        label = new Label(String.format("%d bytes", getModel().getPkt().getPacketBytes().length + 4));
+        label = new Label(String.format("%d bytes", getModel().getPkt().getPacketBytes().length));
         grid.add(label, 1, 1);
 
         pktStructurePane.setContent(grid);
