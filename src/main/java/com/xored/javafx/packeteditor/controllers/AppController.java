@@ -38,10 +38,10 @@ public class AppController {
 
     @Inject
     public void initEventBus() {
-        eventBus.register(packetDataService);
-        eventBus.register(metadataService);
-        eventBus.register(editorController);
-        eventBus.register(model);
+        registerEventBusHandler(packetDataService);
+        registerEventBusHandler(metadataService);
+        registerEventBusHandler(editorController);
+        registerEventBusHandler(model);
     }
     
     public void terminate() {
@@ -74,5 +74,9 @@ public class AppController {
 
     public ConfigurationService getConfigurations() {
         return configurationService;
+    }
+
+    public void registerEventBusHandler(Object handler) {
+        eventBus.register(handler);
     }
 }

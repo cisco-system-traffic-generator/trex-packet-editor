@@ -1,6 +1,7 @@
 package com.xored.javafx.packeteditor.data;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.google.gson.Gson;
 import com.google.gson.JsonPrimitive;
 import com.google.inject.Inject;
@@ -9,6 +10,7 @@ import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
 import com.xored.javafx.packeteditor.data.user.Document;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
+import com.xored.javafx.packeteditor.events.InitPacketEditorEvent;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
 import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
@@ -517,5 +519,11 @@ public class PacketEditorModel {
 
     public String getFieldEngineError() {
         return packet.getFieldEngineError();
+    }
+
+
+    @Subscribe
+    public void handlePacketUpdatedEvent(InitPacketEditorEvent event) {
+        fireUpdateViewEvent();
     }
 }

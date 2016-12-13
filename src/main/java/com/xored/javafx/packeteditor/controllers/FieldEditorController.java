@@ -1,6 +1,7 @@
 package com.xored.javafx.packeteditor.controllers;
 
 import com.google.common.eventbus.Subscribe;
+import com.google.common.eventbus.EventBus;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -9,7 +10,10 @@ import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.events.ProtocolExpandCollapseEvent;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
+import com.xored.javafx.packeteditor.events.ScapyClientConnectedEvent;
+import com.xored.javafx.packeteditor.events.ScapyClientNeedConnectEvent;
 import com.xored.javafx.packeteditor.scapy.PacketData;
+import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
 import com.xored.javafx.packeteditor.service.IMetadataService;
 import com.xored.javafx.packeteditor.service.PacketDataService;
@@ -80,6 +84,9 @@ public class FieldEditorController implements Initializable {
     @Inject
     ConfigurationService configurationService;
 
+    @Inject
+    EventBus eventBus;
+
     FileChooser fileChooser = new FileChooser();
 
     @Inject
@@ -96,17 +103,16 @@ public class FieldEditorController implements Initializable {
     public IMetadataService getMetadataService() {
         return metadataService;
     }
-    
+
+    // The following initialize() method is intended for both FieldEngine.fxml and FieldEditor.fxml
+    // So, some injected fields are null at first invocation
+    // Therefore, we check that enigines fields are null and assume that this a first call
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         fieldEditorView.setRootPane(fieldEditorCenterPane);
         fieldEditorView.setBreadCrumbPane(fieldEditorTopPane);
         fieldEditorView.setBottomPane(fieldEditorBottomPane);
 
-        fieldEngineView.setRootPane(fieldEngineCenterPane);
-        fieldEngineView.setTopPane(fieldEngineTopPane);
-        fieldEngineView.setBottomPane(fieldEngineBottomPane);
-        fieldEngineView.setScrollPane(fieldEngineScrollPane);
         if (packetController.isInitialized()) {
             if (configurationService.isStandaloneMode()) {
                 Platform.runLater(this::newPacket);
@@ -114,7 +120,17 @@ public class FieldEditorController implements Initializable {
                 fieldEditorView.showEmptyPacketContent();
             }
         } else {
-            fieldEditorView.displayConnectionError();
+            fieldEditorView.showNoConnectionContent();
+        }
+        if (fieldEngineCenterPane != null) {
+            fieldEngineView.setRootPane(fieldEngineCenterPane);
+            fieldEngineView.setTopPane(fieldEngineTopPane);
+            fieldEngineView.setBottomPane(fieldEngineBottomPane);
+            fieldEngineView.setScrollPane(fieldEngineScrollPane);
+
+            if (!packetController.isInitialized()) {
+                fieldEngineView.showNoConnectionContent();
+            }
         }
     }
 
@@ -217,9 +233,12 @@ public class FieldEditorController implements Initializable {
                 snapImage.getWidth() - insets.getLeft() - insets.getRight(),
                 snapImage.getHeight() - insets.getTop() - insets.getBottom()));
         fieldEditorBorderPane.getChildren().add(snapView);
+
         // Rebuild content
-        fieldEditorView.rebuild();
-        fieldEngineView.rebuild();
+        if (packetController.isInitialized()) {
+            fieldEditorView.rebuild();
+            fieldEngineView.rebuild();
+        }
         
         Platform.runLater(()-> {
             // Save scroll position workaround: runLater inside runLater :)
@@ -288,7 +307,9 @@ public class FieldEditorController implements Initializable {
     }
 
     public void loadPcapBinary(byte[] bytes) throws IOException {
-        model.loadDocumentFromPcapData(packetController.reconstructPacketFromBinary(bytes));
+        if (packetController.isInitialized()) {
+            model.loadDocumentFromPcapData(packetController.reconstructPacketFromBinary(bytes));
+        }
     }
 
     public void writeToPcapFile(File file) {
@@ -379,6 +400,10 @@ public class FieldEditorController implements Initializable {
         fitSizeToScene();
     }
 
+    public void connect() {
+        eventBus.post(new ScapyClientNeedConnectEvent());
+    }
+
     public PacketEditorModel getModel() { return model; }
 
     private void fitSizeToScene() {
@@ -400,7 +425,7 @@ public class FieldEditorController implements Initializable {
 
     public void reset() {
         model.reset();
-        fieldEditorView.reset();
+        fieldEditorView.reset(packetController.isInitialized());
     }
 
     public String getBinaryPkt() {

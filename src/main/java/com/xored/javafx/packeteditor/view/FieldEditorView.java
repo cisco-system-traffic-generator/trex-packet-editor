@@ -10,21 +10,17 @@ import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
+import com.xored.javafx.packeteditor.events.ScapyClientConnectedEvent;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.scapy.FieldData;
 import com.xored.javafx.packeteditor.scapy.ProtocolData;
+import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import com.xored.javafx.packeteditor.scapy.TCPOptionsData;
-import javafx.beans.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -47,6 +43,9 @@ import static javafx.scene.input.KeyCode.ENTER;
 public class FieldEditorView {
     @Inject
     protected FieldEditorController controller;
+
+    @Inject
+    ScapyServerClient scapyServerClient;
 
     protected Pane rootPane;
     protected Pane breadCrumbPane;
@@ -642,14 +641,28 @@ public class FieldEditorView {
     public void showEmptyPacketContent() {
         BorderPane emptyPacketPane = new BorderPane();
         emptyPacketPane.setCenter(new Label("Empty packet. Please click to add default protocol."));
-        
-        emptyPacketPane.setOnMouseClicked((event) -> controller.newPacket());
-        
+        emptyPacketPane.setOnMouseClicked((event) -> {
+            controller.newPacket();
+        });
         rootPane.getChildren().add(emptyPacketPane);
     }
 
-    public void reset() {
+    public void showNoConnectionContent() {
+        BorderPane emptyPacketPane = new BorderPane();
+        emptyPacketPane.setCenter(new Label("Not connected to Scapy sever. Check network status and try again."));
+        emptyPacketPane.setOnMouseClicked((event) -> {
+            controller.connect();
+        });
+        rootPane.getChildren().add(emptyPacketPane);
+    }
+
+    public void reset(boolean connected) {
         rootPane.getChildren().clear();
-        showEmptyPacketContent();
+        if (connected) {
+            showEmptyPacketContent();
+        }
+        else {
+            showNoConnectionContent();
+        }
     }
 }

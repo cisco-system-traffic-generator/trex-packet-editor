@@ -368,6 +368,13 @@ public class FieldEngineView extends FieldEditorView {
     public void showEmptyPacketContent() {
     }
 
+    public void showNoConnectionContent() {
+        BorderPane emptyPacketPane = new BorderPane();
+        emptyPacketPane.setCenter(new Label("Unable to connect to Scapy sever. Check network status and try again."));
+        rootPane.getChildren().add(emptyPacketPane);
+
+    }
+
     public void reset() {
         rootPane.getChildren().clear();
         showEmptyPacketContent();

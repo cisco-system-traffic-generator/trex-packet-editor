@@ -67,10 +67,13 @@ public class ScapyServerClient {
         logger.info("connecting to scapy_server at {}", connectionUrl);
         zmqSocket.connect(connectionUrl);
 
-        version_handler = getVersionHandler();
-        isConnected = true;
-        
-        eventBus.post(new ScapyClientConnectedEvent());
+        try {
+            version_handler = getVersionHandler();
+            isConnected = true;
+            eventBus.post(new ScapyClientConnectedEvent());
+        } catch (Exception e) {
+            isConnected = false;
+        }
     }
     
     public boolean isConnected() {
@@ -123,6 +126,8 @@ public class ScapyServerClient {
             zmqContext = null;
         }
         logger.info("Connection to Scapy server closed.");
+
+        isConnected = false;
     }
 
     /** makes request to Scapy server, returns Scapy server result */

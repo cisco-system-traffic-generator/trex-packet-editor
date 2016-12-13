@@ -61,7 +61,10 @@ public class MetadataService implements IMetadataService {
 
     private void loadDefinitions() {
         try {
-            ScapyDefinitions definitions = scapy.get_definitions();
+            ScapyDefinitions definitions = null;
+            if (scapy.isConnected()) {
+                definitions = scapy.get_definitions();
+            }
 
             if (definitions.feInstructionParameters != null) {
                 definitions.feInstructionParameters.stream()
@@ -74,7 +77,7 @@ public class MetadataService implements IMetadataService {
                         .map(scapyFEParameter -> new FeParameterMeta(scapyFEParameter.id, scapyFEParameter.name, scapyFEParameter.type, scapyFEParameter.defaultValue))
                         .collect(Collectors.toMap(FeParameterMeta::getId, meta -> meta)));
             }
-            
+
             definitions.protocols.forEach(proto -> {
                 // merge definitions with the hand-crafted file. json has priority over metadata from scapy
                 protocols.put(proto.id, new ProtocolMetadata(
@@ -85,9 +88,9 @@ public class MetadataService implements IMetadataService {
                         proto.fieldEngineAwareFields
                 ));
             });
-            
+
             if (definitions.feInstructions != null) {
-                definitions.feInstructions.stream().forEach( instructionData -> {
+                definitions.feInstructions.stream().forEach(instructionData -> {
                     List<FEInstructionParameterMeta> parameterMetas = instructionData.parameters.stream()
                             .map(feInstructionParameterMetas::get).collect(Collectors.toList());
                     String help = new String(Base64.getDecoder().decode(instructionData.help.getBytes()));
@@ -95,7 +98,7 @@ public class MetadataService implements IMetadataService {
                     feInstructionMetas.put(instructionData.id, meta);
                 });
             }
-            
+
             if (definitions.feTemplates != null) {
                 feTemplates = definitions.feTemplates.stream()
                         .map(this::buildInstructionsTemplate)
