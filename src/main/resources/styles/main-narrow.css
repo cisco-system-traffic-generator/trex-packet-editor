@@ -611,7 +611,7 @@
 
 #pcapEditorTopPane .fieldEngineTopPane,
 #pcapEditorTopPane .editor-split-pane {
-    -fx-padding: 25 25 25 25; /* the toppest pane */
+    -fx-padding: 10 25 25 25; /* the toppest pane */
 }
 
 #pcapEditorTopPane .split-pane > .split-pane-divider {
