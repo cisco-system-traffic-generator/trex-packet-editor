@@ -233,16 +233,21 @@ public class FieldEditorView {
     }
 
     private Node buildProtocolStructureLayer() {
-        BreadCrumbBar<CombinedProtocol> pktStructure = new BreadCrumbBar<>();
+        String szsize = String.format("%d bytes", getModel().getPkt().getPacketBytes().length + 4);
+        BreadCrumbBar<Object> pktStructure = new BreadCrumbBar<>();
+        TreeItem<Object> first = new TreeItem<Object>(szsize);
+        TreeItem<Object> other = buildProtocolStructure(first);
 
         pktStructure.setAutoNavigationEnabled(false);
-        pktStructure.setSelectedCrumb(buildProtocolStructure());
-
+        pktStructure.setSelectedCrumb(other);
         pktStructure.setOnCrumbAction((e) -> {
-            CombinedProtocol protocol = e.getSelectedCrumb().getValue();
-            List<CombinedProtocol> protocols = getModel().getCombinedProtocolModel().getProtocolStack();
-            protocols.forEach(p -> p.getUserProtocol().setCollapsed(p != protocol));
-            rebuild(false);
+            Object o = e.getSelectedCrumb().getValue();
+            if (o != null && o instanceof CombinedProtocol) {
+                CombinedProtocol protocol = (CombinedProtocol) e.getSelectedCrumb().getValue();
+                List<CombinedProtocol> protocols = getModel().getCombinedProtocolModel().getProtocolStack();
+                protocols.forEach(p -> p.getUserProtocol().setCollapsed(p != protocol));
+                rebuild(false);
+            }
         });
 
         GridPane grid = new GridPane();
@@ -251,10 +256,7 @@ public class FieldEditorView {
         ColumnConstraints col = new ColumnConstraints();
         col.setHgrow(Priority.ALWAYS);
         grid.getColumnConstraints().add(col);
-
-        Label label = new Label(String.format("%d bytes", getModel().getPkt().getPacketBytes().length + 4));
-        grid.add(pktStructure, 1, 0, 10, 1);
-        grid.add(label, 0, 0);
+        grid.add(pktStructure, 0, 0);
 
         breadCrumbPane.getChildren().clear();
         breadCrumbPane.getChildren().addAll(grid);
@@ -262,14 +264,14 @@ public class FieldEditorView {
         return breadCrumbPane;
     }
 
-    private TreeItem<CombinedProtocol> buildProtocolStructure() {
+    private TreeItem<Object> buildProtocolStructure(TreeItem<Object> first) {
         List<CombinedProtocol> protocols = getModel().getCombinedProtocolModel().getProtocolStack();
-        TreeItem<CombinedProtocol> currentProto = null;
+        TreeItem<Object> currentProto = first;
         for(CombinedProtocol protocol : protocols) {
             if(currentProto == null) {
-                currentProto = new TreeItem<CombinedProtocol>(protocol);
+                currentProto = new TreeItem<Object>(protocol);
             } else {
-                TreeItem<CombinedProtocol> child = new TreeItem<CombinedProtocol>(protocol);
+                TreeItem<Object> child = new TreeItem<Object>(protocol);
                 currentProto.getChildren().add(child);
                 currentProto = child;
             }
