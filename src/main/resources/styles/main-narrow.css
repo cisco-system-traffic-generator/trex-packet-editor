@@ -645,3 +645,9 @@
     -fx-background-radius: 3px, 3px, 2px, 1px;
 
 }
+
+.bread-crumb-bar .first .text {
+    -fx-font-weight: 900;
+    -fx-font-style: oblique;
+    -fx-background-color: #f6f6f6;
+}
