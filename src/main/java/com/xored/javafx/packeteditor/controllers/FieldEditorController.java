@@ -424,6 +424,13 @@ public class FieldEditorController implements Initializable {
             model.loadDocumentFromJSON(base64JSONUserModel);
         }
     }
+    /**
+     * Load simple JSON encoded user model.
+     */
+    public void loadSimpleUserModel(String json) {
+        reset();
+        model.loadSimpleUserModel(json);
+    }
 
     public void reset() {
         model.reset();

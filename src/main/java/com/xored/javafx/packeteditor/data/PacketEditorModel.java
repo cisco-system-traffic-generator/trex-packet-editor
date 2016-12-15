@@ -3,7 +3,9 @@ package com.xored.javafx.packeteditor.data;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.reflect.TypeToken;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocolModel;
@@ -28,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -176,6 +179,23 @@ public class PacketEditorModel {
         return getPkt().getPacketBytes().length + 4;
     }
 
+    public void loadSimpleUserModel(String json) {
+        Gson gson = new Gson();
+
+        final Type jsonObjectListType = new TypeToken<List<JsonObject>>() {}.getType();
+        JsonObject simpleModel = gson.fromJson(json, JsonObject.class);
+        List<JsonObject> protocols = gson.fromJson(simpleModel.getAsJsonArray("protocols"), jsonObjectListType);
+        protocols.stream().forEach(proto -> {
+            String protoId = proto.get("id").getAsString();
+            List<JsonObject> protoFields = gson.fromJson(proto.get("fields"), jsonObjectListType);
+            
+            Map<String, String> fieldsMap = protoFields.stream()
+                    .collect(Collectors.toMap(field -> field.get("id").getAsString(), field -> field.get("value").getAsString()));
+            
+            addProtocol(protoId, fieldsMap);
+        });
+    }
+
     public class DocState {
         public DocumentFile userModel;
         public PacketData packet;
@@ -205,6 +225,24 @@ public class PacketEditorModel {
         this.binaryMode = binaryMode;
     }
 
+    public void addProtocol(String protoId, Map<String, String> fields) {
+        ProtocolMetadata meta = metadataService.getProtocolMetadataById(protoId);
+        try {
+            beforeContentReplace();
+            userModel.addProtocol(meta);
+            
+            UserProtocol protocol = userModel.getProtocolStack().peek();
+            fields.entrySet().forEach(entry -> protocol.addField(entry.getKey(), entry.getValue()));
+            
+            setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
+        } catch (Exception e) {
+            undo();
+            logger.error("Unable to add protocol due to: {}", e);
+            throw e;
+        }
+        logger.info("UserProtocol {} added.", meta.getName());
+    }
+    
     public void addProtocol(ProtocolMetadata meta) {
         if (meta != null) {
             try{
