@@ -56,8 +56,12 @@ public class ScapyServerClient {
     public void connect() {
         connect(configurationService.getConnectionUrl(), configurationService.getReceiveTimeout());
     }
+
+    public String getConnectionUrl() {
+        return configurationService.getConnectionUrl();
+    }
+
     public void connect(String scapyUrl, Integer timeout) {
-        
         zmqContext = ZMQ.context(ZMQ_THREADS);
         zmqSocket = createSocket();
         zmqSocket.setReceiveTimeOut(timeout);
@@ -108,7 +112,6 @@ public class ScapyServerClient {
 
     private void reconnect() {
         closeConnection();
-        lastRequestFailed = false;
         connect();
     }
 
@@ -127,6 +130,7 @@ public class ScapyServerClient {
         }
         logger.info("Connection to Scapy server closed.");
 
+        lastRequestFailed = false;
         isConnected = false;
     }
 
