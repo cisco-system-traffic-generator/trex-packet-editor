@@ -420,7 +420,9 @@ public class FieldEditorController implements Initializable {
      */
     public void loadUserModel(String base64JSONUserModel) {
         reset();
-        model.loadDocumentFromJSON(base64JSONUserModel);
+        if (packetController.isInitialized()) {
+            model.loadDocumentFromJSON(base64JSONUserModel);
+        }
     }
 
     public void reset() {
