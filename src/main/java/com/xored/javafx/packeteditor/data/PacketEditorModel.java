@@ -3,6 +3,7 @@ package com.xored.javafx.packeteditor.data;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
@@ -183,6 +184,7 @@ public class PacketEditorModel {
         Gson gson = new Gson();
 
         final Type jsonObjectListType = new TypeToken<List<JsonObject>>() {}.getType();
+        final Type jsonMapType = new TypeToken<Map<String, JsonElement>>() {}.getType();
         JsonObject simpleModel = gson.fromJson(json, JsonObject.class);
         List<JsonObject> protocols = gson.fromJson(simpleModel.getAsJsonArray("protocols"), jsonObjectListType);
         protocols.stream().forEach(proto -> {
@@ -194,6 +196,34 @@ public class PacketEditorModel {
             
             addProtocol(protoId, fieldsMap);
         });
+
+
+        List<JsonObject> instructionsJson = gson.fromJson(simpleModel.getAsJsonObject("field_engine").getAsJsonArray("instructions"), jsonObjectListType);
+        List<InstructionExpression> instructions = instructionsJson.stream().map(instructionJson -> {
+            String instructionId = instructionJson.get("id").getAsString();
+            InstructionExpressionMeta instructionMeta = metadataService.getFeInstructions().get(instructionId);
+
+            Map<String, JsonElement> paramsMap = gson.fromJson(instructionJson.get("parameters"), jsonMapType);
+
+            Map<String, FEInstructionParameterMeta> parameterMetas = metadataService.getFeInstructionParameters();
+
+            List<FEInstructionParameter2> parameters = paramsMap.entrySet().stream().map(entry -> {
+                FEInstructionParameterMeta parameterMeta = parameterMetas.get(entry.getKey());
+                return new FEInstructionParameter2(parameterMeta, entry.getValue());
+            }).collect(Collectors.toList());
+
+            List<String> specifiedParameters = parameters.stream().map(param -> param.getId()).collect(Collectors.toList());
+            
+            // Add rest parameters with default values
+            instructionMeta.getParameterMetas().stream()
+                    .filter(parameterMeta -> !specifiedParameters.contains(parameterMeta.getId()))
+                    .forEach(parameterMeta -> {
+                        parameters.add(new FEInstructionParameter2(parameterMeta, new JsonPrimitive(parameterMeta.getDefaultValue())));
+                    });
+
+            return new InstructionExpression(instructionMeta, parameters);
+        }).collect(Collectors.toList());
+        addInstructions(instructions);
     }
 
     public class DocState {
