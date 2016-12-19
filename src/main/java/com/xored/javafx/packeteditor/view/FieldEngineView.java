@@ -89,7 +89,7 @@ public class FieldEngineView extends FieldEditorView {
 
         topPane.getChildren().addAll(pktStructureLayer);
         
-        String error = controller.getModel().getFieldEngineError();
+        String error = controller.getFieldEngineError();
         if(error != null) {
 
             BorderPane errorPane = new BorderPane();

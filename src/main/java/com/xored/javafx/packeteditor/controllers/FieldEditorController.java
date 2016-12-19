@@ -493,4 +493,8 @@ public class FieldEditorController implements Initializable {
             pane.setPinnedSide(Side.BOTTOM);
         }
     }
+
+    public String getFieldEngineError() {
+        return model.getFieldEngineError();
+    }
 }
