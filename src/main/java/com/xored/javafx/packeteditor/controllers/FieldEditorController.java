@@ -44,10 +44,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FieldEditorController implements Initializable {
@@ -498,10 +495,16 @@ public class FieldEditorController implements Initializable {
     }
 
     public List<String> getTemplates() {
+        if (!scapy.isConnected()) {
+            return null;
+        }
         return scapy.getTemplates();
     }
 
     public String getTemplate(String t) {
+        if (!scapy.isConnected()) {
+            return null;
+        }
         return scapy.getTemplate(t);
     }
 

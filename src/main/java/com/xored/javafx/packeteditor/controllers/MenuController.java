@@ -92,21 +92,23 @@ public class MenuController implements Initializable {
     private void addTemplates(ObservableList<MenuItem> menuItems) {
         // Predefined templates from scapy server
         List<String> templates = controller.getTemplates();
-        for (String t : templates) {
-            int index = t.lastIndexOf('.');
-            if (index != -1) {
-                t = t.substring(0, index);
-            }
-            MenuItem menuItem = new MenuItem(t);
-            menuItems.add(menuItem);
-            menuItem.setOnAction(event -> {
-                try {
-                    String t64 = controller.getTemplate(menuItem.getText());
-                    controller.getModel().loadDocumentFromJSON(t64);
-                } catch (Exception e) {
-                    logger.error(e.getMessage());
+        if (templates !=null) {
+            for (String t : templates) {
+                int index = t.lastIndexOf('.');
+                if (index != -1) {
+                    t = t.substring(0, index);
                 }
-            });
+                MenuItem menuItem = new MenuItem(t);
+                menuItems.add(menuItem);
+                menuItem.setOnAction(event -> {
+                    try {
+                        String t64 = controller.getTemplate(menuItem.getText());
+                        controller.getModel().loadDocumentFromJSON(t64);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage());
+                    }
+                });
+            }
         }
 
         // Add templates from user dir to menu list
