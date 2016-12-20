@@ -9,6 +9,7 @@ import com.xored.javafx.packeteditor.events.ProtocolExpandCollapseEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -90,6 +91,7 @@ public class MenuController implements Initializable {
     private void addTemplates(ObservableList<MenuItem> menuItems) {
         // Predefined templates from scapy server
         List<String> templates = controller.getTemplates();
+        templates.sort(String::compareTo);
         for (String t : templates) {
             int index = t.lastIndexOf('.');
             if (index != -1) {
