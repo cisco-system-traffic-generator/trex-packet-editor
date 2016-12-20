@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -91,7 +92,6 @@ public class MenuController implements Initializable {
     private void addTemplates(ObservableList<MenuItem> menuItems) {
         // Predefined templates from scapy server
         List<String> templates = controller.getTemplates();
-        templates.sort(String::compareTo);
         for (String t : templates) {
             int index = t.lastIndexOf('.');
             if (index != -1) {
@@ -112,17 +112,12 @@ public class MenuController implements Initializable {
         // Add templates from user dir to menu list
         File repo = new File (configurations.getTemplatesLocation());
         if (repo.isDirectory()) {
-            File[] fileList = repo.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.toLowerCase().endsWith(".trp");
-                }
-            });
+            File[] fileList = getFnames(repo.getAbsolutePath());
             if (fileList.length > 0) {
                 menuItems.add(new SeparatorMenuItem());
             }
             for (File f : fileList) {
-                String fileName = f.getName();
+                String fileName = f.getAbsolutePath().replaceFirst(repo.getAbsolutePath() + "/", "");
                 int index = fileName.lastIndexOf('.');
                 if (index != -1) {
                     fileName = fileName.substring(0, index);
@@ -245,5 +240,23 @@ public class MenuController implements Initializable {
 
     public void handleCollapseAll(ActionEvent actionEvent) {
         eventBus.post(new ProtocolExpandCollapseEvent(ProtocolExpandCollapseEvent.Action.COLLAPSE_ALL));
+    }
+
+    private static File[] getFnames(String sDir){
+        File[] faFiles = new File(sDir).listFiles();
+        ArrayList<File> res = new ArrayList<File>();
+
+        for(File file: faFiles){
+            if(file.isFile() && file.getName().toLowerCase().endsWith(".trp")){
+                res.add(file);
+            }
+            if(file.isDirectory()){
+                File[] faFiles2 = getFnames(sDir + "/" + file.getName());
+                for (File f: faFiles2) {
+                    res.add(f);
+                }
+            }
+        }
+        return res.toArray(new File[0]);
     }
 }
