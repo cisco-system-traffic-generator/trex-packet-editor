@@ -67,6 +67,9 @@ public class FieldEditorController implements Initializable {
     @FXML private VBox       fieldEngineBottomPane;
 
     @Inject
+    ScapyServerClient scapy;
+
+    @Inject
     PacketEditorModel model;
     
     @Inject
