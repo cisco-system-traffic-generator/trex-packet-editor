@@ -6,7 +6,6 @@ import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.events.ProtocolExpandCollapseEvent;
-import com.xored.javafx.packeteditor.metatdata.PacketTemplate;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
 import javafx.collections.ObservableList;
@@ -89,17 +88,8 @@ public class MenuController implements Initializable {
     }
 
     private void addTemplates(ObservableList<MenuItem> menuItems) {
-        PacketTemplate.loadTemplates().forEach(templateFile -> {
-            MenuItem menuItem = new MenuItem(templateFile.metadata.caption);
-            menuItem.setOnAction(event -> controller.getModel().loadTemplate(templateFile));
-            menuItems.add(menuItem);
-        });
-
         // Predefined templates from scapy server
         List<String> templates = controller.getTemplates();
-        if (templates.size() > 0) {
-            menuItems.add(new SeparatorMenuItem());
-        }
         for (String t : templates) {
             int index = t.lastIndexOf('.');
             if (index != -1) {
