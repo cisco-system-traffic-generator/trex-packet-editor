@@ -67,9 +67,6 @@ public class FieldEditorController implements Initializable {
     @FXML private VBox       fieldEngineBottomPane;
 
     @Inject
-    ScapyServerClient scapy;
-
-    @Inject
     PacketEditorModel model;
     
     @Inject
@@ -503,6 +500,10 @@ public class FieldEditorController implements Initializable {
 
     public String getTemplate(String t) {
         return scapy.getTemplate(t);
+    }
+
+    public String getFieldEngineError() {
+        return model.getFieldEngineError();
     }
 
 }
