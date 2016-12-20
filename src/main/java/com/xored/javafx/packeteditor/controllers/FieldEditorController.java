@@ -67,6 +67,9 @@ public class FieldEditorController implements Initializable {
     @FXML private VBox       fieldEngineBottomPane;
 
     @Inject
+    ScapyServerClient scapy;
+
+    @Inject
     PacketEditorModel model;
     
     @Inject
@@ -493,4 +496,13 @@ public class FieldEditorController implements Initializable {
             pane.setPinnedSide(Side.BOTTOM);
         }
     }
+
+    public List<String> getTemplates() {
+        return scapy.getTemplates();
+    }
+
+    public String getTemplate(String t) {
+        return scapy.getTemplate(t);
+    }
+
 }

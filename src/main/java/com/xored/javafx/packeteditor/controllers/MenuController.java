@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode.STANDALONE;
@@ -94,7 +95,29 @@ public class MenuController implements Initializable {
             menuItems.add(menuItem);
         });
 
-        // Add templates  to menu list
+        // Predefined templates from scapy server
+        List<String> templates = controller.getTemplates();
+        if (templates.size() > 0) {
+            menuItems.add(new SeparatorMenuItem());
+        }
+        for (String t : templates) {
+            int index = t.lastIndexOf('.');
+            if (index != -1) {
+                t = t.substring(0, index);
+            }
+            MenuItem menuItem = new MenuItem(t);
+            menuItems.add(menuItem);
+            menuItem.setOnAction(event -> {
+                try {
+                    String t64 = controller.getTemplate(menuItem.getText());
+                    controller.getModel().loadDocumentFromJSON(t64);
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                }
+            });
+        }
+
+        // Add templates from user dir to menu list
         File repo = new File (configurations.getTemplatesLocation());
         if (repo.isDirectory()) {
             File[] fileList = repo.listFiles(new FilenameFilter() {
@@ -103,6 +126,9 @@ public class MenuController implements Initializable {
                     return name.toLowerCase().endsWith(".trp");
                 }
             });
+            if (fileList.length > 0) {
+                menuItems.add(new SeparatorMenuItem());
+            }
             for (File f : fileList) {
                 String fileName = f.getName();
                 int index = fileName.lastIndexOf('.');

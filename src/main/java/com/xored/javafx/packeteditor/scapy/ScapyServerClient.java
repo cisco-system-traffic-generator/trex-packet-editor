@@ -296,5 +296,22 @@ public class ScapyServerClient {
     private PacketData packetFromJson(JsonElement packet) {
         return gson.fromJson(packet, PacketData.class);
     }
+
+    public List<String> getTemplates() {
+        JsonArray array = new JsonArray();
+        JsonArray params = new JsonArray();
+        params.add(version_handler);
+        JsonElement res = request("get_templates", params);
+        return Arrays.asList(gson.fromJson(res, String[].class));
+    }
+
+    public String getTemplate(String t) {
+        JsonArray params = new JsonArray();
+        params.add(version_handler);
+        params.add(t);
+        JsonElement res = request("get_template", params);
+        return gson.fromJson(res, String.class);
+    }
+
 }
 
