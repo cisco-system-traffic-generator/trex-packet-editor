@@ -5,11 +5,11 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
+import com.xored.javafx.packeteditor.events.NeedToUpdateTemplateMenu;
 import com.xored.javafx.packeteditor.events.ProtocolExpandCollapseEvent;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -18,22 +18,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static com.xored.javafx.packeteditor.service.ConfigurationService.ApplicationMode.STANDALONE;
-
-public class MenuController implements Initializable {
+public class MenuControllerEditor implements Initializable {
 
     public static final String EXIT_MENU_ITEM = "exit";
-    private Logger logger= LoggerFactory.getLogger(MenuController.class);
+    private Logger logger= LoggerFactory.getLogger(MenuControllerEditor.class);
 
     @Inject
-    FieldEditorController controller;
+    private FieldEditorController controller;
 
     @Inject
     ConfigurationService configurations;
@@ -77,10 +74,7 @@ public class MenuController implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        if (STANDALONE.equals(appController.getApplicationMode())) {
-            addTemplates(newTemplateMenu.getItems());
-        }
-        addTemplates(newTemplateMenuButton.getItems());
+        initTemplateMenu();
 
         if (System.getenv("DEBUG") != null) {
             debugMenu.setVisible(true);
@@ -89,17 +83,28 @@ public class MenuController implements Initializable {
         }
     }
 
+    public void initTemplateMenu() {
+        if (newTemplateMenu != null) {
+            newTemplateMenu.getItems().clear();
+            addTemplates(newTemplateMenu.getItems());
+        }
+        if (newTemplateMenuButton != null) {
+            newTemplateMenuButton.getItems().clear();
+            addTemplates(newTemplateMenuButton.getItems());
+        }
+    }
+
     private void addTemplates(ObservableList<MenuItem> menuItems) {
         // Predefined templates from scapy server
         List<String> templates = controller.getTemplates();
-        if (templates !=null) {
+
+        if (templates !=null && templates.size() > 0) {
             for (String t : templates) {
                 int index = t.lastIndexOf('.');
                 if (index != -1) {
                     t = t.substring(0, index);
                 }
                 MenuItem menuItem = new MenuItem(t);
-                menuItems.add(menuItem);
                 menuItem.setOnAction(event -> {
                     try {
                         String t64 = controller.getTemplate(menuItem.getText());
@@ -108,6 +113,7 @@ public class MenuController implements Initializable {
                         logger.error(e.getMessage());
                     }
                 });
+                menuItems.add(menuItem);
             }
         }
 
@@ -115,7 +121,7 @@ public class MenuController implements Initializable {
         File repo = new File (configurations.getTemplatesLocation());
         if (repo.isDirectory()) {
             File[] fileList = getFnames(repo.getAbsolutePath());
-            if (fileList.length > 0) {
+            if (fileList.length > 0 && templates !=null && templates.size() > 0) {
                 menuItems.add(new SeparatorMenuItem());
             }
             for (File f : fileList) {
@@ -162,14 +168,7 @@ public class MenuController implements Initializable {
                             dir.mkdirs();
                         }
                         controller.getModel().saveDocumentToFile(file);
-
-                        newTemplateMenuButton.getItems().clear();
-                        addTemplates(newTemplateMenuButton.getItems());
-
-                        if (configurations.getApplicationMode() == STANDALONE) {
-                            newTemplateMenu.getItems().clear();
-                            addTemplates(newTemplateMenu.getItems());
-                        }
+                        eventBus.post(new NeedToUpdateTemplateMenu());
                     }
                 }
             } catch (Exception e) {

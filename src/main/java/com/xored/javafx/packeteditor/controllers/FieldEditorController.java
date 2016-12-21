@@ -8,10 +8,7 @@ import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
-import com.xored.javafx.packeteditor.events.ProtocolExpandCollapseEvent;
-import com.xored.javafx.packeteditor.events.RebuildViewEvent;
-import com.xored.javafx.packeteditor.events.ScapyClientConnectedEvent;
-import com.xored.javafx.packeteditor.events.ScapyClientNeedConnectEvent;
+import com.xored.javafx.packeteditor.events.*;
 import com.xored.javafx.packeteditor.scapy.PacketData;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
@@ -34,7 +31,6 @@ import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.controlsfx.control.HiddenSidesPane;
@@ -58,13 +54,11 @@ public class FieldEditorController implements Initializable {
     @FXML private StackPane  fieldEditorBottomPane;
     @FXML private ScrollPane fieldEditorScrollPane;
 
-    @FXML private StackPane  fieldEngineCenterPane;
-    @FXML private ScrollPane fieldEngineScrollPane;
-    @FXML private VBox       fieldEngineTopPane;
-    @FXML private VBox       fieldEngineBottomPane;
-
     @Inject
     ScapyServerClient scapy;
+
+    @Inject
+    private MenuControllerEditor menuControllerEditor;
 
     @Inject
     PacketEditorModel model;
@@ -121,16 +115,6 @@ public class FieldEditorController implements Initializable {
             }
         } else {
             fieldEditorView.showNoConnectionContent();
-        }
-        if (fieldEngineCenterPane != null) {
-            fieldEngineView.setRootPane(fieldEngineCenterPane);
-            fieldEngineView.setTopPane(fieldEngineTopPane);
-            fieldEngineView.setBottomPane(fieldEngineBottomPane);
-            fieldEngineView.setScrollPane(fieldEngineScrollPane);
-
-            if (!packetController.isInitialized()) {
-                fieldEngineView.showNoConnectionContent();
-            }
         }
     }
 
@@ -214,6 +198,10 @@ public class FieldEditorController implements Initializable {
 
     @Subscribe
     public void handleRebuildViewEvent(RebuildViewEvent event) {
+        if (fieldEditorScrollPane == null) {
+            return;
+        }
+
         double val = fieldEditorScrollPane.getVvalue();
 
         // Workaround for flickering and saving Vscroll:
@@ -239,7 +227,7 @@ public class FieldEditorController implements Initializable {
             fieldEditorView.rebuild();
             fieldEngineView.rebuild();
         }
-        
+
         Platform.runLater(()-> {
             // Save scroll position workaround: runLater inside runLater :)
             Platform.runLater(() -> {
@@ -506,6 +494,20 @@ public class FieldEditorController implements Initializable {
             return null;
         }
         return scapy.getTemplate(t);
+    }
+
+    @Subscribe
+    public void handleScapyConnectedEventEditor(ScapyClientConnectedEvent event) {
+        initTemplateMenu();
+    }
+
+    @Subscribe
+    public void handleNeedToUpdateTemplateMenuEditor(NeedToUpdateTemplateMenu event) {
+        initTemplateMenu();
+    }
+
+    private void initTemplateMenu() {
+        menuControllerEditor.initTemplateMenu();
     }
 
     public String getFieldEngineError() {

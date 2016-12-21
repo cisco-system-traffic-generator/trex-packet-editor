@@ -9,7 +9,7 @@
             fx:controller="com.xored.javafx.packeteditor.controllers.AppController"
             fx:id="pcapEditorTopPane">
     <top>
-        <fx:include source="toolbar.fxml"/>
+        <fx:include source="toolbarEditor.fxml"/>
     </top>
     <center>
         <fx:include source="PacketEditor.fxml"/>

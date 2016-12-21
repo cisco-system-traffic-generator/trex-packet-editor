@@ -23,6 +23,9 @@ public class AppController {
     private FieldEditorController editorController;
 
     @Inject
+    private FieldEngineController engineController;
+
+    @Inject
     private EventBus eventBus;
 
     @Inject
@@ -41,6 +44,7 @@ public class AppController {
         registerEventBusHandler(packetDataService);
         registerEventBusHandler(metadataService);
         registerEventBusHandler(editorController);
+        registerEventBusHandler(engineController);
         registerEventBusHandler(model);
     }
     

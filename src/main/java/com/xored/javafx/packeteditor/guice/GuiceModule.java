@@ -5,9 +5,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import com.xored.javafx.packeteditor.TRexPacketCraftingTool;
-import com.xored.javafx.packeteditor.controllers.AppController;
-import com.xored.javafx.packeteditor.controllers.FieldEditorController;
-import com.xored.javafx.packeteditor.controllers.MenuController;
+import com.xored.javafx.packeteditor.controllers.*;
 import com.xored.javafx.packeteditor.data.BinaryData;
 import com.xored.javafx.packeteditor.data.IBinaryData;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
@@ -18,6 +16,7 @@ import com.xored.javafx.packeteditor.service.IMetadataService;
 import com.xored.javafx.packeteditor.service.MetadataService;
 import com.xored.javafx.packeteditor.service.PacketDataService;
 import com.xored.javafx.packeteditor.view.FieldEditorView;
+import com.xored.javafx.packeteditor.view.FieldEngineView;
 import javafx.fxml.FXMLLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +37,13 @@ public class GuiceModule extends AbstractModule {
         bind(PacketDataService.class).in(Singleton.class);
         bind(PacketEditorModel.class).in(Singleton.class);
         bind(EventBus.class).in(Singleton.class);
-        bind(MenuController.class).in(Singleton.class);
+        bind(MenuControllerEditor.class).in(Singleton.class);
+        bind(MenuControllerEngine.class).in(Singleton.class);
         bind(FieldEditorController.class).in(Singleton.class);
-        bind(AppController.class).in(Singleton.class);
+        bind(FieldEngineController.class).in(Singleton.class);
         bind(FieldEditorView.class).in(Singleton.class);
+        bind(FieldEngineView.class).in(Singleton.class);
+        bind(AppController.class).in(Singleton.class);
         bind(IMetadataService.class).to(MetadataService.class).in(Singleton.class);
 
         bind(ResourceBundle.class)
