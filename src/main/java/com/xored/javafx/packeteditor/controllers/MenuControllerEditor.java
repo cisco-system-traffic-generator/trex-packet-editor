@@ -19,10 +19,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.nio.file.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MenuControllerEditor implements Initializable {
 
@@ -118,29 +120,56 @@ public class MenuControllerEditor implements Initializable {
         }
 
         // Add templates from user dir to menu list
-        File repo = new File (configurations.getTemplatesLocation());
-        if (repo.isDirectory()) {
-            File[] fileList = getFnames(repo.getAbsolutePath());
-            if (fileList.length > 0 && templates !=null && templates.size() > 0) {
-                menuItems.add(new SeparatorMenuItem());
-            }
-            for (File f : fileList) {
-                String fileName = f.getAbsolutePath().replaceFirst(repo.getAbsolutePath() + "/", "");
-                int index = fileName.lastIndexOf('.');
-                if (index != -1) {
-                    fileName = fileName.substring(0, index);
+        try {
+            File repo = new File(configurations.getTemplatesLocation());
+            if (repo.isDirectory()) {
+                File[] fileList = getFnames(repo.getAbsolutePath());
+                if (fileList.length > 0 && templates != null && templates.size() > 0) {
+                    menuItems.add(new SeparatorMenuItem());
                 }
+                for (File f : fileList) {
+                    String repoName = repo.getCanonicalPath();
+                    String fileName = f.getCanonicalPath();
 
-                MenuItem menuItem = new MenuItem(fileName);
-                menuItem.setOnAction(event -> {
-                    try {
-                        controller.getModel().loadDocumentFromFile(f);
-                    } catch (IOException e) {
-                        logger.error(e.getMessage());
+                    if (!f.exists()) {
+                        break;
                     }
-                });
-                menuItems.add(menuItem);
+                    if (!isFilenameValid(repoName, fileName)) {
+                        logger.error("File name '" + fileName + "' is invalid");
+                        break;
+                    }
+                    if (!fileName.startsWith(repoName)) {
+                        break;
+                    }
+                    fileName = fileName.replace(repoName, "");
+                    if (fileName.startsWith(repoName)) {
+                        break;
+                    }
+                    if(fileName.startsWith(File.separator)) {
+                        fileName = fileName.substring(1);
+                    }
+                    if (!fileName.endsWith(DocumentFile.FILE_EXTENSION)) {
+                        break;
+                    }
+                    int index = fileName.lastIndexOf(DocumentFile.FILE_EXTENSION);
+                    if (index == -1) {
+                        break;
+                    }
+                    fileName = fileName.substring(0, index).replace(File.separatorChar, '/');
+
+                    MenuItem menuItem = new MenuItem(fileName);
+                    menuItem.setOnAction(event -> {
+                        try {
+                            controller.getModel().loadDocumentFromFile(f.getCanonicalFile());
+                        } catch (IOException e) {
+                            logger.error(e.getMessage());
+                        }
+                    });
+                    menuItems.add(menuItem);
+                }
             }
+        } catch (IOException e) {
+            logger.warn("Exception was thrown while reading user's template dir: " + e.getMessage());
         }
 
         // Add "Save as template..." item
@@ -155,20 +184,24 @@ public class MenuControllerEditor implements Initializable {
                 return;
             }
             try {
+                File repo = new File(configurations.getTemplatesLocation());
                 String templ = controller.createNewTemplateDialog();
                 if (templ != null) {
-                    File file = new File(configurations.getTemplatesLocation() + "/" + templ + DocumentFile.FILE_EXTENSION);
-                    boolean ok2write = true;
-                    if (file.exists()) {
-                        ok2write = controller.createFileOverwriteDialog(file);
-                    }
-                    if (ok2write) {
-                        File dir = new File(file.getParent());
-                        if (! dir.exists()) {
-                            dir.mkdirs();
+                    templ = templ.replace('/', File.separatorChar);
+                    if (isFilenameValid(repo.getCanonicalPath(), templ)) {
+                        File file = new File(repo.getCanonicalPath(), templ + DocumentFile.FILE_EXTENSION);
+                        boolean ok2write = true;
+                        if (file.exists()) {
+                            ok2write = controller.createFileOverwriteDialog(file);
                         }
-                        controller.getModel().saveDocumentToFile(file);
-                        eventBus.post(new NeedToUpdateTemplateMenu());
+                        if (ok2write) {
+                            File dir = new File(file.getParent());
+                            if (!dir.exists()) {
+                                dir.mkdirs();
+                            }
+                            controller.getModel().saveDocumentToFile(file);
+                            eventBus.post(new NeedToUpdateTemplateMenu());
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -260,4 +293,18 @@ public class MenuControllerEditor implements Initializable {
         }
         return res.toArray(new File[0]);
     }
+
+    private static boolean isFilenameValid(String parent, String file) {
+        try {
+            File f = new File(parent);
+            Path parentPath = f.toPath();
+            Path filePath = parentPath.resolve(file);
+            return true;
+        }
+        catch (Exception e) {
+            ;
+        }
+        return false;
+    }
+
 }

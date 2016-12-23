@@ -1,18 +1,13 @@
 package com.xored.packeteditor;
 
 import javafx.scene.Node;
-import javafx.scene.control.*;
-import org.junit.AssumptionViolatedException;
-import org.junit.FixMethodOrder;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
-import org.testfx.service.query.NodeQuery;
-
-import java.util.Optional;
 
 import static javafx.scene.input.KeyCode.*;
 import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeThat;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.util.NodeQueryUtils.hasText;
 
@@ -285,7 +280,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     public void template_tcp_syn() {
         clickOn("File");
         clickOn("Templates");
-        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("TCP-SYN"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("TCP-SYN");
         verifyThat("#Ether-IP-TCP-flags", hasText("S"));
     }
@@ -315,7 +310,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     @Test
     public void load_and_save_pcap_file_neg() {
         loadPcapFile("http.pcap");
-        savePcapFileEx("/http-2.pcap", true);
+        savePcapFileEx("/...abracadabraZZZ/http-2.pcap", true);
     }
 
     @Test
@@ -410,7 +405,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         // Save as template
         clickOn("#newTemplateMenuButton");
-        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("TCP-SYN"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("Save as template...");
         clickOn("OK");
         Node btn = (Node)lookup("OK").query();
@@ -421,7 +416,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         // Load saved template
         clickOn("#newTemplateMenuButton");
-        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("TCP-SYN"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("NewTemplate");
         interrupt();
 
@@ -450,7 +445,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         // Save as template
         clickOn("#newTemplateMenuButton");
-        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("TCP-SYN"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("Save as template...");
         push(DIGIT1,DIGIT2);
         push(SLASH);
@@ -468,7 +463,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         // Load saved template
         clickOn("#newTemplateMenuButton");
-        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("TCP-SYN"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("12/34/56/78");
         interrupt();
 
