@@ -280,7 +280,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     public void template_tcp_syn() {
         clickOn("File");
         clickOn("Templates");
-        moveTo("TCP-SYN"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("TCP-SYN");
         verifyThat("#Ether-IP-TCP-flags", hasText("S"));
     }
@@ -405,7 +405,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         // Save as template
         clickOn("#newTemplateMenuButton");
-        moveTo("TCP-SYN"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("Save as template...");
         clickOn("OK");
         Node btn = (Node)lookup("OK").query();
@@ -416,7 +416,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         // Load saved template
         clickOn("#newTemplateMenuButton");
-        moveTo("TCP-SYN"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("NewTemplate");
         interrupt();
 
@@ -445,7 +445,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         // Save as template
         clickOn("#newTemplateMenuButton");
-        moveTo("TCP-SYN"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("Save as template...");
         push(DIGIT1,DIGIT2);
         push(SLASH);
@@ -463,7 +463,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         // Load saved template
         clickOn("#newTemplateMenuButton");
-        moveTo("TCP-SYN"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("12/34/56/78");
         interrupt();
 
