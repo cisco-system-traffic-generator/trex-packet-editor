@@ -205,7 +205,7 @@ public class MenuControllerEditor implements Initializable {
                         } else {
                             Alert alert = new Alert(Alert.AlertType.ERROR);
                             alert.setHeaderText("Save as template");
-                            alert.setContentText("File name '" + templ + "' is invalid for local filesystem.\nPlease change file name and try again.");
+                            alert.setContentText("Template name '" + templ + "' is invalid for local filesystem.\nPlease change template name and try again.");
                             alert.showAndWait();
                         }
                     }
