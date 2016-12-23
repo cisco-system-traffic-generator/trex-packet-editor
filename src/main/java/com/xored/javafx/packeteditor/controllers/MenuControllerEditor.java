@@ -19,11 +19,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
-import java.nio.file.*;
-import java.util.*;
-import java.util.regex.Matcher;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 public class MenuControllerEditor implements Initializable {
@@ -134,10 +135,6 @@ public class MenuControllerEditor implements Initializable {
                     if (!f.exists()) {
                         break;
                     }
-                    if (!isFilenameValid(repoName, fileName)) {
-                        logger.error("File name '" + fileName + "' is invalid");
-                        break;
-                    }
                     if (!fileName.startsWith(repoName)) {
                         break;
                     }
@@ -155,8 +152,8 @@ public class MenuControllerEditor implements Initializable {
                     if (index == -1) {
                         break;
                     }
-                    fileName = fileName.substring(0, index).replace(File.separatorChar, '/');
 
+                    fileName = fileName.substring(0, index).replace(File.separatorChar, '/');
                     MenuItem menuItem = new MenuItem(fileName);
                     menuItem.setOnAction(event -> {
                         try {
@@ -189,8 +186,8 @@ public class MenuControllerEditor implements Initializable {
                 while (tryagain) {
                     String templ = controller.createNewTemplateDialog();
                     if (templ != null) {
-                        templ = templ.replace('/', File.separatorChar);
                         if (isFilenameValid(repo.getCanonicalPath(), templ)) {
+                            templ = templ.replace('/', File.separatorChar);
                             File file = new File(repo.getCanonicalPath(), templ + DocumentFile.FILE_EXTENSION);
                             boolean ok2write = true;
                             if (file.exists()) {
@@ -211,6 +208,9 @@ public class MenuControllerEditor implements Initializable {
                             alert.setContentText("File name '" + templ + "' is invalid for local filesystem.\nPlease change file name and try again.");
                             alert.showAndWait();
                         }
+                    }
+                    else {
+                        tryagain = false;
                     }
                 }
             } catch (Exception e) {
@@ -304,11 +304,33 @@ public class MenuControllerEditor implements Initializable {
     }
 
     private static boolean isFilenameValid(String parent, String file) {
+        final int length = file.length();
+        if (length == 0)
+            return false;
+        final char firstChar = file.charAt(0);
+        final char lastChar = file.charAt(length-1);
+        // filenames starting/ending in dot are not valid
+        if (lastChar == '.')
+            return false;
+        if (firstChar == '.')
+            return false;
+        // file names starting/ending with whitespace are bad
+        if (Character.isWhitespace(lastChar))
+            return false;
+        if (Character.isWhitespace(firstChar))
+            return false;
+        // poison symbols
+        if (Pattern.compile("[\\\\\'\"^$:*?<>|\\t\\n\\x0B\\f\\r\\a\\e]+").matcher(file).find()) {
+            return false;
+        }
+
         try {
             File f = new File(parent);
             Path parentPath = f.toPath();
             Path filePath = parentPath.resolve(file);
-            return true;
+            Path filePath2 = Paths.get(parent, file);
+
+            return filePath.toFile().getCanonicalPath().equals(new File(parent, file).getAbsolutePath());
         }
         catch (Exception e) {
             ;
