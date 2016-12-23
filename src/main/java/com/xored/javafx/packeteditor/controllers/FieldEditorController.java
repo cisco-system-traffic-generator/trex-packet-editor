@@ -9,6 +9,7 @@ import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.events.*;
+import com.xored.javafx.packeteditor.scapy.MethodNotFoundException;
 import com.xored.javafx.packeteditor.scapy.PacketData;
 import com.xored.javafx.packeteditor.scapy.ScapyServerClient;
 import com.xored.javafx.packeteditor.service.ConfigurationService;
@@ -486,14 +487,22 @@ public class FieldEditorController implements Initializable {
         if (!scapy.isConnected()) {
             return null;
         }
-        return scapy.getTemplates();
+        try {
+            return scapy.getTemplates();
+        } catch (MethodNotFoundException e) {
+            return null;
+        }
     }
 
     public String getTemplate(String t) {
         if (!scapy.isConnected()) {
             return null;
         }
-        return scapy.getTemplate(t);
+        try {
+            return scapy.getTemplate(t);
+        } catch (MethodNotFoundException e) {
+            return null;
+        }
     }
 
     @Subscribe
