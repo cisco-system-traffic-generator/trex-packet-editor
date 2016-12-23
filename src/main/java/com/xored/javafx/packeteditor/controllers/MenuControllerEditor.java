@@ -185,22 +185,31 @@ public class MenuControllerEditor implements Initializable {
             }
             try {
                 File repo = new File(configurations.getTemplatesLocation());
-                String templ = controller.createNewTemplateDialog();
-                if (templ != null) {
-                    templ = templ.replace('/', File.separatorChar);
-                    if (isFilenameValid(repo.getCanonicalPath(), templ)) {
-                        File file = new File(repo.getCanonicalPath(), templ + DocumentFile.FILE_EXTENSION);
-                        boolean ok2write = true;
-                        if (file.exists()) {
-                            ok2write = controller.createFileOverwriteDialog(file);
-                        }
-                        if (ok2write) {
-                            File dir = new File(file.getParent());
-                            if (!dir.exists()) {
-                                dir.mkdirs();
+                boolean tryagain = true;
+                while (tryagain) {
+                    String templ = controller.createNewTemplateDialog();
+                    if (templ != null) {
+                        templ = templ.replace('/', File.separatorChar);
+                        if (isFilenameValid(repo.getCanonicalPath(), templ)) {
+                            File file = new File(repo.getCanonicalPath(), templ + DocumentFile.FILE_EXTENSION);
+                            boolean ok2write = true;
+                            if (file.exists()) {
+                                ok2write = controller.createFileOverwriteDialog(file);
                             }
-                            controller.getModel().saveDocumentToFile(file);
-                            eventBus.post(new NeedToUpdateTemplateMenu());
+                            if (ok2write) {
+                                File dir = new File(file.getParent());
+                                if (!dir.exists()) {
+                                    dir.mkdirs();
+                                }
+                                controller.getModel().saveDocumentToFile(file);
+                                eventBus.post(new NeedToUpdateTemplateMenu());
+                                tryagain = false;
+                            }
+                        } else {
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setHeaderText("Save as template");
+                            alert.setContentText("File name '" + templ + "' is invalid for local filesystem.\nPlease change file name and try again.");
+                            alert.showAndWait();
                         }
                     }
                 }
