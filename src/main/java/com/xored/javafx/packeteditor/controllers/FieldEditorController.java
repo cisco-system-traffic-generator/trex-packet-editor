@@ -3,6 +3,8 @@ package com.xored.javafx.packeteditor.controllers;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.eventbus.EventBus;
 import com.google.common.io.Files;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
@@ -483,7 +485,7 @@ public class FieldEditorController implements Initializable {
         }
     }
 
-    public List<String> getTemplates() {
+    public List<JsonObject> getTemplates() {
         if (!scapy.isConnected()) {
             return null;
         }
@@ -494,7 +496,7 @@ public class FieldEditorController implements Initializable {
         }
     }
 
-    public String getTemplate(String t) {
+    public String getTemplate(JsonObject t) {
         if (!scapy.isConnected()) {
             return null;
         }

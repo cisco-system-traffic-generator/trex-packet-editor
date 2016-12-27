@@ -316,6 +316,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     @Test
     public void should_build_payload() {
         addLayer("Raw");
+        interrupt();
         verifyThat("#Ether-Raw-load", hasText("dummy"));
         clickOn("#Ether-Raw-load");
         clickOn("#payloadButtonCancel");
@@ -327,6 +328,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         clickOn("#payloadButtonSave");
         interrupt();
         verifyThat("#Ether-Raw-load", hasText("dummy abc"));
+        interrupt();
     }
 
     @Test
@@ -471,6 +473,21 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         clickOn("#expandAllBtn");
         interrupt();
         verifyThat("#Ether-Raw-load", hasText("22222"));
+        interrupt();
+    }
+
+    @Test
+    public void should_load_template() {
+        clickOn("#newTemplateMenuButton");
+        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        clickOn("IPv6/UDP");
+        interrupt();
+
+        // Verify loaded values
+        clickOn("#collapseAllBtn");
+        interrupt();
+        with("#Ether-pane", (TitledPane pane) -> pane.setExpanded(true));
+        verifyThat("#Ether-IPv6-UDP-dport", hasText("53"));
     }
 
 }

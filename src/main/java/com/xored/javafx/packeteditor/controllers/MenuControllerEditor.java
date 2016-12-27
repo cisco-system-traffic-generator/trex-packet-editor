@@ -1,6 +1,8 @@
 package com.xored.javafx.packeteditor.controllers;
 
 import com.google.common.eventbus.EventBus;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
@@ -99,24 +101,25 @@ public class MenuControllerEditor implements Initializable {
 
     private void addTemplates(ObservableList<MenuItem> menuItems) {
         // Predefined templates from scapy server
-        List<String> templates = controller.getTemplates();
+        List<JsonObject> templates = controller.getTemplates();
 
         if (templates !=null && templates.size() > 0) {
-            for (String t : templates) {
-                int index = t.lastIndexOf('.');
-                if (index != -1) {
-                    t = t.substring(0, index);
+            for (JsonObject t : templates) {
+                try {
+                    MenuItem menuItem = new MenuItem(t.get("id").getAsString());
+                    menuItem.setOnAction(event -> {
+                        try {
+                            String t64 = controller.getTemplate(t);
+                            controller.getModel().loadDocumentFromJSON(t64);
+                        } catch (Exception e) {
+                            logger.error(e.getMessage());
+                        }
+                    });
+                    menuItems.add(menuItem);
                 }
-                MenuItem menuItem = new MenuItem(t);
-                menuItem.setOnAction(event -> {
-                    try {
-                        String t64 = controller.getTemplate(menuItem.getText());
-                        controller.getModel().loadDocumentFromJSON(t64);
-                    } catch (Exception e) {
-                        logger.error(e.getMessage());
-                    }
-                });
-                menuItems.add(menuItem);
+                catch (Exception e) {
+                    ;
+                }
             }
         }
 
