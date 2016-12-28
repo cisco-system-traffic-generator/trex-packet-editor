@@ -1,7 +1,6 @@
 package com.xored.javafx.packeteditor.controllers;
 
 import com.google.common.eventbus.EventBus;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -24,9 +23,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class MenuControllerEditor implements Initializable {
@@ -99,82 +96,17 @@ public class MenuControllerEditor implements Initializable {
         }
     }
 
-    private void addTemplates(ObservableList<MenuItem> menuItems) {
+    private void addTemplates(ObservableList<MenuItem> topMenu) {
         // Predefined templates from scapy server
-        List<JsonObject> templates = controller.getTemplates();
-
-        if (templates !=null && templates.size() > 0) {
-            for (JsonObject t : templates) {
-                try {
-                    MenuItem menuItem = new MenuItem(t.get("id").getAsString());
-                    menuItem.setOnAction(event -> {
-                        try {
-                            String t64 = controller.getTemplate(t);
-                            controller.getModel().loadDocumentFromJSON(t64);
-                        } catch (Exception e) {
-                            logger.error(e.getMessage());
-                        }
-                    });
-                    menuItems.add(menuItem);
-                }
-                catch (Exception e) {
-                    ;
-                }
-            }
-        }
+        addScapyTemplates(topMenu, new HashMap<String, Menu>());
 
         // Add templates from user dir to menu list
-        try {
-            File repo = new File(configurations.getTemplatesLocation());
-            if (repo.isDirectory()) {
-                File[] fileList = getFnames(repo.getAbsolutePath());
-                if (fileList.length > 0 && templates != null && templates.size() > 0) {
-                    menuItems.add(new SeparatorMenuItem());
-                }
-                for (File f : fileList) {
-                    String repoName = repo.getCanonicalPath();
-                    String fileName = f.getCanonicalPath();
-
-                    if (!f.exists()) {
-                        break;
-                    }
-                    if (!fileName.startsWith(repoName)) {
-                        break;
-                    }
-                    fileName = fileName.replace(repoName, "");
-                    if (fileName.startsWith(repoName)) {
-                        break;
-                    }
-                    if(fileName.startsWith(File.separator)) {
-                        fileName = fileName.substring(1);
-                    }
-                    if (!fileName.endsWith(DocumentFile.FILE_EXTENSION)) {
-                        break;
-                    }
-                    int index = fileName.lastIndexOf(DocumentFile.FILE_EXTENSION);
-                    if (index == -1) {
-                        break;
-                    }
-
-                    fileName = fileName.substring(0, index).replace(File.separatorChar, '/');
-                    MenuItem menuItem = new MenuItem(fileName);
-                    menuItem.setOnAction(event -> {
-                        try {
-                            controller.getModel().loadDocumentFromFile(f.getCanonicalFile());
-                        } catch (IOException e) {
-                            logger.error(e.getMessage());
-                        }
-                    });
-                    menuItems.add(menuItem);
-                }
-            }
-        } catch (IOException e) {
-            logger.warn("Exception was thrown while reading user's template dir: " + e.getMessage());
-        }
+        addUserTemplates(topMenu, new HashMap<String, Menu>(), configurations.getTemplatesLocation(), configurations.getTemplatesLocation());
 
         // Add "Save as template..." item
-        menuItems.add(new SeparatorMenuItem());
+        topMenu.add(new SeparatorMenuItem());
         MenuItem menuItem = new MenuItem("Save as template...");
+        topMenu.add(menuItem);
         menuItem.setOnAction(event -> {
             if (controller.getModel().getUserModel().getProtocolStack().isEmpty()) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -220,7 +152,6 @@ public class MenuControllerEditor implements Initializable {
                 logger.error(e.getMessage());
             }
         });
-        menuItems.add(menuItem);
     }
 
     @FXML
@@ -288,16 +219,19 @@ public class MenuControllerEditor implements Initializable {
         eventBus.post(new ProtocolExpandCollapseEvent(ProtocolExpandCollapseEvent.Action.COLLAPSE_ALL));
     }
 
-    private static File[] getFnames(String sDir){
-        File[] faFiles = new File(sDir).listFiles();
+    private static File[] getFnames(String root, String ext){
+        File[] faFiles = new File(root).listFiles();
+        if (faFiles == null) {
+            return new File[0];
+        }
         ArrayList<File> res = new ArrayList<File>();
 
         for(File file: faFiles){
-            if(file.isFile() && file.getName().toLowerCase().endsWith(".trp")){
+            if(file.isFile() && file.getName().toLowerCase().endsWith(ext)){
                 res.add(file);
             }
             if(file.isDirectory()){
-                File[] faFiles2 = getFnames(sDir + "/" + file.getName());
+                File[] faFiles2 = getFnames(root + File.separator + file.getName(), ext);
                 for (File f: faFiles2) {
                     res.add(f);
                 }
@@ -339,6 +273,173 @@ public class MenuControllerEditor implements Initializable {
             ;
         }
         return false;
+    }
+
+    private void addScapyTemplates(ObservableList<MenuItem> topMenu, HashMap<String, Menu> hmap) {
+        List<JsonObject> templates = controller.getTemplates();
+
+        if (templates !=null && templates.size() > 0) {
+            Collections.sort(templates, new Comparator<JsonObject>() {
+                @Override
+                public int compare(JsonObject o1, JsonObject o2) {
+                    try {
+                        String[] s1 = o1.get("id").getAsString().split("/");
+                        String[] s2 = o2.get("id").getAsString().split("/");
+
+                        if (s1.length > 1 && s2.length > 1) {
+                            int ret = 0;
+                            for (int i = 0; i < s1.length && i < s2.length; i++) {
+                                ret = ret==0 ? s1[i].compareTo(s2[i]) : ret;
+                            }
+                            return ret;
+                        }
+
+                        return s2.length - s1.length;
+                    }
+                    catch (Exception e) {
+                        return 0;
+                    }
+                }
+            });
+
+            for (JsonObject t : templates) {
+                try {
+                    String name = t.get("id").getAsString();
+                    String[] parts = name.split(Pattern.quote("/"));
+                    MenuItem menuItem = new MenuItem(parts[parts.length - 1]);
+
+                    if (parts.length == 1) {
+                        topMenu.add(menuItem);
+                    }
+                    else {
+                        Menu menu = addMenuChain(topMenu, hmap, Arrays.copyOfRange(parts, 0, parts.length - 1));
+                        menu.getItems().add(menuItem);
+                    }
+
+                    menuItem.setOnAction(event -> {
+                        try {
+                            String t64 = controller.getTemplate(t);
+                            controller.getModel().loadDocumentFromJSON(t64);
+                        } catch (Exception e) {
+                            logger.error(e.getMessage());
+                        }
+                    });
+                }
+                catch (Exception e) {
+                    ;
+                }
+            }
+        }
+    }
+
+    private void addUserTemplates(ObservableList<MenuItem> topMenu, HashMap<String, Menu> hmap, String repoDir, String rootDir) {
+        try {
+            File dir = new File(rootDir);
+            if (dir.isDirectory()) {
+                String dirName = dir.getCanonicalPath();
+                File[] fileList = getFnames(dirName, DocumentFile.FILE_EXTENSION);
+                if (fileList.length > 0) {
+                    topMenu.add(new SeparatorMenuItem());
+                }
+
+                Arrays.sort(fileList, new Comparator<File>() {
+                    @Override
+                    public int compare(File o1, File o2) {
+                        try {
+                            String[] s1 = o1.getCanonicalPath().replace(repoDir, "").substring(1).split(File.separator);
+                            String[] s2 = o2.getCanonicalPath().replace(repoDir, "").substring(1).split(File.separator);
+
+                            if (s1.length > 1 && s2.length > 1) {
+                                int ret = 0;
+                                for (int i = 0; i < s1.length && i < s2.length; i++) {
+                                    ret = ret==0 ? s1[i].compareTo(s2[i]) : ret;
+                                }
+                                if (s2.length != s1.length) {
+                                    return ret + s2.length - s1.length;
+                                }
+                                return ret;
+                            }
+
+                            return s2.length - s1.length;
+                        }
+                        catch (Exception e) {
+                            return 0;
+                        }
+                    }
+                });
+
+                for (File f : fileList) {
+                    String fileName = f.getCanonicalPath();
+
+                    if (!f.exists()) {
+                        break;
+                    }
+                    if (!fileName.startsWith(dirName)) {
+                        break;
+                    }
+                    fileName = fileName.replace(dirName, "");
+                    if (fileName.startsWith(dirName)) {
+                        break;
+                    }
+                    if (fileName.startsWith(File.separator)) {
+                        fileName = fileName.substring(1);
+                    }
+                    if (!fileName.endsWith(DocumentFile.FILE_EXTENSION)) {
+                        break;
+                    }
+                    int index = fileName.lastIndexOf(DocumentFile.FILE_EXTENSION);
+                    if (index == -1) {
+                        break;
+                    }
+
+                    fileName = fileName.substring(0, index).replace(File.separatorChar, '/');
+                    String[] parts = fileName.split(Pattern.quote("/"));
+                    MenuItem menuItem = new MenuItem(parts[parts.length - 1]);
+
+                    if (parts.length == 1) {
+                        topMenu.add(menuItem);
+                    }
+                    else {
+                        Menu menu = addMenuChain(topMenu, hmap, Arrays.copyOfRange(parts, 0, parts.length - 1));
+                        menu.getItems().add(menuItem);
+                    }
+
+                    menuItem.setOnAction(event -> {
+                        try {
+                            controller.getModel().loadDocumentFromFile(f.getCanonicalFile());
+                        } catch (IOException e) {
+                            logger.error(e.getMessage());
+                        }
+                    });
+                }
+            }
+        } catch (IOException e) {
+            logger.warn("Exception was thrown while reading user's template dir: " + e.getMessage());
+        }
+    }
+
+    private Menu addMenuChain(ObservableList<MenuItem> topMenu, HashMap<String, Menu> hmap, String[] submenu) {
+        Menu menu = null;
+        String menuKey = String.join("/", submenu);
+
+        menu = hmap.get(menuKey);
+        if (menu == null) {
+            if (submenu.length == 1) {
+                menu = new Menu(submenu[0]);
+                topMenu.add(menu);
+            }
+            else {
+                String[] psubmenu= Arrays.copyOfRange(submenu, 0, submenu.length - 1);
+                Menu pmenu = hmap.get(String.join("/", psubmenu));
+                if (pmenu == null) {
+                    pmenu = addMenuChain(topMenu, hmap, psubmenu);
+                }
+                menu = new Menu(submenu[submenu.length - 1]);
+                pmenu.getItems().add(menu);
+            }
+            hmap.put(menuKey, menu);
+        }
+        return menu;
     }
 
 }

@@ -268,6 +268,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     @Test
     public void load_pcap_file_collapse() {
         loadPcapFile("http.pcap");
+        interrupt();
         // when file loaded from pcap we collapse all protcols
         verifyThat("#Ether-pane", (TitledPane pane) -> pane.isExpanded() == false );
         verifyThat("#Ether-IP-pane", (TitledPane pane) -> pane.isExpanded() == false );
@@ -280,8 +281,9 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     public void template_tcp_syn() {
         clickOn("File");
         clickOn("Templates");
-        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("IPv4"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("TCP-SYN");
+        interrupt();
         verifyThat("#Ether-IP-TCP-flags", hasText("S"));
     }
 
@@ -338,7 +340,9 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         clickOn("#payloadChoiceType");
         clickOn("Random ascii");
         clickOn("#patternSize");
+        interrupt();
         push(DIGIT3,DIGIT2);
+        interrupt();
         clickOn("#payloadButtonSave");
         interrupt();
         verifyThat("#Ether-Raw-load", hasText("G n<B2U/+IU0TA{(|GO.d2@\"@{|f yri"));
@@ -407,7 +411,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         // Save as template
         clickOn("#newTemplateMenuButton");
-        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("IPv4"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("Save as template...");
         clickOn("OK");
         Node btn = (Node)lookup("OK").query();
@@ -418,7 +422,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         // Load saved template
         clickOn("#newTemplateMenuButton");
-        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("IPv4"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("NewTemplate");
         interrupt();
 
@@ -447,7 +451,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         // Save as template
         clickOn("#newTemplateMenuButton");
-        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("IPv4"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("Save as template...");
         push(DIGIT1,DIGIT2);
         push(SLASH);
@@ -465,8 +469,12 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         // Load saved template
         clickOn("#newTemplateMenuButton");
-        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
-        clickOn("12/34/56/78");
+        moveTo("IPv4"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("12");
+        moveTo("34");
+        moveTo("56");
+        moveTo("78");
+        clickOn("78");
         interrupt();
 
         // Verify loaded values
@@ -479,14 +487,18 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     @Test
     public void should_load_template() {
         clickOn("#newTemplateMenuButton");
-        moveTo("ICMP echo request"); // can't clickOn directly, since it will hide while mouse is moving diagonal
-        clickOn("IPv6/UDP");
+        moveTo("IPv4"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("IPv6");
+        moveTo("ICMP");
+        moveTo("UDP");
+        clickOn("UDP");
         interrupt();
 
         // Verify loaded values
         clickOn("#collapseAllBtn");
         interrupt();
         with("#Ether-pane", (TitledPane pane) -> pane.setExpanded(true));
+        interrupt();
         verifyThat("#Ether-IPv6-UDP-dport", hasText("53"));
     }
 
