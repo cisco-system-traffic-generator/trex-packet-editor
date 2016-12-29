@@ -97,10 +97,10 @@ public class MenuControllerEditor implements Initializable {
 
     private void addTemplates(ObservableList<MenuItem> topMenu) {
         // Predefined templates from scapy server
-        addScapyTemplates(topMenu, new HashMap<String, Menu>());
+        addScapyTemplates(topMenu, new HashMap<>());
 
         // Add templates from user dir to menu list
-        addUserTemplates(topMenu, new HashMap<String, Menu>(), configurations.getTemplatesLocation(), configurations.getTemplatesLocation());
+        addUserTemplates(topMenu, new HashMap<>(), configurations.getTemplatesLocation(), configurations.getTemplatesLocation());
 
         // Add "Save as template..." item
         topMenu.add(new SeparatorMenuItem());
@@ -223,7 +223,7 @@ public class MenuControllerEditor implements Initializable {
         if (faFiles == null) {
             return new File[0];
         }
-        ArrayList<File> res = new ArrayList<File>();
+        ArrayList<File> res = new ArrayList<>();
 
         for(File file: faFiles){
             if(file.isFile() && file.getName().toLowerCase().endsWith(ext)){
@@ -276,26 +276,23 @@ public class MenuControllerEditor implements Initializable {
         List<JsonObject> templates = controller.getTemplates();
 
         if (templates !=null && templates.size() > 0) {
-            Collections.sort(templates, new Comparator<JsonObject>() {
-                @Override
-                public int compare(JsonObject o1, JsonObject o2) {
-                    try {
-                        String[] s1 = o1.get("id").getAsString().split("/");
-                        String[] s2 = o2.get("id").getAsString().split("/");
+            Collections.sort(templates, (o1, o2) -> {
+                try {
+                    String[] s1 = o1.get("id").getAsString().split("/");
+                    String[] s2 = o2.get("id").getAsString().split("/");
 
-                        if (s1.length > 1 && s2.length > 1) {
-                            int ret = 0;
-                            for (int i = 0; i < s1.length && i < s2.length; i++) {
-                                ret = ret==0 ? s1[i].compareTo(s2[i]) : ret;
-                            }
-                            return ret;
+                    if (s1.length > 1 && s2.length > 1) {
+                        int ret = 0;
+                        for (int i = 0; i < s1.length && i < s2.length; i++) {
+                            ret = ret==0 ? s1[i].compareTo(s2[i]) : ret;
                         }
+                        return ret;
+                    }
 
-                        return s2.length - s1.length;
-                    }
-                    catch (Exception e) {
-                        return 0;
-                    }
+                    return s2.length - s1.length;
+                }
+                catch (Exception e) {
+                    return 0;
                 }
             });
 
@@ -334,29 +331,26 @@ public class MenuControllerEditor implements Initializable {
                     topMenu.add(new SeparatorMenuItem());
                 }
 
-                Arrays.sort(fileList, new Comparator<File>() {
-                    @Override
-                    public int compare(File o1, File o2) {
-                        try {
-                            String[] s1 = o1.getCanonicalPath().replace(repoDir, "").substring(1).split(File.separator);
-                            String[] s2 = o2.getCanonicalPath().replace(repoDir, "").substring(1).split(File.separator);
+                Arrays.sort(fileList, (o1, o2) -> {
+                    try {
+                        String[] s1 = o1.getCanonicalPath().replace(repoDir, "").substring(1).split(File.separator);
+                        String[] s2 = o2.getCanonicalPath().replace(repoDir, "").substring(1).split(File.separator);
 
-                            if (s1.length > 1 && s2.length > 1) {
-                                int ret = 0;
-                                for (int i = 0; i < s1.length && i < s2.length; i++) {
-                                    ret = ret==0 ? s1[i].compareTo(s2[i]) : ret;
-                                }
-                                if (s2.length != s1.length) {
-                                    return ret + s2.length - s1.length;
-                                }
-                                return ret;
+                        if (s1.length > 1 && s2.length > 1) {
+                            int ret = 0;
+                            for (int i = 0; i < s1.length && i < s2.length; i++) {
+                                ret = ret==0 ? s1[i].compareTo(s2[i]) : ret;
                             }
+                            if (s2.length != s1.length) {
+                                return ret + s2.length - s1.length;
+                            }
+                            return ret;
+                        }
 
-                            return s2.length - s1.length;
-                        }
-                        catch (Exception e) {
-                            return 0;
-                        }
+                        return s2.length - s1.length;
+                    }
+                    catch (Exception e) {
+                        return 0;
                     }
                 });
 
@@ -411,7 +405,7 @@ public class MenuControllerEditor implements Initializable {
     }
 
     private Menu addMenuChain(ObservableList<MenuItem> topMenu, HashMap<String, Menu> hmap, String[] submenu) {
-        Menu menu = null;
+        Menu menu;
         String menuKey = String.join("/", submenu);
 
         menu = hmap.get(menuKey);
