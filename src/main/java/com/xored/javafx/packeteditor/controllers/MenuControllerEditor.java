@@ -1,6 +1,7 @@
 package com.xored.javafx.packeteditor.controllers;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.io.Files;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -24,6 +25,9 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class MenuControllerEditor implements Initializable {
 
@@ -218,25 +222,13 @@ public class MenuControllerEditor implements Initializable {
         eventBus.post(new ProtocolExpandCollapseEvent(ProtocolExpandCollapseEvent.Action.COLLAPSE_ALL));
     }
 
-    private static File[] getFnames(String root, String ext){
-        File[] faFiles = new File(root).listFiles();
-        if (faFiles == null) {
-            return new File[0];
-        }
-        ArrayList<File> res = new ArrayList<>();
-
-        for(File file: faFiles){
-            if(file.isFile() && file.getName().toLowerCase().endsWith(ext)){
-                res.add(file);
-            }
-            if(file.isDirectory()){
-                File[] faFiles2 = getFnames(root + File.separator + file.getName(), ext);
-                for (File f: faFiles2) {
-                    res.add(f);
-                }
-            }
-        }
-        return res.toArray(new File[0]);
+    private static File[] getFnames(String rootDir, String ext){
+        Iterable<File> fileTraverser = Files.fileTreeTraverser().postOrderTraversal(new File(rootDir));
+        
+        Stream<File> filesStream = StreamSupport.stream(fileTraverser.spliterator(), false);
+        
+        return filesStream.filter(file -> file.isFile() && file.getName().toLowerCase().endsWith(ext))
+                   .collect(Collectors.toList()).toArray(new File[0]);
     }
 
     private static boolean isFilenameValid(String parent, String file) {
