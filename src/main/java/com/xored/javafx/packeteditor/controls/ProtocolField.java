@@ -189,8 +189,14 @@ public class ProtocolField extends EditableField {
         tf.setText(combinedField.getScapyDisplayValue());
     }
 
+    private ContextMenu contextMenu;
+
     @Override
     public ContextMenu getContextMenu() {
+        if (contextMenu != null) {
+            return contextMenu;
+        }
+
         ContextMenu context = new ContextMenu();
 
         MenuItem generateItem = new MenuItem(resourceBundle.getString("GENERATE"));
@@ -205,9 +211,10 @@ public class ProtocolField extends EditableField {
             instructionsTemplate.setOnAction(e -> controller.getModel().addFEInstructionsTemplate(combinedField, template));
             feInstructionsTemplatesItem.getItems().add(instructionsTemplate);
         });
-        
+
         context.getItems().addAll(generateItem, defaultItem,feInstructionsTemplatesItem);
 
+        this.contextMenu = context;
         return context;
     }
 

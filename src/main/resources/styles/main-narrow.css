@@ -568,9 +568,10 @@
 
 #pcapEditorTopPane .payloadchoicesize .context-menu,
 #pcapEditorTopPane .payloadchoicesize .context-menu .menu-item {
-    -fx-min-width: 14em;
+    /*-fx-min-width: 14em;
     -fx-pref-width: 18em; /*-fx-min-width;*/
-    -fx-max-width: 18em; /*-fx-min-width;*/
+    /*-fx-max-width: 18em;*/ /*-fx-min-width;*/
+    -fx-pref-width: auto;
     -fx-padding: 1px 1px 1px 1px;
     -fx-background-radius: 0, 0, 0;
 }
@@ -651,3 +652,35 @@
     -fx-font-style: oblique;
     -fx-background-color: #f6f6f6;
 }
+
+/***************************************************
+    Menu styles, was copied and then changed from statless gui styles
+***************************************************/
+#pcapEditorTopPane .menu-item {
+    -fx-min-width: -1;
+    -fx-pref-width: -1;
+    -fx-max-width: -1;
+    -fx-background-color:#f0f0f0;
+}
+#pcapEditorTopPane .context-menu {
+    -fx-min-width: -1;
+    -fx-pref-width: -1;
+    -fx-max-width: -1;
+    -fx-background-color:#f0f0f0;
+    -fx-border-width: 1px;
+    -fx-border-style: solid;
+    -fx-border-color: #a1a1a1;
+    -fx-effect: dropshadow(three-pass-box, #b2b2b2, 10, 0, 0, 0);
+}
+
+#pcapEditorTopPane .menu-bar {
+    -fx-font-size: 9pt;
+    -fx-font-family: Arial;
+}
+
+#pcapEditorTopPane .menu:hover,
+#pcapEditorTopPane .menu:showing,
+#pcapEditorTopPane .menu-item:focused {
+    -fx-background-color:#32b4ea;
+}
+

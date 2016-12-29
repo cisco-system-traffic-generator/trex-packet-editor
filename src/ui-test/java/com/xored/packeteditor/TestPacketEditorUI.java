@@ -283,7 +283,13 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         clickOn("Templates");
         moveTo("IPv4"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("TCP-SYN");
-        interrupt();
+        interrupt(5);
+
+        // Verify loaded values
+        clickOn("#collapseAllBtn");
+        interrupt(5);
+        with("#Ether-IP-TCP-pane", (TitledPane pane) -> pane.setExpanded(true));
+        interrupt(5);
         verifyThat("#Ether-IP-TCP-flags", hasText("S"));
     }
 
