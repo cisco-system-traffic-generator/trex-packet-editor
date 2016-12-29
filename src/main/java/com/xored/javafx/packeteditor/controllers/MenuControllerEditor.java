@@ -22,14 +22,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
 
 public class MenuControllerEditor implements Initializable {
 
     public static final String EXIT_MENU_ITEM = "exit";
-    private Logger logger= LoggerFactory.getLogger(MenuControllerEditor.class);
+    private static Logger logger= LoggerFactory.getLogger(MenuControllerEditor.class);
 
     @Inject
     private FieldEditorController controller;
@@ -265,12 +264,10 @@ public class MenuControllerEditor implements Initializable {
             File f = new File(parent);
             Path parentPath = f.toPath();
             Path filePath = parentPath.resolve(file);
-            Path filePath2 = Paths.get(parent, file);
 
             return filePath.toFile().getCanonicalPath().equals(new File(parent, file).getAbsolutePath());
-        }
-        catch (Exception e) {
-            ;
+        } catch (IOException e) {
+            logger.error(e.getMessage());
         }
         return false;
     }
