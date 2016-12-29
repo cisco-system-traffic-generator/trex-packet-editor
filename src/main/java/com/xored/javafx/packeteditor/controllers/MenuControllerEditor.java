@@ -303,31 +303,26 @@ public class MenuControllerEditor implements Initializable {
             });
 
             for (JsonObject t : templates) {
-                try {
-                    String name = t.get("id").getAsString();
-                    String[] parts = name.split(Pattern.quote("/"));
-                    MenuItem menuItem = new MenuItem(parts[parts.length - 1]);
+                String name = t.get("id").getAsString();
+                String[] parts = name.split(Pattern.quote("/"));
+                MenuItem menuItem = new MenuItem(parts[parts.length - 1]);
 
-                    if (parts.length == 1) {
-                        topMenu.add(menuItem);
-                    }
-                    else {
-                        Menu menu = addMenuChain(topMenu, hmap, Arrays.copyOfRange(parts, 0, parts.length - 1));
-                        menu.getItems().add(menuItem);
-                    }
+                if (parts.length == 1) {
+                    topMenu.add(menuItem);
+                }
+                else {
+                    Menu menu = addMenuChain(topMenu, hmap, Arrays.copyOfRange(parts, 0, parts.length - 1));
+                    menu.getItems().add(menuItem);
+                }
 
-                    menuItem.setOnAction(event -> {
-                        try {
-                            String t64 = controller.getTemplate(t);
-                            controller.getModel().loadDocumentFromJSON(t64);
-                        } catch (Exception e) {
-                            logger.error(e.getMessage());
-                        }
-                    });
-                }
-                catch (Exception e) {
-                    ;
-                }
+                menuItem.setOnAction(event -> {
+                    try {
+                        String t64 = controller.getTemplate(t);
+                        controller.getModel().loadDocumentFromJSON(t64);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage());
+                    }
+                });
             }
         }
     }
