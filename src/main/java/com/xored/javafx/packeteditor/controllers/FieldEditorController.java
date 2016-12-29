@@ -1,10 +1,10 @@
 package com.xored.javafx.packeteditor.controllers;
 
-import com.google.common.eventbus.Subscribe;
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.io.Files;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
@@ -43,7 +43,10 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class FieldEditorController implements Initializable {
@@ -525,4 +528,10 @@ public class FieldEditorController implements Initializable {
         return model.getFieldEngineError();
     }
 
+    public void loadTemplateFromScapy(String templateId) {
+        JsonObject template = new JsonObject();
+        template.add("id", new JsonPrimitive(templateId));
+        String templateBase64 = getTemplate(template);
+        model.loadDocumentFromJSON(templateBase64);
+    }
 }

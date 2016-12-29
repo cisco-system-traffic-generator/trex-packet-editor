@@ -3,6 +3,7 @@ package com.xored.javafx.packeteditor.controllers;
 import com.google.common.eventbus.EventBus;
 import com.google.common.io.Files;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
@@ -290,22 +291,20 @@ public class MenuControllerEditor implements Initializable {
 
             Map<String, Menu> menuMap = new HashMap<>();
             for (JsonObject t : templates) {
-                String name = t.get("id").getAsString();
-                String[] parts = name.split(Pattern.quote("/"));
+                String templateId = t.get("id").getAsString();
+                String[] parts = templateId.split(Pattern.quote("/"));
                 MenuItem menuItem = new MenuItem(parts[parts.length - 1]);
 
                 if (parts.length == 1) {
                     topMenu.add(menuItem);
-                }
-                else {
+                } else {
                     Menu menu = addMenuChain(topMenu, menuMap, Arrays.copyOfRange(parts, 0, parts.length - 1));
                     menu.getItems().add(menuItem);
                 }
 
                 menuItem.setOnAction(event -> {
                     try {
-                        String t64 = controller.getTemplate(t);
-                        controller.getModel().loadDocumentFromJSON(t64);
+                        controller.loadTemplateFromScapy(templateId);
                     } catch (Exception e) {
                         logger.error(e.getMessage());
                     }
