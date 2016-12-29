@@ -1,7 +1,9 @@
 package com.xored.javafx.packeteditor.controllers;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.io.Files;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
@@ -22,14 +24,16 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class MenuControllerEditor implements Initializable {
 
     public static final String EXIT_MENU_ITEM = "exit";
-    private Logger logger= LoggerFactory.getLogger(MenuControllerEditor.class);
+    private static Logger logger= LoggerFactory.getLogger(MenuControllerEditor.class);
 
     @Inject
     private FieldEditorController controller;
@@ -98,10 +102,10 @@ public class MenuControllerEditor implements Initializable {
 
     private void addTemplates(ObservableList<MenuItem> topMenu) {
         // Predefined templates from scapy server
-        addScapyTemplates(topMenu, new HashMap<String, Menu>());
+        addScapyTemplates(topMenu);
 
         // Add templates from user dir to menu list
-        addUserTemplates(topMenu, new HashMap<String, Menu>(), configurations.getTemplatesLocation(), configurations.getTemplatesLocation());
+        addUserTemplates(topMenu, configurations.getTemplatesLocation(), configurations.getTemplatesLocation());
 
         // Add "Save as template..." item
         topMenu.add(new SeparatorMenuItem());
@@ -219,25 +223,13 @@ public class MenuControllerEditor implements Initializable {
         eventBus.post(new ProtocolExpandCollapseEvent(ProtocolExpandCollapseEvent.Action.COLLAPSE_ALL));
     }
 
-    private static File[] getFnames(String root, String ext){
-        File[] faFiles = new File(root).listFiles();
-        if (faFiles == null) {
-            return new File[0];
-        }
-        ArrayList<File> res = new ArrayList<File>();
-
-        for(File file: faFiles){
-            if(file.isFile() && file.getName().toLowerCase().endsWith(ext)){
-                res.add(file);
-            }
-            if(file.isDirectory()){
-                File[] faFiles2 = getFnames(root + File.separator + file.getName(), ext);
-                for (File f: faFiles2) {
-                    res.add(f);
-                }
-            }
-        }
-        return res.toArray(new File[0]);
+    private static File[] getFnames(String rootDir, String ext){
+        Iterable<File> fileTraverser = Files.fileTreeTraverser().postOrderTraversal(new File(rootDir));
+        
+        Stream<File> filesStream = StreamSupport.stream(fileTraverser.spliterator(), false);
+        
+        return filesStream.filter(file -> file.isFile() && file.getName().toLowerCase().endsWith(ext))
+                   .collect(Collectors.toList()).toArray(new File[0]);
     }
 
     private static boolean isFilenameValid(String parent, String file) {
@@ -265,74 +257,63 @@ public class MenuControllerEditor implements Initializable {
             File f = new File(parent);
             Path parentPath = f.toPath();
             Path filePath = parentPath.resolve(file);
-            Path filePath2 = Paths.get(parent, file);
 
             return filePath.toFile().getCanonicalPath().equals(new File(parent, file).getAbsolutePath());
-        }
-        catch (Exception e) {
-            ;
+        } catch (IOException e) {
+            logger.error(e.getMessage());
         }
         return false;
     }
 
-    private void addScapyTemplates(ObservableList<MenuItem> topMenu, HashMap<String, Menu> hmap) {
+    private void addScapyTemplates(ObservableList<MenuItem> topMenu) {
         List<JsonObject> templates = controller.getTemplates();
 
         if (templates !=null && templates.size() > 0) {
-            Collections.sort(templates, new Comparator<JsonObject>() {
-                @Override
-                public int compare(JsonObject o1, JsonObject o2) {
-                    try {
-                        String[] s1 = o1.get("id").getAsString().split("/");
-                        String[] s2 = o2.get("id").getAsString().split("/");
+            Collections.sort(templates, (o1, o2) -> {
+                try {
+                    String[] s1 = o1.get("id").getAsString().split("/");
+                    String[] s2 = o2.get("id").getAsString().split("/");
 
-                        if (s1.length > 1 && s2.length > 1) {
-                            int ret = 0;
-                            for (int i = 0; i < s1.length && i < s2.length; i++) {
-                                ret = ret==0 ? s1[i].compareTo(s2[i]) : ret;
-                            }
-                            return ret;
+                    if (s1.length > 1 && s2.length > 1) {
+                        int ret = 0;
+                        for (int i = 0; i < s1.length && i < s2.length; i++) {
+                            ret = ret==0 ? s1[i].compareTo(s2[i]) : ret;
                         }
+                        return ret;
+                    }
 
-                        return s2.length - s1.length;
-                    }
-                    catch (Exception e) {
-                        return 0;
-                    }
+                    return s2.length - s1.length;
+                }
+                catch (Exception e) {
+                    return 0;
                 }
             });
 
+            Map<String, Menu> menuMap = new HashMap<>();
             for (JsonObject t : templates) {
-                try {
-                    String name = t.get("id").getAsString();
-                    String[] parts = name.split(Pattern.quote("/"));
-                    MenuItem menuItem = new MenuItem(parts[parts.length - 1]);
+                String templateId = t.get("id").getAsString();
+                String[] parts = templateId.split(Pattern.quote("/"));
+                MenuItem menuItem = new MenuItem(parts[parts.length - 1]);
 
-                    if (parts.length == 1) {
-                        topMenu.add(menuItem);
-                    }
-                    else {
-                        Menu menu = addMenuChain(topMenu, hmap, Arrays.copyOfRange(parts, 0, parts.length - 1));
-                        menu.getItems().add(menuItem);
-                    }
+                if (parts.length == 1) {
+                    topMenu.add(menuItem);
+                } else {
+                    Menu menu = addMenuChain(topMenu, menuMap, Arrays.copyOfRange(parts, 0, parts.length - 1));
+                    menu.getItems().add(menuItem);
+                }
 
-                    menuItem.setOnAction(event -> {
-                        try {
-                            String t64 = controller.getTemplate(t);
-                            controller.getModel().loadDocumentFromJSON(t64);
-                        } catch (Exception e) {
-                            logger.error(e.getMessage());
-                        }
-                    });
-                }
-                catch (Exception e) {
-                    ;
-                }
+                menuItem.setOnAction(event -> {
+                    try {
+                        controller.loadTemplateFromScapy(templateId);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage());
+                    }
+                });
             }
         }
     }
 
-    private void addUserTemplates(ObservableList<MenuItem> topMenu, HashMap<String, Menu> hmap, String repoDir, String rootDir) {
+    private void addUserTemplates(ObservableList<MenuItem> topMenu, String repoDir, String rootDir) {
         try {
             File dir = new File(rootDir);
             if (dir.isDirectory()) {
@@ -342,32 +323,30 @@ public class MenuControllerEditor implements Initializable {
                     topMenu.add(new SeparatorMenuItem());
                 }
 
-                Arrays.sort(fileList, new Comparator<File>() {
-                    @Override
-                    public int compare(File o1, File o2) {
-                        try {
-                            String[] s1 = o1.getCanonicalPath().replace(repoDir, "").substring(1).split(File.separator);
-                            String[] s2 = o2.getCanonicalPath().replace(repoDir, "").substring(1).split(File.separator);
+                Arrays.sort(fileList, (o1, o2) -> {
+                    try {
+                        String[] s1 = o1.getCanonicalPath().replace(repoDir, "").substring(1).split(File.separator);
+                        String[] s2 = o2.getCanonicalPath().replace(repoDir, "").substring(1).split(File.separator);
 
-                            if (s1.length > 1 && s2.length > 1) {
-                                int ret = 0;
-                                for (int i = 0; i < s1.length && i < s2.length; i++) {
-                                    ret = ret==0 ? s1[i].compareTo(s2[i]) : ret;
-                                }
-                                if (s2.length != s1.length) {
-                                    return ret + s2.length - s1.length;
-                                }
-                                return ret;
+                        if (s1.length > 1 && s2.length > 1) {
+                            int ret = 0;
+                            for (int i = 0; i < s1.length && i < s2.length; i++) {
+                                ret = ret==0 ? s1[i].compareTo(s2[i]) : ret;
                             }
+                            if (s2.length != s1.length) {
+                                return ret + s2.length - s1.length;
+                            }
+                            return ret;
+                        }
 
-                            return s2.length - s1.length;
-                        }
-                        catch (Exception e) {
-                            return 0;
-                        }
+                        return s2.length - s1.length;
+                    }
+                    catch (Exception e) {
+                        return 0;
                     }
                 });
 
+                Map<String, Menu> menuMap = new HashMap<>();
                 for (File f : fileList) {
                     String fileName = f.getCanonicalPath();
 
@@ -400,7 +379,7 @@ public class MenuControllerEditor implements Initializable {
                         topMenu.add(menuItem);
                     }
                     else {
-                        Menu menu = addMenuChain(topMenu, hmap, Arrays.copyOfRange(parts, 0, parts.length - 1));
+                        Menu menu = addMenuChain(topMenu, menuMap, Arrays.copyOfRange(parts, 0, parts.length - 1));
                         menu.getItems().add(menuItem);
                     }
 
@@ -418,8 +397,8 @@ public class MenuControllerEditor implements Initializable {
         }
     }
 
-    private Menu addMenuChain(ObservableList<MenuItem> topMenu, HashMap<String, Menu> hmap, String[] submenu) {
-        Menu menu = null;
+    private Menu addMenuChain(ObservableList<MenuItem> topMenu, Map<String, Menu> hmap, String[] submenu) {
+        Menu menu;
         String menuKey = String.join("/", submenu);
 
         menu = hmap.get(menuKey);
