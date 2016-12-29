@@ -97,10 +97,10 @@ public class MenuControllerEditor implements Initializable {
 
     private void addTemplates(ObservableList<MenuItem> topMenu) {
         // Predefined templates from scapy server
-        addScapyTemplates(topMenu, new HashMap<>());
+        addScapyTemplates(topMenu);
 
         // Add templates from user dir to menu list
-        addUserTemplates(topMenu, new HashMap<>(), configurations.getTemplatesLocation(), configurations.getTemplatesLocation());
+        addUserTemplates(topMenu, configurations.getTemplatesLocation(), configurations.getTemplatesLocation());
 
         // Add "Save as template..." item
         topMenu.add(new SeparatorMenuItem());
@@ -272,7 +272,7 @@ public class MenuControllerEditor implements Initializable {
         return false;
     }
 
-    private void addScapyTemplates(ObservableList<MenuItem> topMenu, HashMap<String, Menu> hmap) {
+    private void addScapyTemplates(ObservableList<MenuItem> topMenu) {
         List<JsonObject> templates = controller.getTemplates();
 
         if (templates !=null && templates.size() > 0) {
@@ -296,6 +296,7 @@ public class MenuControllerEditor implements Initializable {
                 }
             });
 
+            Map<String, Menu> menuMap = new HashMap<>();
             for (JsonObject t : templates) {
                 String name = t.get("id").getAsString();
                 String[] parts = name.split(Pattern.quote("/"));
@@ -305,7 +306,7 @@ public class MenuControllerEditor implements Initializable {
                     topMenu.add(menuItem);
                 }
                 else {
-                    Menu menu = addMenuChain(topMenu, hmap, Arrays.copyOfRange(parts, 0, parts.length - 1));
+                    Menu menu = addMenuChain(topMenu, menuMap, Arrays.copyOfRange(parts, 0, parts.length - 1));
                     menu.getItems().add(menuItem);
                 }
 
@@ -321,7 +322,7 @@ public class MenuControllerEditor implements Initializable {
         }
     }
 
-    private void addUserTemplates(ObservableList<MenuItem> topMenu, HashMap<String, Menu> hmap, String repoDir, String rootDir) {
+    private void addUserTemplates(ObservableList<MenuItem> topMenu, String repoDir, String rootDir) {
         try {
             File dir = new File(rootDir);
             if (dir.isDirectory()) {
@@ -354,6 +355,7 @@ public class MenuControllerEditor implements Initializable {
                     }
                 });
 
+                Map<String, Menu> menuMap = new HashMap<>();
                 for (File f : fileList) {
                     String fileName = f.getCanonicalPath();
 
@@ -386,7 +388,7 @@ public class MenuControllerEditor implements Initializable {
                         topMenu.add(menuItem);
                     }
                     else {
-                        Menu menu = addMenuChain(topMenu, hmap, Arrays.copyOfRange(parts, 0, parts.length - 1));
+                        Menu menu = addMenuChain(topMenu, menuMap, Arrays.copyOfRange(parts, 0, parts.length - 1));
                         menu.getItems().add(menuItem);
                     }
 
@@ -404,7 +406,7 @@ public class MenuControllerEditor implements Initializable {
         }
     }
 
-    private Menu addMenuChain(ObservableList<MenuItem> topMenu, HashMap<String, Menu> hmap, String[] submenu) {
+    private Menu addMenuChain(ObservableList<MenuItem> topMenu, Map<String, Menu> hmap, String[] submenu) {
         Menu menu;
         String menuKey = String.join("/", submenu);
 
