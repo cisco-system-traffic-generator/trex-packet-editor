@@ -213,6 +213,7 @@ public class ProtocolField extends EditableField {
         });
 
         context.getItems().addAll(generateItem, defaultItem,feInstructionsTemplatesItem);
+        context.getStyleClass().addAll("pcapEditorTopPane-context-menu");
 
         this.contextMenu = context;
         return context;

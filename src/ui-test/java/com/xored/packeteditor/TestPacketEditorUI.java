@@ -280,16 +280,20 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
     @Test
     public void template_tcp_syn() {
         clickOn("File");
+        interrupt(200);
         clickOn("Templates");
+        interrupt(200);
         moveTo("IPv4"); // can't clickOn directly, since it will hide while mouse is moving diagonal
+        moveTo("Save as template...");
         clickOn("TCP-SYN");
-        interrupt(5);
+        interrupt(200);
 
         // Verify loaded values
         clickOn("#collapseAllBtn");
-        interrupt(5);
-        with("#Ether-IP-TCP-pane", (TitledPane pane) -> pane.setExpanded(true));
-        interrupt(5);
+        interrupt(200);
+        clickOn("#Ether-IP-TCP-pane");
+        //with("#Ether-IP-TCP-pane", (TitledPane pane) -> pane.setExpanded(true));
+        interrupt(200);
         verifyThat("#Ether-IP-TCP-flags", hasText("S"));
     }
 
