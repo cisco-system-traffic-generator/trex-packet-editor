@@ -223,6 +223,8 @@ public class PacketEditorModel {
 
             return new InstructionExpression(instructionMeta, parameters);
         }).collect(Collectors.toList());
+        Map<String, JsonElement> globalParametersJson = gson.fromJson(simpleModel.getAsJsonObject("field_engine").getAsJsonObject("global_parameters"), jsonMapType);
+        userModel.setFePrarameterValue("cache_size", globalParametersJson.get("cache_size").getAsString());
         addInstructions(instructions);
     }
 
