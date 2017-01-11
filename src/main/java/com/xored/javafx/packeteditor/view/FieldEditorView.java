@@ -10,7 +10,6 @@ import com.xored.javafx.packeteditor.data.PacketEditorModel;
 import com.xored.javafx.packeteditor.data.combined.CombinedField;
 import com.xored.javafx.packeteditor.data.combined.CombinedProtocol;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
-import com.xored.javafx.packeteditor.events.ScapyClientConnectedEvent;
 import com.xored.javafx.packeteditor.metatdata.BitFlagMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata;
 import com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType;
@@ -33,7 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -414,10 +416,10 @@ public class FieldEditorView {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setHeaderText("Unable to add \""+ selectedProtocolName +"\" protocol."
                         + "\n"
-                        + "\nIt seems that some previously changed field with non-default value"
-                        + "\nprevents the current operation from completing successfully."
-                        + "\nPlease verify those fields, and adjust the values."
-                        + "\nHINT: the changed values are marked by the blue color.");
+                        + "\nIt seems that previously changed field causes an error and prevents"
+                        + "\nto complete the current operation successfully."
+                        + "\nVerify those fields, and adjust the values."
+                        + "\nHINT: First of all check lengths. Also changed values are marked by the blue color.");
                 alert.initOwner(rootPane.getScene().getWindow());
 
                 alert.showAndWait();
