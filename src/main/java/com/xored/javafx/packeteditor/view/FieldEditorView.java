@@ -412,7 +412,12 @@ public class FieldEditorView {
                     selectedProtocolName = (String) sel;
                 }
                 Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setHeaderText("Unable to add \""+ selectedProtocolName +"\" protocol.");
+                alert.setHeaderText("Unable to add \""+ selectedProtocolName +"\" protocol."
+                        + "\n"
+                        + "\nIt seems that some previously changed field with non-default value"
+                        + "\nprevents the current operation from completing successfully."
+                        + "\nPlease verify those fields, and adjust the values."
+                        + "\nHINT: the changed values are marked by the blue color.");
                 alert.initOwner(rootPane.getScene().getWindow());
 
                 alert.showAndWait();
