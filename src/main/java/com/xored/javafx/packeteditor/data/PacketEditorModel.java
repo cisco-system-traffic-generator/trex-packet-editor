@@ -205,14 +205,13 @@ public class PacketEditorModel {
 
             Map<String, JsonElement> paramsMap = gson.fromJson(instructionJson.get("parameters"), jsonMapType);
 
-            Map<String, FEInstructionParameterMeta> parameterMetas = metadataService.getFeInstructionParameters();
+            List<FEInstructionParameter2> parameters = instructionMeta.getParameterMetas()
+                    .stream()
+                    .filter(meta -> paramsMap.get(meta.getId()) != null)
+                    .map(parameterMeta -> new FEInstructionParameter2(parameterMeta, paramsMap.get(parameterMeta.getId())))
+                    .collect(Collectors.toList());
 
-            List<FEInstructionParameter2> parameters = paramsMap.entrySet().stream().map(entry -> {
-                FEInstructionParameterMeta parameterMeta = parameterMetas.get(entry.getKey());
-                return new FEInstructionParameter2(parameterMeta, entry.getValue());
-            }).collect(Collectors.toList());
-
-            List<String> specifiedParameters = parameters.stream().map(param -> param.getId()).collect(Collectors.toList());
+            List<String> specifiedParameters = parameters.stream().map(FEInstructionParameter2::getId).collect(Collectors.toList());
             
             // Add rest parameters with default values
             instructionMeta.getParameterMetas().stream()
