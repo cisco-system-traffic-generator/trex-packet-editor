@@ -15,6 +15,7 @@ import com.xored.javafx.packeteditor.data.user.DocumentFile;
 import com.xored.javafx.packeteditor.data.user.UserProtocol;
 import com.xored.javafx.packeteditor.events.InitPacketEditorEvent;
 import com.xored.javafx.packeteditor.events.RebuildViewEvent;
+import com.xored.javafx.packeteditor.events.UpdateEtherLayerEvent;
 import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
 import com.xored.javafx.packeteditor.metatdata.ProtocolMetadata;
@@ -36,6 +37,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.xored.javafx.packeteditor.data.user.DocumentFile.toPOJO;
+import static com.xored.javafx.packeteditor.events.UpdateEtherLayerEvent.MacMode.PACKET;
+import static com.xored.javafx.packeteditor.events.UpdateEtherLayerEvent.MacMode.TREX_CONFIG;
 
 public class PacketEditorModel {
     private Logger logger = LoggerFactory.getLogger(PacketEditorModel.class);
@@ -440,6 +443,13 @@ public class PacketEditorModel {
     }
     
     public void editField(CombinedField field, ReconstructField newValue) {
+        
+        if (field.getProtocol().getId().equals("Ether")
+            && !field.getId().equals("type")) {
+            UpdateEtherLayerEvent.MacMode mode = newValue.isDeleted() ? TREX_CONFIG : PACKET; 
+            eventBus.post(new UpdateEtherLayerEvent(field.getId(), mode));
+        }
+        
         beforeContentReplace();
         assert(field.getMeta().getId() == newValue.id);
 
