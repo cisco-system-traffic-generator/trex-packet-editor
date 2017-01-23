@@ -28,6 +28,17 @@ import java.util.ResourceBundle;
 public class GuiceModule extends AbstractModule {
     public static Logger logger = LoggerFactory.getLogger(GuiceModule.class);
 
+    private boolean embeddedMode = false;
+    
+    public GuiceModule() {
+        super();
+    }
+    
+    public GuiceModule(boolean embeddedMode) {
+        super();
+        this.embeddedMode = embeddedMode;
+    }
+    
     @Override
     protected void configure() {
         bind(FXMLLoader.class).toProvider(FXMLLoaderProvider.class);
@@ -36,7 +47,9 @@ public class GuiceModule extends AbstractModule {
         bind(ScapyServerClient.class).in(Singleton.class);
         bind(PacketDataService.class).in(Singleton.class);
         bind(PacketEditorModel.class).in(Singleton.class);
-        bind(EventBus.class).in(Singleton.class);
+        if (!embeddedMode) {
+            bind(EventBus.class).in(Singleton.class);
+        }
         bind(MenuControllerEditor.class).in(Singleton.class);
         bind(MenuControllerEngine.class).in(Singleton.class);
         bind(FieldEditorController.class).in(Singleton.class);
