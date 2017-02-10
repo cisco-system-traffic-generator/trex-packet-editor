@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta.Type.ENUM;
-
 public class FEInstructionParameterField extends EditableField {
     
     protected FEInstructionParameter2 feInstructionParameter;
@@ -47,8 +45,11 @@ public class FEInstructionParameterField extends EditableField {
     protected Node createLabel() {
         Text valueNode = new Text();
         String val = feInstructionParameter.getValue().getAsString();
-        if (ENUM.equals(feInstructionParameter.getType()) && Strings.isNullOrEmpty(val)) {
-            val = "Not selected";
+        if (feInstructionParameter.getMeta().isEnum()) {
+            val = Strings.isNullOrEmpty(val) ? "Not selected" : val;
+            if(feInstructionParameter.getMeta().getDict() != null) {
+                val = feInstructionParameter.getMeta().getDict().get(val);
+            }
         }
         valueNode.setText(val);
         valueNode.setFill(Color.GREY);
@@ -87,7 +88,13 @@ public class FEInstructionParameterField extends EditableField {
     @Override
     protected void processDefaultAndSetItems(ComboBox<ComboBoxItem> combo, List<ComboBoxItem> items) {
         combo.getItems().addAll(items);
-        combo.setValue(new ComboBoxItem(feInstructionParameter.getValue().getAsString(), feInstructionParameter.getValue()));
+        ComboBoxItem defaultVal = new ComboBoxItem(feInstructionParameter.getValue().getAsString(), feInstructionParameter.getValue());
+        if (feInstructionParameter.getMeta().getDict() != null) {
+            String comboItemVal = feInstructionParameter.getValue().getAsString();
+            String comboItemLabel = feInstructionParameter.getMeta().getDict().get(comboItemVal);
+            defaultVal = new ComboBoxItem(comboItemLabel, new JsonPrimitive(comboItemVal));
+        }
+        combo.setValue(defaultVal);
     }
     
     @Override
