@@ -302,7 +302,7 @@ public class FieldEditorController implements Initializable {
 
     public void loadPcapBinary(byte[] bytes) throws IOException {
         if (packetController.isInitialized()) {
-            model.loadDocumentFromPcapData(packetController.reconstructPacketFromBinary(bytes));
+            model.loadDocumentFromPcapData(packetController.read_pcap_packet(writePcapPacket(bytes)));
         }
     }
 
@@ -321,7 +321,7 @@ public class FieldEditorController implements Initializable {
 
     public void writeToPcapFile(File file, PacketData pkt, boolean wantexception) throws Exception {
         try {
-            byte[] pcap_bin = packetController.write_pcap_packet(pkt.getPacketBytes());
+            byte[] pcap_bin = writePcapPacket(pkt.getPacketBytes());
             Files.write(pcap_bin, file);
         } catch (Exception e) {
             if (wantexception) {
@@ -331,6 +331,10 @@ public class FieldEditorController implements Initializable {
                 showError(resourceBundle.getString("SAVE_ERROR"), e);
             }
         }
+    }
+    
+    public byte[] writePcapPacket(byte[] binaryData) {
+        return packetController.write_pcap_packet(binaryData);
     }
 
     public void showError(String title) {

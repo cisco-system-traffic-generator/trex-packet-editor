@@ -69,6 +69,9 @@ public class PacketData {
     
     @SuppressWarnings("unchecked")
     public Map<String, Object> getPktVmInstructions() {
+        if (field_engine == null) {
+            return Collections.<String, Object>emptyMap();
+        }
         JsonObject instructions = field_engine.get("instructions").getAsJsonObject();
         if (instructions.size() == 0) {
             return Collections.<String, Object>emptyMap();
