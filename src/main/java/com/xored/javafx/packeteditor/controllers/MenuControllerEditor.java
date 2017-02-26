@@ -3,7 +3,6 @@ package com.xored.javafx.packeteditor.controllers;
 import com.google.common.eventbus.EventBus;
 import com.google.common.io.Files;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.xored.javafx.packeteditor.data.PacketEditorModel;
