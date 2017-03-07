@@ -3,7 +3,10 @@
 
 # usage ./run_scapy_server -v --scapy-port 4507
 
-REPO=https://github.com/hedjuo/trex-core.git
+#REPO=https://github.com/cisco-system-traffic-generator/trex-core.git
+REPO=https://github.com/kisel/trex-core.git
+BRANCH='origin/master'
+
 TARGET=/tmp
 
 if [ -e $TARGET/trex-core ]; then
@@ -14,7 +17,9 @@ else
     git clone -q --depth=1 $REPO $TARGET/trex-core
 fi
 
+
 cd $TARGET/trex-core/scripts/automation/trex_control_plane/stl/services/scapy_server
+git reset --hard $BRANCH > /dev/null
 
 if [ ! -f /etc/ethertypes ]; then
     echo "ERROR: No /etc/ethertypes found. Run the following command to install"
@@ -28,6 +33,10 @@ fi
 
 if [ -n "$DOWNLOAD_ONLY" ]; then
     exit 0
+fi
+
+if [ -n "$RUN_SCAPY_TESTS_ONLY" ]; then
+    exec nosetests
 fi
 
 echo "Running scapy server"
