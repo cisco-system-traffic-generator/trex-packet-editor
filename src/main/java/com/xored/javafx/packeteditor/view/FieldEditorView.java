@@ -155,7 +155,11 @@ public class FieldEditorView {
         layerPane.setText(layerTitle);
         layerPane.setContent(layerContent);
         layerContext.configureLayerExpandCollapse(layerPane);
-        layerPane.setContextMenu(layerContext.getContextMenu());
+        if (!controller.isViewOnly()) {
+            layerPane.setContextMenu(layerContext.getContextMenu());
+        } else {
+            layerPane.setCollapsible(false);
+        }
         return layerPane;
     }
     
@@ -177,7 +181,7 @@ public class FieldEditorView {
     protected void configureExpandCollapse(TitledPane layerPane, CombinedProtocol protocol) {
         UserProtocol userProtocol = protocol.getUserProtocol();
         if(userProtocol != null) {
-            layerPane.setExpanded(!userProtocol.isCollapsed());
+            layerPane.setExpanded(controller.isViewOnly() || !userProtocol.isCollapsed());
             layerPane.expandedProperty().addListener(val->
                     userProtocol.setCollapsed(!layerPane.isExpanded())
             );
@@ -242,15 +246,17 @@ public class FieldEditorView {
 
         pktStructure.setAutoNavigationEnabled(false);
         pktStructure.setSelectedCrumb(other);
-        pktStructure.setOnCrumbAction((e) -> {
-            Object o = e.getSelectedCrumb().getValue();
-            if (o != null && o instanceof CombinedProtocol) {
-                CombinedProtocol protocol = (CombinedProtocol) e.getSelectedCrumb().getValue();
-                List<CombinedProtocol> protocols = getModel().getCombinedProtocolModel().getProtocolStack();
-                protocols.forEach(p -> p.getUserProtocol().setCollapsed(p != protocol));
-                rebuild(false);
-            }
-        });
+        if (!controller.isViewOnly()) {
+            pktStructure.setOnCrumbAction((e) -> {
+                Object o = e.getSelectedCrumb().getValue();
+                if (o != null && o instanceof CombinedProtocol) {
+                    CombinedProtocol protocol = (CombinedProtocol) e.getSelectedCrumb().getValue();
+                    List<CombinedProtocol> protocols = getModel().getCombinedProtocolModel().getProtocolStack();
+                    protocols.forEach(p -> p.getUserProtocol().setCollapsed(p != protocol));
+                    rebuild(false);
+                }
+            });
+        }
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -303,8 +309,10 @@ public class FieldEditorView {
 
             if (rebuld_breadcrumb) {
                 buildProtocolStructureLayer();
-                bottomPane.getChildren().clear();
-                bottomPane.getChildren().add(buildAppendProtocolPane());
+                if (!controller.isViewOnly()) {
+                    bottomPane.getChildren().clear();
+                    bottomPane.getChildren().add(buildAppendProtocolPane());
+                }
             }
             //protocolTitledPanes.add(buildAppendProtocolPane());
             VBox protocolsPaneVbox = new VBox();
@@ -535,18 +543,21 @@ public class FieldEditorView {
         titlePane.getStyleClass().add("title-pane");
 
         ProtocolField fieldControl = injector.getInstance(ProtocolField.class);
-        fieldControl.init(field);
+        fieldControl.init(field, controller.isViewOnly());
 
         BorderPane valuePane = new BorderPane();
         valuePane.setCenter(fieldControl);
         row.getChildren().addAll(titlePane, valuePane);
-        row.setOnContextMenuRequested(e -> {
-            ContextMenu contextMenu = fieldControl.getContextMenu();
-            if (contextMenu != null) {
-                e.consume();
-                contextMenu.show(row, e.getScreenX(), e.getScreenY());
-            }
-        });
+        
+        if (!controller.isViewOnly()) {
+            row.setOnContextMenuRequested(e -> {
+                ContextMenu contextMenu = fieldControl.getContextMenu();
+                if (contextMenu != null) {
+                    e.consume();
+                    contextMenu.show(row, e.getScreenX(), e.getScreenY());
+                }
+            });
+        }
         return row;
     }
 
@@ -630,7 +641,9 @@ public class FieldEditorView {
         }
 
         combo.setValue(defaultValue);
-
+        
+        combo.setDisable(controller.isViewOnly());
+        
         combo.setOnAction((event) -> {
             ComboBoxItem val = combo.getSelectionModel().getSelectedItem();
             int bitFlagMask = bitFlagMetadata.getMask();

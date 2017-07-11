@@ -612,7 +612,7 @@
 
 #pcapEditorTopPane .fieldEngineTopPane,
 #pcapEditorTopPane .editor-split-pane {
-    -fx-padding: 10 25 25 25; /* the toppest pane */
+    -fx-padding: 10 10 10 10; /* the toppest pane */
 }
 
 #pcapEditorTopPane .split-pane > .split-pane-divider {
@@ -622,7 +622,6 @@
 #pcapEditorTopPane .split-pane *.split-pane-divider {
     -fx-background-color: null;
     -fx-border-color: null;
-    -fx-padding: 12.50px;
 }
 
 #pcapEditorTopPane .split-pane *.vertical-grabber,

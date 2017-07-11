@@ -99,7 +99,8 @@ public class FieldEditorController implements Initializable {
     final KeyCombination SHORTCUT_Z = new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN);
     final KeyCombination SHORTCUT_R = new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN);
     final KeyCombination SHORTCUT_D = new KeyCodeCombination(KeyCode.D, KeyCombination.SHORTCUT_DOWN);
-    
+    private boolean viewOnly = false;
+
     public IMetadataService getMetadataService() {
         return metadataService;
     }
@@ -122,6 +123,18 @@ public class FieldEditorController implements Initializable {
         } else {
             fieldEditorView.showNoConnectionContent();
         }
+    }
+
+    public void setViewOnly(boolean viewOnly) {
+        this.viewOnly = viewOnly;
+    }
+
+    public FieldEditorView getFieldEditorView() {
+        return fieldEditorView;
+    }
+
+    public void setFieldEditorBorderPane(BorderPane fieldEditorBorderPane) {
+        this.fieldEditorBorderPane = fieldEditorBorderPane;
     }
 
     public void initAcceleratorsHandler(Scene scene) {
@@ -208,6 +221,12 @@ public class FieldEditorController implements Initializable {
             return;
         }
 
+        if (viewOnly && packetController.isInitialized()) {
+            fieldEditorView.rebuild();
+            fieldEngineView.rebuild();
+            return;
+        }
+        
         double val = fieldEditorScrollPane.getVvalue();
 
         // Workaround for flickering and saving Vscroll:
@@ -537,5 +556,13 @@ public class FieldEditorController implements Initializable {
         template.add("id", new JsonPrimitive(templateId));
         String templateBase64 = getTemplate(template);
         model.loadDocumentFromJSON(templateBase64);
+    }
+
+    public void setFieldEditorScrollPane(ScrollPane fieldEditorScrollPane) {
+        this.fieldEditorScrollPane = fieldEditorScrollPane;
+    }
+
+    public boolean isViewOnly() {
+        return viewOnly;
     }
 }

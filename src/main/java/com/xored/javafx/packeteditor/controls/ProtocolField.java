@@ -35,11 +35,13 @@ import static com.xored.javafx.packeteditor.metatdata.FieldMetadata.FieldType.EN
 public class ProtocolField extends EditableField {
 
     private CombinedField combinedField;
-    
-    public void init(CombinedField combinedField) {
+    private boolean readOnlyMode;
+
+    public void init(CombinedField combinedField, boolean readOnlyMode) {
         this.combinedField = combinedField;
         this.editableControl = createControl();
         this.label = createLabel();
+        this.readOnlyMode = readOnlyMode;
        
         getChildren().addAll(label);
     }
@@ -64,7 +66,7 @@ public class ProtocolField extends EditableField {
     
     @Override
     protected void onLableClickedAction(MouseEvent event) {
-        if (!MouseButton.SECONDARY.equals(event.getButton())) {
+        if (!readOnlyMode && !MouseButton.SECONDARY.equals(event.getButton())) {
             showControl();
             controller.selectField(combinedField);
         }
