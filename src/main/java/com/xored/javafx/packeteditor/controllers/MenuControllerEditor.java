@@ -17,6 +17,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCombination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,9 @@ public class MenuControllerEditor implements Initializable {
     MenuButton newTemplateMenuButton;
 
     @FXML
+    MenuButton saveMenuButton;
+
+    @FXML
     Menu debugMenu;
 
     @FXML
@@ -80,12 +84,28 @@ public class MenuControllerEditor implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        initSaveMenu();
         initTemplateMenu();
 
         if (System.getenv("DEBUG") != null) {
             debugMenu.setVisible(true);
             binaryModeOnBtn.setVisible(true);
             abstractModeOnBtn.setVisible(true);
+        }
+    }
+
+    public void initSaveMenu() {
+        if (saveMenuButton != null) {
+            ObservableList<MenuItem> menu = saveMenuButton.getItems();
+            MenuItem menuItem = new MenuItem("Save file");
+            menuItem.setOnAction(this::handleSaveAction);
+            menuItem.setAccelerator(KeyCombination.valueOf("Shortcut+S"));
+            menu.add(menuItem);
+
+            menu.add(new SeparatorMenuItem());
+            menuItem = new MenuItem("Save as template...");
+            menuItem.setOnAction(this::handleSaveTemplateAction);
+            menu.add(menuItem);
         }
     }
 
@@ -106,56 +126,6 @@ public class MenuControllerEditor implements Initializable {
 
         // Add templates from user dir to menu list
         addUserTemplates(topMenu, configurations.getTemplatesLocation(), configurations.getTemplatesLocation());
-
-        // Add "Save as template..." item
-        topMenu.add(new SeparatorMenuItem());
-        MenuItem menuItem = new MenuItem("Save as template...");
-        topMenu.add(menuItem);
-        menuItem.setOnAction(event -> {
-            if (controller.getModel().getUserModel().getProtocolStack().isEmpty()) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setHeaderText("Save as template");
-                alert.setContentText("Can't save empty template. \nPlease add at least one protocol.");
-                alert.showAndWait();
-                return;
-            }
-            try {
-                File repo = new File(configurations.getTemplatesLocation());
-                boolean tryagain = true;
-                while (tryagain) {
-                    String templ = controller.createNewTemplateDialog();
-                    if (templ != null) {
-                        if (isFilenameValid(repo.getCanonicalPath(), templ)) {
-                            templ = templ.replace('/', File.separatorChar);
-                            File file = new File(repo.getCanonicalPath(), templ + DocumentFile.FILE_EXTENSION);
-                            boolean ok2write = true;
-                            if (file.exists()) {
-                                ok2write = controller.createFileOverwriteDialog(file);
-                            }
-                            if (ok2write) {
-                                File dir = new File(file.getParent());
-                                if (!dir.exists()) {
-                                    dir.mkdirs();
-                                }
-                                controller.getModel().saveDocumentToFile(file);
-                                eventBus.post(new NeedToUpdateTemplateMenu());
-                                tryagain = false;
-                            }
-                        } else {
-                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                            alert.setHeaderText("Save as template");
-                            alert.setContentText("Template name '" + templ + "' is invalid for local filesystem.\nPlease change template name and try again.");
-                            alert.showAndWait();
-                        }
-                    }
-                    else {
-                        tryagain = false;
-                    }
-                }
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-            }
-        });
     }
 
     @FXML
@@ -183,6 +153,53 @@ public class MenuControllerEditor implements Initializable {
     @FXML
     public void handleSaveAction(ActionEvent event) {
         controller.showSaveDialog();
+    }
+
+    @FXML
+    void handleSaveTemplateAction(ActionEvent event) {
+        if (controller.getModel().getUserModel().getProtocolStack().isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("Save as template");
+            alert.setContentText("Can't save empty template. \nPlease add at least one protocol.");
+            alert.showAndWait();
+            return;
+        }
+        try {
+            File repo = new File(configurations.getTemplatesLocation());
+            boolean tryagain = true;
+            while (tryagain) {
+                String templ = controller.createNewTemplateDialog();
+                if (templ != null) {
+                    if (isFilenameValid(repo.getCanonicalPath(), templ)) {
+                        templ = templ.replace('/', File.separatorChar);
+                        File file = new File(repo.getCanonicalPath(), templ + DocumentFile.FILE_EXTENSION);
+                        boolean ok2write = true;
+                        if (file.exists()) {
+                            ok2write = controller.createFileOverwriteDialog(file);
+                        }
+                        if (ok2write) {
+                            File dir = new File(file.getParent());
+                            if (!dir.exists()) {
+                                dir.mkdirs();
+                            }
+                            controller.getModel().saveDocumentToFile(file);
+                            eventBus.post(new NeedToUpdateTemplateMenu());
+                            tryagain = false;
+                        }
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setHeaderText("Save as template");
+                        alert.setContentText("Template name '" + templ + "' is invalid for local filesystem.\nPlease change template name and try again.");
+                        alert.showAndWait();
+                    }
+                }
+                else {
+                    tryagain = false;
+                }
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
     }
 
     @FXML
