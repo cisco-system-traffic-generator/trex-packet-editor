@@ -64,12 +64,6 @@ public class MenuControllerEditor implements Initializable {
     Menu debugMenu;
 
     @FXML
-    Button binaryModeOnBtn;
-
-    @FXML
-    Button abstractModeOnBtn;
-
-    @FXML
     ComboBox<ProtocolMetadata> protocolSelector;
     
     @FXML
@@ -86,15 +80,24 @@ public class MenuControllerEditor implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         initSaveMenu();
         initTemplateMenu();
+        initDebug();
+    }
 
+    private void initDebug() {
         if (System.getenv("DEBUG") != null) {
             debugMenu.setVisible(true);
-            binaryModeOnBtn.setVisible(true);
-            abstractModeOnBtn.setVisible(true);
+
+            Button binaryModeOnBtn = new Button();
+            binaryModeOnBtn.setText("Switch to binary mode");
+            binaryModeOnBtn.setOnAction(this::handleModeBinary);
+
+            Button abstractModeOnBtn = new Button();
+            abstractModeOnBtn.setText("Switch to abstract mode");
+            abstractModeOnBtn.setOnAction(this::handleModeAbstract);
         }
     }
 
-    public void initSaveMenu() {
+    private void initSaveMenu() {
         if (saveMenuButton != null) {
             ObservableList<MenuItem> menu = saveMenuButton.getItems();
             MenuItem menuItem = new MenuItem("Save file");

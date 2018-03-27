@@ -146,8 +146,6 @@
                      </ImageView>
                  </graphic>
              </Button>
-            <Button styleClass="toolbar-btn" fx:id="binaryModeOnBtn" text="Switch to binary mode" onAction="#handleModeBinary" visible="false" />
-            <Button styleClass="toolbar-btn" fx:id="abstractModeOnBtn" text="Switch to abstract mode" onAction="#handleModeAbstract" visible="false" />
          </items>
       </ToolBar>
    </children>
