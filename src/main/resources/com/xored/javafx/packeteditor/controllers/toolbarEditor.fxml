@@ -28,7 +28,7 @@
                   </ImageView>
                </graphic>
             </Button>
-            <Button styleClass="toolbar-btn" focusTraversable="false" onAction="#handleSaveAction" >
+            <MenuButton styleClass="toolbar-btn" focusTraversable="false" fx:id="saveMenuButton" >
                <tooltip>
                   <Tooltip text="Save" />
                </tooltip>
@@ -37,7 +37,7 @@
                      <Image url="/icons/save.png" />
                   </ImageView>
                </graphic>
-            </Button>
+            </MenuButton>
             <MenuButton styleClass="toolbar-btn" focusTraversable="false" fx:id="newTemplateMenuButton">
                <tooltip>
                   <Tooltip text="Load from template" />
@@ -112,8 +112,6 @@
                   </ImageView>
                </graphic>
             </Button>
-            <Button fx:id="binaryModeOnBtn" text="Switch to binary mode" onAction="#handleModeBinary" visible="false" />
-            <Button fx:id="abstractModeOnBtn" text="Switch to abstract mode" onAction="#handleModeAbstract" visible="false" />
          </items>
       </ToolBar>
    </children>
