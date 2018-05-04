@@ -77,7 +77,12 @@ public class PacketData {
             return Collections.<String, Object>emptyMap();
         }
         Gson gson = buildGson();
-        return gson.fromJson(instructions.toString(), new TypeToken<Map<String, Object>>() {}.getType());
+        Map<String, Object> vm = gson.fromJson(instructions.toString(), new TypeToken<Map<String, Object>>() {}.getType());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("vm", vm);
+
+        return result;
     }
     
     private Gson buildGson() {
