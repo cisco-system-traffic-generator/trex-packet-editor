@@ -60,7 +60,7 @@ public class PacketData {
                 }else if(prim.isString()){
                     return prim.getAsString();
                 }else if(prim.isNumber()){
-                    return prim.getAsInt();
+                    return prim.getAsLong();
                 }
             }
             return null;
