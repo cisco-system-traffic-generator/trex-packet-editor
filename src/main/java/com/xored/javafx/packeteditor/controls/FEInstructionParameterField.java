@@ -9,6 +9,7 @@ import com.xored.javafx.packeteditor.view.ComboBoxItem;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -43,7 +44,8 @@ public class FEInstructionParameterField extends EditableField {
     }
 
     protected Node createLabel() {
-        Text valueNode = new Text();
+        Label valueNode = (Label) super.createLabel();
+
         String val = feInstructionParameter.getValue().getAsString();
         if (feInstructionParameter.getMeta().isEnum()) {
             val = Strings.isNullOrEmpty(val) ? "Not selected" : val;
@@ -52,8 +54,6 @@ public class FEInstructionParameterField extends EditableField {
             }
         }
         valueNode.setText(val);
-        valueNode.setFill(Color.GREY);
-        valueNode.setOnMouseClicked(this::onLableClickedAction);
         
         return valueNode;
     }
