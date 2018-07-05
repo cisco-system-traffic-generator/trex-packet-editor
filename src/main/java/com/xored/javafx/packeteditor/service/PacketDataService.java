@@ -100,6 +100,10 @@ public class PacketDataService {
         return scapy.read_pcap_packet(binaryData);
     }
 
+    public String decompileVmRaw(byte[] binaryData, String vmRaw) {
+        return scapy.decompile_vm_raw(binaryData, vmRaw);
+    }
+
     public void closeConnection() {
         scapy.closeConnection();
     }

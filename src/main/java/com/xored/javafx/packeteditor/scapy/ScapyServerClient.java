@@ -253,6 +253,14 @@ public class ScapyServerClient {
         return packetFromJson(first_packet);
     }
 
+    public String decompile_vm_raw(byte[] packet_binary, String vmRaw) {
+        JsonArray payload = new JsonArray();
+        payload.add(version_handler);
+        payload.add(base64Encoder.encodeToString(packet_binary));
+        payload.add(new Gson().fromJson(vmRaw, JsonElement.class));
+        return request("decompile_vm_raw", payload).toString();
+    }
+
     /** write single pcap packet to a file, returns result binary pcap file content */
     public byte[] write_pcap_packet(byte[] packet_binary) {
         JsonArray packets = new JsonArray();

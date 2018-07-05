@@ -33,7 +33,10 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.FontSmoothingType;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.controlsfx.control.HiddenSidesPane;
@@ -325,6 +328,20 @@ public class FieldEditorController implements Initializable {
         }
     }
 
+    public void loadVmRaw(String vmRaw) {
+        if (packetController.isInitialized()) {
+            try {
+                String hlvm = packetController.decompileVmRaw(model.getPkt().getPacketBytes(), vmRaw);
+                model.loadHighLevelVmInstructions(hlvm);
+            } catch (Exception e) {
+                String content = "Unable to decomple raw VM instructions\n" +
+                        "make sure you use latest TRex server and Scapy server version: " +
+                        e.getMessage();
+                showWarning(content);
+            }
+        }
+    }
+
     public void writeToPcapFile(File file) {
         try {
             writeToPcapFile(file, model.getPkt(), false);
@@ -368,6 +385,20 @@ public class FieldEditorController implements Initializable {
         if (e != null ) {
             alert.getDialogPane().setExpandableContent(new ScrollPane(new TextArea(title + ": " + e.getMessage())));
         }
+        alert.showAndWait();
+    }
+
+    public void showWarning(String content) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setHeaderText(null);
+        Text text = new Text(content);
+        text.setWrappingWidth(350);
+        text.setFontSmoothingType(FontSmoothingType.LCD);
+
+        HBox container = new HBox();
+        container.getChildren().add(text);
+        alert.getDialogPane().setContent(container);
+
         alert.showAndWait();
     }
 
