@@ -2,9 +2,7 @@ package com.xored.javafx.packeteditor.metatdata;
 
 import java.util.Map;
 
-import static com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta.Type.ENUM;
-import static com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta.Type.NUMBER;
-import static com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta.Type.STRING;
+import static com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta.Type.*;
 
 public class FEInstructionParameterMeta {
 
@@ -47,6 +45,10 @@ public class FEInstructionParameterMeta {
     public boolean isEnum() {
         return ENUM.equals(getType());
     }
+
+    public boolean isExpression() {
+        return EXPRESSION.equals(getType());
+    }
     
     public Type getType() {
         switch (type) {
@@ -54,6 +56,8 @@ public class FEInstructionParameterMeta {
                 return ENUM;
             case "NUMBER":
                 return NUMBER;
+            case "EXPRESSION":
+                return EXPRESSION;
             case "STRING":
             default:
                 return STRING;
@@ -77,6 +81,6 @@ public class FEInstructionParameterMeta {
     }
 
     public enum Type {
-        STRING, ENUM, NUMBER
+        STRING, ENUM, NUMBER, EXPRESSION
     }
 }

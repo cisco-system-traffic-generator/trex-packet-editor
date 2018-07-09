@@ -335,7 +335,8 @@ public class FieldEditorController implements Initializable {
                 model.loadHighLevelVmInstructions(hlvm);
             } catch (Exception e) {
                 String content = "Unable to decomple raw VM instructions\n" +
-                        "make sure you use latest TRex server and Scapy server version: " +
+                        "make sure you use latest TRex server and Scapy server version\n" +
+                        "Error: " +
                         e.getMessage();
                 showWarning(content);
             }

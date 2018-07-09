@@ -44,9 +44,9 @@ public class DocumentFile {
 
     public static class DocumentInstructionExpression {
         public String id;
-        public Map<String, String> parameters = new LinkedTreeMap<>();
+        public Map<String, JsonElement> parameters = new LinkedTreeMap<>();
 
-        public DocumentInstructionExpression(String id, Map<String, String> parameters) {
+        public DocumentInstructionExpression(String id, Map<String, JsonElement> parameters) {
             this.id = id;
             this.parameters.putAll(parameters);
         }
@@ -94,7 +94,7 @@ public class DocumentFile {
             List<FEInstructionParameter2> instructionParameters = meta.getParameterMetas().stream()
                     .map(parameterMeta -> new FEInstructionParameter2(
                                                 parameterMeta,
-                                                new JsonPrimitive(instructionPOJO.parameters.get(parameterMeta.getId()))))
+                                                instructionPOJO.parameters.get(parameterMeta.getId())))
                     .collect(Collectors.toList());
             
             doc.addInstruction(new InstructionExpression(meta, instructionParameters));

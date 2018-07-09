@@ -443,7 +443,7 @@ public class PacketEditorModel {
         });
     }
     
-    public void setVmInstructionParameter(FEInstructionParameter2 instructionParameter, String value) {
+    public void setVmInstructionParameter(FEInstructionParameter2 instructionParameter, JsonElement value) {
         beforeContentReplace();
         userModel.setFEInstructionParameter(instructionParameter, value);
         

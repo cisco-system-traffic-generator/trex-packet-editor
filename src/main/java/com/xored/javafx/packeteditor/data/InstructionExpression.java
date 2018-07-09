@@ -1,5 +1,6 @@
 package com.xored.javafx.packeteditor.data;
 
+import com.google.gson.JsonElement;
 import com.google.gson.internal.LinkedTreeMap;
 import com.xored.javafx.packeteditor.data.user.DocumentFile.DocumentInstructionExpression;
 import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
@@ -37,9 +38,9 @@ public class InstructionExpression {
     }
     
     public DocumentInstructionExpression toPOJO() {
-        Map<String, String> parametersPOJO =  new LinkedTreeMap<>();
+        Map<String, JsonElement> parametersPOJO =  new LinkedTreeMap<>();
         parameters.stream()
-                .forEach(parameter -> parametersPOJO.put(parameter.getId(), parameter.getValue().getAsString()));
+                .forEach(parameter -> parametersPOJO.put(parameter.getId(), parameter.getValue()));
         return new DocumentInstructionExpression(meta.getId(), parametersPOJO);        
     }
 }
