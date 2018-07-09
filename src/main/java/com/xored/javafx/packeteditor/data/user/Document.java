@@ -74,8 +74,8 @@ public class Document {
         field.setValue(value);
     }
 
-    public void setFEInstructionParameter(FEInstructionParameter2 instructionParameter, String value) {
-        instructionParameter.setValue(value);
+    public void setFEInstructionParameter(FEInstructionParameter2 instructionParameter, JsonElement value) {
+        instructionParameter.setRawValue(value);
     }
     
     public UserProtocol getProtocolByPath(List<String> path) {

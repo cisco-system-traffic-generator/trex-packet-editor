@@ -1,9 +1,12 @@
 package com.xored.javafx.packeteditor.controls;
 
 import com.google.common.base.Strings;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import com.xored.javafx.packeteditor.data.FEInstructionParameter;
 import com.xored.javafx.packeteditor.data.FEInstructionParameter2;
 import com.xored.javafx.packeteditor.data.InstructionExpression;
+import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
 import com.xored.javafx.packeteditor.scapy.ScapyException;
 import com.xored.javafx.packeteditor.view.ComboBoxItem;
 import javafx.scene.Node;
@@ -34,6 +37,7 @@ public class FEInstructionParameterField extends EditableField {
                 this.editableControl = createEnumField();
                 break;
             case NUMBER:
+            case EXPRESSION:
             case STRING:
             default:
                 this.editableControl = createTextField(); 
@@ -46,7 +50,7 @@ public class FEInstructionParameterField extends EditableField {
     protected Node createLabel() {
         Label valueNode = (Label) super.createLabel();
 
-        String val = feInstructionParameter.getValue().getAsString();
+        String val = getInstructionParamValue();
         if (feInstructionParameter.getMeta().isEnum()) {
             val = Strings.isNullOrEmpty(val) ? "Not selected" : val;
             if(feInstructionParameter.getMeta().getDict() != null) {
@@ -65,7 +69,7 @@ public class FEInstructionParameterField extends EditableField {
 
     @Override
     protected void revertTextFieldValue(TextField tf) {
-        tf.setText(feInstructionParameter.getValue().getAsString());
+        tf.setText(getInstructionParamValue());
     }
 
     @Override
@@ -88,9 +92,9 @@ public class FEInstructionParameterField extends EditableField {
     @Override
     protected void processDefaultAndSetItems(ComboBox<ComboBoxItem> combo, List<ComboBoxItem> items) {
         combo.getItems().addAll(items);
-        ComboBoxItem defaultVal = new ComboBoxItem(feInstructionParameter.getValue().getAsString(), feInstructionParameter.getValue());
+        ComboBoxItem defaultVal = new ComboBoxItem(getInstructionParamValue(), feInstructionParameter.getValue());
         if (feInstructionParameter.getMeta().getDict() != null) {
-            String comboItemVal = feInstructionParameter.getValue().getAsString();
+            String comboItemVal = getInstructionParamValue();
             String comboItemLabel = feInstructionParameter.getMeta().getDict().get(comboItemVal);
             defaultVal = new ComboBoxItem(comboItemLabel, new JsonPrimitive(comboItemVal));
         }
@@ -114,7 +118,15 @@ public class FEInstructionParameterField extends EditableField {
     }
 
     private String getInstructionParamValue() {
-        String value = feInstructionParameter.getValue().getAsString();
+        String value;
+
+        if (feInstructionParameter.getMeta().isExpression()) {
+            JsonElement jsonElement = feInstructionParameter.getValue();
+            value = jsonElement.isJsonObject()? jsonElement.getAsJsonObject().get("expr").getAsString() : jsonElement.getAsString();
+        } else {
+            value = feInstructionParameter.getValue().getAsString();
+        }
+
         if (value == null) {
             value = feInstructionParameter.getDefaultValue();
         }
@@ -125,14 +137,18 @@ public class FEInstructionParameterField extends EditableField {
     protected void commitChanges(ComboBox<ComboBoxItem> combo) {
         Object selectedItem = combo.getSelectionModel().getSelectedItem();
         String selection = selectedItem instanceof ComboBoxItem ? ((ComboBoxItem) selectedItem).getValue().getAsString() : selectedItem.toString();
-        controller.getModel().setVmInstructionParameter(feInstructionParameter, selection);
+        controller.getModel().setVmInstructionParameter(feInstructionParameter, FEInstructionParameter2.createHumanValue(selection));
     }
 
     @Override
     protected void commitChanges(TextField textField) {
-        String prevValue = feInstructionParameter.getValue().getAsString();
+        JsonElement prevValue = feInstructionParameter.getValue();
         try {
-            controller.getModel().setVmInstructionParameter(feInstructionParameter, textField.getText());
+            if (feInstructionParameter.getType() == FEInstructionParameterMeta.Type.EXPRESSION) {
+                controller.getModel().setVmInstructionParameter(feInstructionParameter, FEInstructionParameter2.createExpressionValue(textField.getText()));
+            } else {
+                controller.getModel().setVmInstructionParameter(feInstructionParameter, FEInstructionParameter2.createHumanValue(textField.getText()));
+            }
         } catch (ScapyException e) {
             textField.getStyleClass().add("field-error");
             controller.getModel().getUserModel().setFEInstructionParameter(feInstructionParameter, prevValue);

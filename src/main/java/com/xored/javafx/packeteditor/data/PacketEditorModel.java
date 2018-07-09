@@ -55,6 +55,9 @@ public class PacketEditorModel {
     @Inject
     IMetadataService metadataService;
 
+    @Inject
+    HighLevelVmImporter hlvmImporter;
+
     /** abstract user model. contains field values */
     Document userModel = new Document();
 
@@ -374,6 +377,12 @@ public class PacketEditorModel {
         fireUpdateViewEvent();
     }
 
+    public void loadHighLevelVmInstructions(String hlvm) {
+        beforeContentReplace();
+        hlvmImporter.importToUserModel(userModel, hlvm);
+        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
+    }
+
     public void loadDocumentFromJSON(String jsonBase64) {
         String userModelJSON = new String(Base64.getDecoder().decode(jsonBase64.getBytes()));
         Document newUserModel = DocumentFile.loadFromJSON(userModelJSON, metadataService);
@@ -434,7 +443,7 @@ public class PacketEditorModel {
         });
     }
     
-    public void setVmInstructionParameter(FEInstructionParameter2 instructionParameter, String value) {
+    public void setVmInstructionParameter(FEInstructionParameter2 instructionParameter, JsonElement value) {
         beforeContentReplace();
         userModel.setFEInstructionParameter(instructionParameter, value);
         
