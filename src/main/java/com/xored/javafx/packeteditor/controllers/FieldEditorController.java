@@ -1,5 +1,6 @@
 package com.xored.javafx.packeteditor.controllers;
 
+import com.google.common.base.Strings;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.io.Files;
@@ -331,8 +332,10 @@ public class FieldEditorController implements Initializable {
     public void loadVmRaw(String vmRaw) {
         if (packetController.isInitialized()) {
             try {
-                String hlvm = packetController.decompileVmRaw(model.getPkt().getPacketBytes(), vmRaw);
-                model.loadHighLevelVmInstructions(hlvm);
+                if (!Strings.isNullOrEmpty(vmRaw)) {
+                    String hlvm = packetController.decompileVmRaw(model.getPkt().getPacketBytes(), vmRaw);
+                    model.loadHighLevelVmInstructions(hlvm);
+                }
             } catch (Exception e) {
                 String content = "Unable to decomple raw VM instructions\n" +
                         "make sure you use latest TRex server and Scapy server version\n" +

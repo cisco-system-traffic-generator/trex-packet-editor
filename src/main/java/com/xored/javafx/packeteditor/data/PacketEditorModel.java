@@ -380,7 +380,13 @@ public class PacketEditorModel {
     public void loadHighLevelVmInstructions(String hlvm) {
         beforeContentReplace();
         hlvmImporter.importToUserModel(userModel, hlvm);
-        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
+        try {
+            setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
+        } catch (Exception e) {
+            userModel.getFeInstructions().clear();
+	        setPktAndReload(packetDataService.buildPacket(userModel.buildScapyModel(), userModel.getVmInstructionsModel()));
+            throw e;
+        }
     }
 
     public void loadDocumentFromJSON(String jsonBase64) {

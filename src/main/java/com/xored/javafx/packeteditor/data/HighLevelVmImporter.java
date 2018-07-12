@@ -3,6 +3,7 @@ package com.xored.javafx.packeteditor.data;
 import com.google.gson.*;
 import com.google.inject.Inject;
 import com.xored.javafx.packeteditor.data.user.Document;
+import com.xored.javafx.packeteditor.metatdata.FEInstructionParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.FeParameterMeta;
 import com.xored.javafx.packeteditor.metatdata.InstructionExpressionMeta;
 import com.xored.javafx.packeteditor.service.IMetadataService;
@@ -61,14 +62,22 @@ public class HighLevelVmImporter {
                     .collect(Collectors.toList());
 
             List<FEInstructionParameter2> parameters = instructionMeta.getParameterMetas().stream().map(meta -> {
-                    JsonPrimitive parameterValue = new JsonPrimitive(meta.getDefaultValue());
-                    if (instr_params.has(meta.getId())) {
-                        parameterValue = instr_params.get(meta.getId()).getAsJsonPrimitive();
-                        unvisited_params.remove(meta.getId());
+                JsonElement resultValue = new JsonPrimitive(meta.getDefaultValue());
+                if (instr_params.has(meta.getId())) {
+                    JsonElement receivedValue = instr_params.get(meta.getId());
+                    if (!receivedValue.isJsonNull()) {
+                        if (meta.getType().equals(FEInstructionParameterMeta.Type.EXPRESSION)) {
+                            String expression = new Gson().toJson(receivedValue);
+                            resultValue = FEInstructionParameter2.createExpressionValue(expression);
+                        } else {
+                            resultValue = new JsonPrimitive(receivedValue.getAsString());
+                        }
                     }
-                    return new FEInstructionParameter2(meta, parameterValue);
-                })
-                .collect(Collectors.toList());
+                    unvisited_params.remove(meta.getId());
+                }
+                return new FEInstructionParameter2(meta, resultValue);
+            })
+            .collect(Collectors.toList());
 
             unvisited_params.forEach((param) ->
                 issues.add(MessageFormat.format("Parameter \"{0}\", in instruction \"{1}\" was not found.",
