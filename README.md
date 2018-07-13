@@ -1,6 +1,6 @@
 # TRex Packet editor [![Build Status](https://travis-ci.org/kisel/trex-packet-editor-gui.svg?branch=master)](https://travis-ci.org/kisel/trex-packet-editor-gui)
 
-Network packed editor GUI for TRex.
+Network packet editor GUI for TRex.
 
 ![](https://raw.githubusercontent.com/kisel/trex-packet-editor-gui/master/docs/trex-packet-editor-main-dlg.png)
 
