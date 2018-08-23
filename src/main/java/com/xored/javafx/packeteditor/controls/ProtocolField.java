@@ -315,6 +315,7 @@ public class ProtocolField extends EditableField {
         }
         else {
             pe.setText(combinedField.getScapyDisplayValue());
+            commitChanges(pe);
         }
 
         pe.setOnActionSave((event) -> {
