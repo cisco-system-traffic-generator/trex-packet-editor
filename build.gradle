@@ -7,7 +7,6 @@ version = '1.01'
 
 description = """TRex Scapy Packet Editor GUI Application"""
 
-sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 mainClassName='com.xored.javafx.packeteditor.TRexPacketCraftingTool'
@@ -49,7 +48,7 @@ test {
 task intTest(type: Test) {
     description 'Runs Scapy Server integration testing'
     outputs.upToDateWhen { false }
-    testClassesDir = sourceSets.intTest.output.classesDir
+    testClassesDirs = sourceSets.intTest.output.classesDirs
     classpath = sourceSets.intTest.runtimeClasspath
 
     testLogging {
@@ -61,7 +60,7 @@ task intTest(type: Test) {
 task uiTest(type: Test) {
     description 'Runs UI testing(E2E)'
     outputs.upToDateWhen { false }
-    testClassesDir = sourceSets.uiTest.output.classesDir
+    testClassesDirs = sourceSets.uiTest.output.classesDirs
     classpath = sourceSets.uiTest.runtimeClasspath
 
     testLogging {
@@ -107,30 +106,32 @@ jar {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
-task createPom << {
-    pom {
-        project {
-            groupId = group
-            artifactId 'TRexPacketCraftingTool'
-            version = version
+task createPom {
+    doLast {
+        pom {
+            project {
+                groupId = group
+                artifactId 'TRexPacketCraftingTool'
+                version = version
 
-            inceptionYear '2016'
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
+                inceptionYear '2016'
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
                         url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                         distribution 'repo'
+                    }
                 }
             }
-        }
-    }.writeTo("pom.xml")
+        }.writeTo("pom.xml")
+    }
 }
 
 apply plugin: 'javafx-gradle-plugin'
 
 buildscript {
     dependencies {
-        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.7.0'
+        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.+'
     }
     repositories {
         mavenLocal()
