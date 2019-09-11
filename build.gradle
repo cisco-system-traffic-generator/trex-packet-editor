@@ -49,7 +49,7 @@ test {
 task intTest(type: Test) {
     description 'Runs Scapy Server integration testing'
     outputs.upToDateWhen { false }
-    testClassesDir = sourceSets.intTest.output.classesDir
+    testClassesDirs = sourceSets.intTest.output.classesDirs
     classpath = sourceSets.intTest.runtimeClasspath
 
     testLogging {
@@ -61,7 +61,7 @@ task intTest(type: Test) {
 task uiTest(type: Test) {
     description 'Runs UI testing(E2E)'
     outputs.upToDateWhen { false }
-    testClassesDir = sourceSets.uiTest.output.classesDir
+    testClassesDirs = sourceSets.uiTest.output.classesDirs
     classpath = sourceSets.uiTest.runtimeClasspath
 
     testLogging {
@@ -130,7 +130,7 @@ apply plugin: 'javafx-gradle-plugin'
 
 buildscript {
     dependencies {
-        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.7.0'
+        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.+'
     }
     repositories {
         mavenLocal()
