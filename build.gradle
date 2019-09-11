@@ -49,7 +49,7 @@ test {
 task intTest(type: Test) {
     description 'Runs Scapy Server integration testing'
     outputs.upToDateWhen { false }
-    testClassesDir = sourceSets.intTest.output.classesDir
+    testClassesDirs = sourceSets.intTest.output.classesDirs
     classpath = sourceSets.intTest.runtimeClasspath
 
     testLogging {
@@ -61,7 +61,7 @@ task intTest(type: Test) {
 task uiTest(type: Test) {
     description 'Runs UI testing(E2E)'
     outputs.upToDateWhen { false }
-    testClassesDir = sourceSets.uiTest.output.classesDir
+    testClassesDirs = sourceSets.uiTest.output.classesDirs
     classpath = sourceSets.uiTest.runtimeClasspath
 
     testLogging {
@@ -86,7 +86,7 @@ dependencies {
     testRuntime "org.testfx:openjfx-monocle:1.8.0_20"
 
     compile group: 'com.google.inject', name: 'guice', version: '4.0'
-    compile group: 'org.zeromq', name: 'jeromq', version: '0.4.0'
+    compile group: 'org.zeromq', name: 'jeromq', version: '0.5.1'
     compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
 
@@ -130,7 +130,7 @@ apply plugin: 'javafx-gradle-plugin'
 
 buildscript {
     dependencies {
-        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.7.0'
+        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.+'
     }
     repositories {
         mavenLocal()
