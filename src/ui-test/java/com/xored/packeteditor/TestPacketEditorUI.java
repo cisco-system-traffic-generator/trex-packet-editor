@@ -420,9 +420,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         // Save as template
         clickOn("#saveMenuButton");
-        interrupt(200);
-        clickOn("Save template...");
-        interrupt(200);
+        clickOn("Save as template...");
         clickOn("OK");
         Node btn = (Node)lookup("OK").query();
         if (btn != null) {
@@ -461,9 +459,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
 
         // Save as template
         clickOn("#saveMenuButton");
-        interrupt(200);
-        clickOn("Save template...");
-        interrupt(200);
+        clickOn("Save as template...");
         push(DIGIT1,DIGIT2);
         push(SLASH);
         push(DIGIT3,DIGIT4);
