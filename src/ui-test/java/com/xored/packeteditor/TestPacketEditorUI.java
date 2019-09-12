@@ -4,6 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.testfx.service.query.EmptyNodeQueryException;
 
@@ -53,6 +54,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         verifyUserModelFieldSet("#Ether-src");
     }
 
+    @Ignore
     @Test
     public void should_save_enumfield_values() {
         verifyUserModelFieldDefault("#Ether-type");
