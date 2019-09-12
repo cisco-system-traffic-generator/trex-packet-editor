@@ -5,6 +5,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import org.junit.Test;
+import org.testfx.service.query.EmptyNodeQueryException;
 
 import static javafx.scene.input.KeyCode.*;
 import static org.junit.Assume.assumeFalse;
@@ -422,9 +423,13 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         clickOn("#saveMenuButton");
         clickOn("Save as template...");
         clickOn("OK");
-        Node btn = (Node)lookup("OK").query();
-        if (btn != null) {
-            clickOn("OK");
+        try {
+            Node btn = (Node) lookup("OK").query();
+            if (btn != null) {
+                clickOn("OK");
+            }
+        }catch (EmptyNodeQueryException ex) {
+
         }
         interrupt();
 
@@ -469,9 +474,13 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         push(DIGIT7,DIGIT8);
         interrupt(200);
         clickOn("OK");
-        Node btn = (Node)lookup("OK").query();
-        if (btn != null) {
-            clickOn("OK");
+        try {
+            Node btn = (Node) lookup("OK").query();
+            if (btn != null) {
+                clickOn("OK");
+            }
+        } catch (EmptyNodeQueryException ex) {
+
         }
         interrupt();
 
