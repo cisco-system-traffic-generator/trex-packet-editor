@@ -63,7 +63,7 @@ task copyTestResources(type: Copy) {
     into "${buildDir}/classes/resources"
 }
 
-processTestResources.dependsOn copyTestResources
+processUiTestResources.dependsOn copyTestResources
 
 task uiTest(type: Test) {
     description 'Runs UI testing(E2E)'
