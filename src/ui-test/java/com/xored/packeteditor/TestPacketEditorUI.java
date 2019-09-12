@@ -283,8 +283,7 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         interrupt(200);
         clickOn("Templates");
         interrupt(200);
-        moveTo("IPv4"); // can't clickOn directly, since it will hide while mouse is moving diagonal
-        moveTo("Save as template...");
+        moveTo("ARP"); // can't clickOn directly, since it will hide while mouse is moving diagonal
         clickOn("TCP-SYN");
         interrupt(200);
 
@@ -420,9 +419,9 @@ public class TestPacketEditorUI extends TestPacketEditorUIBase {
         verifyThat("#Ether-Raw-load", hasText("22222"));
 
         // Save as template
-        clickOn("#newTemplateMenuButton");
+        clickOn("#saveMenuButton");
         moveTo("IPv4"); // can't clickOn directly, since it will hide while mouse is moving diagonal
-        clickOn("Save as template...");
+        clickOn("Save template...");
         clickOn("OK");
         Node btn = (Node)lookup("OK").query();
         if (btn != null) {
