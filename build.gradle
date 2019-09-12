@@ -60,10 +60,8 @@ task intTest(type: Test) {
 
 task copyTestResources(type: Copy) {
     from "${projectDir}/src/test/resources"
-    into "${buildDir}/classes/resources"
+    into "${buildDir}/classes/resources/test"
 }
-
-processUiTestResources.dependsOn copyTestResources
 
 task uiTest(type: Test) {
     description 'Runs UI testing(E2E)'
@@ -81,6 +79,8 @@ task uiTest(type: Test) {
         jvmArgs "-Dheadless=true"
     }
 }
+
+processUiTestResources.dependsOn copyTestResources
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:unchecked"
