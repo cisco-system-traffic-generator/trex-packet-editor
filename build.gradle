@@ -58,6 +58,11 @@ task intTest(type: Test) {
     }
 }
 
+task copyTestResources(type: Copy) {
+    from "${projectDir}/src/test/resources"
+    into "${buildDir}/classes/resources/test"
+}
+
 task uiTest(type: Test) {
     description 'Runs UI testing(E2E)'
     outputs.upToDateWhen { false }
@@ -74,6 +79,8 @@ task uiTest(type: Test) {
         jvmArgs "-Dheadless=true"
     }
 }
+
+processUiTestResources.dependsOn copyTestResources
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:unchecked"
